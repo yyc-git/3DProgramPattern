@@ -1,14 +1,14 @@
 import { IDependency1 } from "./IDependency1";
 import {
-	operate1,
+	api1,
 ...
 } from "dependencylibrary1";
 
 export let implement = (): IDependency1 => {
 	return {
-		abstractOperate1: () => {
+		abstractAPI1: () => {
 			...
-			return operate1()
+			return api1()
 	},
 		...
   }

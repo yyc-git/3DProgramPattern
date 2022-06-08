@@ -3,7 +3,7 @@ import {
 	...
 } from "three";
 
-export let createEditScene = function () {
+export let createScene = function () {
 	let scene = new Scene();
 
 	...

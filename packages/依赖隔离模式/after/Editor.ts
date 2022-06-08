@@ -5,7 +5,7 @@ export let injectDependencies = function (threeImplement: IRenderEngine) {
 	setRenderEngine(threeImplement);
 };
 
-export let createEditScene = function () {
+export let createScene = function () {
 	let { createScene, ...} = getRenderEngine()
 
 	let scene = createScene()

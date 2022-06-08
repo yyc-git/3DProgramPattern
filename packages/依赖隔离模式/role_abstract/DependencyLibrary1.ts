@@ -1,3 +1,5 @@
-export let operate1 = function () {
+export let api1 = function () {
 	...
 }
+
+...
