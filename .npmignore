@@ -1,0 +1,16 @@
+.DS_Store
+.merlin
+.idea/
+.vscode/
+reference/
+node_modules/
+mine/
+
+npm-debug
+
+.bsb.lock
+
+yarn.lock
+
+
+example/

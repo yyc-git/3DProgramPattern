@@ -1,0 +1,3 @@
+export let operate1 = function () {
+	...
+}

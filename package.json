@@ -1,0 +1,20 @@
+{
+    "name": "3dprogrampattern",
+    "private": true,
+    "scripts": {
+        "clean": "lerna clean",
+        "install": "lerna bootstrap"
+    },
+    "workspaces": [
+        "packages/*"
+    ],
+    "config": {
+        "commitizen": {
+            "path": "node_modules/cz-customizable"
+        }
+    },
+    "devDependencies": {
+        "lerna": "^4.0.0"
+    },
+    "dependencies": {}
+}
