@@ -1,6 +1,5 @@
 {
   "packages": [
-    "packages/*",
     "积木模式代码/*"
   ],
   "npmClient": "yarn",

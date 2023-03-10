@@ -1,3 +1,0 @@
-export let multiplyMatrix = (mat1, mat2) => {
-    ...
-}

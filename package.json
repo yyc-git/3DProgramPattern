@@ -3,10 +3,9 @@
     "private": true,
     "scripts": {
         "clean": "lerna clean",
-        "install": "lerna bootstrap"
+        "bootstrap": "lerna bootstrap"
     },
     "workspaces": [
-        "packages/*",
         "积木模式代码/*"
     ],
     "config": {

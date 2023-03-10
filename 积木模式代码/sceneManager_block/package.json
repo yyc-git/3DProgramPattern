@@ -1,5 +1,5 @@
 {
-  "name": "story_before",
+  "name": "sceneManager_block",
   "version": "0.0.1",
   "scripts": {
     "watch": "tsc -w -noEmit",

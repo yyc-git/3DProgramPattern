@@ -95,6 +95,9 @@ SceneManager、Render需要进行数学计算，所以需要依赖Math
 
     - 结合UML图，描述如何具体地解决问题？
 
+    TODO why need dependentBlockProtocolNameMap?
+
+
 # 主问题：提出模式
 
 
@@ -128,6 +131,10 @@ SceneManager、Render需要进行数学计算，所以需要依赖Math
     - 结合哪些模式？
     TODO 结合钩子函数
     init/update Block
+
+    TODO 结合单文件模式
+    binary file
+
     - 使用场景是什么？
     - UML如何变化？
     - 代码如何变化？

@@ -1,5 +1,5 @@
 {
-  "name": "story_before",
+  "name": "block_facade",
   "version": "0.0.1",
   "scripts": {
     "watch": "tsc -w -noEmit",

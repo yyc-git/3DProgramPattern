@@ -1,5 +1,5 @@
 {
-  "name": "story_before",
+  "name": "engine_block_protocol",
   "version": "0.0.1",
   "scripts": {
     "watch": "tsc -w -noEmit",

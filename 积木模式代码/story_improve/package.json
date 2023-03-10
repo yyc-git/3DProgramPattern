@@ -1,5 +1,5 @@
 {
-  "name": "story_before",
+  "name": "story_improve",
   "version": "0.0.1",
   "scripts": {
     "watch": "tsc -w -noEmit",
