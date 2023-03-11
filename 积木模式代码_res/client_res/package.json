@@ -1,0 +1,11 @@
+{
+  "name": "client_res",
+  "version": "0.0.1",
+  "scripts": {
+    "watch": "rescript clean && rescript build -w",
+    "client": "node lib/js/src/Client.bs.js"
+  },
+  "devDependencies": {
+    "rescript": "^10.0.1"
+  }
+}

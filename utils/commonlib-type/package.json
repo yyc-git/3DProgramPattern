@@ -1,0 +1,16 @@
+{
+    "name": "commonlib-type",
+    "version": "0.12.0",
+    "authors": "Wonder",
+    "license": "MIT",
+    "scripts": {
+        "watch": "rescript clean && rescript build -w",
+        "buildAll:ci": "rescript clean && rescript build"
+    },
+    "dependencies": {
+        "rescript": "^10.0.1"
+    },
+    "devDependencies": {
+        "gentype": "^4.4.0"
+    }
+}

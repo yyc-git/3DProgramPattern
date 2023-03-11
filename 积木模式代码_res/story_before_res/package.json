@@ -1,0 +1,10 @@
+{
+  "name": "story_before_res",
+  "version": "0.0.1",
+  "scripts": {
+    "watch": "rescript clean && rescript build -w"
+  },
+  "devDependencies": {
+    "rescript": "^10.0.1"
+  }
+}

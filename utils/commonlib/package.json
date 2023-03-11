@@ -1,0 +1,12 @@
+{
+  "name": "commonlib",
+  "version": "0.12.1",
+  "authors": "Wonder",
+  "license": "MIT",
+  "scripts": {
+    "watch": "rescript clean && rescript build -w"
+  },
+  "dependencies": {
+    "rescript": "^10.0.1"
+  }
+}
