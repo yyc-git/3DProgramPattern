@@ -1,13 +1,10 @@
 {
-  "name": "block_manager",
+  "name": "client_abstract",
   "version": "0.0.1",
   "scripts": {
     "watch": "tsc -w -noEmit",
     
     "webpack:dev-server": "NODE_ENV=development webpack-dev-server  --open 'Chrome' --config webpack.config.devserver.js"
-  },
-  "dependencies": {
-    "immutable": "^4.0.0-rc.12"
   },
   "devDependencies": {
     "typescript": "^4.2.3",

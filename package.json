@@ -6,7 +6,8 @@
         "bootstrap": "lerna bootstrap"
     },
     "workspaces": [
-        "积木模式代码/*"
+        "积木模式代码/*",
+        "积木模式抽象代码/*"
     ],
     "config": {
         "commitizen": {

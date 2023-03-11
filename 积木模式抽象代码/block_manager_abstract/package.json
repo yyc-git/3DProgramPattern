@@ -1,10 +1,13 @@
 {
-  "name": "story_improve",
+  "name": "block_manager_abstract",
   "version": "0.0.1",
   "scripts": {
     "watch": "tsc -w -noEmit",
-    "client": "ts-node src/Client.ts",
+    
     "webpack:dev-server": "NODE_ENV=development webpack-dev-server  --open 'Chrome' --config webpack.config.devserver.js"
+  },
+  "dependencies": {
+    "immutable": "^4.0.0-rc.12"
   },
   "devDependencies": {
     "typescript": "^4.2.3",
