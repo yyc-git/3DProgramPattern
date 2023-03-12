@@ -2,6 +2,8 @@
 
 - 引入故事
     - 描述故事
+
+
     - 给出代码
 
     - 给出UML
@@ -39,9 +41,18 @@
 
 - 请给出使用模式的改进方案?
     - 概述解决方案
+    Tree
     - 遵循哪些设计原则
     - 给出UML？
     - 给出代码？
+    registerPipeline
+        job order
+
+    支持异步job
+
+    concat/merge
+
+
     - 结合UML图，描述如何具体地解决问题？
 
 # 主问题：提出模式
@@ -69,12 +80,33 @@
 
 - 扩展
     - 如何扩展、推广、发散？
-    对积木进行二次扩展
 
+
+    registerPipeline
+        config
+
+    job add config json
+        e.g. clear color
+    
+
+
+    配置数据
+        pipeline json+job json
 
 
 - 结合其它模式
     - 结合哪些模式？
+
+<!-- 结合反应模式
+    异步job -->
+
+
+
+结合积木模式
+    pipeline block implement pipeline mechanism
+
+    pipeline block's contribute define pipeline
+
     - 使用场景是什么？
     - UML如何变化？
     - 代码如何变化？
@@ -91,3 +123,10 @@
 # 主问题：推荐更多资料
 
 - 推荐更多资料？
+
+FrameGraph
+https://www.google.com/search?q=frame+graph&oq=frame+graph&aqs=chrome..69i57j0i10i512l6j69i61.5234j0j7&sourceid=chrome&ie=UTF-8
+
+
+RenderGraph
+https://zhuanlan.zhihu.com/p/425830762
