@@ -97,6 +97,9 @@ SceneManager、Render需要进行数学计算，所以需要依赖Math
 
     TODO why need dependentBlockProtocolNameMap?
 
+只要协议不变，也就是ServiceType->service->getAllGameObjects类型不变，那么修改SceneManager Block->getAllGameObjects并不会影响Render Block；
+同理，只要协议不变，也就是ServiceType->service->multiplyMatrix类型不变，那么修改Math Block->multiplyMatrix并不会影响SceneManager Block和Render Block；
+
 
 # 主问题：提出模式
 
@@ -114,6 +117,8 @@ SceneManager、Render需要进行数学计算，所以需要依赖Math
 
 - 应用
     - 优点？
+方便测试
+
     - 缺点？
         - 使用场景
         - 描述场景？
@@ -123,7 +128,12 @@ SceneManager、Render需要进行数学计算，所以需要依赖Math
 
 - 扩展
     - 如何扩展、推广、发散？
-    对积木进行二次扩展
+    1.使用dependent type检查协议?
+    2.使用契约检查协议?
+    3.对积木进行二次扩展
+
+
+
 
 
 
