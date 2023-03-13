@@ -1,6 +1,6 @@
 import { state, blockProtocolName, getBlockService, api } from "./BlockManagerType"
 import { Map } from "immutable"
-import { getExnFromStrictUndefined } from "./NullableUtils"
+import { getExnFromStrictUndefined } from "commonlib-ts/src/NullableUtils"
 
 export let createState = (): state => {
     return {
