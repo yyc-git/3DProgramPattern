@@ -114,13 +114,36 @@
 
 # 主问题：给出使用模式的改进方案
 
-TODO continue
 
 - 请给出使用模式的改进方案?
     - 概述解决方案
-    Tree
+    <!-- Tree
 
-    传递state
+    传递state -->
+
+
+解决第一个问题： 如何通过可配置的JSON指定渲染中各个逻辑的执行顺序？
+
+<!-- 如何通过可配置的JSON指定渲染中各个逻辑的执行顺序？ -->
+将RenderInPC和RenderInMobile升级成两个渲染管道
+
+将其中的逻辑升级成独立的Job
+
+在渲染管道中，通过JSON来指定Job的执行顺序
+
+每个渲染管道有自己的数据pipelineState
+
+Job可以拿到每个渲染管道的数据，不过只依赖于管道数据的类型
+
+
+
+解决第二个问题： 在多人开发中，如何让每个人只独立开发自己负责的逻辑，并且能方便地将每个人实现的逻辑集成到渲染中？
+
+现在增加一个开发同学乙，负责实现RenderInMobile管道的前向渲染、Tonemap的Job
+甲负责实现RenderInPC管道的所有Job，以及RenderInMobile管道的初始化WebGL1
+
+这里需要实现的是能够将甲、乙开发的两个RenderInMobile管道合并为一个RenderInMobile管道。其中乙实现的两个Job应该在甲实现的Job之后执行，并且乙的Job需要读甲的管道数据：WebGL1的上下文
+
 
     - 遵循哪些设计原则
     - 给出UML？

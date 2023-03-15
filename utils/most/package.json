@@ -1,0 +1,14 @@
+{
+  "name": "most",
+  "version": "0.0.1",
+  "scripts": {
+    "watch": "rescript clean && rescript build -w"
+  },
+  "dependencies": {
+    "most": "1.7.0",
+    "most-subject": "^5.3.0",
+    "rescript": "^10.0.1"
+  },
+  "devDependencies": {
+  }
+}

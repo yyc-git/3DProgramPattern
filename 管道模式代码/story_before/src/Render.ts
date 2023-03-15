@@ -2,9 +2,9 @@ import { state } from "./RenderStateType"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 
 let _isPC = () => {
-    console.log("PC")
+    console.log(globalThis.isPC ? "is PC" : "is mobile")
 
-    return true
+    return globalThis.isPC
 }
 
 let _initWebGL = (state, canvas) => {

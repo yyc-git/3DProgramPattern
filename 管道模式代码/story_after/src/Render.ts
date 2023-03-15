@@ -3,9 +3,9 @@ import { render as renderInPC } from "./RenderInPC"
 import { render as renderInMobile } from "./RenderInMobile"
 
 let _isPC = () => {
-    console.log("PC")
+    console.log(globalThis.isPC ? "is PC" : "is mobile")
 
-    return true
+    return globalThis.isPC
 }
 
 export let createState = (): state => {
