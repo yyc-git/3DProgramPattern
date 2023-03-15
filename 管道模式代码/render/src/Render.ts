@@ -1,5 +1,5 @@
 import { state } from "./RenderStateType"
-import { state as renderPipelineState } from "pipeline_manager/src/type/StateType"
+import { state as pipelineState } from "pipeline_manager/src/type/StateType"
 import { createState as createPipelineManagerState, registerPipeline, runPipeline } from "pipeline_manager"
 import { getPipeline as getRenderInPCPipeline } from "renderInPC_pipeline/src/Main"
 import { getPipeline as getJiaRenderInMobilePipeline } from "jia_renderInMobile_pipeline/src/Main"
@@ -19,7 +19,7 @@ export let createState = (): state => {
     }
 }
 
-export let init = (state: state) => {
+export let registerAllPipelines = (state: state) => {
     if (_isPC()) {
         let renderPipelineState = registerPipeline(
             state.renderPipelineState,
@@ -60,28 +60,31 @@ export let init = (state: state) => {
 }
 
 let _runPipeline = (
-    state: state,
+    pipelineState: pipelineState,
     pipelineName: string
-): Promise<state> => {
-    let tempPipelineState: renderPipelineState | null = null
+): Promise<pipelineState> => {
+    let tempPipelineState: pipelineState | null = null
 
     return mostService.map(
-        (renderPipelineState: renderPipelineState) => {
-            tempPipelineState = renderPipelineState
+        (pipelineState: pipelineState) => {
+            tempPipelineState = pipelineState
 
-            return renderPipelineState
+            return pipelineState
         },
-        runPipeline(state.renderPipelineState, pipelineName)
+        runPipeline(pipelineState, pipelineName)
     ).drain().then((_) => {
-        return {
-            ...state,
-            renderPipelineState: getExnFromStrictNull(tempPipelineState)
-        }
+        return getExnFromStrictNull(tempPipelineState)
     })
 }
 
 export let render = (state: state, canvas) => {
     globalThis.canvas = canvas
 
-    return _runPipeline(state, "render")
+    return _runPipeline(state.renderPipelineState, "render")
+        .then((renderPipelineState) => {
+            return {
+                ...state,
+                renderPipelineState: renderPipelineState
+            }
+        })
 }

@@ -1,4 +1,4 @@
-import { createState, init, render } from "render/src/Render"
+import { createState, registerAllPipelines, render } from "render/src/Render"
 
 //假canvas
 let canvas = {
@@ -11,7 +11,7 @@ globalThis.isPC = false
 
 let renderState = createState()
 
-renderState = init(renderState)
+renderState = registerAllPipelines(renderState)
 
 render(renderState, canvas).then(newRenderState => {
     // console.log(JSON.stringify(newRenderState), renderState)

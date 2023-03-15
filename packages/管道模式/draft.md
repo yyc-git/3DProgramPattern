@@ -142,7 +142,7 @@ Job可以拿到每个渲染管道的数据，不过只依赖于管道数据的�
 现在增加一个开发同学乙，负责实现RenderInMobile管道的前向渲染、Tonemap的Job
 甲负责实现RenderInPC管道的所有Job，以及RenderInMobile管道的初始化WebGL1
 
-这里需要实现的是能够将甲、乙开发的两个RenderInMobile管道合并为一个RenderInMobile管道。其中乙实现的两个Job应该在甲实现的Job之后执行，并且乙的Job需要读甲的管道数据：WebGL1的上下文
+这里需要实现的是能够合并甲、乙开发的同属于RenderInMobile管道的两个子管道。其中乙实现的两个Job应该在甲实现的Job之后执行，并且乙的Job需要读甲的子管道数据：WebGL1的上下文
 
 
     - 遵循哪些设计原则
