@@ -1,3 +1,6 @@
 * DONE change to rescript
 
 # * TODO use english comment instead of chinese comment
+
+
+* TODO give how to run code and run result for each example
