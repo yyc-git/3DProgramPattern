@@ -43,33 +43,44 @@ System provide:
 
 
 
+<!-- Hero = GameObject + PositionComponent + VelocityComponent + WingComponent + InstanceComponent -->
 
+
+TODO remove dispose
 
 
 1.a big module:Hero
 
-HeroWorld
-LogicWorld
+<!-- HeroWorld -->
+<!-- LogicWorld
+    update all
 RenderWorld
     drawOneByOne
-    drawInstances
+    drawInstances -->
 
-Abstract World:
+<!-- Abstract World:
 <!-- update -->
-tick
+tick -->
+
+World
 
 
 
 NormalHero
 update
+    update position
 move
+
+draw instance
 
 
 SuperHero
 update
+    update position
 move
 fly
 
+draw one by one
 
 
 2.component pattern
@@ -84,7 +95,7 @@ id
 
 WingComponent
 <!-- -flySpeed -->
-maxFlyHeight
+maxVelocity
 
 fly
     need get and update other two components
@@ -174,10 +185,15 @@ batch logic of the component:
 
 
 
+System->Manager
+
 
 MoveSystem:P,V
 
 FlySystem:P,V,W
+
+
+RenderXxxSystem: gameObjects
 
 RenderOneByOneSystem:all without InstanceComponent
 RenderInstancesSystem:all
@@ -200,6 +216,7 @@ RenderInstancesSystem:all
 
 - 请给出直接的解决方案?
     - 概述解决方案？
+    Add SuperHero
     - 给出UML？
     - 给出代码？
     - 结合UML图，描述如何具体地解决问题？
@@ -209,6 +226,10 @@ RenderInstancesSystem:all
 
 - 请分析存在的问题?
 - 提出改进方向？
+
+duplicate code:
+update
+move
 
 
 # 主问题：给出可能的改进方案
