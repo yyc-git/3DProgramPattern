@@ -43,7 +43,7 @@ System provide:
 
 
 
-<!-- Hero = GameObject + PositionComponent + VelocityComponent + WingComponent + InstanceComponent -->
+<!-- Hero = GameObject + PositionComponent + VelocityComponent + FlyComponent + InstanceComponent -->
 
 
 TODO remove dispose
@@ -85,15 +85,14 @@ draw one by one
 
 2.component pattern
 
-<!-- Hero = GameObject + PositionComponent + VelocityComponent + RenderComponent -->
-Hero = GameObject + PositionComponent + VelocityComponent + WingComponent + InstanceComponent
+Hero = GameObject + PositionComponent + VelocityComponent + FlyComponent + InstanceComponent
 
 id
 
 
 
 
-WingComponent
+FlyComponent
 <!-- -flySpeed -->
 maxVelocity
 
@@ -120,8 +119,8 @@ forEach
 
 
 
-NormalHero = no WingComponent
-SuperHero = with WingComponent
+NormalHero = no FlyComponent
+SuperHero = with FlyComponent
 
 
 3. ECS pattern
@@ -148,7 +147,7 @@ batch operate multiple kinds of Component
 
 
 
-<!-- Hero = GameObject + PositionComponent + VelocityComponent + WingComponent -->
+<!-- Hero = GameObject + PositionComponent + VelocityComponent + FlyComponent -->
 
 GameObject
 id
@@ -240,6 +239,17 @@ move
     - 给出代码？
     - 结合UML图，描述如何具体地解决问题？
 
+
+# 主问题：分析存在的问题
+
+- 请分析存在的问题?
+数据分散，性能不行
+
+有空的update函数
+
+如果一个函数需要同时更新两个组件的数据，那么该函数不知道是应该放在哪个函数中？
+
+- 提出改进方向？
 
 
 # 主问题：给出使用模式的改进方案
