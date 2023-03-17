@@ -8,5 +8,8 @@
   "devDependencies": {
     "typescript": "^4.2.3",
     "ts-node": "^10.9.1"
+  },
+  "dependencies": {
+    "immutable": "^4.0.0-rc.12"
   }
 }

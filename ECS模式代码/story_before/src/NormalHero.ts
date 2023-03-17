@@ -1,18 +1,16 @@
+import { generateId } from "./IdUtils";
 import { state as normalHeroState, hero as normalHero } from "./NormalHeroStateType";
 import { state as worldState } from "./WorldStateType";
 
-let _getNormalHeroState = (worldState: worldState, normalHero: normalHero) => {
-    return worldState.normalHeros[normalHero]
+let _getNormalHeroState = (worldState: worldState, normalHero: normalHero): normalHeroState => {
+    return worldState.normalHeros.get(normalHero)
 }
 
 
 let _setNormalHeroState = (worldState: worldState, normalHero: normalHero, normalHeroState: normalHeroState) => {
-    let normalHeros = worldState.normalHeros.slice()
-    normalHeros[normalHero] = normalHeroState
-
     return {
         ...worldState,
-        normalHeros: normalHeros
+        normalHeros: worldState.normalHeros.set(normalHero, normalHeroState)
     }
 }
 
@@ -22,7 +20,7 @@ export let create = (worldState: worldState): [worldState, normalHero] => {
         velocity: 1.0
     }
 
-    let id = worldState.normalHeros.length
+    let id = generateId()
 
     return [
         _setNormalHeroState(worldState, id, normalHeroState),

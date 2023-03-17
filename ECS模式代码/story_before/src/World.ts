@@ -1,11 +1,12 @@
 import { state as worldState } from "./WorldStateType";
 import { update as updateNormalHero } from "./NormalHero"
 import { update as updateSuperHero } from "./SuperHero"
+import { Map } from "immutable"
 
 export let createState = (): worldState => {
     return {
-        normalHeros: [],
-        superHeros: []
+        normalHeros: Map(),
+        superHeros: Map()
     }
 }
 

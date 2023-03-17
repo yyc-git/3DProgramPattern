@@ -1,18 +1,16 @@
+import { generateId } from "./IdUtils";
 import { state as superHeroState, hero as superHero } from "./SuperHeroStateType";
 import { state as worldState } from "./WorldStateType";
 
-let _getSuperHeroState = (worldState: worldState, superHero: superHero) => {
-    return worldState.superHeros[superHero]
+let _getSuperHeroState = (worldState: worldState, superHero: superHero): superHeroState => {
+    return worldState.superHeros.get(superHero)
 }
 
 
 let _setSuperHeroState = (worldState: worldState, superHero: superHero, superHeroState: superHeroState) => {
-    let superHeros = worldState.superHeros.slice()
-    superHeros[superHero] = superHeroState
-
     return {
         ...worldState,
-        superHeros: superHeros
+        superHeros: worldState.superHeros.set(superHero, superHeroState)
     }
 }
 
@@ -23,7 +21,7 @@ export let create = (worldState: worldState): [worldState, superHero] => {
         maxFlyVelocity: 2.0
     }
 
-    let id = worldState.superHeros.length
+    let id = generateId()
 
     return [
         _setSuperHeroState(worldState, id, superHeroState),
