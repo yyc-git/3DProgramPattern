@@ -26,10 +26,6 @@ export let setMaxVelocity = (flyComponentState: flyComponentState, maxVelocity) 
     }
 }
 
-export let update = (flyComponentState: flyComponentState): flyComponentState => {
-    return flyComponentState
-}
-
 export let fly = (worldState: worldState, flyComponentState: flyComponentState): worldState => {
     let maxVelocity = flyComponentState.maxVelocity
 

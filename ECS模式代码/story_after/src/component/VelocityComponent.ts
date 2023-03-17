@@ -12,7 +12,3 @@ export let create = (): velocityComponentState => {
 export let getVelocity = (velocityComponentState: velocityComponentState) => {
     return velocityComponentState.velocity
 }
-
-export let update = (velocityComponentState: velocityComponentState): velocityComponentState => {
-    return velocityComponentState
-}

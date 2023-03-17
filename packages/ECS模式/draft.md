@@ -125,6 +125,8 @@ SuperHero = with FlyComponent
 
 3. ECS pattern
 
+TODO add code
+TODO remove Manager
 
 Entity
 id
@@ -245,7 +247,7 @@ move
 - 请分析存在的问题?
 数据分散，性能不行
 
-有空的update函数
+<!-- 有空的update函数 -->
 
 如果一个函数需要同时更新两个组件的数据，那么该函数不知道是应该放在哪个函数中？
 

@@ -1,9 +1,6 @@
 import { Map } from "immutable"
 import { update as updatePositionComponent } from "../component/PositionComponent";
-import { update as updateVelocityComponent } from "../component/VelocityComponent";
-import { update as updateFlyComponent } from "../component/FlyComponent";
-import { update as updateInstanceComponent } from "../component/InstanceComponent";
-import { getFlyComponentExn, getInstanceComponentExn, getPositionComponentExn, getVelocityComponentExn, hasFlyComponent, hasInstanceComponent, hasPositionComponent, hasVelocityComponent } from "../gameObject/GameObject";
+import { getPositionComponentExn, hasInstanceComponent, hasPositionComponent } from "../gameObject/GameObject";
 import { state as worldState } from "./WorldStateType";
 
 export let createState = (): worldState => {
@@ -27,24 +24,6 @@ let _update = (worldState: worldState): worldState => {
                 gameObjectState = {
                     ...gameObjectState,
                     positionComponent: updatePositionComponent(getPositionComponentExn(gameObjectState))
-                }
-            }
-            if (hasVelocityComponent(gameObjectState)) {
-                gameObjectState = {
-                    ...gameObjectState,
-                    velocityComponent: updateVelocityComponent(getVelocityComponentExn(gameObjectState))
-                }
-            }
-            if (hasFlyComponent(gameObjectState)) {
-                gameObjectState = {
-                    ...gameObjectState,
-                    flyComponent: updateFlyComponent(getFlyComponentExn(gameObjectState))
-                }
-            }
-            if (hasInstanceComponent(gameObjectState)) {
-                gameObjectState = {
-                    ...gameObjectState,
-                    instanceComponent: updateInstanceComponent(getInstanceComponentExn(gameObjectState))
                 }
             }
 

@@ -7,7 +7,3 @@ export let create = (): instanceComponentState => {
 
     return instanceComponentState
 }
-
-export let update = (instanceComponentState: instanceComponentState): instanceComponentState => {
-    return instanceComponentState
-}
