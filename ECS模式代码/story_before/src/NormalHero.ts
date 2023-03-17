@@ -1,20 +1,9 @@
 import { generateId } from "./IdUtils";
 import { state as normalHeroState, hero as normalHero } from "./NormalHeroStateType";
 import { state as worldState } from "./WorldStateType";
+import { getNormalHeroState, setNormalHeroState } from "./WorldUtils";
 
-let _getNormalHeroState = (worldState: worldState, normalHero: normalHero): normalHeroState => {
-    return worldState.normalHeros.get(normalHero)
-}
-
-
-let _setNormalHeroState = (worldState: worldState, normalHero: normalHero, normalHeroState: normalHeroState) => {
-    return {
-        ...worldState,
-        normalHeros: worldState.normalHeros.set(normalHero, normalHeroState)
-    }
-}
-
-export let create = (worldState: worldState): [worldState, normalHero] => {
+export let create = (): [normalHeroState, normalHero] => {
     let normalHeroState: normalHeroState = {
         position: [0, 0, 0],
         velocity: 1.0
@@ -23,7 +12,7 @@ export let create = (worldState: worldState): [worldState, normalHero] => {
     let id = generateId()
 
     return [
-        _setNormalHeroState(worldState, id, normalHeroState),
+        normalHeroState,
         id
     ]
 }
@@ -43,13 +32,13 @@ export let update = (normalHeroState: normalHeroState): normalHeroState => {
 }
 
 export let move = (worldState: worldState, normalHero: normalHero): worldState => {
-    let normalHeroState = _getNormalHeroState(worldState, normalHero)
+    let normalHeroState = getNormalHeroState(worldState, normalHero)
 
     let { position, velocity } = normalHeroState
 
     let [x, y, z] = position
 
-    return _setNormalHeroState(worldState, normalHero,
+    return setNormalHeroState(worldState, normalHero,
         {
             ...normalHeroState,
             position: [x + velocity, y + velocity, z + velocity]

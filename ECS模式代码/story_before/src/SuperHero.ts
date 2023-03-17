@@ -1,20 +1,9 @@
 import { generateId } from "./IdUtils";
 import { state as superHeroState, hero as superHero } from "./SuperHeroStateType";
 import { state as worldState } from "./WorldStateType";
+import { getSuperHeroState, setSuperHeroState } from "./WorldUtils";
 
-let _getSuperHeroState = (worldState: worldState, superHero: superHero): superHeroState => {
-    return worldState.superHeros.get(superHero)
-}
-
-
-let _setSuperHeroState = (worldState: worldState, superHero: superHero, superHeroState: superHeroState) => {
-    return {
-        ...worldState,
-        superHeros: worldState.superHeros.set(superHero, superHeroState)
-    }
-}
-
-export let create = (worldState: worldState): [worldState, superHero] => {
+export let create = (): [superHeroState, superHero] => {
     let superHeroState: superHeroState = {
         position: [0, 0, 0],
         velocity: 1.0,
@@ -24,7 +13,7 @@ export let create = (worldState: worldState): [worldState, superHero] => {
     let id = generateId()
 
     return [
-        _setSuperHeroState(worldState, id, superHeroState),
+        superHeroState,
         id
     ]
 }
@@ -44,13 +33,13 @@ export let update = (superHeroState: superHeroState): superHeroState => {
 }
 
 export let move = (worldState: worldState, superHero: superHero): worldState => {
-    let superHeroState = _getSuperHeroState(worldState, superHero)
+    let superHeroState = getSuperHeroState(worldState, superHero)
 
     let { position, velocity } = superHeroState
 
     let [x, y, z] = position
 
-    return _setSuperHeroState(worldState, superHero,
+    return setSuperHeroState(worldState, superHero,
         {
             ...superHeroState,
             position: [x + velocity, y + velocity, z + velocity]
@@ -59,7 +48,7 @@ export let move = (worldState: worldState, superHero: superHero): worldState => 
 }
 
 export let fly = (worldState: worldState, superHero: superHero): worldState => {
-    let superHeroState = _getSuperHeroState(worldState, superHero)
+    let superHeroState = getSuperHeroState(worldState, superHero)
 
     let { position, velocity, maxFlyVelocity } = superHeroState
 
@@ -67,7 +56,7 @@ export let fly = (worldState: worldState, superHero: superHero): worldState => {
 
     velocity = velocity < maxFlyVelocity ? velocity : maxFlyVelocity
 
-    return _setSuperHeroState(worldState, superHero,
+    return setSuperHeroState(worldState, superHero,
         {
             ...superHeroState,
             position: [x + velocity, y + velocity, z + velocity]

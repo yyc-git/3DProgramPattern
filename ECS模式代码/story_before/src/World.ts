@@ -2,12 +2,21 @@ import { state as worldState } from "./WorldStateType";
 import { update as updateNormalHero } from "./NormalHero"
 import { update as updateSuperHero } from "./SuperHero"
 import { Map } from "immutable"
+import { setNormalHeroState, setSuperHeroState } from "./WorldUtils";
 
 export let createState = (): worldState => {
     return {
         normalHeros: Map(),
         superHeros: Map()
     }
+}
+
+export let addNormalHero = (worldState: worldState, [normalHeroState, normalHero]): worldState => {
+    return setNormalHeroState(worldState, normalHero, normalHeroState)
+}
+
+export let addSuperHero = (worldState: worldState, [superHeroState, superHero]): worldState => {
+    return setSuperHeroState(worldState, superHero, superHeroState)
 }
 
 let _update = (worldState: worldState): worldState => {
@@ -50,7 +59,7 @@ export let loop = (worldState: worldState) => {
     _renderOneByOne(worldState)
     _renderInstances(worldState)
 
-    // console.log(JSON.stringify(worldState))
+    console.log(JSON.stringify(worldState))
 
     requestAnimationFrame(
         (time) => {
