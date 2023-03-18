@@ -234,6 +234,9 @@ move
 
 - 请给出可能的改进方案?
     - 概述解决方案？
+    组件化
+
+
     - 给出UML ？
     - 给出代码？
     - 结合UML图，描述如何具体地解决问题？
@@ -255,6 +258,8 @@ move
 
 - 请给出使用模式的改进方案?
     - 概述解决方案
+
+    Data Oriented
 
 
 TODO 讨论：
@@ -282,7 +287,6 @@ GameObjectManager?
     - 分析角色？
     - 角色之间的关系？
     - 角色的抽象代码？
-    TODO give two values in buffer operate:BufferXxxUtils.ts
     - 遵循的设计原则在UML中的体现？
 
 
@@ -297,7 +301,6 @@ GameObjectManager?
 
 - 扩展
     - 如何扩展、推广、发散？
-    对积木进行二次扩展
 
 
 
@@ -325,3 +328,24 @@ GameObjectManager?
 # 主问题：推荐更多资料
 
 - 推荐更多资料？
+
+
+组件化：
+
+[组件模式](https://gpp.tkchu.me/component.html)
+[Component based game engine design](https://stackoverflow.com/questions/1901251/component-based-game-engine-design/3495647#3495647)
+[Understanding Component-Entity-Systems](https://www.gamedev.net/tutorials/_/technical/game-programming/understanding-component-entity-systems-r3013/)
+[组件化开发在游戏开发当中的思考和汇总](https://www.cnblogs.com/flashbird/p/4420426.html)
+
+Data Oriented:
+
+[Building a Data-Oriented Entity System (part 1)](http://bitsquid.blogspot.com/2014/08/building-data-oriented-entity-system.html)
+[数据局部性](https://gpp.tkchu.me/data-locality.html)
+[Adventures in data-oriented design – Part 1: Mesh data](https://blog.molecular-matters.com/2011/11/03/adventures-in-data-oriented-design-part-1-mesh-data-3/)
+[Data-Oriented Design](https://www.dataorienteddesign.com/dodmain/dodmain.html)
+[Developing a Data-Oriented Game Engine (Part 1)](http://danielsefton.com/2016/05/developing-a-data-oriented-game-engine-part-1/)
+
+
+ECS:
+
+[《《守望先锋》架构设计和网络同步》](https://www.lfzxb.top/ow-gdc-gameplay-architecture-and-netcode/)
