@@ -2,9 +2,9 @@ import { api, addGameObject, createState, init, loop } from "./world/World";
 import { state as worldState } from "./world/WorldStateType";
 
 let _createScene = (worldState: worldState): worldState => {
-    let normalHeroData1 = api.gameObject.create()
-    let normalHero1State = normalHeroData1[0]
-    let normalHero1 = normalHeroData1[1]
+    let normalHero1Data = api.gameObject.create()
+    let normalHero1State = normalHero1Data[0]
+    let normalHero1 = normalHero1Data[1]
 
     let positionComponent1 = api.positionComponent.create()
     let velocityComponent1 = api.velocityComponent.create()
@@ -17,9 +17,9 @@ let _createScene = (worldState: worldState): worldState => {
     worldState = addGameObject(worldState, [normalHero1State, normalHero1])
 
 
-    let normalHeroData2 = api.gameObject.create()
-    let normalHero2State = normalHeroData2[0]
-    let normalHero2 = normalHeroData2[1]
+    let normalHero2Data = api.gameObject.create()
+    let normalHero2State = normalHero2Data[0]
+    let normalHero2 = normalHero2Data[1]
 
     let positionComponent2 = api.positionComponent.create()
     let velocityComponent2 = api.velocityComponent.create()
@@ -36,9 +36,9 @@ let _createScene = (worldState: worldState): worldState => {
 
 
 
-    let superHeroData1 = api.gameObject.create()
-    let superHero1State = superHeroData1[0]
-    let superHero1 = superHeroData1[1]
+    let superHero1Data = api.gameObject.create()
+    let superHero1State = superHero1Data[0]
+    let superHero1 = superHero1Data[1]
 
     let positionComponent3 = api.positionComponent.create()
     let velocityComponent3 = api.velocityComponent.create()
@@ -51,9 +51,9 @@ let _createScene = (worldState: worldState): worldState => {
     worldState = addGameObject(worldState, [superHero1State, superHero1])
 
 
-    let superHeroData2 = api.gameObject.create()
-    let superHero2State = superHeroData2[0]
-    let superHero2 = superHeroData2[1]
+    let superHero2Data = api.gameObject.create()
+    let superHero2State = superHero2Data[0]
+    let superHero2 = superHero2Data[1]
 
     let positionComponent4 = api.positionComponent.create()
     let velocityComponent4 = api.velocityComponent.create()

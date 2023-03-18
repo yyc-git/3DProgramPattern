@@ -3,19 +3,19 @@ import { createState, init, loop, move, fly } from "./world/World";
 import { state as worldState } from "./world/WorldStateType";
 
 let _createScene = (worldState: worldState): worldState => {
-    let normalHeroData1 = createGameObject(worldState)
-    worldState = normalHeroData1[0]
-    let normalHero1 = normalHeroData1[1]
+    let normalHero1Data = createGameObject(worldState)
+    worldState = normalHero1Data[0]
+    let normalHero1 = normalHero1Data[1]
 
-    let positionComponentData1 = createPositionComponent(worldState)
-    worldState = positionComponentData1[0]
-    let positionComponent1 = positionComponentData1[1]
-    let velocityComponentData1 = createVelocityComponent(worldState)
-    let velocityComponent1 = velocityComponentData1[1]
-    worldState = velocityComponentData1[0]
-    let instanceComponentData1 = createInstanceComponent(worldState)
-    let instanceComponent1 = instanceComponentData1[1]
-    worldState = velocityComponentData1[0]
+    let positionComponent1Data = createPositionComponent(worldState)
+    worldState = positionComponent1Data[0]
+    let positionComponent1 = positionComponent1Data[1]
+    let velocityComponent1Data = createVelocityComponent(worldState)
+    let velocityComponent1 = velocityComponent1Data[1]
+    worldState = velocityComponent1Data[0]
+    let instanceComponent1Data = createInstanceComponent(worldState)
+    let instanceComponent1 = instanceComponent1Data[1]
+    worldState = velocityComponent1Data[0]
 
     worldState = setPositionComponent(worldState, normalHero1, positionComponent1)
     worldState = setVelocityComponent(worldState, normalHero1, velocityComponent1)
@@ -23,19 +23,19 @@ let _createScene = (worldState: worldState): worldState => {
 
 
 
-    let normalHeroData2 = createGameObject(worldState)
-    worldState = normalHeroData2[0]
-    let normalHero2 = normalHeroData2[1]
+    let normalHero2Data = createGameObject(worldState)
+    worldState = normalHero2Data[0]
+    let normalHero2 = normalHero2Data[1]
 
-    let positionComponentData2 = createPositionComponent(worldState)
-    worldState = positionComponentData2[0]
-    let positionComponent2 = positionComponentData2[1]
-    let velocityComponentData2 = createVelocityComponent(worldState)
-    let velocityComponent2 = velocityComponentData2[1]
-    worldState = velocityComponentData2[0]
-    let instanceComponentData2 = createInstanceComponent(worldState)
-    let instanceComponent2 = instanceComponentData2[1]
-    worldState = velocityComponentData2[0]
+    let positionComponent2Data = createPositionComponent(worldState)
+    worldState = positionComponent2Data[0]
+    let positionComponent2 = positionComponent2Data[1]
+    let velocityComponent2Data = createVelocityComponent(worldState)
+    let velocityComponent2 = velocityComponent2Data[1]
+    worldState = velocityComponent2Data[0]
+    let instanceComponent2Data = createInstanceComponent(worldState)
+    let instanceComponent2 = instanceComponent2Data[1]
+    worldState = velocityComponent2Data[0]
 
     worldState = setPositionComponent(worldState, normalHero2, positionComponent2)
     worldState = setVelocityComponent(worldState, normalHero2, velocityComponent2)
@@ -47,19 +47,19 @@ let _createScene = (worldState: worldState): worldState => {
 
 
 
-    let superHeroData1 = createGameObject(worldState)
-    worldState = superHeroData1[0]
-    let superHero1 = superHeroData1[1]
+    let superHero1Data = createGameObject(worldState)
+    worldState = superHero1Data[0]
+    let superHero1 = superHero1Data[1]
 
-    let positionComponentData3 = createPositionComponent(worldState)
-    worldState = positionComponentData3[0]
-    let positionComponent3 = positionComponentData3[1]
-    let velocityComponentData3 = createVelocityComponent(worldState)
-    let velocityComponent3 = velocityComponentData3[1]
-    worldState = velocityComponentData3[0]
-    let flyComponentData1 = createFlyComponent(worldState)
-    let flyComponent1 = flyComponentData1[1]
-    worldState = velocityComponentData3[0]
+    let positionComponent3Data = createPositionComponent(worldState)
+    worldState = positionComponent3Data[0]
+    let positionComponent3 = positionComponent3Data[1]
+    let velocityComponent3Data = createVelocityComponent(worldState)
+    let velocityComponent3 = velocityComponent3Data[1]
+    worldState = velocityComponent3Data[0]
+    let flyComponent1Data = createFlyComponent(worldState)
+    let flyComponent1 = flyComponent1Data[1]
+    worldState = velocityComponent3Data[0]
 
     worldState = setPositionComponent(worldState, superHero1, positionComponent3)
     worldState = setVelocityComponent(worldState, superHero1, velocityComponent3)
@@ -67,19 +67,19 @@ let _createScene = (worldState: worldState): worldState => {
 
 
 
-    let superHeroData2 = createGameObject(worldState)
-    worldState = superHeroData2[0]
-    let superHero2 = superHeroData2[1]
+    let superHero2Data = createGameObject(worldState)
+    worldState = superHero2Data[0]
+    let superHero2 = superHero2Data[1]
 
-    let positionComponentData4 = createPositionComponent(worldState)
-    worldState = positionComponentData4[0]
-    let positionComponent4 = positionComponentData4[1]
-    let velocityComponentData4 = createVelocityComponent(worldState)
-    let velocityComponent4 = velocityComponentData4[1]
-    worldState = velocityComponentData4[0]
-    let flyComponentData2 = createFlyComponent(worldState)
-    let flyComponent2 = flyComponentData2[1]
-    worldState = velocityComponentData4[0]
+    let positionComponent4Data = createPositionComponent(worldState)
+    worldState = positionComponent4Data[0]
+    let positionComponent4 = positionComponent4Data[1]
+    let velocityComponent4Data = createVelocityComponent(worldState)
+    let velocityComponent4 = velocityComponent4Data[1]
+    worldState = velocityComponent4Data[0]
+    let flyComponent2Data = createFlyComponent(worldState)
+    let flyComponent2 = flyComponent2Data[1]
+    worldState = velocityComponent4Data[0]
 
     worldState = setPositionComponent(worldState, superHero2, positionComponent4)
     worldState = setVelocityComponent(worldState, superHero2, velocityComponent4)

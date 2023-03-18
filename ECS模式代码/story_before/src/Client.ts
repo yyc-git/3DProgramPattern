@@ -2,29 +2,29 @@ import { api, addNormalHero, addSuperHero, createState, init, loop } from "./Wor
 import { state as worldState } from "./WorldStateType";
 
 let _createScene = (worldState: worldState): worldState => {
-    let normalHeroData1 = api.normalHero.create()
-    let normalHero1 = normalHeroData1[1]
+    let normalHero1Data = api.normalHero.create()
+    let normalHero1 = normalHero1Data[1]
 
-    worldState = addNormalHero(worldState, normalHeroData1)
+    worldState = addNormalHero(worldState, normalHero1Data)
 
-    let normalHeroData2 = api.normalHero.create()
-    let normalHero2 = normalHeroData2[1]
+    let normalHero2Data = api.normalHero.create()
+    let normalHero2 = normalHero2Data[1]
 
-    worldState = addNormalHero(worldState, normalHeroData2)
+    worldState = addNormalHero(worldState, normalHero2Data)
 
 
     worldState = api.normalHero.move(worldState, normalHero1)
 
 
-    let superHeroData1 = api.superHero.create()
-    let superHero1 = superHeroData1[1]
+    let superHero1Data = api.superHero.create()
+    let superHero1 = superHero1Data[1]
 
-    worldState = addSuperHero(worldState, superHeroData1)
+    worldState = addSuperHero(worldState, superHero1Data)
 
-    let superHeroData2 = api.superHero.create()
-    let superHero2 = superHeroData2[1]
+    let superHero2Data = api.superHero.create()
+    let superHero2 = superHero2Data[1]
 
-    worldState = addSuperHero(worldState, superHeroData2)
+    worldState = addSuperHero(worldState, superHero2Data)
 
 
     worldState = api.superHero.move(worldState, superHero1)

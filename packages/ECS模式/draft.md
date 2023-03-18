@@ -125,9 +125,6 @@ SuperHero = with FlyComponent
 
 3. ECS pattern
 
-TODO add code
-TODO remove Manager
-
 Entity
 id
 
@@ -258,8 +255,19 @@ move
 
 - 请给出使用模式的改进方案?
     - 概述解决方案
+
+
+TODO 讨论：
+where to put add/getComponent for gameObject logic?
+ComponentManager? yes
+GameObjectManager?
+
+
     - 遵循哪些设计原则
     - 给出UML？
+    VelocityComponentManager, FlyComponentManager与PositionComponentManager类似（但是没有batchUpdate函数），故省略它们的数据和函数
+
+
     - 给出代码？
     - 结合UML图，描述如何具体地解决问题？
 
@@ -274,6 +282,7 @@ move
     - 分析角色？
     - 角色之间的关系？
     - 角色的抽象代码？
+    TODO give two values in buffer operate:BufferXxxUtils.ts
     - 遵循的设计原则在UML中的体现？
 
 
