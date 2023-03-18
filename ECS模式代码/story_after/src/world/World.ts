@@ -1,7 +1,13 @@
 import { Map } from "immutable"
 import { update as updatePositionComponent } from "../component/PositionComponent";
-import { getPositionComponentExn, hasInstanceComponent, hasPositionComponent } from "../gameObject/GameObject";
+// import { getPositionComponentExn, hasInstanceComponent, hasPositionComponent } from "../gameObject/GameObject";
 import { state as worldState } from "./WorldStateType";
+import { create as createPositionComponent, move } from "../component/PositionComponent";
+import { create as createVelocityComponent } from "../component/VelocityComponent";
+import { create as createFlyComponent, fly } from "../component/FlyComponent";
+import { create as createInstanceComponent } from "../component/InstanceComponent";
+import { create as createGameObject, setPositionComponent, setFlyComponent, setVelocityComponent, setInstanceComponent, getPositionComponentExn, getFlyComponentExn, hasPositionComponent, hasInstanceComponent } from "../gameObject/GameObject";
+import { getGameObjectStateExn } from "../utils/WorldUtils";
 
 export let createState = (): worldState => {
     return {
@@ -74,4 +80,36 @@ export let loop = (worldState: worldState) => {
             loop(worldState)
         }
     )
+}
+
+export let api = {
+    gameObject: {
+        create: createGameObject,
+        setPositionComponent,
+        setFlyComponent,
+        setVelocityComponent,
+        setInstanceComponent
+    },
+    positionComponent: {
+        create: createPositionComponent,
+        move: (worldState: worldState, gameObject): worldState => {
+            return move(worldState, getPositionComponentExn(
+                getGameObjectStateExn(worldState, gameObject)
+            ))
+        }
+    },
+    velocityComponent: {
+        create: createVelocityComponent
+    },
+    flyComponent: {
+        create: createFlyComponent,
+        fly: (worldState: worldState, gameObject): worldState => {
+            return fly(worldState, getFlyComponentExn(
+                getGameObjectStateExn(worldState, gameObject)
+            ))
+        }
+    },
+    instanceComponent: {
+        create: createInstanceComponent
+    },
 }

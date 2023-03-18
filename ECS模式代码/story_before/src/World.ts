@@ -1,6 +1,8 @@
 import { state as worldState } from "./WorldStateType";
-import { update as updateNormalHero } from "./NormalHero"
-import { update as updateSuperHero } from "./SuperHero"
+// import { create, update as updateNormalHero } from "./NormalHero"
+// import { update as updateSuperHero } from "./SuperHero"
+import * as NormalHero from "./NormalHero";
+import * as SuperHero from "./SuperHero";
 import { Map } from "immutable"
 import { setNormalHeroState, setSuperHeroState } from "./WorldUtils";
 
@@ -22,10 +24,10 @@ export let addSuperHero = (worldState: worldState, [superHeroState, superHero]):
 let _update = (worldState: worldState): worldState => {
     return {
         normalHeros: worldState.normalHeros.map(normalHeroState => {
-            return updateNormalHero(normalHeroState)
+            return NormalHero.update(normalHeroState)
         }),
         superHeros: worldState.superHeros.map(superHeroState => {
-            return updateSuperHero(superHeroState)
+            return SuperHero.update(superHeroState)
         })
     }
 }
@@ -59,11 +61,23 @@ export let loop = (worldState: worldState) => {
     _renderOneByOne(worldState)
     _renderInstances(worldState)
 
-    console.log(JSON.stringify(worldState))
+    // console.log(JSON.stringify(worldState))
 
     requestAnimationFrame(
         (time) => {
             loop(worldState)
         }
     )
+}
+
+export let api = {
+    normalHero: {
+        create: NormalHero.create,
+        move: NormalHero.move
+    },
+    superHero: {
+        create: SuperHero.create,
+        move: SuperHero.move,
+        fly: SuperHero.fly
+    }
 }
