@@ -6,23 +6,23 @@ import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 
 export let createState = (): state => {
     return {
-        maxIndex: 0,
+        maxUID: 0,
         gameObjectMap: Map(),
         gameObjectInstanceMap: Map(),
     }
 }
 
 export let createComponent = (state: state): [state, component] => {
-    let index = state.maxIndex
+    let uid = state.maxUID
 
-    let newIndex = index + 1
+    let newUID = uid + 1
 
     state = {
         ...state,
-        maxIndex: newIndex
+        maxUID: newUID
     }
 
-    return [state, index]
+    return [state, uid]
 }
 
 export let getComponentExn = (state: state, gameObject: gameObject): component => {

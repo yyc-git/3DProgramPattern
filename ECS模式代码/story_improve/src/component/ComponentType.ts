@@ -1,3 +1,5 @@
-type index = number
+export type index = number
 
-export type component = index
+export type id = number
+
+export type component = number

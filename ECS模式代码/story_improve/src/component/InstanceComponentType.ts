@@ -1,3 +1,3 @@
 import * as ComponentType from "./ComponentType"
 
-export type component = ComponentType.component
+export type component = ComponentType.id
