@@ -6,6 +6,7 @@ import { getPipeline as getJiaRenderInMobilePipeline } from "jia_renderInMobile_
 import { getPipeline as getYiRenderInMobilePipeline } from "yi_renderInMobile_pipeline/src/Main"
 import { service as mostService } from "most/src/MostService"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
+import { unsafeGetState, setState } from "./RenderStateContainer"
 
 let _isPC = () => {
     console.log(globalThis.isPC ? "is PC" : "is mobile")
@@ -59,32 +60,42 @@ export let registerAllPipelines = (state: state) => {
     return state
 }
 
+let _unsafeGetPipeManagerState = (state: state) => {
+    return state.renderPipelineState
+}
+
+let _setPipeManagerState = (state: state, renderPipelineState: pipelineState) => {
+    return {
+        ...state,
+        renderPipelineState: renderPipelineState
+    }
+}
+
 let _runPipeline = (
-    pipelineState: pipelineState,
+    renderState: state,
     pipelineName: string
-): Promise<pipelineState> => {
-    let tempPipelineState: pipelineState | null = null
+): Promise<state> => {
+    let tempRenderState: state | null = null
 
     return mostService.map(
-        (pipelineState: pipelineState) => {
-            tempPipelineState = pipelineState
+        (renderState: state) => {
+            tempRenderState = renderState
 
-            return pipelineState
+            return renderState
         },
-        runPipeline(pipelineState, pipelineName)
+        runPipeline<state>(renderState, [
+            unsafeGetState,
+            setState,
+            _unsafeGetPipeManagerState,
+            _setPipeManagerState
+        ], pipelineName)
     ).drain().then((_) => {
-        return getExnFromStrictNull(tempPipelineState)
+        return getExnFromStrictNull(tempRenderState)
     })
 }
 
-export let render = (state: state, canvas) => {
+export let render = (state: state, canvas): Promise<state> => {
     globalThis.canvas = canvas
 
-    return _runPipeline(state.renderPipelineState, "render")
-        .then((renderPipelineState) => {
-            return {
-                ...state,
-                renderPipelineState: renderPipelineState
-            }
-        })
+    return _runPipeline(state, "render")
 }

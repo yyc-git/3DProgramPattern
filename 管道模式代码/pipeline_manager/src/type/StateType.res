@@ -1,3 +1,5 @@
+type worldState
+
 type jobName = string
 
 type stream<'a> = Most.StreamType.stream<'a>
@@ -9,11 +11,11 @@ type rec state = {
   states: RegisterPipelineType.states,
 }
 and operateStatesFuncs = {
-  getStatesFunc: state => RegisterPipelineType.states,
-  setStatesFunc: (state, RegisterPipelineType.states) => state,
+  getStatesFunc: worldState => RegisterPipelineType.states,
+  setStatesFunc: (worldState, RegisterPipelineType.states) => worldState,
 }
 and createState<'pipelineState> = state => 'pipelineState
-and exec = (state, operateStatesFuncs) => stream<state>
+and exec = (worldState, operateStatesFuncs) => stream<worldState>
 
 and getExec = (PipelineBasicType.pipelineName, jobName) => Js.Nullable.t<exec>
 

@@ -27,37 +27,65 @@ module ParsePipelineData = {
     }
   }
 
-  let _getStates = (state: StateType.state) => {
-    state.states
+  let _getStates = (
+    (
+      unsafeGetWorldState,
+      setWorldState,
+      unsafeGetManagerState,
+      setManagerState,
+    ) as stateOperateFuncs,
+    worldState: StateType.worldState,
+  ) => {
+    let {states}: StateType.state = unsafeGetManagerState(worldState)
+
+    states
   }
 
-  let _setStates = (state: StateType.state, states): StateType.state => {
-    {
-      ...state,
-      states,
-    }
+  let _setStates = (
+    (
+      unsafeGetWorldState,
+      setWorldState,
+      unsafeGetManagerState,
+      setManagerState,
+    ) as stateOperateFuncs,
+    worldState: StateType.worldState,
+    states,
+  ): StateType.worldState => {
+    let state: StateType.state = unsafeGetManagerState(worldState)
+
+    setManagerState(
+      worldState,
+      {
+        ...state,
+        states,
+      },
+    )
   }
 
   let _buildJobStream = (
+    (
+      unsafeGetWorldState,
+      setWorldState,
+      unsafeGetManagerState,
+      setManagerState,
+    ) as stateOperateFuncs,
     {just, flatMap, map}: Most.ServiceType.service,
     is_set_state,
     exec,
   ): Most.StreamType.stream<unit> => {
     exec->just->flatMap(func =>
       func(
-        PipelineStateContainer.unsafeGetState(),
+        unsafeGetWorldState(),
         (
           {
-            getStatesFunc: _getStates,
-            setStatesFunc: _setStates,
+            getStatesFunc: _getStates(stateOperateFuncs),
+            setStatesFunc: _setStates(stateOperateFuncs),
           }: StateType.operateStatesFuncs
         ),
       )
     , _)->map(
-      state =>
-        is_set_state->Commonlib.NullableSt.getWithDefault(true)
-          ? PipelineStateContainer.setState(state)
-          : (),
+      worldState =>
+        is_set_state->Commonlib.NullableSt.getWithDefault(true) ? setWorldState(worldState) : (),
       _,
     )
   }
@@ -91,6 +119,7 @@ module ParsePipelineData = {
   }
 
   let _buildJobStreams = (
+    stateOperateFuncs,
     mostService: Most.ServiceType.service,
     (buildPipelineStreamFunc, getExecs),
     (pipelineName, elements),
@@ -103,15 +132,25 @@ module ParsePipelineData = {
       | #job =>
         let exec = _getExec(getExecs, pipelineName, name)
 
-        streams->Commonlib.ListSt.push(_buildJobStream(mostService, is_set_state, exec))
+        streams->Commonlib.ListSt.push(
+          _buildJobStream(stateOperateFuncs, mostService, is_set_state, exec),
+        )
       | #group =>
         let group = _findGroup(name, groups)
-        let stream = buildPipelineStreamFunc(mostService, getExecs, pipelineName, group, groups)
+        let stream = buildPipelineStreamFunc(
+          stateOperateFuncs,
+          mostService,
+          getExecs,
+          pipelineName,
+          group,
+          groups,
+        )
         streams->Commonlib.ListSt.push(stream)
       }
     )
 
   let rec _buildPipelineStream = (
+    stateOperateFuncs,
     mostService: Most.ServiceType.service,
     getExecs,
     pipelineName,
@@ -119,6 +158,7 @@ module ParsePipelineData = {
     groups,
   ) => {
     let streams = _buildJobStreams(
+      stateOperateFuncs,
       mostService,
       (_buildPipelineStream, getExecs),
       (pipelineName, elements),
@@ -134,19 +174,31 @@ module ParsePipelineData = {
   }
 
   let parse = (
-    state: StateType.state,
+    // state: StateType.state,
+    worldState: StateType.worldState,
+    (
+      unsafeGetWorldState,
+      setWorldState,
+      unsafeGetManagerState,
+      setManagerState,
+    ) as stateOperateFuncs,
     mostService: Most.ServiceType.service,
     getExecs,
     {name, groups, first_group},
-  ): Most.StreamType.stream<StateType.state> => {
+  ): Most.StreamType.stream<StateType.worldState> => {
     let group = _findGroup(first_group, groups)
 
-    state->PipelineStateContainer.setState
+    // state->PipelineStateContainer.setState
+    worldState->setWorldState
 
-    _buildPipelineStream(mostService, getExecs, name, group, groups)->mostService.map(
-      () => PipelineStateContainer.unsafeGetState(),
-      _,
-    )
+    _buildPipelineStream(
+      stateOperateFuncs,
+      mostService,
+      getExecs,
+      name,
+      group,
+      groups,
+    )->mostService.map(() => unsafeGetWorldState(), _)
   }
 }
 
@@ -601,20 +653,21 @@ module MergePipelineData = {
 }
 
 let runPipeline = (
-  state: StateType.state,
+  worldState: StateType.worldState,
+  (unsafeGetWorldState, setWorldState, unsafeGetManagerState, setManagerState) as stateOperateFuncs,
   // mostService: Most.ServiceType.service,
   pipelineName: PipelineBasicType.pipelineName,
-): Most.StreamType.stream<StateType.state> => {
+): Most.StreamType.stream<StateType.worldState> => {
   let mostService = Most.MostService.service
 
   // TODO check is allRegisteredPipelines duplicate
 
-  let {allRegisteredPipelines} = state
+  let {allRegisteredPipelines}: StateType.state = worldState->unsafeGetManagerState
 
   allRegisteredPipelines
   ->MergePipelineData.merge(pipelineName)
   ->Commonlib.Result.mapSuccess(((getExecs, pipelineData)) => {
-    ParsePipelineData.parse(state, mostService, getExecs, pipelineData)
+    ParsePipelineData.parse(worldState, stateOperateFuncs, mostService, getExecs, pipelineData)
   })
   ->Commonlib.Result.handleFail(Commonlib.Exception.throwErr)
 }

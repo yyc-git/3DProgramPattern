@@ -13,10 +13,10 @@ export type jobName = string
 export type stream<a> = Meta3dBsMostProtocol_StreamType_stream<a>
 
 // tslint:disable-next-line:interface-over-type-literal
-export type exec = (_1: state, _2: operateStatesFuncs) => stream<state>
+export type exec<worldState> = (_1: worldState, _2: operateStatesFuncs) => stream<worldState>
 
 // tslint:disable-next-line:interface-over-type-literal
-export type getExec = (_1: PipelineType_pipelineName, _2: jobName) => (null | undefined | exec)
+export type getExec<worldState> = (_1: PipelineType_pipelineName, _2: jobName) => (null | undefined | exec<worldState>)
 
 // tslint:disable-next-line:interface-over-type-literal
 export type pipelineData = PipelineType_pipelineData
@@ -28,9 +28,9 @@ export type createState<pipelineState> = (state: state) => pipelineState
 export type allPipelineData = pipelineData[]
 
 // tslint:disable-next-line:interface-over-type-literal
-export type pipeline<pipelineState> = {
+export type pipeline<worldState, pipelineState> = {
     readonly pipelineName: pipelineName
     readonly createState: createState<pipelineState>
-    readonly getExec: getExec
+    readonly getExec: getExec<worldState>
     readonly allPipelineData: allPipelineData
 }

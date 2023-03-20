@@ -2,6 +2,21 @@
 
 # * TODO use english comment instead of chinese comment
 
+* DONE refactor: use worldState instead managerState in exec func
+
+* TODO multithread demo
+
+** TODO open render worker
+
+** TODO open more workers by pipeline + json
+
+
+
+** TODO shared DO by SharedArrayBuffer
+
+
+** TODO support worker, no worker
+
 
 * TODO give where has code, uml and how to run code and run result for each example
 

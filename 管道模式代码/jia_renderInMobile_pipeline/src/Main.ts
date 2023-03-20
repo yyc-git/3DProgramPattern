@@ -1,3 +1,4 @@
+import { state as worldState } from "render/src/RenderStateType"
 import { pipeline } from "pipeline_manager/src/type/PipelineType"
 import { pipelineName, state } from "jia_renderInMobile_pipeline_state_type/src/StateType"
 import { exec as execInitWebGL1 } from "./jobs/render/InitWebGL1Job"
@@ -11,7 +12,7 @@ let _getExec = (_pipelineName: string, jobName: string) => {
 	}
 }
 
-export let getPipeline = (): pipeline<state> => {
+export let getPipeline = (): pipeline<worldState, state> => {
 	return {
 		pipelineName: pipelineName,
 		createState: managerState => {

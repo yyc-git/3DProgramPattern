@@ -6,11 +6,30 @@ import { pipeline } from "./type/PipelineType";
 
 export function createState(): state
 
-export function registerPipeline<pipelineState>(managerState: state, pipeline: pipeline<pipelineState>, jobOrers: jobOrders): state
+export function registerPipeline<worldState, pipelineState>(managerState: state, pipeline: pipeline<worldState, pipelineState>, jobOrers: jobOrders): state
 
 export function unregisterPipeline(managerState: state, targetPipelineName: pipelineName): state
 
-export function runPipeline(
-    managerState: state,
+type unsafeGetWorldState<worldState> = () => worldState
+
+type setWorldState<worldState> = (worldState: worldState) => void
+
+type unsafeGetManagerState<worldState> = (worldState: worldState) => state
+
+type setManagerState<worldState> = (worldState: worldState, state: state) => worldState
+
+export function runPipeline<worldState>(
+    worldState: worldState,
+    [
+        unsafeGetWorldState,
+        setWorldState,
+        unsafeGetManagerState,
+        setManagerState
+    ]: [
+            unsafeGetWorldState<worldState>,
+            setWorldState<worldState>,
+            unsafeGetManagerState<worldState>,
+            setManagerState<worldState>
+        ],
     pipelineName: pipelineName
-): stream<state>
+): stream<worldState>

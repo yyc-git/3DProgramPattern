@@ -15,7 +15,6 @@ var TreeNode$Pipeline_manager = require("./TreeNode.bs.js");
 var ImmutableHashMap$Commonlib = require("commonlib/lib/js/src/structure/hash_map/ImmutableHashMap.bs.js");
 var IterateTree$Pipeline_manager = require("./IterateTree.bs.js");
 var OperateTree$Pipeline_manager = require("./OperateTree.bs.js");
-var PipelineStateContainer$Pipeline_manager = require("./PipelineStateContainer.bs.js");
 
 function _findGroup(groupName, groups) {
   if (ArraySt$Commonlib.length(ArraySt$Commonlib.filter(groups, (function (param) {
@@ -33,28 +32,35 @@ function _findGroup(groupName, groups) {
   }
 }
 
-function _getStates(state) {
-  return state.states;
+function _getStates(stateOperateFuncs, worldState) {
+  return Curry._1(stateOperateFuncs[2], worldState).states;
 }
 
-function _setStates(state, states) {
-  return {
-          allRegisteredPipelines: state.allRegisteredPipelines,
-          states: states
-        };
+function _setStates(stateOperateFuncs, worldState, states) {
+  var state = Curry._1(stateOperateFuncs[2], worldState);
+  return Curry._2(stateOperateFuncs[3], worldState, {
+              allRegisteredPipelines: state.allRegisteredPipelines,
+              states: states
+            });
 }
 
-function _buildJobStream(param, is_set_state, exec) {
+function _buildJobStream(stateOperateFuncs, param, is_set_state, exec) {
+  var setWorldState = stateOperateFuncs[1];
+  var unsafeGetWorldState = stateOperateFuncs[0];
   var __x = Curry._1(param.just, exec);
   var __x$1 = Curry._2(param.flatMap, (function (func) {
-          return Curry._2(func, PipelineStateContainer$Pipeline_manager.unsafeGetState(undefined), {
-                      getStatesFunc: _getStates,
-                      setStatesFunc: _setStates
+          return Curry._2(func, Curry._1(unsafeGetWorldState, undefined), {
+                      getStatesFunc: (function (param) {
+                          return _getStates(stateOperateFuncs, param);
+                        }),
+                      setStatesFunc: (function (param, param$1) {
+                          return _setStates(stateOperateFuncs, param, param$1);
+                        })
                     });
         }), __x);
-  return Curry._2(param.map, (function (state) {
+  return Curry._2(param.map, (function (worldState) {
                 if (NullableSt$Commonlib.getWithDefault(is_set_state, true)) {
-                  return PipelineStateContainer$Pipeline_manager.setState(state);
+                  return Curry._1(setWorldState, worldState);
                 }
                 
               }), __x$1);
@@ -78,7 +84,7 @@ function _getExec(_getExecs, pipelineName, jobName) {
           RE_EXN_ID: "Match_failure",
           _1: [
             "Main.res",
-            83,
+            111,
             14
           ],
           Error: new Error()
@@ -86,7 +92,7 @@ function _getExec(_getExecs, pipelineName, jobName) {
   };
 }
 
-function _buildJobStreams(mostService, param, param$1, groups) {
+function _buildJobStreams(stateOperateFuncs, mostService, param, param$1, groups) {
   var pipelineName = param$1[0];
   var getExecs = param[1];
   var buildPipelineStreamFunc = param[0];
@@ -94,16 +100,16 @@ function _buildJobStreams(mostService, param, param$1, groups) {
                 var name = param.name;
                 if (param.type_ === "group") {
                   var group = _findGroup(name, groups);
-                  var stream = Curry._5(buildPipelineStreamFunc, mostService, getExecs, pipelineName, group, groups);
+                  var stream = Curry._6(buildPipelineStreamFunc, stateOperateFuncs, mostService, getExecs, pipelineName, group, groups);
                   return ListSt$Commonlib.push(streams, stream);
                 }
                 var exec = _getExec(getExecs, pipelineName, name);
-                return ListSt$Commonlib.push(streams, _buildJobStream(mostService, param.is_set_state, exec));
+                return ListSt$Commonlib.push(streams, _buildJobStream(stateOperateFuncs, mostService, param.is_set_state, exec));
               }));
 }
 
-function _buildPipelineStream(mostService, getExecs, pipelineName, param, groups) {
-  var streams = _buildJobStreams(mostService, [
+function _buildPipelineStream(stateOperateFuncs, mostService, getExecs, pipelineName, param, groups) {
+  var streams = _buildJobStreams(stateOperateFuncs, mostService, [
         _buildPipelineStream,
         getExecs
       ], [
@@ -113,13 +119,14 @@ function _buildPipelineStream(mostService, getExecs, pipelineName, param, groups
   return Curry._1(param.link === "merge" ? mostService.mergeArray : mostService.concatArray, ListSt$Commonlib.toArray(streams));
 }
 
-function parse(state, mostService, getExecs, param) {
+function parse(worldState, stateOperateFuncs, mostService, getExecs, param) {
   var groups = param.groups;
+  var unsafeGetWorldState = stateOperateFuncs[0];
   var group = _findGroup(param.first_group, groups);
-  PipelineStateContainer$Pipeline_manager.setState(state);
-  var __x = _buildPipelineStream(mostService, getExecs, param.name, group, groups);
+  Curry._1(stateOperateFuncs[1], worldState);
+  var __x = _buildPipelineStream(stateOperateFuncs, mostService, getExecs, param.name, group, groups);
   return Curry._2(mostService.map, (function (param) {
-                return PipelineStateContainer$Pipeline_manager.unsafeGetState(undefined);
+                return Curry._1(unsafeGetWorldState, undefined);
               }), __x);
 }
 
@@ -528,9 +535,10 @@ var MergePipelineData = {
   merge: merge
 };
 
-function runPipeline(state, pipelineName) {
-  return Result$Commonlib.handleFail(Result$Commonlib.mapSuccess(merge(state.allRegisteredPipelines, pipelineName), (function (param) {
-                    return parse(state, MostService$Most.service, param[0], param[1]);
+function runPipeline(worldState, stateOperateFuncs, pipelineName) {
+  var match = Curry._1(stateOperateFuncs[2], worldState);
+  return Result$Commonlib.handleFail(Result$Commonlib.mapSuccess(merge(match.allRegisteredPipelines, pipelineName), (function (param) {
+                    return parse(worldState, stateOperateFuncs, MostService$Most.service, param[0], param[1]);
                   })), Exception$Commonlib.throwErr);
 }
 
