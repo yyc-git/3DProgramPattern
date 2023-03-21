@@ -25,11 +25,20 @@ fps
 timeline
 
 
+Transform+NoLightMaterial Component
+
+
+remove Camera related, Geometry Components
+
 
 1.update + render in main worker
 
 
-render 7000 triangles
+render 3000 triangles
+
+
+ECS:
+no system, use pipeline instead
 
 
 2.move render to render worker
@@ -65,7 +74,7 @@ before
 after
 
 do heave compute in cpu:
-    for 100M to compute sum
+    for 100M to compute average to update position
 
 
 5.open more workers by pipeline + json when load
@@ -80,6 +89,8 @@ after
 
 
 6.support worker, no worker
+
+
 
 
 
@@ -149,6 +160,8 @@ after
     - 分析角色？
     - 角色之间的关系？
     - 角色的抽象代码？
+log
+
     - 遵循的设计原则在UML中的体现？
 
 

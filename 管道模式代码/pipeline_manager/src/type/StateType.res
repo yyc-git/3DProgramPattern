@@ -14,7 +14,7 @@ and operateStatesFuncs = {
   getStatesFunc: worldState => RegisterPipelineType.states,
   setStatesFunc: (worldState, RegisterPipelineType.states) => worldState,
 }
-and createState<'pipelineState> = state => 'pipelineState
+and createState<'pipelineState> = worldState => 'pipelineState
 and exec = (worldState, operateStatesFuncs) => stream<worldState>
 
 and getExec = (PipelineBasicType.pipelineName, jobName) => Js.Nullable.t<exec>

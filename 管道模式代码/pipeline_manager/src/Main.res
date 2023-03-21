@@ -671,3 +671,23 @@ let runPipeline = (
   })
   ->Commonlib.Result.handleFail(Commonlib.Exception.throwErr)
 }
+
+let init = (
+  worldState: StateType.worldState,
+  (unsafeGetManagerState, setManagerState) as stateOperateFuncs,
+): StateType.worldState => {
+  let {allRegisteredPipelines} as state: StateType.state = worldState->unsafeGetManagerState
+
+  setManagerState(
+    worldState,
+    {
+      ...state,
+      states: allRegisteredPipelines->Commonlib.ListSt.reduce(
+        Commonlib.ImmutableHashMap.createEmpty(),
+        (states, ({pipelineName, createState}, _)) => {
+          states->Commonlib.ImmutableHashMap.set(pipelineName, createState(worldState))
+        },
+      ),
+    },
+  )
+}

@@ -16,7 +16,7 @@ let _getExec = (_pipelineName: string, jobName: string) => {
 export let getPipeline = (): pipeline<state> => {
 	return {
 		pipelineName: pipelineName,
-		createState: managerState => {
+		createState: worldState => {
 			return 初始化管道State
 		},
 		getExec: _getExec,

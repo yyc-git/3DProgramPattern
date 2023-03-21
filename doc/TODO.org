@@ -6,6 +6,15 @@
 
 * TODO multithread demo
 
+
+** TODO no worker
+
+draw one triangle
+
+draw 3000 triangles
+
+
+
 ** TODO open render worker
 
 ** TODO open more workers by pipeline + json

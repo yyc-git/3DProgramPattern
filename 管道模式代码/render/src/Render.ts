@@ -1,6 +1,6 @@
 import { state } from "./RenderStateType"
 import { state as pipelineState } from "pipeline_manager/src/type/StateType"
-import { createState as createPipelineManagerState, registerPipeline, runPipeline } from "pipeline_manager"
+import { createState as createPipelineManagerState, registerPipeline, runPipeline, init } from "pipeline_manager"
 import { getPipeline as getRenderInPCPipeline } from "renderInPC_pipeline/src/Main"
 import { getPipeline as getJiaRenderInMobilePipeline } from "jia_renderInMobile_pipeline/src/Main"
 import { getPipeline as getYiRenderInMobilePipeline } from "yi_renderInMobile_pipeline/src/Main"
@@ -95,6 +95,8 @@ let _runPipeline = (
 }
 
 export let render = (state: state, canvas): Promise<state> => {
+    state = init(state, [_unsafeGetPipeManagerState, _setPipeManagerState])
+
     globalThis.canvas = canvas
 
     return _runPipeline(state, "render")

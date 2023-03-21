@@ -542,10 +542,22 @@ function runPipeline(worldState, stateOperateFuncs, pipelineName) {
                   })), Exception$Commonlib.throwErr);
 }
 
+function init(worldState, stateOperateFuncs) {
+  var state = Curry._1(stateOperateFuncs[0], worldState);
+  return Curry._2(stateOperateFuncs[1], worldState, {
+              allRegisteredPipelines: state.allRegisteredPipelines,
+              states: ListSt$Commonlib.reduce(state.allRegisteredPipelines, ImmutableHashMap$Commonlib.createEmpty(undefined, undefined), (function (states, param) {
+                      var match = param[0];
+                      return ImmutableHashMap$Commonlib.set(states, match.pipelineName, Curry._1(match.createState, worldState));
+                    }))
+            });
+}
+
 exports.ParsePipelineData = ParsePipelineData;
 exports.createState = createState;
 exports.registerPipeline = registerPipeline;
 exports.unregisterPipeline = unregisterPipeline;
 exports.MergePipelineData = MergePipelineData;
 exports.runPipeline = runPipeline;
+exports.init = init;
 /* MostService-Most Not a pure module */

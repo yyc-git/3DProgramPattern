@@ -33,3 +33,13 @@ export function runPipeline<worldState>(
         ],
     pipelineName: pipelineName
 ): stream<worldState>
+
+export function init<worldState>(worldState: worldState,
+    [
+        unsafeGetManagerState,
+        setManagerState
+    ]: [
+            unsafeGetManagerState<worldState>,
+            setManagerState<worldState>
+        ],
+): worldState

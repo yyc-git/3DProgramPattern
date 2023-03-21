@@ -18,7 +18,7 @@ let _getExec = (_pipelineName: string, jobName: string) => {
 export let getPipeline = (): pipeline<worldState, state> => {
 	return {
 		pipelineName: pipelineName,
-		createState: managerState => {
+		createState: worldState => {
 			return {
 				gl: null
 			}
