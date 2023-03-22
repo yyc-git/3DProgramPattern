@@ -71,8 +71,8 @@ let _createScene = (worldState: worldState, count: number): worldState => {
     }, worldState)
 }
 
-let transformComponentCount = 3000
-let noLightMaterialComponentCount = 3000
+let transformComponentCount = 8000
+let noLightMaterialComponentCount = 8000
 
 globalThis.transformComponentCount = transformComponentCount
 globalThis.noLightMaterialComponentCount = noLightMaterialComponentCount
@@ -80,7 +80,7 @@ globalThis.noLightMaterialComponentCount = noLightMaterialComponentCount
 
 let worldState = createState({ transformComponentCount, noLightMaterialComponentCount })
 
-worldState = _createScene(worldState, 3000)
+worldState = _createScene(worldState, 8000)
 
 worldState = _registerAllPipelines(worldState)
 

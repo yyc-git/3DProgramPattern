@@ -16,12 +16,12 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 
 		let gl = getExnFromStrictNull(state.gl)
 
-		let programs = state.programMap.toArray().map(([_, value]) => value)
+		let program = getExnFromStrictNull(state.program)
 
 		let viewMatrix = new Float32Array([1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0])
 		let pMatrix = new Float32Array([1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0])
 
-		sendCameraData(gl, viewMatrix, pMatrix, programs);
+		sendCameraData(gl, viewMatrix, pMatrix, [program])
 
 		return worldState;
 	})

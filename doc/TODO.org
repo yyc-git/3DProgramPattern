@@ -18,7 +18,7 @@ draw 3000 triangles
 ** DONE open render worker
 
 
-** TODO optimize: change programMap to program
+** DONE optimize: change programMap to program
 
 # ** TODO move build model matrix to update->BuildModelMatrixJob
 ** TODO update add DoSomeHeaveComputeJob

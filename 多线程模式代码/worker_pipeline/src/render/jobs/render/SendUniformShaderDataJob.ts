@@ -16,9 +16,9 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 
 		let gl = getExnFromStrictNull(state.gl)
 
-		let programs = state.programMap.toArray().map(([_, value]) => value)
+		let program = getExnFromStrictNull(state.program)
 
-		sendCameraData(gl, getExnFromStrictNull(state.viewMatrix), getExnFromStrictNull(state.pMatrix), programs);
+		sendCameraData(gl, getExnFromStrictNull(state.viewMatrix), getExnFromStrictNull(state.pMatrix), [program]);
 
 		return worldState;
 	})

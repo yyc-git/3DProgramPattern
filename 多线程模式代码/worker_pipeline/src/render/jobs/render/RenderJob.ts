@@ -26,7 +26,7 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
             let transform = renderDataBufferTypeArray[renderGameObjectIndex * 2];
             let material = renderDataBufferTypeArray[renderGameObjectIndex * 2 + 1];
 
-            let [count, program, color, modelMatrix] = getRenderData(material, transform, state.programMap, getExnFromStrictNull(worldState.ecsData.noLightMaterialComponentManagerState), getExnFromStrictNull(worldState.ecsData.transformComponentManagerState))
+            let [count, program, color, modelMatrix] = getRenderData(material, transform, getExnFromStrictNull(state.program), getExnFromStrictNull(worldState.ecsData.noLightMaterialComponentManagerState), getExnFromStrictNull(worldState.ecsData.transformComponentManagerState))
 
             render(gl, getExnFromStrictNull(state.vbo.verticesVBO), getExnFromStrictNull(state.vbo.indicesVBO), program, modelMatrix, color, count)
         })

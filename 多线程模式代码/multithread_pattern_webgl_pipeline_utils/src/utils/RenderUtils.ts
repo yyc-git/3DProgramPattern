@@ -37,7 +37,7 @@ let _buildModelMatrix = ([x, y, z]: Array<number>) => {
     return new Float32Array([1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, x, y, z, 1.0])
 }
 
-export function getRenderData(material: material, transform: transform, programMap: Map<material, WebGLProgram>,
+export function getRenderData(material: material, transform: transform, program: WebGLProgram,
     noLightMaterialComponentManagerState: noLightMaterialComponentManagerState,
     transformComponentManagerState: transformComponentManagerState
 ): [
@@ -47,8 +47,6 @@ export function getRenderData(material: material, transform: transform, programM
         Float32Array
     ] {
     let count = 3
-
-    let program = getExnFromStrictUndefined(programMap.get(material))
 
     let color = getColor(noLightMaterialComponentManagerState, material)
 

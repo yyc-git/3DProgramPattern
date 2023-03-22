@@ -4,7 +4,6 @@ import { getState, setState } from "../Utils"
 import { exec as execType } from "pipeline_manager/src/type/PipelineType"
 import { states } from "worker_pipeline_state_type/src/render/StateType"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
-// import { getAllComponents as getAllNoLightMaterials } from "multithread_pattern_ecs/src/manager/noLightMaterial_component/Manager"
 import { createProgram } from "multithread_pattern_webgl_pipeline_utils/src/utils/MaterialUtils"
 
 export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
@@ -17,20 +16,14 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
 
         let gl = getExnFromStrictNull(state.gl)
 
-        let allMaterialIndices = getExnFromStrictNull(state.allMaterialIndices)
-
-        state = allMaterialIndices.reduce((state, material) => {
-            let program = createProgram(gl)
-
-            return {
-                ...state,
-                programMap: state.programMap.set(material, program)
-            }
-        }, state)
+        let program = createProgram(gl)
 
         return setStatesFunc<worldState, states>(
             worldState,
-            setState(states, state)
+            setState(states, {
+                ...state,
+                program: program
+            })
         )
     })
 }

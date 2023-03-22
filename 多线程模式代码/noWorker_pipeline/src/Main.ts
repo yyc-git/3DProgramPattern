@@ -31,7 +31,7 @@ export let getPipeline = (): pipeline<worldState, state> => {
 		createState: worldState => {
 			return {
 				gl: null,
-				programMap: Map(),
+				program: null,
 				vbo: {
 					verticesVBO: null,
 					indicesVBO: null

@@ -51,7 +51,7 @@ export let getPipeline = (): pipeline<worldState, state> => {
                     verticesVBO: null,
                     indicesVBO: null
                 },
-                programMap: Map(),
+                program: null,
                 viewMatrix: null,
                 pMatrix: null,
                 typeArray: null,

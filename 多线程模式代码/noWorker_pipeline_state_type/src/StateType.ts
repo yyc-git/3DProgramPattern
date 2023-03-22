@@ -1,6 +1,3 @@
-import type { Map } from "immutable"
-import { component as material } from "multithread_pattern_ecs/src/component/NoLightMaterialComponentType"
-
 export const pipelineName = "NoWorker"
 
 type vbo = {
@@ -10,7 +7,7 @@ type vbo = {
 
 export type state = {
     gl: WebGLRenderingContext | null,
-    programMap: Map<material, WebGLProgram>,
+    program: WebGLProgram | null,
     vbo: vbo
 }
 

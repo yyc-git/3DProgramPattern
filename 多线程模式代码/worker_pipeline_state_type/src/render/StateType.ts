@@ -10,7 +10,7 @@ type vbo = {
 
 export type state = {
     gl: WebGLRenderingContext | null,
-    programMap: Map<material, WebGLProgram>,
+    program: WebGLProgram | null,
     vbo: vbo,
     viewMatrix: Float32Array | null,
     pMatrix: Float32Array | null,

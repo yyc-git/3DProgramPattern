@@ -63,6 +63,11 @@ need sync
 is_set_state
 
 
+explain:
+RenderWorkerMain->_frame:
+    no loop, exec one frame when get  "SEND_BEGIN_LOOP" from main worker->SendBeginLoopJob instead!
+
+
 result:
 give two parallel timeline
 
