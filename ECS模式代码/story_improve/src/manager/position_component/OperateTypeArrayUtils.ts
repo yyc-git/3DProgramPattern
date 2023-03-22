@@ -6,5 +6,5 @@ export let getPosition = (index, typeArr) => {
 }
 
 export let setPosition = (index, data, typeArr) => {
-    return setFloat3(getPositionIndex(index), data, typeArr)
+    setFloat3(getPositionIndex(index), data, typeArr)
 }

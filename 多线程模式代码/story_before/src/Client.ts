@@ -2,7 +2,7 @@ import { registerPipeline } from "pipeline_manager"
 import { getPipeline as getRootPipeline } from "multithread_pattern_root_pipeline/src/Main"
 import { getPipeline as getNoWorkerPipeline } from "noWorker_pipeline/src/Main"
 import { state as worldState } from "mutltithread_pattern_world/src/WorldStateType"
-import { createState, init, render, setPipeManagerState, unsafeGetPipeManagerState } from "mutltithread_pattern_world/src/World"
+import { createState, init, update, render, setPipeManagerState, unsafeGetPipeManagerState } from "mutltithread_pattern_world/src/World"
 import { createGameObject, createTransformComponent, createNoLightMaterialComponent, setTransformComponent, setNoLightMaterialComponent, setPosition, setColor } from "mutltithread_pattern_world/src/SceneAPI"
 import { range } from "commonlib-ts/src/ArrayUtils"
 
@@ -19,6 +19,11 @@ let _registerAllPipelines = (worldState: worldState) => {
             {
                 pipelineName: "init",
                 insertElementName: "init_root",
+                insertAction: "after"
+            },
+            {
+                pipelineName: "update",
+                insertElementName: "update_root",
                 insertAction: "after"
             },
             {
@@ -79,14 +84,16 @@ let canvas = document.querySelector("#canvas")
 
 
 let _loop = (worldState: worldState) => {
-    render(worldState).then(worldState => {
-        console.log("after render")
+    update(worldState).then(worldState => {
+        render(worldState).then(worldState => {
+            console.log("after render")
 
-        requestAnimationFrame(
-            (time) => {
-                _loop(worldState)
-            }
-        )
+            requestAnimationFrame(
+                (time) => {
+                    _loop(worldState)
+                }
+            )
+        })
     })
 }
 

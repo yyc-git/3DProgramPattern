@@ -8,12 +8,13 @@ import * as OperateTypeArrayUtils from "./OperateTypeArrayUtils"
 import { gameObject } from "../../gameObject/GameObjectType"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 
-let _setAllTypeArrDataToDefault = ([positions]: Array<Float32Array>, count, [defaultPosition]) => {
+let _setAllTypeArrDataToDefault = ([modelMatrices, positions]: Array<Float32Array>, count, [defaultModelMatrix, defaultPosition]) => {
     range(0, count - 1).forEach(index => {
+        OperateTypeArrayUtils.setModelMatrix(index, defaultModelMatrix, modelMatrices)
         OperateTypeArrayUtils.setPosition(index, defaultPosition, positions)
     })
 
-    return [positions]
+    return [modelMatrices, positions]
 }
 
 let _initBufferData = (count, defaultDataTuple): [ArrayBuffer, Array<Float32Array>] => {
@@ -25,13 +26,15 @@ let _initBufferData = (count, defaultDataTuple): [ArrayBuffer, Array<Float32Arra
 }
 
 export let createState = (transformComponentCount: number): state => {
+    let defaultModelMatrix = [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
     let defaultPosition = [0, 0, 0]
 
-    let [buffer, [positions]] = _initBufferData(transformComponentCount, [defaultPosition])
+    let [buffer, [modelMatrices, positions]] = _initBufferData(transformComponentCount, [defaultModelMatrix, defaultPosition])
 
     return {
         maxIndex: 0,
         buffer,
+        modelMatrices,
         positions,
         gameObjectMap: Map(),
         gameObjectTransformMap: Map(),
@@ -79,6 +82,16 @@ export let getAllComponents = (state: state): Array<component> => {
     return gameObjectTransformMap.toArray().map(([key, value]) => value)
 }
 
+export let getModelMatrix = (state: state, component: component) => {
+    return OperateTypeArrayUtils.getModelMatrixTypeArray(component, state.modelMatrices)
+}
+
+export let setModelMatrixByPosition = (state: state, component: component, position) => {
+    OperateTypeArrayUtils.setModelMatrixByPosition(component, position, state.modelMatrices)
+
+    return state
+}
+
 export let getPosition = (state: state, component: component) => {
     return OperateTypeArrayUtils.getPosition(component, state.positions)
 }
@@ -89,16 +102,16 @@ export let setPosition = (state: state, component: component, position) => {
     return state
 }
 
-// export let batchUpdate = (state: state) => {
-//     return getAllComponents(state).reduce((state, component) => {
-//         console.log("更新TransformComponent: " + String(component))
-
-//         let [x, y, z] = getPosition(state, component)
-
-//         //更新position（如更新世界坐标系中的position）...
-//         // let newPosition: [number, number, number] = [x * 2.0, y * 2.0, z * 2.0]
-//         let newPosition: [number, number, number] = [x, y, z]
-
-//         return setPosition(state, component, newPosition)
-//     }, state)
+// let _fakeCompute = (position:Array<number>) => {
+//     for(let )
 // }
+
+export let batchUpdate = (state: state) => {
+    return getAllComponents(state).reduce((state, component) => {
+        let position = getPosition(state, component)
+
+        setModelMatrixByPosition(state, component, position)
+
+        return state
+    }, state)
+}

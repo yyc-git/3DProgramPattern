@@ -5,6 +5,7 @@ import { exec as execCreateWorkerInstance } from "./jobs/init/CreateWorkerInstan
 import { exec as execCreateRenderDataBuffer } from "./jobs/init/CreateRenderDataBufferJob";
 import { exec as execSendInitRenderData } from "./jobs/init/SendInitRenderDataJob";
 import { exec as execGetFinishSendInitRenderData } from "./jobs/init/GetFinishSendInitRenderDataJob";
+import { exec as execUpdateTransform } from "./jobs/update/UpdateTransformJob"
 import { exec as execUpdateRenderDataBuffer } from "./jobs/update/UpdateRenderDataBufferJob";
 import { exec as execSendRenderData } from "./jobs/update/SendRenderDataJob";
 import { exec as execSendBeginLoopData } from "./jobs/update/SendBeginLoopDataJob";
@@ -20,6 +21,8 @@ let _getExec = (_pipelineName: string, jobName: string) => {
 			return execSendInitRenderData;
 		case "get_finish_send_init_render_data_main_worker":
 			return execGetFinishSendInitRenderData;
+		case "update_transform_main_worker":
+			return execUpdateTransform
 		case "update_render_data_buffer_main_worker":
 			return execUpdateRenderDataBuffer;
 		case "send_render_data_main_worker":
@@ -40,7 +43,7 @@ export let getPipeline = (): pipeline<worldState, state> => {
 		createState: worldState => {
 			return {
 				worker: null,
-				typeArray: null ,
+				typeArray: null,
 				renderGameObjectsCount: null
 			}
 		},
@@ -123,8 +126,22 @@ export let getPipeline = (): pipeline<worldState, state> => {
 							"name": "send_render_data_main_worker",
 							"type_": "job"
 						},
+						{
+							"name": "update",
+							"type_": "group"
+						}
 					]
 				},
+				{
+					name: "update",
+					link: "concat",
+					elements: [
+						{
+							"name": "update_transform_main_worker",
+							"type_": "job"
+						},
+					]
+				}
 			],
 			first_group: "first_main_worker"
 		},

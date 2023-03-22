@@ -6,5 +6,5 @@ export let getColor = (index, typeArr) => {
 }
 
 export let setColor = (index, data, typeArr) => {
-    return setFloat3(getColorIndex(index), data, typeArr)
+    setFloat3(getColorIndex(index), data, typeArr)
 }

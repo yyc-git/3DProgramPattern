@@ -3,9 +3,7 @@ import { component as material } from "multithread_pattern_ecs/src/component/NoL
 import { state as noLightMaterialComponentManagerState } from "multithread_pattern_ecs/src/manager/noLightMaterial_component/ManagerStateType"
 import { state as transformComponentManagerState } from "multithread_pattern_ecs/src/manager/transform_component/ManagerStateType"
 import { getColor } from "multithread_pattern_ecs/src/manager/noLightMaterial_component/Manager"
-import { getPosition } from "multithread_pattern_ecs/src/manager/transform_component/Manager"
-import { Map } from "immutable";
-import { getExnFromStrictUndefined } from "commonlib-ts/src/NullableUtils";
+import { getModelMatrix, getPosition } from "multithread_pattern_ecs/src/manager/transform_component/Manager"
 
 export let clear = (gl: WebGLRenderingContext) => {
     gl.clearColor(1, 1, 1, 1)
@@ -33,10 +31,6 @@ export let render = (gl: WebGLRenderingContext, verticesBuffer: WebGLBuffer, ind
     gl.drawElements(gl.TRIANGLES, count, gl.UNSIGNED_BYTE, 0);
 }
 
-let _buildModelMatrix = ([x, y, z]: Array<number>) => {
-    return new Float32Array([1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, x, y, z, 1.0])
-}
-
 export function getRenderData(material: material, transform: transform, program: WebGLProgram,
     noLightMaterialComponentManagerState: noLightMaterialComponentManagerState,
     transformComponentManagerState: transformComponentManagerState
@@ -50,9 +44,7 @@ export function getRenderData(material: material, transform: transform, program:
 
     let color = getColor(noLightMaterialComponentManagerState, material)
 
-    let modelMatrix: Float32Array = _buildModelMatrix(
-        getPosition(transformComponentManagerState, transform)
-    )
+    let modelMatrix: Float32Array = getModelMatrix(transformComponentManagerState, transform)
 
     return [count, program, color, modelMatrix];
 }

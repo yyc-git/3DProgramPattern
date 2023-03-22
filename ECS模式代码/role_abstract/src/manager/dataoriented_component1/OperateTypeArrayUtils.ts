@@ -6,7 +6,7 @@ export let getValue1 = (index, typeArr) => {
 }
 
 export let setValue1 = (index, data, typeArr) => {
-    return setValue1ToTypeArray1(getValue1Index(index), data, typeArr)
+    setValue1ToTypeArray1(getValue1Index(index), data, typeArr)
 }
 
 export let getValue2 = (index, typeArr) => {
@@ -14,5 +14,5 @@ export let getValue2 = (index, typeArr) => {
 }
 
 export let setValue2 = (index, data, typeArr) => {
-    return setValue2ToTypeArray2(getValue2Index(index), data, typeArr)
+    setValue2ToTypeArray2(getValue2Index(index), data, typeArr)
 }

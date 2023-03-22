@@ -6,5 +6,5 @@ export let getMaxVelocity = (index, typeArr) => {
 }
 
 export let setMaxVelocity = (index, data, typeArr) => {
-    return setFloat1(getMaxVelocityIndex(index), data, typeArr)
+    setFloat1(getMaxVelocityIndex(index), data, typeArr)
 }

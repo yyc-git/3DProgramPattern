@@ -2,7 +2,7 @@ import { registerPipeline } from "pipeline_manager"
 import { getPipeline as getRootPipeline } from "multithread_pattern_root_pipeline/src/Main"
 import { getPipeline as getMainWorkerPipeline } from "worker_pipeline/src/main/Main"
 import { state as worldState } from "mutltithread_pattern_world/src/WorldStateType"
-import { createState, init, render, runPipeline, setPipeManagerState, unsafeGetPipeManagerState } from "mutltithread_pattern_world/src/World"
+import { createState, init, update, render, runPipeline, setPipeManagerState, unsafeGetPipeManagerState } from "mutltithread_pattern_world/src/World"
 import { createGameObject, createTransformComponent, createNoLightMaterialComponent, setTransformComponent, setNoLightMaterialComponent, setPosition, setColor } from "mutltithread_pattern_world/src/SceneAPI"
 import { range } from "commonlib-ts/src/ArrayUtils"
 
@@ -91,7 +91,7 @@ let canvas = document.querySelector("#canvas")
 
 
 let _loop = (worldState: worldState) => {
-    runPipeline(worldState, "update").then(worldState => {
+    update(worldState).then(worldState => {
         render(worldState).then(worldState => {
             console.log("after render")
 

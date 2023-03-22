@@ -5,7 +5,7 @@ let _getValue1Size = () => value1 size
 
 let _getValue2Size = () => value2 size
 
-export let getValue1Offset = (count) => 0
+export let getValue1Offset = () => 0
 
 export let getValue2Offset = (count) => getValue1Offset() + getValue1Length(count) * TypeArray2.BYTES_PER_ELEMENT
 

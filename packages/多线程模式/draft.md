@@ -68,17 +68,21 @@ RenderWorkerMain->_frame:
     no loop, exec one frame when get  "SEND_BEGIN_LOOP" from main worker->SendBeginLoopJob instead!
 
 
+explain:
+open Cross Origin 
+    by webpack.config.devserver:
+        headers: {
+            "Cross-Origin-Embedder-Policy": "require-corp",
+            "Cross-Origin-Opener-Policy": "same-origin"
+        },
+
 result:
-give two parallel timeline
+give two parallel timeline:
+    parallel: 
+        render worker begin render before main worker exec UpdateTransformJob->batchUpdate
 
 
-<!-- 3.shared DO by SharedArrayBuffer -->
-3. update add DoSomeHeaveComputeJob
-
-
-
-
-3.5 discuss?
+more disscuss:
 
 defer init material?
     shader index

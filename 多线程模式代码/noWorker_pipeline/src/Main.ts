@@ -5,6 +5,7 @@ import { pipelineName, state } from "noWorker_pipeline_state_type/src/StateType"
 import { exec as execCreateGL } from "./jobs/init/CreateGLJob"
 import { exec as execInitMaterial } from "./jobs/init/InitMaterialJob"
 import { exec as execInitVBO } from "./jobs/init/InitVBOJob"
+import { exec as execUpdateTransform } from "./jobs/update/UpdateTransformJob"
 import { exec as execRender } from "./jobs/render/RenderJob"
 import { exec as execSendUniformShaderData } from "./jobs/render/SendUniformShaderDataJob"
 
@@ -16,6 +17,8 @@ let _getExec = (_pipelineName: string, jobName: string) => {
 			return execInitMaterial
 		case "init_vbo_noWorker":
 			return execInitVBO
+		case "update_transform_noWorker":
+			return execUpdateTransform
 		case "send_uniform_shader_data_noWorker":
 			return execSendUniformShaderData
 		case "render_noWorker":
@@ -57,6 +60,22 @@ export let getPipeline = (): pipeline<worldState, state> => {
 							},
 							{
 								"name": "init_material_noWorker",
+								"type_": "job"
+							},
+						]
+					}
+				],
+				first_group: "first_noWorker"
+			},
+			{
+				name: "update",
+				groups: [
+					{
+						name: "first_noWorker",
+						link: "concat",
+						elements: [
+							{
+								"name": "update_transform_noWorker",
 								"type_": "job"
 							},
 						]

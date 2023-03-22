@@ -64,6 +64,10 @@ export let init = (state: state, canvas): Promise<state> => {
     return runPipeline(state, "init")
 }
 
+export let update = (state: state): Promise<state> => {
+    return runPipeline(state, "update")
+}
+
 export let render = (state: state): Promise<state> => {
     return runPipeline(state, "render")
 }

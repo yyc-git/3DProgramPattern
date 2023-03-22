@@ -9,11 +9,12 @@ let _initBufferData = (count, buffer): Array<Float32Array> => {
 }
 
 export let createState = (transformComponentCount: number, buffer: SharedArrayBuffer): state => {
-    let [positions] = _initBufferData(transformComponentCount, buffer)
+    let [modelMatrices, positions] = _initBufferData(transformComponentCount, buffer)
 
     return {
         maxIndex: 0,
         buffer,
+        modelMatrices,
         positions,
         gameObjectMap: Map(),
         gameObjectTransformMap: Map(),
