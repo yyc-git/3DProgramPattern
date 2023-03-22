@@ -1,6 +1,6 @@
 import { state as worldState } from "mutltithread_pattern_world/src/WorldStateType"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
-import { getAllComponents as getAllTransformComponents, getPosition } from "../../../multithread_pattern_ecs/src/manager/transform_component/Manager"
+import { getPosition } from "../../../multithread_pattern_ecs/src/manager/transform_component/Manager"
 
 let _generateRandom = () => {
     return Math.random() * 2 - 1

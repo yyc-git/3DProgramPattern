@@ -1,78 +1,7 @@
-import { registerPipeline } from "pipeline_manager"
-import { getPipeline as getRootPipeline } from "multithread_pattern_root_pipeline/src/Main"
-import { getPipeline as getNoWorkerPipeline } from "noWorker_pipeline/src/Main"
-import { getPipeline as getMainWorkerPipeline } from "worker_pipeline/src/main/Main"
 import { state as worldState } from "mutltithread_pattern_world/src/WorldStateType"
-import { createState, init, update, runPipeline, setPipeManagerState, unsafeGetPipeManagerState, render } from "mutltithread_pattern_world/src/World"
+import { createState, init, update, render, sync, registerNoWorkerAllPipelines, registerWorkerAllPipelines } from "mutltithread_pattern_world/src/WorldForMainWorker"
 import { createGameObject, createTransformComponent, createNoLightMaterialComponent, setTransformComponent, setNoLightMaterialComponent, setPosition, setColor } from "mutltithread_pattern_world/src/SceneAPI"
 import { range } from "commonlib-ts/src/ArrayUtils"
-
-let _registerNoWorkerAllPipelines = (worldState: worldState) => {
-    let pipelineManagerState = registerPipeline(
-        unsafeGetPipeManagerState(worldState),
-        getRootPipeline(),
-        []
-    )
-    pipelineManagerState = registerPipeline(
-        pipelineManagerState,
-        getNoWorkerPipeline(),
-        [
-            {
-                pipelineName: "init",
-                insertElementName: "init_root",
-                insertAction: "after"
-            },
-            {
-                pipelineName: "update",
-                insertElementName: "update_root",
-                insertAction: "after"
-            },
-            {
-                pipelineName: "render",
-                insertElementName: "render_root",
-                insertAction: "after"
-            }
-        ]
-    )
-
-    worldState = setPipeManagerState(worldState, pipelineManagerState)
-
-    return worldState
-}
-
-let _registerWorkerAllPipelines = (worldState: worldState) => {
-    let pipelineManagerState = registerPipeline(
-        unsafeGetPipeManagerState(worldState),
-        getRootPipeline(),
-        []
-    )
-    pipelineManagerState = registerPipeline(
-        pipelineManagerState,
-        getMainWorkerPipeline(),
-        [
-            {
-                pipelineName: "init",
-                insertElementName: "init_root",
-                insertAction: "after"
-            },
-            {
-                pipelineName: "update",
-                insertElementName: "update_root",
-                insertAction: "after"
-            },
-            {
-                pipelineName: "sync",
-                insertElementName: "sync_root",
-                insertAction: "after"
-            }
-        ]
-    )
-
-    worldState = setPipeManagerState(worldState, pipelineManagerState)
-
-    return worldState
-}
-
 
 let _createTriangle = (worldState: worldState, color: Array<number>, position: Array<number>): worldState => {
     let triangleGameObjectData = createGameObject(worldState)
@@ -121,10 +50,10 @@ let worldState = createState({ transformComponentCount, noLightMaterialComponent
 worldState = _createScene(worldState, 8000)
 
 if (isUseWorker) {
-    worldState = _registerWorkerAllPipelines(worldState)
+    worldState = registerWorkerAllPipelines(worldState)
 }
 else {
-    worldState = _registerNoWorkerAllPipelines(worldState)
+    worldState = registerNoWorkerAllPipelines(worldState)
 }
 
 
@@ -138,7 +67,7 @@ let _loop = (worldState: worldState) => {
         let handlePromise
 
         if (isUseWorker) {
-            handlePromise = runPipeline(worldState, "sync")
+            handlePromise = sync(worldState)
         }
         else {
             handlePromise = render(worldState)

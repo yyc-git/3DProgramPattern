@@ -1,4 +1,3 @@
-import { Map } from "immutable"
 import { state as worldState } from "mutltithread_pattern_world/src/WorldStateType"
 import { pipeline } from "pipeline_manager/src/type/PipelineType"
 import { pipelineName, state } from "noWorker_pipeline_state_type/src/StateType"

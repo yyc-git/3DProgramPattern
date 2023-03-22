@@ -85,6 +85,7 @@ result:
 give two parallel timeline:
     parallel: 
         render worker begin render before main worker exec UpdateTransformJob->batchUpdate
+can very correction by log
 
 
 more disscuss:
@@ -103,6 +104,10 @@ send image by transferFromImageBitmap
 <!-- e.g. collide/physic worker -->
 
 3.move ComputePhysicsJob to physics worker
+
+timeline:
+can very correction by log
+
 
 
 explain:
