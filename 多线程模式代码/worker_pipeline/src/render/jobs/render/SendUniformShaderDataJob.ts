@@ -2,7 +2,7 @@ import { state as worldState } from "mutltithread_pattern_world/src/WorldStateTy
 import { service as mostService } from "most/src/MostService"
 import { getState } from "../Utils"
 import { exec as execType } from "pipeline_manager/src/type/PipelineType"
-import { states } from "noWorker_pipeline_state_type/src/StateType"
+import { states } from "worker_pipeline_state_type/src/render/StateType"
 import { sendCameraData } from "multithread_pattern_webgl_pipeline_utils/src/utils/SendCameraDataUtils"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 
@@ -12,16 +12,13 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 	let state = getState(states)
 
 	return mostService.callFunc(() => {
-		console.log("send uniform shader data job");
+		console.log("send uniform shader data job exec on render worker");
 
 		let gl = getExnFromStrictNull(state.gl)
 
 		let programs = state.programMap.toArray().map(([_, value]) => value)
 
-		let viewMatrix = new Float32Array([1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0])
-		let pMatrix = new Float32Array([1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0])
-
-		sendCameraData(gl, viewMatrix, pMatrix, programs);
+		sendCameraData(gl, getExnFromStrictNull(state.viewMatrix), getExnFromStrictNull(state.pMatrix), programs);
 
 		return worldState;
 	})

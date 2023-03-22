@@ -31,7 +31,7 @@ Transform+NoLightMaterial Component
 remove Camera related, Geometry Components
 
 
-1.update + render in main worker
+1.update + render in no worker
 
 
 render 3000 triangles
@@ -43,6 +43,21 @@ no system, use pipeline instead
 
 2.move render to render worker
 
+
+    TODO explain why use render data buffer:
+    share gameObjects,components from main worker to render worker
+
+    otherwise, should post them which cost more time
+
+
+    edit ECS: add ManagerForWorker
+    add createState
+
+
+    add WorldForWorker
+
+
+
 need sync
 
 is_set_state
@@ -52,7 +67,8 @@ result:
 give two parallel timeline
 
 
-3.shared DO by SharedArrayBuffer
+<!-- 3.shared DO by SharedArrayBuffer -->
+3. update add DoSomeHeaveComputeJob
 
 
 
@@ -128,6 +144,7 @@ after
 
 - 请给出可能的改进方案?
     - 概述解决方案？
+
     - 给出UML ？
     - 给出代码？
     - 结合UML图，描述如何具体地解决问题？

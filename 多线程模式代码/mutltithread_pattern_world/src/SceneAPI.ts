@@ -4,9 +4,10 @@ import * as TransformComponentManager from "multithread_pattern_ecs/src/manager/
 import * as NoLightMaterialComponentManager from "multithread_pattern_ecs/src/manager/noLightMaterial_component/Manager"
 import { gameObject } from "multithread_pattern_ecs/src/gameObject/GameObjectType"
 import { component } from "multithread_pattern_ecs/src/component/ComponentType"
+import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 
 export let createGameObject = (worldState: worldState): [worldState, gameObject] => {
-    let [gameObjectManagerState, gameObject] = GameObjectManager.createGameObject(worldState.ecsData.gameObjectManagerState)
+    let [gameObjectManagerState, gameObject] = GameObjectManager.createGameObject(getExnFromStrictNull(worldState.ecsData.gameObjectManagerState))
 
     return [
         {
@@ -21,7 +22,7 @@ export let createGameObject = (worldState: worldState): [worldState, gameObject]
 }
 
 export let createTransformComponent = (worldState: worldState): [worldState, component] => {
-    let [transformComponentManagerState, component] = TransformComponentManager.createComponent(worldState.ecsData.transformComponentManagerState)
+    let [transformComponentManagerState, component] = TransformComponentManager.createComponent(getExnFromStrictNull(worldState.ecsData.transformComponentManagerState))
 
     return [
         {
@@ -36,7 +37,7 @@ export let createTransformComponent = (worldState: worldState): [worldState, com
 }
 
 export let createNoLightMaterialComponent = (worldState: worldState): [worldState, component] => {
-    let [noLightMaterialComponentManagerState, component] = NoLightMaterialComponentManager.createComponent(worldState.ecsData.noLightMaterialComponentManagerState)
+    let [noLightMaterialComponentManagerState, component] = NoLightMaterialComponentManager.createComponent(getExnFromStrictNull(worldState.ecsData.noLightMaterialComponentManagerState))
 
     return [
         {
@@ -55,7 +56,7 @@ export let setTransformComponent = (worldState: worldState, gameObject: gameObje
         ...worldState,
         ecsData: {
             ...worldState.ecsData,
-            transformComponentManagerState: TransformComponentManager.setComponent(worldState.ecsData.transformComponentManagerState, gameObject, component)
+            transformComponentManagerState: TransformComponentManager.setComponent(getExnFromStrictNull(worldState.ecsData.transformComponentManagerState), gameObject, component)
         }
     }
 }
@@ -65,7 +66,7 @@ export let setNoLightMaterialComponent = (worldState: worldState, gameObject: ga
         ...worldState,
         ecsData: {
             ...worldState.ecsData,
-            noLightMaterialComponentManagerState: NoLightMaterialComponentManager.setComponent(worldState.ecsData.noLightMaterialComponentManagerState, gameObject, component)
+            noLightMaterialComponentManagerState: NoLightMaterialComponentManager.setComponent(getExnFromStrictNull(worldState.ecsData.noLightMaterialComponentManagerState), gameObject, component)
         }
     }
 }
@@ -75,7 +76,7 @@ export let setColor = (worldState: worldState, component: component, color: Arra
         ...worldState,
         ecsData: {
             ...worldState.ecsData,
-            noLightMaterialComponentManagerState: NoLightMaterialComponentManager.setColor(worldState.ecsData.noLightMaterialComponentManagerState, component, color)
+            noLightMaterialComponentManagerState: NoLightMaterialComponentManager.setColor(getExnFromStrictNull(worldState.ecsData.noLightMaterialComponentManagerState), component, color)
         }
     }
 }
@@ -85,7 +86,7 @@ export let setPosition = (worldState: worldState, component: component, position
         ...worldState,
         ecsData: {
             ...worldState.ecsData,
-            transformComponentManagerState: TransformComponentManager.setPosition(worldState.ecsData.transformComponentManagerState, component, position)
+            transformComponentManagerState: TransformComponentManager.setPosition(getExnFromStrictNull(worldState.ecsData.transformComponentManagerState), component, position)
         }
     }
 }

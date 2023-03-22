@@ -11,5 +11,6 @@ let _getTotalByteLength = (count) => {
 }
 
 export let createBuffer = (count) => {
-    return new ArrayBuffer(_getTotalByteLength(count))
+    // return new ArrayBuffer(_getTotalByteLength(count))
+    return new SharedArrayBuffer(_getTotalByteLength(count))
 }

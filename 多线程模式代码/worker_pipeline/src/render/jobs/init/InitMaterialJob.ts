@@ -2,9 +2,9 @@ import { state as worldState } from "mutltithread_pattern_world/src/WorldStateTy
 import { service as mostService } from "most/src/MostService"
 import { getState, setState } from "../Utils"
 import { exec as execType } from "pipeline_manager/src/type/PipelineType"
-import { states } from "noWorker_pipeline_state_type/src/StateType"
+import { states } from "worker_pipeline_state_type/src/render/StateType"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
-import { getAllComponents as getAllNoLightMaterials } from "multithread_pattern_ecs/src/manager/noLightMaterial_component/Manager"
+// import { getAllComponents as getAllNoLightMaterials } from "multithread_pattern_ecs/src/manager/noLightMaterial_component/Manager"
 import { createProgram } from "multithread_pattern_webgl_pipeline_utils/src/utils/MaterialUtils"
 
 export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
@@ -13,19 +13,20 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
     let state = getState(states)
 
     return mostService.callFunc(() => {
-        console.log("init material job");
+        console.log("init material job exec on render worker");
 
         let gl = getExnFromStrictNull(state.gl)
 
-        state = getAllNoLightMaterials(getExnFromStrictNull(worldState.ecsData.noLightMaterialComponentManagerState))
-            .reduce((state, material) => {
-                let program = createProgram(gl)
+        let allMaterialIndices = getExnFromStrictNull(state.allMaterialIndices)
 
-                return {
-                    ...state,
-                    programMap: state.programMap.set(material, program)
-                }
-            }, state)
+        state = allMaterialIndices.reduce((state, material) => {
+            let program = createProgram(gl)
+
+            return {
+                ...state,
+                programMap: state.programMap.set(material, program)
+            }
+        }, state)
 
         return setStatesFunc<worldState, states>(
             worldState,

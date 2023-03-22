@@ -1,7 +1,4 @@
-export let sendCameraData = (gl: WebGLRenderingContext, programs: WebGLProgram[]) => {
-    let viewMatrix = new Float32Array([1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0])
-    let pMatrix = new Float32Array([1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0])
-
+export let sendCameraData = (gl: WebGLRenderingContext, viewMatrix: Float32Array, pMatrix: Float32Array, programs: WebGLProgram[]) => {
     programs.forEach((program) => {
         gl.useProgram(program);
 

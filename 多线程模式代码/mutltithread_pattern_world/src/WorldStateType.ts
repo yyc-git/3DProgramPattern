@@ -4,12 +4,12 @@ import { state as transformComponentManagerState } from "multithread_pattern_ecs
 import { state as noLightMaterialComponentManagerState } from "multithread_pattern_ecs/src/manager/noLightMaterial_component/ManagerStateType"
 
 type ecsData = {
-    gameObjectManagerState: gameObjectManagerState,
-    transformComponentManagerState: transformComponentManagerState,
-    noLightMaterialComponentManagerState: noLightMaterialComponentManagerState,
+    gameObjectManagerState: gameObjectManagerState | null,
+    transformComponentManagerState: transformComponentManagerState | null,
+    noLightMaterialComponentManagerState: noLightMaterialComponentManagerState | null,
 }
 
 export type state = {
     ecsData: ecsData,
-    noWorkerPipelineState: pipelineState
+    pipelineState: pipelineState
 }

@@ -2,27 +2,36 @@ import { state as worldState } from "mutltithread_pattern_world/src/WorldStateTy
 import { service as mostService } from "most/src/MostService"
 import { getState } from "../Utils"
 import { exec as execType } from "pipeline_manager/src/type/PipelineType"
-import { states } from "noWorker_pipeline_state_type/src/StateType"
-import { sendCameraData } from "multithread_pattern_webgl_pipeline_utils/src/utils/SendCameraDataUtils"
+import { states } from "worker_pipeline_state_type/src/Main/StateType"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 
 export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 	let states = getStatesFunc<worldState, states>(worldState)
 
-	let state = getState(states)
+	let { worker, typeArray, renderGameObjectsCount } = getState(states)
 
 	return mostService.callFunc(() => {
-		console.log("send uniform shader data job");
+		console.log("send render data job exec on main worker")
 
-		let gl = getExnFromStrictNull(state.gl)
-
-		let programs = state.programMap.toArray().map(([_, value]) => value)
+		worker = getExnFromStrictNull(worker)
+		let uint32Array = getExnFromStrictNull(typeArray)
+		renderGameObjectsCount = getExnFromStrictNull(renderGameObjectsCount)
 
 		let viewMatrix = new Float32Array([1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0])
 		let pMatrix = new Float32Array([1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0])
 
-		sendCameraData(gl, viewMatrix, pMatrix, programs);
+		worker.postMessage({
+			operateType: "SEND_RENDER_DATA",
+			camera: {
+				viewMatrix,
+				pMatrix
+			},
+			renderDataBuffer: {
+				typeArray: uint32Array,
+				renderGameObjectCount: renderGameObjectsCount
+			}
+		})
 
-		return worldState;
+		return worldState
 	})
 }

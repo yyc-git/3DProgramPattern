@@ -1,8 +1,8 @@
 import { registerPipeline } from "pipeline_manager"
 import { getPipeline as getRootPipeline } from "multithread_pattern_root_pipeline/src/Main"
-import { getPipeline as getNoWorkerPipeline } from "noWorker_pipeline/src/Main"
+import { getPipeline as getMainWorkerPipeline } from "worker_pipeline/src/main/Main"
 import { state as worldState } from "mutltithread_pattern_world/src/WorldStateType"
-import { createState, init, render, setPipeManagerState, unsafeGetPipeManagerState } from "mutltithread_pattern_world/src/World"
+import { createState, init, render, runPipeline, setPipeManagerState, unsafeGetPipeManagerState } from "mutltithread_pattern_world/src/World"
 import { createGameObject, createTransformComponent, createNoLightMaterialComponent, setTransformComponent, setNoLightMaterialComponent, setPosition, setColor } from "mutltithread_pattern_world/src/SceneAPI"
 import { range } from "commonlib-ts/src/ArrayUtils"
 
@@ -14,11 +14,16 @@ let _registerAllPipelines = (worldState: worldState) => {
     )
     pipelineManagerState = registerPipeline(
         pipelineManagerState,
-        getNoWorkerPipeline(),
+        getMainWorkerPipeline(),
         [
             {
                 pipelineName: "init",
                 insertElementName: "init_root",
+                insertAction: "after"
+            },
+            {
+                pipelineName: "update",
+                insertElementName: "update_root",
                 insertAction: "after"
             },
             {
@@ -66,7 +71,14 @@ let _createScene = (worldState: worldState, count: number): worldState => {
     }, worldState)
 }
 
-let worldState = createState({ transformComponentCount: 3000, noLightMaterialComponentCount: 3000 })
+let transformComponentCount = 3000
+let noLightMaterialComponentCount = 3000
+
+globalThis.transformComponentCount = transformComponentCount
+globalThis.noLightMaterialComponentCount = noLightMaterialComponentCount
+
+
+let worldState = createState({ transformComponentCount, noLightMaterialComponentCount })
 
 worldState = _createScene(worldState, 3000)
 
@@ -79,14 +91,16 @@ let canvas = document.querySelector("#canvas")
 
 
 let _loop = (worldState: worldState) => {
-    render(worldState).then(worldState => {
-        console.log("after render")
+    runPipeline(worldState, "update").then(worldState => {
+        render(worldState).then(worldState => {
+            console.log("after render")
 
-        requestAnimationFrame(
-            (time) => {
-                _loop(worldState)
-            }
-        )
+            requestAnimationFrame(
+                (time) => {
+                    _loop(worldState)
+                }
+            )
+        })
     })
 }
 
