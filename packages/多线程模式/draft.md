@@ -46,6 +46,7 @@ no system, use pipeline instead
 
     TODO explain why use render data buffer:
     share gameObjects,components from main worker to render worker
+        share buffer to render worker, then create typeArray in render worker instead of send typeArray!
 
     otherwise, should post them which cost more time
 
@@ -94,8 +95,14 @@ defer init material?
 defer dispose?
 
 
-4.open more workers by pipeline + json when loop
-e.g. collide/physic worker
+handle texture:
+send image by transferFromImageBitmap
+
+
+<!-- 4.open more workers by pipeline + json when loop -->
+<!-- e.g. collide/physic worker -->
+
+3.move ComputePhysicsJob to physics worker
 
 
 explain:
@@ -103,27 +110,14 @@ defer one frame in physics worker:
     now compute job exec after update transform job
 
 
-performance test:
-before
-after
+TODO explain why use physics data buffer:
+share buffer to physics worker, then create typeArray in physics worker
 
-<!-- do heave compute in cpu:
-    for 100M to compute average to update position -->
-
-
-5.open more workers by pipeline + json when load
-e.g. load big model worker
 
 
 performance test:
 before
 after
-
-
-
-
-6.support worker, no worker
-
 
 
 
@@ -242,3 +236,6 @@ log
 # 主问题：推荐更多资料
 
 - 推荐更多资料？
+
+[JavaScript in parallel](https://50linesofco.de/post/2017-02-06-javascript-in-parallel-web-workers-transferables-and-sharedarraybuffer)
+[WebGL Off the Main Thread](https://hacks.mozilla.org/2016/01/webgl-off-the-main-thread/)

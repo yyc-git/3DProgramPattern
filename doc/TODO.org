@@ -54,6 +54,11 @@ noWorker add it
 ** DONE support worker, no worker
 
 
+** TODO add UMLs
+
+** TODO add abstract code
+
+
 
 
 * TODO give where has code, uml and how to run code and run result for each example
