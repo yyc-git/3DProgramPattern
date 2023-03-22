@@ -51,7 +51,7 @@ noWorker add it
 
 ** DONE rename story_after to story_improve
 
-** TODO support worker, no worker
+** DONE support worker, no worker
 
 
 
