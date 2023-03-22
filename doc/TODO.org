@@ -49,7 +49,7 @@ noWorker add it
 
 # ** TODO shared DO by SharedArrayBuffer
 
-** TODO rename story_after to story_improve
+** DONE rename story_after to story_improve
 
 ** TODO support worker, no worker
 

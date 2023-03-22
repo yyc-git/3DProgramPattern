@@ -1,5 +1,5 @@
 {
-  "name": "multithread_pattern_story_after",
+  "name": "multithread_pattern_story_improve",
   "version": "0.0.1",
   "scripts": {
     "watch": "tsc -w -noEmit",
