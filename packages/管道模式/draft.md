@@ -156,6 +156,10 @@ Job可以拿到每个渲染管道的数据，不过只依赖于管道数据的�
     concat/merge
 
 
+explain:
+is_set_state
+    now only work with type:"job"
+
     - 结合UML图，描述如何具体地解决问题？
     通过Json定制管线
 

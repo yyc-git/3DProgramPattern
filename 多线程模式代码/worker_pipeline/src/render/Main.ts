@@ -1,5 +1,4 @@
 import { state as worldState } from "mutltithread_pattern_world/src/WorldStateType"
-import { Map } from "immutable"
 import { pipeline } from "pipeline_manager/src/type/PipelineType"
 import { pipelineName, state } from "worker_pipeline_state_type/src/render/StateType"
 import { exec as execGetInitRenderData } from "./jobs/init/GetInitRenderDataJob"
@@ -7,6 +6,7 @@ import { exec as execCreateGL } from "./jobs/init/CreateGLJob"
 import { exec as execInitVBO } from "./jobs/init/InitVBOJob"
 import { exec as execInitMaterial } from "./jobs/init/InitMaterialJob"
 import { exec as execInitDataOrientedComponents } from "./jobs/init/InitDataOrientedComponentsJob"
+import { exec as execCreateRenderDataBufferTypeArray } from "./jobs/init/CreateRenderDataBufferTypeArrayJob"
 import { exec as execSendFinishInitRenderData } from "./jobs/init/SendFinishInitRenderDataJob"
 import { exec as execGetRenderData } from "./jobs/render/GetRenderDataJob"
 import { exec as execSendUniformShaderData } from "./jobs/render/SendUniformShaderDataJob"
@@ -19,6 +19,8 @@ let _getExec = (_pipelineName: string, jobName: string) => {
             return execGetInitRenderData
         case "init_data_oriented_components_render_worker":
             return execInitDataOrientedComponents
+        case "create_render_data_buffer_typeArray_render_worker":
+            return execCreateRenderDataBufferTypeArray
         case "init_vbo_render_worker":
             return execInitVBO
         case "create_gl_render_worker":
@@ -54,6 +56,7 @@ export let getPipeline = (): pipeline<worldState, state> => {
                 program: null,
                 viewMatrix: null,
                 pMatrix: null,
+                renderDataBuffer: null,
                 typeArray: null,
                 renderGameObjectsCount: 0,
                 allMaterialIndices: null,
@@ -77,6 +80,10 @@ export let getPipeline = (): pipeline<worldState, state> => {
                         },
                         {
                             "name": "init_data_oriented_components_render_worker",
+                            "type_": "job"
+                        },
+                        {
+                            "name": "create_render_data_buffer_typeArray_render_worker",
                             "type_": "job"
                         },
                         {

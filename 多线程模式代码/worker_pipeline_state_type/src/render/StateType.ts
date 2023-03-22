@@ -1,4 +1,3 @@
-import type {Map} from "immutable"
 import { component as material } from "multithread_pattern_ecs/src/component/NoLightMaterialComponentType"
 
 export const pipelineName = "Worker_Render"
@@ -14,14 +13,15 @@ export type state = {
     vbo: vbo,
     viewMatrix: Float32Array | null,
     pMatrix: Float32Array | null,
-    typeArray: null | Uint32Array,
+    renderDataBuffer: SharedArrayBuffer | null,
+    typeArray: Uint32Array | null,
     renderGameObjectsCount: number | null
     canvas: OffscreenCanvas | null,
     allMaterialIndices: Array<material> | null,
     transformComponentCount: number | null,
     noLightMaterialComponentCount: number | null,
     transformComponentBuffer: SharedArrayBuffer | null,
-    noLightMaterialComponentBuffer: OffscreenCanvas | null,
+    noLightMaterialComponentBuffer: SharedArrayBuffer | null,
 }
 
 export type states = {

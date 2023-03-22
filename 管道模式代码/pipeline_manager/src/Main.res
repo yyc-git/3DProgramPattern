@@ -136,6 +136,8 @@ module ParsePipelineData = {
           _buildJobStream(stateOperateFuncs, mostService, is_set_state, exec),
         )
       | #group =>
+        // TODO fix: handle is_set_state for group
+
         let group = _findGroup(name, groups)
         let stream = buildPipelineStreamFunc(
           stateOperateFuncs,

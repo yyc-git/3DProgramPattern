@@ -2,24 +2,24 @@ import { state as worldState } from "mutltithread_pattern_world/src/WorldStateTy
 import { service as mostService } from "most/src/MostService"
 import { getState, setState } from "../Utils"
 import { exec as execType } from "pipeline_manager/src/type/PipelineType"
-import { states } from "worker_pipeline_state_type/src/main/StateType"
+import { states } from "worker_pipeline_state_type/src/render/StateType"
+import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 
 export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
     let states = getStatesFunc<worldState, states>(worldState)
 
-    return mostService.callFunc(() => {
-        console.log("create worker instance job exec on main worker")
+    let state = getState(states)
 
-        // reference https://webpack.docschina.org/guides/web-workers/#root
-        let renderWorker = new Worker(new URL("../../../render/RenderWorkerMain", import.meta.url))
-        let physicsWorker = new Worker(new URL("../../../physics/PhysicsWorkerMain", import.meta.url))
+    return mostService.callFunc(() => {
+        console.log("create render data buffer type array job exec on render worker");
+
+        let renderDataBufferTypeArray = new Uint32Array(getExnFromStrictNull(state.renderDataBuffer))
 
         return setStatesFunc<worldState, states>(
             worldState,
             setState(states, {
-                ...getState(states),
-                renderWorker,
-                physicsWorker
+                ...state,
+                typeArray: renderDataBufferTypeArray
             })
         )
     })

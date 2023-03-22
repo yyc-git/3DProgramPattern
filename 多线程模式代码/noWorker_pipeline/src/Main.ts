@@ -6,6 +6,7 @@ import { exec as execCreateGL } from "./jobs/init/CreateGLJob"
 import { exec as execInitMaterial } from "./jobs/init/InitMaterialJob"
 import { exec as execInitVBO } from "./jobs/init/InitVBOJob"
 import { exec as execUpdateTransform } from "./jobs/update/UpdateTransformJob"
+import { exec as execComputePhysicsAndUpdate } from "./jobs/update/ComputePhysicsAndUpdateJob"
 import { exec as execRender } from "./jobs/render/RenderJob"
 import { exec as execSendUniformShaderData } from "./jobs/render/SendUniformShaderDataJob"
 
@@ -19,6 +20,8 @@ let _getExec = (_pipelineName: string, jobName: string) => {
 			return execInitVBO
 		case "update_transform_noWorker":
 			return execUpdateTransform
+		case "compute_physics_and_update_noWorker":
+			return execComputePhysicsAndUpdate
 		case "send_uniform_shader_data_noWorker":
 			return execSendUniformShaderData
 		case "render_noWorker":
@@ -74,6 +77,10 @@ export let getPipeline = (): pipeline<worldState, state> => {
 						name: "first_noWorker",
 						link: "concat",
 						elements: [
+							{
+								"name": "compute_physics_and_update_noWorker",
+								"type_": "job"
+							},
 							{
 								"name": "update_transform_noWorker",
 								"type_": "job"

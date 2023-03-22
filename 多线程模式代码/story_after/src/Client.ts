@@ -2,7 +2,7 @@ import { registerPipeline } from "pipeline_manager"
 import { getPipeline as getRootPipeline } from "multithread_pattern_root_pipeline/src/Main"
 import { getPipeline as getMainWorkerPipeline } from "worker_pipeline/src/main/Main"
 import { state as worldState } from "mutltithread_pattern_world/src/WorldStateType"
-import { createState, init, update, render, runPipeline, setPipeManagerState, unsafeGetPipeManagerState } from "mutltithread_pattern_world/src/World"
+import { createState, init, update, runPipeline, setPipeManagerState, unsafeGetPipeManagerState } from "mutltithread_pattern_world/src/World"
 import { createGameObject, createTransformComponent, createNoLightMaterialComponent, setTransformComponent, setNoLightMaterialComponent, setPosition, setColor } from "mutltithread_pattern_world/src/SceneAPI"
 import { range } from "commonlib-ts/src/ArrayUtils"
 
@@ -27,8 +27,8 @@ let _registerAllPipelines = (worldState: worldState) => {
                 insertAction: "after"
             },
             {
-                pipelineName: "render",
-                insertElementName: "render_root",
+                pipelineName: "sync",
+                insertElementName: "sync_root",
                 insertAction: "after"
             }
         ]
@@ -77,6 +77,8 @@ let noLightMaterialComponentCount = 8000
 globalThis.transformComponentCount = transformComponentCount
 globalThis.noLightMaterialComponentCount = noLightMaterialComponentCount
 
+globalThis.maxRenderGameObjectCount = 8000
+
 
 let worldState = createState({ transformComponentCount, noLightMaterialComponentCount })
 
@@ -92,8 +94,8 @@ let canvas = document.querySelector("#canvas")
 
 let _loop = (worldState: worldState) => {
     update(worldState).then(worldState => {
-        render(worldState).then(worldState => {
-            console.log("after render")
+        runPipeline(worldState, "sync").then(worldState => {
+            console.log("after sync")
 
             requestAnimationFrame(
                 (time) => {

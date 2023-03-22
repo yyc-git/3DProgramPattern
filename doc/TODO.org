@@ -31,20 +31,29 @@ compute fps, timeline
 
 
 
-** TODO update add //ComputeCollisionJob ComputePhysicsJob
+** DONE update add //ComputeCollisionJob ComputePhysicsJob
 
 
-** TODO move ComputePhysicsJob to physics worker
+** DONE move ComputePhysicsJob to physics worker
 
 
-** TODO open more workers by pipeline + json
+worker
+
+
+noWorker add it
+
+
+# ** TODO open more workers by pipeline + json
 
 
 
-** TODO shared DO by SharedArrayBuffer
+# ** TODO shared DO by SharedArrayBuffer
 
+** TODO rename story_after to story_improve
 
 ** TODO support worker, no worker
+
+
 
 
 * TODO give where has code, uml and how to run code and run result for each example

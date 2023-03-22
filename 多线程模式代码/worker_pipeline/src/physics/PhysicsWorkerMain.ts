@@ -1,14 +1,14 @@
 import { service as mostService } from "most/src/MostService"
-import { createStateForWorker, init, render } from "mutltithread_pattern_world/src/WorldForRenderWorker"
+import { createStateForWorker, init, update } from "mutltithread_pattern_world/src/WorldForPhysicsWorker"
 import { state as worldState } from "mutltithread_pattern_world/src/WorldStateType"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 import { registerPipeline } from "pipeline_manager"
 import { getPipeline as getRootPipeline } from "multithread_pattern_root_pipeline/src/Main"
-import { getPipeline as getRenderWorkerPipeline } from "./Main"
+import { getPipeline as getPhysicsWorkerPipeline } from "./Main"
 import { setPipeManagerState, unsafeGetPipeManagerState } from "mutltithread_pattern_world/src/World"
 
 let _frame = (worldState: worldState) => {
-	return render(worldState)
+	return update(worldState)
 }
 
 let _registerAllPipelines = (worldState: worldState): worldState => {
@@ -19,7 +19,7 @@ let _registerAllPipelines = (worldState: worldState): worldState => {
 	)
 	pipelineManagerState = registerPipeline(
 		pipelineManagerState,
-		getRenderWorkerPipeline(),
+		getPhysicsWorkerPipeline(),
 		[
 			{
 				pipelineName: "init",
@@ -27,8 +27,8 @@ let _registerAllPipelines = (worldState: worldState): worldState => {
 				insertAction: "after"
 			},
 			{
-				pipelineName: "render",
-				insertElementName: "render_root",
+				pipelineName: "update",
+				insertElementName: "update_root",
 				insertAction: "after"
 			}
 		]
@@ -45,7 +45,7 @@ worldState = _registerAllPipelines(worldState)
 let tempWorldState: worldState | null = null
 
 init(worldState).then(worldState => {
-	console.log("finish init on render worker");
+	console.log("finish init on physics worker");
 
 	tempWorldState = worldState
 })

@@ -8,26 +8,24 @@ import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 	let states = getStatesFunc<worldState, states>(worldState)
 
-	let { worker, typeArray, renderGameObjectsCount } = getState(states)
+	let { renderWorker, renderGameObjectsCount } = getState(states)
 
 	return mostService.callFunc(() => {
 		console.log("send render data job exec on main worker")
 
-		worker = getExnFromStrictNull(worker)
-		let uint32Array = getExnFromStrictNull(typeArray)
+		renderWorker = getExnFromStrictNull(renderWorker)
 		renderGameObjectsCount = getExnFromStrictNull(renderGameObjectsCount)
 
 		let viewMatrix = new Float32Array([1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0])
 		let pMatrix = new Float32Array([1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0])
 
-		worker.postMessage({
+		renderWorker.postMessage({
 			operateType: "SEND_RENDER_DATA",
 			camera: {
 				viewMatrix,
 				pMatrix
 			},
 			renderDataBuffer: {
-				typeArray: uint32Array,
 				renderGameObjectCount: renderGameObjectsCount
 			}
 		})

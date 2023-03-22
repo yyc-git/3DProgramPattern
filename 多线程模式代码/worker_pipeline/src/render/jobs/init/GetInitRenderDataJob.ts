@@ -8,15 +8,17 @@ import { createGetMainWorkerDataStream } from "../../../CreateWorkerDataStreamUt
 export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
     let states = getStatesFunc<worldState, states>(worldState)
 
-    let offscreenCanvas: OffscreenCanvas;
-    let allMaterialIndices: number[];
-    let transformComponentCount, noLightMaterialComponentCount
-    let transformComponentBuffer, noLightMaterialComponentBuffer
+    let offscreenCanvas: OffscreenCanvas
+    let renderDataBuffer: SharedArrayBuffer
+    let allMaterialIndices: Array<number>
+    let transformComponentCount: number, noLightMaterialComponentCount: number
+    let transformComponentBuffer: SharedArrayBuffer, noLightMaterialComponentBuffer: SharedArrayBuffer
 
     return createGetMainWorkerDataStream(
         mostService,
         (event: MessageEvent) => {
-            offscreenCanvas = event.data.canvas;
+            offscreenCanvas = event.data.canvas
+            renderDataBuffer = event.data.renderDataBuffer
             allMaterialIndices = event.data.allMaterialIndices
             transformComponentCount = event.data.transformComponentCount
             noLightMaterialComponentCount = event.data.noLightMaterialComponentCount
@@ -26,13 +28,14 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
         "SEND_INIT_RENDER_DATA",
         self as any as Worker
     ).map(() => {
-        console.log("get init render data job exec on render worker");
+        console.log("get init render data job exec on render worker")
 
         return setStatesFunc<worldState, states>(
             worldState,
             setState(states, {
                 ...getState(states),
                 canvas: offscreenCanvas,
+                renderDataBuffer: renderDataBuffer,
                 allMaterialIndices: allMaterialIndices,
                 transformComponentCount: transformComponentCount,
                 noLightMaterialComponentCount: noLightMaterialComponentCount,

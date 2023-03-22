@@ -8,14 +8,18 @@ import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 	let states = getStatesFunc<worldState, states>(worldState)
 
-	let { worker } = getState(states)
+	let { renderWorker, physicsWorker } = getState(states)
 
 	return mostService.callFunc(() => {
 		console.log("send begin loop data job exec on main worker")
 
-		worker = getExnFromStrictNull(worker)
+		renderWorker = getExnFromStrictNull(renderWorker)
+		physicsWorker = getExnFromStrictNull(physicsWorker)
 
-		worker.postMessage({
+		renderWorker.postMessage({
+			operateType: "SEND_BEGIN_LOOP"
+		})
+		physicsWorker.postMessage({
 			operateType: "SEND_BEGIN_LOOP"
 		})
 

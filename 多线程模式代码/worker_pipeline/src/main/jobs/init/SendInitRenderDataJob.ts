@@ -9,24 +9,25 @@ import { getAllComponents as getAllNoLightMaterials } from "multithread_pattern_
 export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 	let states = getStatesFunc<worldState, states>(worldState)
 
-	let { worker } = getState(states)
+	let { renderWorker, renderDataBuffer } = getState(states)
 
 	return mostService.callFunc(() => {
 		console.log("send init render data job exec on main worker")
 
-		worker = getExnFromStrictNull(worker)
+		renderWorker = getExnFromStrictNull(renderWorker)
 
-		let canvas: HTMLCanvasElement = globalThis.canvas
-		let transformComponentCount = globalThis.transformComponentCount
-		let noLightMaterialComponentCount = globalThis.noLightMaterialComponentCount
+		let canvas: HTMLCanvasElement = (globalThis as any).canvas
+		let transformComponentCount = (globalThis as any).transformComponentCount
+		let noLightMaterialComponentCount = (globalThis as any).noLightMaterialComponentCount
 
 		let offscreenCanvas: OffscreenCanvas = canvas.transferControlToOffscreen()
 
 		let allMaterialIndices = getAllNoLightMaterials(getExnFromStrictNull(worldState.ecsData.noLightMaterialComponentManagerState))
 
-		worker.postMessage({
+		renderWorker.postMessage({
 			operateType: "SEND_INIT_RENDER_DATA",
 			canvas: offscreenCanvas,
+			renderDataBuffer: getExnFromStrictNull(renderDataBuffer),
 			allMaterialIndices: allMaterialIndices,
 			transformComponentCount,
 			noLightMaterialComponentCount,

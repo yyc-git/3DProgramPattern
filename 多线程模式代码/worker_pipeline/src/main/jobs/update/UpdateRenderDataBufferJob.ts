@@ -17,7 +17,7 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
 		console.log("update render data buffer job exec on main worker");
 
 		let allGameObjects = getAllGameObjects(getExnFromStrictNull(worldState.ecsData.gameObjectManagerState));
-		let typeArray = getExnFromStrictNull(state.typeArray)
+		let renderDataBufferTypeArray = getExnFromStrictNull(state.renderDataBufferTypeArray)
 		let renderGameObjectsCount = 0;
 		let typeArrayIndex: number = 0;
 
@@ -25,8 +25,8 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
 			let material = getMaterialExn(getExnFromStrictNull(worldState.ecsData.noLightMaterialComponentManagerState), gameObject)
 			let transform = getTransformExn(getExnFromStrictNull(worldState.ecsData.transformComponentManagerState), gameObject)
 
-			typeArray[typeArrayIndex * 2] = transform
-			typeArray[typeArrayIndex * 2 + 1] = material
+			renderDataBufferTypeArray[typeArrayIndex * 2] = transform
+			renderDataBufferTypeArray[typeArrayIndex * 2 + 1] = material
 
 			renderGameObjectsCount++;
 			typeArrayIndex++;
@@ -36,8 +36,8 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
 			worldState,
 			setState(states, {
 				...state,
-				renderGameObjectsCount,
-				typeArray: typeArray
+				renderDataBufferTypeArray,
+				renderGameObjectsCount
 			})
 		)
 	})

@@ -64,6 +64,10 @@ is_set_state
 
 
 explain:
+defer one frame in render worker
+
+
+explain:
 RenderWorkerMain->_frame:
     no loop, exec one frame when get  "SEND_BEGIN_LOOP" from main worker->SendBeginLoopJob instead!
 
@@ -94,12 +98,17 @@ defer dispose?
 e.g. collide/physic worker
 
 
+explain:
+defer one frame in physics worker:
+    now compute job exec after update transform job
+
+
 performance test:
 before
 after
 
-do heave compute in cpu:
-    for 100M to compute average to update position
+<!-- do heave compute in cpu:
+    for 100M to compute average to update position -->
 
 
 5.open more workers by pipeline + json when load

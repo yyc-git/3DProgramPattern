@@ -4,6 +4,7 @@ import { pipelineName, state } from "multithread_pattern_root_pipeline_state_typ
 import { exec as execInit } from "./jobs/init/InitJob"
 import { exec as execUpdate } from "./jobs/update/UpdateJob"
 import { exec as execRender } from "./jobs/render/RenderJob"
+import { exec as execSync } from "./jobs/sync/SyncJob"
 
 let _getExec = (_pipelineName: string, jobName: string) => {
 	switch (jobName) {
@@ -13,6 +14,8 @@ let _getExec = (_pipelineName: string, jobName: string) => {
 			return execUpdate
 		case "render_root":
 			return execRender
+		case "sync_root":
+			return execSync
 		default:
 			return null
 	}
@@ -69,6 +72,22 @@ export let getPipeline = (): pipeline<worldState, state> => {
 						elements: [
 							{
 								"name": "render_root",
+								"type_": "job"
+							},
+						]
+					}
+				],
+				first_group: "first_root"
+			},
+			{
+				name: "sync",
+				groups: [
+					{
+						name: "first_root",
+						link: "concat",
+						elements: [
+							{
+								"name": "sync_root",
 								"type_": "job"
 							},
 						]
