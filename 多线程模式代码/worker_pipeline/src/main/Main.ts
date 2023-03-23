@@ -18,7 +18,7 @@ import { exec as execUpdateAllTransformPositions } from "./jobs/sync/UpdateAllTr
 
 let _getExec = (_pipelineName: string, jobName: string) => {
 	switch (jobName) {
-		case "create_main_worker_instance_main_worker":
+		case "create_worker_instance_main_worker":
 			return execCreateWorkerInstance
 		case "create_render_data_buffer_main_worker":
 			return execCreateRenderDataBuffer
@@ -75,7 +75,7 @@ export let getPipeline = (): pipeline<worldState, state> => {
 					link: "concat",
 					elements: [
 						{
-							"name": "create_main_worker_instance_main_worker",
+							"name": "create_worker_instance_main_worker",
 							"type_": "job"
 						},
 						{
