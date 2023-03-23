@@ -8,7 +8,7 @@ import { exec as execSendInitRenderData } from "./jobs/init/SendInitRenderDataJo
 import { exec as execSendInitPhysicsData } from "./jobs/init/SendInitPhysicsDataJob"
 import { exec as execGetFinishSendInitRenderData } from "./jobs/init/GetFinishSendInitRenderDataJob"
 import { exec as execGetFinishSendInitPhysicsData } from "./jobs/init/GetFinishSendInitPhysicsDataJob"
-import { exec as execUpdateTransform } from "./jobs/update/UpdateTransformJob"
+import { exec as execUpdateTransform } from "./jobs/sync/UpdateTransformJob"
 import { exec as execUpdateRenderDataBuffer } from "./jobs/update/UpdateRenderDataBufferJob"
 import { exec as execSendRenderData } from "./jobs/update/SendRenderDataJob"
 import { exec as execSendBeginLoopData } from "./jobs/update/SendBeginLoopDataJob"
@@ -167,23 +167,9 @@ export let getPipeline = (): pipeline<worldState, state> => {
 						{
 							"name": "send_render_data_main_worker",
 							"type_": "job"
-						},
-						{
-							"name": "update",
-							"type_": "group"
 						}
 					]
 				},
-				{
-					name: "update",
-					link: "concat",
-					elements: [
-						{
-							"name": "update_transform_main_worker",
-							"type_": "job"
-						},
-					]
-				}
 			],
 			first_group: "first_main_worker"
 		},
@@ -200,6 +186,10 @@ export let getPipeline = (): pipeline<worldState, state> => {
 						},
 						{
 							"name": "update_all_transform_positions_main_worker",
+							"type_": "job"
+						},
+						{
+							"name": "update_transform_main_worker",
 							"type_": "job"
 						}
 					]
