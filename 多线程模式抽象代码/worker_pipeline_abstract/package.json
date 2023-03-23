@@ -1,0 +1,10 @@
+{
+    "name": "worker_pipeline_abstract",
+    "version": "0.0.1",
+    "scripts": {
+        "watch": "tsc -w -noEmit"
+    },
+    "devDependencies": {
+        "typescript": "^4.2.3"
+    }
+}

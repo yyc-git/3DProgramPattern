@@ -6,7 +6,7 @@ import { batchUpdate } from "../../../../../multithread_pattern_ecs/src/manager/
 
 export let exec: execType<worldState> = (worldState, _) => {
     return mostService.callFunc(() => {
-        console.log("update transform job")
+        console.log("update transform job exec on main worker")
 
         let transformComponentManagerState = batchUpdate(getExnFromStrictNull(worldState.ecsData.transformComponentManagerState))
 

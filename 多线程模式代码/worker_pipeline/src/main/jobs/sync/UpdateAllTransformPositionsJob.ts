@@ -34,7 +34,7 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
     let state = getState(states)
 
     return mostService.callFunc(() => {
-        console.log("update all transform positions job")
+        console.log("update all transform positions job exec on main worker")
 
         worldState = _updateAllTransformPositions(worldState, getExnFromStrictNull(state.physicsDataBufferTypeArray))
 

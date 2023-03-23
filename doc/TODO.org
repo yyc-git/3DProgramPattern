@@ -4,7 +4,7 @@
 
 * DONE refactor: use worldState instead managerState in exec func
 
-* TODO multithread demo
+* DONE multithread demo
 
 
 ** DONE no worker
@@ -54,7 +54,7 @@ noWorker add it
 ** DONE support worker, no worker
 
 
-** TODO add UMLs
+** DONE add UMLs
 
 before
 
@@ -76,7 +76,7 @@ post message
 SharedArrayBuffer
 
 
-** TODO add abstract code
+** DONE add abstract code
 
 
 

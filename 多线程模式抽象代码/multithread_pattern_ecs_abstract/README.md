@@ -1,0 +1,1 @@
+refer to "ecs_pattern_role_abstract/component/", "ecs_pattern_role_abstract/gameObject/", "ecs_pattern_role_abstract/manager/"
