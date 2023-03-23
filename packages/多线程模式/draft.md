@@ -66,6 +66,7 @@ is_set_state
 
 explain:
 defer one frame in render worker
+    render last frame
 
 
 explain:
@@ -113,10 +114,15 @@ can very correction by log
 explain:
 defer one frame in physics worker:
     now compute job exec after update transform job
+    compute last frame
 
 
 TODO explain why use physics data buffer:
 share buffer to physics worker, then create typeArray in physics worker
+
+
+explain:
+because physics worker not need data from main worker, so no need Send Physics Data in main worker and Get Physics Data in physics worker
 
 
 
