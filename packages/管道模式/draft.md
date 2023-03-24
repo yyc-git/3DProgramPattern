@@ -160,6 +160,10 @@ explain:
 is_set_state
     now only work with type:"job"
 
+介绍pipeManager实现原理
+
+
+
     - 结合UML图，描述如何具体地解决问题？
     通过Json定制管线
 

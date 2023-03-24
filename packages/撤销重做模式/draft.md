@@ -170,6 +170,11 @@ data oriented component buffer
 (should ???)
 
 
+
+TODO
+reallocate geometry gameobject map
+
+
     - 使用场景是什么？
     - UML如何变化？
     - 代码如何变化？
