@@ -1,0 +1,12 @@
+{
+  "name": "redoundo_pattern_story_before",
+  "version": "0.0.1",
+  "scripts": {
+    "watch": "tsc -w -noEmit",
+    "client": "ts-node src/Client.ts"
+  },
+  "devDependencies": {
+    "typescript": "^4.2.3",
+    "ts-node": "^10.9.1"
+  }
+}
