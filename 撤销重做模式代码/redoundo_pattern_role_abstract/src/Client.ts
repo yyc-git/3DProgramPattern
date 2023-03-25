@@ -1,8 +1,8 @@
-import { createState, operate1, redo, undo } from "./System";
+import { createState, doSomething, redo, undo } from "./System";
 
 let state = createState()
 
-state = operate1(state)
+state = doSomething(state)
 
 state = undo(state)
 

@@ -1,29 +1,39 @@
 import { Stack } from "immutable"
 import { pushAllStates, undo as undoRedoUndoManager, redo as redoRedoUndoManager } from "./RedoUndoManager"
-import * as SubSystem1 from "./SubSystem1"
+import * as ImmutableAndMutableSubSystem1 from "./ImmutableAndMutableSubSystem1"
+import * as ImmutableSubSystem1 from "./ImmutableSubSystem1"
 
 export type state = {
-    subSystem1StatesForUndo: Stack<SubSystem1.state>,
-    subSystem1StatesForRedo: Stack<SubSystem1.state>,
-    subSystem1State: SubSystem1.state,
+    immutableAndMutableSubSystem1StatesForUndo: Stack<ImmutableAndMutableSubSystem1.state>,
+    immutableAndMutableSubSystem1StatesForRedo: Stack<ImmutableAndMutableSubSystem1.state>,
+    immutableSubSystem1StatesForUndo: Stack<ImmutableSubSystem1.state>,
+    immutableSubSystem1StatesForRedo: Stack<ImmutableSubSystem1.state>,
+    immutableAndMutableSubSystem1State: ImmutableAndMutableSubSystem1.state,
+    immutableSubSystem1State: ImmutableSubSystem1.state,
 }
 
 export let createState = (): state => {
     return {
-        subSystem1StatesForUndo: Stack(),
-        subSystem1StatesForRedo: Stack(),
-        subSystem1State: SubSystem1.createState(),
+        immutableAndMutableSubSystem1StatesForUndo: Stack(),
+        immutableAndMutableSubSystem1StatesForRedo: Stack(),
+        immutableSubSystem1StatesForUndo: Stack(),
+        immutableSubSystem1StatesForRedo: Stack(),
+        immutableAndMutableSubSystem1State: ImmutableAndMutableSubSystem1.createState(),
+        immutableSubSystem1State: ImmutableSubSystem1.createState(),
     }
 }
 
-export let operate1 = (state: state) => {
+export let doSomething = (state: state) => {
     state = pushAllStates(state)
 
-    let subSystem1State = SubSystem1.doWhenOperate1(state.subSystem1State)
+    let immutableAndMutableSubSystem1State = ImmutableAndMutableSubSystem1.doSomething(state.immutableAndMutableSubSystem1State)
+
+    let immutableSubSystem1State = ImmutableSubSystem1.doSomething(state.immutableSubSystem1State)
 
     return {
         ...state,
-        subSystem1State
+        immutableAndMutableSubSystem1State,
+        immutableSubSystem1State
     }
 }
 
