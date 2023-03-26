@@ -182,6 +182,7 @@ is_set_state
     - 分析角色？
     - 角色之间的关系？
     - 角色的抽象代码？
+    TODO give pipeline manager abstract code
     - 遵循的设计原则在UML中的体现？
 
 
@@ -215,8 +216,8 @@ is_set_state
     
 
 
-    <!-- 配置数据
-        pipeline json+job json -->
+    配置数据
+        pipeline json+job json
 
 
 - 结合其它模式

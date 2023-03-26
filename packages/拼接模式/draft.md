@@ -1,7 +1,94 @@
+1.story_improve
+
+preprocess:
+
+- prepare glsl
+- glsl compiler->ShaderChunks
+
+runtime:
+- get shaderChunks to state
+- load json
+use most
+
+配置数据
+    shaders.json
+    shader_libs.json
+
+- parse json
+<!-- - handle shader libs with shader config -->
+- handle shader libs with shader config
+static branch
+    fixed branch name
+dynamic branch
+    fixed
+
+<!-- define:
+handle define const -->
+
+- handle sender
+sender: add to specific sender array
+attribute
+uniform
+
+
+add pos, type, send func, ...
+
+
+<!-- 
+handle result:
+shader libs
+sender array -->
+
+- Builder: shader libs + ShaderChunks to vs glsl, fs glsl
+support all parts
+
+
+
+
+result:
+glsl
+sender
+
+
+
+
+
+
+
+2.story_before
+
+one big vs glsl + one big fs glsl
+
+#define
+
+#if
+
+3.abstract
+
+give glsl compile abstract code
+
+
+
+4.UML
+
+domain model
+
+flow
+
+
+shader组合图
+
+
+
 # 引入故事，提出问题
 
 - 引入故事
     - 描述故事
+TODO why need glsl?
+for material->shader
+
+
+
     - 给出代码
 
     - 给出UML
@@ -67,6 +154,7 @@
 - 应用
     - 优点？
     - 缺点？
+无法正确使用.glsl的编译检查
     - 使用场景
     - 描述场景？
     - 实现该场景需要修改模式的哪些角色？
@@ -76,6 +164,11 @@
 - 扩展
     - 如何扩展、推广、发散？
 
+反射？
+
+
+更多的配置：
+e.g. define: handle define const
 
 
 - 结合其它模式

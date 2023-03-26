@@ -79,9 +79,24 @@ SharedArrayBuffer
 ** DONE add abstract code
 
 
+* TODO glsl build demo
 
+** TODO glsl compiler->ShaderChunks
+
+change to rescript
+
+add as gulp task
+
+
+
+* TODO 重命名“类图”为“领域模型”
+
+* TODO 抽象代码尽量都用Typescript
 
 * TODO give where has code, uml and how to run code and run result for each example
 
 
 * TODO 修改接口为type，《type》
+
+
+* TODO 简化UML
