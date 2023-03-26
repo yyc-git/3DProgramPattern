@@ -81,11 +81,16 @@ SharedArrayBuffer
 
 * TODO glsl build demo
 
-** TODO glsl compiler->ShaderChunks
+** DONE glsl compiler->ShaderChunks
 
-change to rescript
+# change to rescript
 
-add as gulp task
+# add as gulp task
+
+# pass run test
+
+
+////clean first
 
 
 

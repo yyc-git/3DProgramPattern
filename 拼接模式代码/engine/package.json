@@ -1,0 +1,12 @@
+{
+  "name": "splice_pattern_engine",
+  "version": "0.0.1",
+  "scripts": {
+    "watch": "tsc -w -noEmit",
+    "preprocess": "gulp createShaderChunkFile"
+  },
+  "devDependencies": {
+    "gulp": "^4.0.2",
+    "typescript": "^4.2.3"
+  }
+}
