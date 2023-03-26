@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "scripts": {
     "watch": "tsc -w -noEmit",
-    "preprocess": "gulp createShaderChunkFile"
+    "preprocess:ts": "gulp createShaderChunkFile_ts",
+    "preprocess:res": "gulp createShaderChunkFile_res"
   },
   "devDependencies": {
     "gulp": "^4.0.2",

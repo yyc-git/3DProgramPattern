@@ -1,4 +1,4 @@
-let _functionContent = `
+let _functionContentForTs = `
   let _buildChunk =
       (
         [ top, define ]:[string, string],
@@ -19,15 +19,44 @@ let _functionContent = `
   export let getData = () =>{
   `
 
-let _buildInitDataContent = (glslContent: string) =>
+let _buildInitDataContentForTs = (glslContent: string) =>
   j`
         return {
           $glslContent
         }
   `
 
-let _buildChunkFileContent = glslContent =>
-  _functionContent ++ _buildInitDataContent(glslContent) ++ "}"
+let _functionContentForRes = `
+  open Glsl_compiler.ShaderChunkType
+
+
+  let _buildChunk =
+      (
+        ( top:string, define:string ),
+        varDeclare: string,
+        ( funcDeclare:string, funcDefine:string ),
+        body: string
+      ) => {
+    {
+      top,
+      define,
+      varDeclare,
+      funcDeclare,
+      funcDefine,
+      body
+    }
+  };
+
+  let getData = () =>{
+  `
+
+let _buildInitDataContentForRes = (glslContent: string) =>
+  j`
+          $glslContent
+  `
+
+let _buildChunkFileContent = ((buildInitDataContent, functionContent), glslContent) =>
+  functionContent ++ buildInitDataContent(glslContent) ++ "}"
 
 let _writeToChunkFile = (destFilePath, doneFunc, content) => {
   Node.Fs.writeFileSync(destFilePath, content, #utf8)
@@ -37,7 +66,12 @@ let _writeToChunkFile = (destFilePath, doneFunc, content) => {
 let _convertArrayToList = (array: array<string>) =>
   array |> Js.Array.reduce((list, str) => list{str, ...list}, list{})
 
-let createChunkFile = (glslPathArr: array<string>, destFilePath: string, doneFunc) =>
+let _createChunkFile = (
+  _buildChunkFileContent,
+  glslPathArr: array<string>,
+  destFilePath: string,
+  doneFunc,
+) =>
   glslPathArr
   |> Js.Array.map(glslPath => Glob.sync(glslPath))
   |> ArraySystem.flatten
@@ -48,3 +82,39 @@ let createChunkFile = (glslPathArr: array<string>, destFilePath: string, doneFun
   |> Parse.parseImport
   |> _buildChunkFileContent
   |> _writeToChunkFile(destFilePath, doneFunc)
+
+let createChunkFile = (glslPathArr: array<string>, destFilePath: string, doneFunc) =>
+  _createChunkFile(
+    _buildChunkFileContent((_buildInitDataContentForTs, _functionContentForTs)),
+    glslPathArr,
+    destFilePath,
+    doneFunc,
+  )
+// glslPathArr
+// |> Js.Array.map(glslPath => Glob.sync(glslPath))
+// |> ArraySystem.flatten
+// |> _convertArrayToList
+// |> List.map(actualGlslPath =>
+//   Node.Fs.readFileSync(actualGlslPath, #utf8) |> Parse.parseSegment(actualGlslPath)
+// )
+// |> Parse.parseImport
+// |> _buildChunkFileContent((_buildInitDataContentForTs, _functionContentForTs))
+// |> _writeToChunkFile(destFilePath, doneFunc)
+
+let createChunkFileForRes = (glslPathArr: array<string>, destFilePath: string, doneFunc) =>
+  _createChunkFile(
+    _buildChunkFileContent((_buildInitDataContentForRes, _functionContentForRes)),
+    glslPathArr,
+    destFilePath,
+    doneFunc,
+  )
+// glslPathArr
+// |> Js.Array.map(glslPath => Glob.sync(glslPath))
+// |> ArraySystem.flatten
+// |> _convertArrayToList
+// |> List.map(actualGlslPath =>
+//   Node.Fs.readFileSync(actualGlslPath, #utf8) |> Parse.parseSegment(actualGlslPath)
+// )
+// |> Parse.parseImport
+// |> _buildChunkFileContent((_buildInitDataContentForRes, _functionContentForRes))
+// |> _writeToChunkFile(destFilePath, doneFunc)

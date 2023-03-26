@@ -94,6 +94,23 @@ SharedArrayBuffer
 
 
 
+** TODO 
+
+- get shaderChunks to state
+- load json
+use most
+
+配置数据
+    shaders.json
+    shader_libs.json
+
+- parse json
+
+
+
+** TODO refactor glsl: only remain used glsl
+
+
 * TODO 重命名“类图”为“领域模型”
 
 * TODO 抽象代码尽量都用Typescript

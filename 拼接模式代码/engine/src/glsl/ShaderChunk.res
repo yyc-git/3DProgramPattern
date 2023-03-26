@@ -1,12 +1,15 @@
 
+  open Glsl_compiler.ShaderChunkType
+
+
   let _buildChunk =
       (
-        [ top, define ]:[string, string],
+        ( top:string, define:string ),
         varDeclare: string,
-        [ funcDeclare, funcDefine ]:[string, string],
+        ( funcDeclare:string, funcDefine:string ),
         body: string
       ) => {
-    return {
+    {
       top,
       define,
       varDeclare,
@@ -16,9 +19,8 @@
     }
   };
 
-  export let getData = () =>{
+  let getData = () =>{
   
-        return {
           "webgl1_skybox_vertex": _buildChunk([``, ``],`varying vec3 v_texCoord;`,[``, ``],`v_texCoord = a_position;
 
 vec4 pos = u_pMatrix * u_skyboxVMatrix * vec4(a_position, 1.0);
@@ -300,5 +302,4 @@ precision highp int;`, ``],``,[``, ``],``,), "common_vertex": _buildChunk([``, `
     v_mapCoord0 = a_texCoord;`,), "webgl1_basic_map_fragment": _buildChunk([``, ``],`varying vec2 v_mapCoord0;`,[``, ``],`vec4 texelColor = texture2D(u_mapSampler, v_mapCoord0);
 
     vec4 totalColor = vec4(texelColor.rgb * u_color, texelColor.a * u_alpha);`,), 
-        }
   }
