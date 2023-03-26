@@ -5,8 +5,8 @@ var List = require("rescript/lib/js/list.js");
 var Glob = require("glob");
 var Curry = require("rescript/lib/js/curry.js");
 var Js_array = require("rescript/lib/js/js_array.js");
-var Parse$Glsl_compiler = require("./Parse.bs.js");
-var ArraySystem$Glsl_compiler = require("./ArraySystem.bs.js");
+var Parse$Glsl_converter = require("./Parse.bs.js");
+var ArraySystem$Glsl_converter = require("./ArraySystem.bs.js");
 
 var _functionContentForTs = "\n  let _buildChunk =\n      (\n        [ top, define ]:[string, string],\n        varDeclare: string,\n        [ funcDeclare, funcDefine ]:[string, string],\n        body: string\n      ) => {\n    return {\n      top,\n      define,\n      varDeclare,\n      funcDeclare,\n      funcDefine,\n      body\n    }\n  };\n\n  export let getData = () =>{\n  ";
 
@@ -14,7 +14,7 @@ function _buildInitDataContentForTs(glslContent) {
   return "\n        return {\n          " + glslContent + "\n        }\n  ";
 }
 
-var _functionContentForRes = "\n  open Glsl_compiler.ShaderChunkType\n\n\n  let _buildChunk =\n      (\n        ( top:string, define:string ),\n        varDeclare: string,\n        ( funcDeclare:string, funcDefine:string ),\n        body: string\n      ) => {\n    {\n      top,\n      define,\n      varDeclare,\n      funcDeclare,\n      funcDefine,\n      body\n    }\n  };\n\n  let getData = () =>{\n  ";
+var _functionContentForRes = "\n  open Glsl_converter.ShaderChunkType\n\n\n  let _buildChunk =\n      (\n        ( top:string, define:string ),\n        varDeclare: string,\n        ( funcDeclare:string, funcDefine:string ),\n        body: string\n      ) => {\n    {\n      top,\n      define,\n      varDeclare,\n      funcDeclare,\n      funcDefine,\n      body\n    }\n  };\n\n  let getData = () =>{\n  ";
 
 function _buildInitDataContentForRes(glslContent) {
   return "\n          " + glslContent + "\n  ";
@@ -39,9 +39,9 @@ function _convertArrayToList(array) {
 }
 
 function _createChunkFile(_buildChunkFileContent, glslPathArr, destFilePath, doneFunc) {
-  _writeToChunkFile(destFilePath, doneFunc, Curry._1(_buildChunkFileContent, Parse$Glsl_compiler.parseImport(List.map((function (actualGlslPath) {
-                      return Parse$Glsl_compiler.parseSegment(actualGlslPath, Fs.readFileSync(actualGlslPath, "utf8"));
-                    }), _convertArrayToList(ArraySystem$Glsl_compiler.flatten(Js_array.map((function (glslPath) {
+  _writeToChunkFile(destFilePath, doneFunc, Curry._1(_buildChunkFileContent, Parse$Glsl_converter.parseImport(List.map((function (actualGlslPath) {
+                      return Parse$Glsl_converter.parseSegment(actualGlslPath, Fs.readFileSync(actualGlslPath, "utf8"));
+                    }), _convertArrayToList(ArraySystem$Glsl_converter.flatten(Js_array.map((function (glslPath) {
                                   return Glob.sync(glslPath);
                                 }), glslPathArr)))))));
 }

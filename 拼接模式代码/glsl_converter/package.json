@@ -1,5 +1,5 @@
 {
-  "name": "glsl_compiler",
+  "name": "glsl_converter",
   "version": "0.0.1",
   "main": "lib/js/src/Create.bs.js",
   "types": "src/Main.d.ts",

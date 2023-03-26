@@ -1,5 +1,5 @@
 {
-    "name": "glsl_compiler",
+    "name": "glsl_converter",
     "sources": [
         {
             "dir": "src",

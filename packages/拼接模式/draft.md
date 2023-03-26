@@ -3,7 +3,7 @@
 preprocess:
 
 - prepare glsl
-- glsl compiler->ShaderChunks
+- glsl converter->ShaderChunks
 
 runtime:
 - get shaderChunks to state
