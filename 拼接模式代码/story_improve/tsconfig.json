@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES6",
-    "module": "commonjs",
+    "target": "esnext",
+    "module": "esnext",
     "moduleResolution": "node",
     "sourceMap": true,
     "resolveJsonModule": true,
@@ -10,7 +10,7 @@
     // "noEmit": true,
     // "noUnusedLocals": true,
     // "noUnusedParameters": true,
-    "noImplicitAny": false,
+    "noImplicitAny":false,
     "noImplicitReturns": true,
     "lib": [
       "DOM",
@@ -21,5 +21,5 @@
   },
   "include": [
     "./src"
-, "mine/Command.ts", "mine/EditorLogicClass1.ts"  ]
+  ]
 }

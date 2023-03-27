@@ -94,9 +94,8 @@ SharedArrayBuffer
 
 
 
-** TODO 
+** DONE 
 
-- get shaderChunks to state
 - load json
 use most
 
@@ -107,13 +106,57 @@ use most
 - parse json
 
 
+run test in engine/
+
+** TODO 
+independent, add funcs to handle branch
+
+
+
+- handle shader libs with shader config
+static branch
+    fixed branch name
+dynamic branch
+    fixed
+
+<!-- define:
+handle define const -->
+
+- handle sender
+sender: add to specific sender array
+attribute
+uniform
+
+
+add pos, type, send func, ...
+
+
+** TODO 
+- get shaderChunks to state
+- Builder: shader libs + ShaderChunks to vs glsl, fs glsl
+support all parts
+
+
+
+
+result:
+glsl
+sender
+
+
+
+
+
+
 
 ** TODO refactor glsl: only remain used glsl
+
+** TODO refactor: clean code
 
 
 * TODO 重命名“类图”为“领域模型”
 
-* TODO 抽象代码尽量都用Typescript
+* TODO 抽象代码都用Typescript
 
 * TODO give where has code, uml and how to run code and run result for each example
 
@@ -122,3 +165,7 @@ use most
 
 
 * TODO 简化UML
+
+
+* TODO package.json supply dependencies, devDependencies
+e.g. most, commonlib

@@ -6,9 +6,10 @@ preprocess:
 - glsl converter->ShaderChunks
 
 runtime:
-- get shaderChunks to state
+<!-- - get shaderChunks to state -->
 - load json
-use most
+<!-- use most -->
+use webpack->json loader
 
 配置数据
     shaders.json
@@ -39,6 +40,7 @@ handle result:
 shader libs
 sender array -->
 
+- get shaderChunks to state
 - Builder: shader libs + ShaderChunks to vs glsl, fs glsl
 support all parts
 
@@ -67,6 +69,8 @@ one big vs glsl + one big fs glsl
 
 give glsl compile abstract code
 
+abstract: not only for glsl, but for else!
+
 
 
 4.UML
@@ -77,6 +81,10 @@ flow
 
 
 shader组合图
+
+
+abstract UML:
+not only for glsl, but for else!
 
 
 
@@ -101,6 +109,8 @@ for material->shader
 
 - 请给出直接的解决方案?
     - 概述解决方案？
+    TODO explain:
+    glsl compiler support ts, res
     - 给出UML？
     - 给出代码？
     TODO explain:

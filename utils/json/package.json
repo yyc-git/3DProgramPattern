@@ -1,0 +1,19 @@
+{
+  "name": "json",
+  "version": "0.0.1",
+  "description": "",
+  "homepage": "https://github.com/Wonder-Technology/Wonder-bs-json.js",
+  "license": "MIT",
+  "main": "",
+  "scripts": {
+    "watch": "rescript clean && rescript build -w"
+  },
+  "devDependencies": {
+    "babel": "^6.23.0",
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "rescript": "^10.0.1"
+  },
+  "dependencies": {
+  }
+}

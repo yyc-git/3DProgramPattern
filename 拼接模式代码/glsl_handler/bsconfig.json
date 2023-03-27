@@ -1,5 +1,5 @@
 {
-    "name": "glsl_converter",
+    "name": "glsl_handler",
     "sources": [
         {
             "dir": "src",
@@ -10,10 +10,24 @@
         "-bs-no-version-header",
         "-bs-super-errors"
     ],
-    "bs-dev-dependencies": [
-    ],
+    "bs-dev-dependencies": [],
     "bs-dependencies": [
+        "commonlib",
+        "commonlib-type",
+        "json"
     ],
+    "gentypeconfig": {
+        "language": "typescript",
+        "shims": {
+            "Js": "Js"
+        },
+        "module": "es6",
+        "importPath": "relative",
+        "debug": {
+            "all": false
+        },
+        "exportInterfaces": false
+    },
     "package-specs": [
         "commonjs",
         "es6-global"
