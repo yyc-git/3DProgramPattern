@@ -1,7 +1,8 @@
+import { shaderLibs, shaders } from "glsl_handler/src/GLSLConfigType.gen"
 import { state as basicMaterialState } from "./BasicMaterialStateType"
 
 export type state = {
-    shadersJson: JSON,
-    shaderLibsJson: JSON,
+    shaders: shaders,
+    shaderLibs: shaderLibs,
     basicMaterialState: basicMaterialState
 }

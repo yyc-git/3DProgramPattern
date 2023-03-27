@@ -3,13 +3,18 @@
 import * as ParseGLSLConfig$Glsl_handler from "./ParseGLSLConfig.bs.js";
 import * as HandleShaderLibs$Glsl_handler from "./HandleShaderLibs.bs.js";
 
-function handleGLSL(param, shadersJson, shaderLibsJson) {
+function parseGLSLConfig(shadersJson, shaderLibsJson) {
+  return [
+          ParseGLSLConfig$Glsl_handler.parseShaders(shadersJson),
+          ParseGLSLConfig$Glsl_handler.parseShaderLibs(shaderLibsJson)
+        ];
+}
+
+function handleGLSL(param, shaders, shaderLibs) {
   var isPassForDynamicBranch = param[1];
   var match = param[0];
   var getShaderLibFromStaticBranch = match[1];
   var isNameValidForStaticBranch = match[0];
-  var shaders = ParseGLSLConfig$Glsl_handler.parseShaders(shadersJson);
-  var shaderLibs = ParseGLSLConfig$Glsl_handler.parseShaderLibs(shaderLibsJson);
   var materialShaderLibs = HandleShaderLibs$Glsl_handler.getShaderLibsOfShaders([
         [
           isNameValidForStaticBranch,
@@ -29,6 +34,7 @@ function handleGLSL(param, shadersJson, shaderLibsJson) {
 }
 
 export {
+  parseGLSLConfig ,
   handleGLSL ,
 }
 /* No side effect */

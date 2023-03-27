@@ -1,13 +1,12 @@
+let parseGLSLConfig = (shadersJson, shaderLibsJson) => {
+  (ParseGLSLConfig.parseShaders(shadersJson), ParseGLSLConfig.parseShaderLibs(shaderLibsJson))
+}
+
 let handleGLSL = (
   ((isNameValidForStaticBranch, getShaderLibFromStaticBranch), isPassForDynamicBranch),
-  shadersJson,
-  shaderLibsJson,
+  shaders: GLSLConfigType.shaders,
+  shaderLibs: GLSLConfigType.shaderLibs,
 ) => {
-  let (shaders, shaderLibs) = (
-    ParseGLSLConfig.parseShaders(shadersJson),
-    ParseGLSLConfig.parseShaderLibs(shaderLibsJson),
-  )
-
   let materialShaderLibs = HandleShaderLibs.getShaderLibsOfShaders(
     ((isNameValidForStaticBranch, getShaderLibFromStaticBranch), isPassForDynamicBranch),
     shaders.materialShaders,

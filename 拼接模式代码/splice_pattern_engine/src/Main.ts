@@ -1,14 +1,16 @@
 import * as BasicMaterial from "./BasicMaterial"
-import { handleGLSL } from "glsl_handler"
+import { handleGLSL, parseGLSLConfig } from "glsl_handler"
 import { state } from "./MainStateType"
 import { material } from "./BasicMaterialStateType"
 import { curry3_1, curry3_2 } from "fp/src/Curry"
 import { getShaderLibFromStaticBranch, isNameValidForStaticBranch, isPassForDynamicBranch } from "./BasicMaterialShader"
 
 export let createState = (shadersJson, shaderLibsJson): state => {
+    let [shaders, shaderLibs] = parseGLSLConfig(shadersJson, shaderLibsJson)
+
     return {
-        shadersJson,
-        shaderLibsJson,
+        shaders,
+        shaderLibs,
         basicMaterialState: BasicMaterial.createState()
     }
 }
@@ -36,8 +38,8 @@ export let initBasicMaterialShader = (state: state, material: material) => {
             ],
             curry3_2(isPassForDynamicBranch)(material, state.basicMaterialState)
         ],
-        state.shadersJson,
-        state.shaderLibsJson
+        state.shaders,
+        state.shaderLibs
     )
 
 

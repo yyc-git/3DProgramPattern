@@ -1,4 +1,9 @@
-import { shaderLibs, shaderMapDataName, shaderMapDataValue, condition } from "./GLSLConfigType.gen";
+import { shaderLibs, shaderMapDataName, shaderMapDataValue, condition, shaders } from "./GLSLConfigType.gen";
+
+
+export function parseGLSLConfig(
+    shadersJson: JSON, shaderLibsJson: JSON
+): [shaders, shaderLibs]
 
 type isNameValidForStaticBranch = (name: string) => boolean
 
@@ -15,5 +20,5 @@ export function handleGLSL(
             [isNameValidForStaticBranch, getShaderLibFromStaticBranch],
             isPassForDynamicBranch
         ],
-    shadersJson: JSON, shaderLibsJson: JSON
+    shaders: shaders, shaderLibs: shaderLibs
 ): void

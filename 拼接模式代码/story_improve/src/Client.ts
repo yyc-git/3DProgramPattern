@@ -10,8 +10,6 @@ let _fixJsonForArrayBug = (jsonWithArray) => {
     return (jsonWithArray as any).default
 }
 
-// console.log(parseGLSLConfig(shadersJson, _fixJsonForArrayBug(shaderLibsJson)))
-
 let state = createState(shadersJson, _fixJsonForArrayBug(shaderLibsJson))
 
 let materialData = createMaterial(state)
