@@ -1,5 +1,45 @@
-import { parse } from "glsl_handler"
+import * as BasicMaterial from "./BasicMaterial"
+import { handleGLSL } from "glsl_handler"
+import { state } from "./MainStateType"
+import { material } from "./BasicMaterialStateType"
+import { curry3_1, curry3_2 } from "fp/src/Curry"
+import { getShaderLibFromStaticBranch, isNameValidForStaticBranch, isPassForDynamicBranch } from "./BasicMaterialShader"
 
-export let parseGLSLConfig = (shadersJson, shaderLibsJson) => {
-    return parse(shadersJson, shaderLibsJson)
+export let createState = (shadersJson, shaderLibsJson): state => {
+    return {
+        shadersJson,
+        shaderLibsJson,
+        basicMaterialState: BasicMaterial.createState()
+    }
+}
+
+export let createMaterial = (state: state): [state, material] => {
+    let materialData = BasicMaterial.createMaterial(state.basicMaterialState)
+    let basicMaterialState = materialData[0]
+    let material = materialData[1]
+
+    return [
+        {
+            ...state,
+            basicMaterialState: basicMaterialState
+        },
+        material
+    ]
+}
+
+export let initBasicMaterialShader = (state: state, material: material) => {
+    handleGLSL(
+        [
+            [
+                isNameValidForStaticBranch,
+                curry3_1(getShaderLibFromStaticBranch)(state.basicMaterialState)
+            ],
+            curry3_2(isPassForDynamicBranch)(material, state.basicMaterialState)
+        ],
+        state.shadersJson,
+        state.shaderLibsJson
+    )
+
+
+    console.log("继续其它的逻辑，如创建shader对象等。。。。。。。")
 }

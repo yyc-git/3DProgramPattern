@@ -1,5 +1,19 @@
-import { shaderLibs, shaders } from "./GLSLConfigType.gen";
+import { shaderLibs, shaderMapDataName, shaderMapDataValue, condition } from "./GLSLConfigType.gen";
 
-// export function load(shadersJsonPath: string, shaderLibsJsonPath: string): Promise<[shaders, shaderLibs]>
+type isNameValidForStaticBranch = (name: string) => boolean
 
-export function parse(shadersJson: JSON, shaderLibsJson: JSON): [shaders, shaderLibs]
+type getShaderLibFromStaticBranch = (name: shaderMapDataName, value: shaderMapDataValue) => shaderLibs
+
+type isPassForDynamicBranch = (condition: condition) => boolean
+
+export function handleGLSL(
+    [
+        [isNameValidForStaticBranch, getShaderLibFromStaticBranch],
+        isPassForDynamicBranch
+    ]: [
+
+            [isNameValidForStaticBranch, getShaderLibFromStaticBranch],
+            isPassForDynamicBranch
+        ],
+    shadersJson: JSON, shaderLibsJson: JSON
+): void

@@ -183,6 +183,10 @@ for material->shader
 e.g. define: handle define const
 
 
+
+<!-- e.g. no material shader -->
+
+
 - 结合其它模式
     - 结合哪些模式？
     - 使用场景是什么？

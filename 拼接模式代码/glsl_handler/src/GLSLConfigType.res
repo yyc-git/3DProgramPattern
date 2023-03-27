@@ -1,41 +1,52 @@
+type shaderLibItemName = string
+
+type shaderLibItemType = string
+
+@genType
+type shaderMapDataValue = array<string>
+
+@genType
+type shaderMapDataName = string
+
 type shaderMapData = {
-  name: string,
-  value: array<string>,
+  name: shaderMapDataName,
+  value: shaderMapDataValue,
 }
+
+@genType
+type condition = string
 
 type dynamicBranchData = {
   name: string,
-  condition: string,
+  condition: condition,
   pass: option<string>,
   fail: option<string>,
 }
 
-/* type shaderStaticBranch = {
-     name: string,
-     value: array(string)
-   }; */
 type shaderLibItem = {
-  type_: option<string>,
-  name: string,
+  type_: option<shaderLibItemType>,
+  name: shaderLibItemName,
 }
 
-type material_shader = {
-  name: string,
+type shaderName = string
+
+type shader = {
+  name: shaderName,
   shaderLibs: array<shaderLibItem>,
 }
 
-type no_material_shader = {
-  name: string,
-  shaderLibs: array<shaderLibItem>,
-}
+type staticBranchs = array<shaderMapData>
+type dynamicBranchs = array<dynamicBranchData>
+
+type groups = array<shaderMapData>
 
 @genType
 type shaders = {
-  staticBranchs: array<shaderMapData>,
-  dynamicBranchs: array<dynamicBranchData>,
-  groups: array<shaderMapData>,
-  materialShaders: array<material_shader>,
-  noMaterialShaders: array<no_material_shader>,
+  staticBranchs: staticBranchs,
+  dynamicBranchs: dynamicBranchs,
+  groups: groups,
+  materialShaders: array<shader>,
+  noMaterialShaders: array<shader>,
 }
 
 type glsl = {
@@ -70,8 +81,3 @@ type shaderLib = {
 
 @genType
 type shaderLibs = array<shaderLib>
-
-// type renderConfigRecord = {
-//   shaders: shaders,
-//   shaderLibs: shaderLibs,
-// }

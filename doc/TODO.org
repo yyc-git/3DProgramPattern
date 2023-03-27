@@ -113,14 +113,17 @@ independent, add funcs to handle branch
 
 
 
-- handle shader libs with shader config
-static branch
-    fixed branch name
-dynamic branch
-    fixed
+# - handle shader libs with shader config
+# static branch
+#     fixed branch name
+# dynamic branch
+#     fixed
 
-<!-- define:
-handle define const -->
+# <!-- define:
+# handle define const -->
+
+
+# pass run test
 
 - handle sender
 sender: add to specific sender array
@@ -129,6 +132,10 @@ uniform
 
 
 add pos, type, send func, ...
+
+
+
+pass run test
 
 
 ** TODO 

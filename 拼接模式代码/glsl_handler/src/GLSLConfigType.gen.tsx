@@ -3,32 +3,56 @@
 
 
 // tslint:disable-next-line:interface-over-type-literal
-export type shaderMapData = { readonly name: string; readonly value: string[] };
+export type shaderLibItemName = string;
+
+// tslint:disable-next-line:interface-over-type-literal
+export type shaderLibItemType = string;
+
+// tslint:disable-next-line:interface-over-type-literal
+export type shaderMapDataValue = string[];
+
+// tslint:disable-next-line:interface-over-type-literal
+export type shaderMapDataName = string;
+
+// tslint:disable-next-line:interface-over-type-literal
+export type shaderMapData = { readonly name: shaderMapDataName; readonly value: shaderMapDataValue };
+
+// tslint:disable-next-line:interface-over-type-literal
+export type condition = string;
 
 // tslint:disable-next-line:interface-over-type-literal
 export type dynamicBranchData = {
   readonly name: string; 
-  readonly condition: string; 
+  readonly condition: condition; 
   readonly pass: (undefined | string); 
   readonly fail: (undefined | string)
 };
 
 // tslint:disable-next-line:interface-over-type-literal
-export type shaderLibItem = { readonly type_: (undefined | string); readonly name: string };
+export type shaderLibItem = { readonly type_: (undefined | shaderLibItemType); readonly name: shaderLibItemName };
 
 // tslint:disable-next-line:interface-over-type-literal
-export type material_shader = { readonly name: string; readonly shaderLibs: shaderLibItem[] };
+export type shaderName = string;
 
 // tslint:disable-next-line:interface-over-type-literal
-export type no_material_shader = { readonly name: string; readonly shaderLibs: shaderLibItem[] };
+export type shader = { readonly name: shaderName; readonly shaderLibs: shaderLibItem[] };
+
+// tslint:disable-next-line:interface-over-type-literal
+export type staticBranchs = shaderMapData[];
+
+// tslint:disable-next-line:interface-over-type-literal
+export type dynamicBranchs = dynamicBranchData[];
+
+// tslint:disable-next-line:interface-over-type-literal
+export type groups = shaderMapData[];
 
 // tslint:disable-next-line:interface-over-type-literal
 export type shaders = {
-  readonly staticBranchs: shaderMapData[]; 
-  readonly dynamicBranchs: dynamicBranchData[]; 
-  readonly groups: shaderMapData[]; 
-  readonly materialShaders: material_shader[]; 
-  readonly noMaterialShaders: no_material_shader[]
+  readonly staticBranchs: staticBranchs; 
+  readonly dynamicBranchs: dynamicBranchs; 
+  readonly groups: groups; 
+  readonly materialShaders: shader[]; 
+  readonly noMaterialShaders: shader[]
 };
 
 // tslint:disable-next-line:interface-over-type-literal

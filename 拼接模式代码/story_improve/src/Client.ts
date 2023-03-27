@@ -1,6 +1,6 @@
 import * as shadersJson from "./glsl_config/shaders.json"
 import * as shaderLibsJson from "./glsl_config/shader_libs.json"
-import { parseGLSLConfig } from "splice_pattern_engine/src/Main"
+import { createState, createMaterial, initBasicMaterialShader } from "splice_pattern_engine/src/Main"
 
 let _fixJsonForArrayBug = (jsonWithArray) => {
     if (Array.isArray(jsonWithArray)) {
@@ -10,4 +10,12 @@ let _fixJsonForArrayBug = (jsonWithArray) => {
     return (jsonWithArray as any).default
 }
 
-console.log(parseGLSLConfig(shadersJson, _fixJsonForArrayBug(shaderLibsJson)))
+// console.log(parseGLSLConfig(shadersJson, _fixJsonForArrayBug(shaderLibsJson)))
+
+let state = createState(shadersJson, _fixJsonForArrayBug(shaderLibsJson))
+
+let materialData = createMaterial(state)
+state = materialData[0]
+let material = materialData[1]
+
+initBasicMaterialShader(state, material)
