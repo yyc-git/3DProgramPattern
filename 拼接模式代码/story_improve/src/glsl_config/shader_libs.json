@@ -59,22 +59,22 @@
       "attributes": [
         {
           "name": "a_mVec4_0",
-          "buffer": 5,
+          "buffer": 4,
           "type": "vec4"
         },
         {
           "name": "a_mVec4_1",
-          "buffer": 5,
+          "buffer": 4,
           "type": "vec4"
         },
         {
           "name": "a_mVec4_2",
-          "buffer": 5,
+          "buffer": 4,
           "type": "vec4"
         },
         {
           "name": "a_mVec4_3",
-          "buffer": 5,
+          "buffer": 4,
           "type": "vec4"
         }
       ]

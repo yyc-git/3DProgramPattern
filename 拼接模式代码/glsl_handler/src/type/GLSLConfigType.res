@@ -37,6 +37,7 @@ type dynamicBranchs = array<dynamicBranchData>
 
 type groups = array<shaderMapData>
 
+@genType
 type shaders = {
   staticBranchs: staticBranchs,
   dynamicBranchs: dynamicBranchs,
@@ -49,31 +50,25 @@ type glsl = {
   name: string,
 }
 
-type bufferEnum =
-  | Vertex
-  | Normal
-  | TexCoord
-  | Index
-  | Instance_model_matrix
-
 type attributeName = string
 
-type attributeType = [#vec2 | #vec3 | #vec4]
+type attributeType = string
+
+type attributeBuffer = int
 
 type attribute = {
   name: option<attributeName>,
-  buffer: bufferEnum,
+  buffer: attributeBuffer,
   type_: option<attributeType>,
 }
 
 type uniformName = string
 
-// type uniformField = [#mMatrix | #vMatrix | #pMatrix | #color | #alpha | #map]
-type uniformField = [#mMatrix | #vMatrix | #pMatrix | #color | #map]
+type uniformField = string
 
-type uniformType = [#mat4 | #float3 | #float | #sampler2D]
+type uniformType = string
 
-type uniformFrom = [#basicMaterial | #model | #camera]
+type uniformFrom = string
 
 type uniform = {
   name: uniformName,
@@ -93,14 +88,5 @@ type shaderLib = {
   variables: option<variables>,
 }
 
+@genType
 type shaderLibs = array<shaderLib>
-
-external intToBufferEnum: int => bufferEnum = "%identity"
-
-external stringToAttributeType: string => attributeType = "%identity"
-
-external stringToUniformField: string => uniformField = "%identity"
-
-external stringToUniformType: string => uniformType = "%identity"
-
-external stringToUniformFrom: string => uniformFrom = "%identity"

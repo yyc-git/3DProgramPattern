@@ -1,4 +1,4 @@
-import { shaderLibs, shaderMapDataName, shaderMapDataValue, condition, shaders, attributeName, bufferEnum, attributeType, uniformName, uniformField, uniformType, uniformFrom, shaderName } from "./type/GLSLConfigType";
+import { shaderLibs, shaderMapDataName, shaderMapDataValue, condition, shaders, attributeName,attributeBuffer, attributeType, uniformName, uniformField, uniformType, uniformFrom, shaderName } from "./type/GLSLConfigType.gen";
 
 export function parseGLSLConfig(
     shadersJson: JSON, shaderLibsJson: JSON
@@ -10,7 +10,7 @@ type getShaderLibFromStaticBranch = (name: shaderMapDataName, value: shaderMapDa
 
 type isPassForDynamicBranch = (condition: condition) => boolean
 
-type addAttributeSendData<SendData> = (sendDataArr: Array<SendData>, [name, buffer, type]: [attributeName, bufferEnum, attributeType]) => Array<SendData>
+type addAttributeSendData<SendData> = (sendDataArr: Array<SendData>, [name, attributeBuffer, type]: [attributeName, attributeBuffer, attributeType]) => Array<SendData>
 
 type addUniformSendData<SendData> = (sendDataArr: Array<SendData>, [name, field, type, from]: [uniformName, uniformField, uniformType, uniformFrom]) => Array<SendData>
 

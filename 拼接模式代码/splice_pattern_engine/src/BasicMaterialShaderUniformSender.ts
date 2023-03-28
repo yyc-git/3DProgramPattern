@@ -1,7 +1,7 @@
 import { state } from "./MainStateType"
 import { material } from "./BasicMaterialStateType"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
-import { uniformName, uniformField, uniformType, uniformFrom } from "glsl_handler/src/type/GLSLConfigType";
+import { uniformName, uniformField, uniformType, uniformFrom } from "./GLSLConfigType";
 import { transform } from "./TransformStateType";
 import { getColor, getMapUnit } from "./BasicMaterial";
 import { getModelMatrix } from "./Transform";

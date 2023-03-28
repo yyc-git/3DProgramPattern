@@ -4,7 +4,8 @@ import { material } from "./BasicMaterialStateType"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 import { sendData as attributeSendData } from "./BasicMaterialShaderAttributeSender"
 import { sendData as uniformSendData } from "./BasicMaterialShaderUniformSender"
-import { bufferEnum, shaderName } from "../../glsl_handler/src/type/GLSLConfigType"
+import { attributeBuffer } from "./GLSLConfigType"
+import { shaderName } from "glsl_handler/src/type/GLSLConfigType.gen"
 
 let _getShaderSendData = (sendData: sendData, shaderName): [Array<attributeSendData>, Array<uniformSendData>] => {
     let [_, shaderSendData] = sendData.filter(([shaderName_, _]) => {
@@ -14,7 +15,7 @@ let _getShaderSendData = (sendData: sendData, shaderName): [Array<attributeSendD
     return shaderSendData
 }
 
-let _getFakeArrayBuffer = (state, bufferEnum: bufferEnum, shaderName) => {
+let _getFakeArrayBuffer = (state, attributeBuffer: attributeBuffer, shaderName) => {
     return {} as WebGLBuffer
 }
 

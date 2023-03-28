@@ -1,4 +1,4 @@
-import { shaderLibs, shaders } from "glsl_handler/src/type/GLSLConfigType"
+import { shaderLibs, shaders } from "glsl_handler/src/type/GLSLConfigType.gen"
 import { state as basicMaterialState } from "./BasicMaterialStateType"
 import { state as transformState } from "./TransformStateType"
 import type { Map } from "immutable"

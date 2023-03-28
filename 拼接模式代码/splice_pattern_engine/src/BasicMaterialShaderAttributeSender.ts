@@ -1,4 +1,4 @@
-import { attributeName, attributeType, bufferEnum } from "glsl_handler/src/type/GLSLConfigType";
+import { attributeName, attributeType, attributeBuffer } from "./GLSLConfigType";
 
 type attributeLocation = GLint
 
@@ -14,7 +14,7 @@ export type sendData = {
     otherSendData?: {
         pos: attributeLocation,
         size: number,
-        buffer: bufferEnum,
+        buffer: attributeBuffer,
         sendBuffer: (gl: WebGLRenderingContext, size: number, pos: attributeLocation, buffer: WebGLBuffer) => void
     }
 }
@@ -56,7 +56,7 @@ let _addElementBufferSendData = (sendDataArr: Array<sendData>
     return sendDataArr
 }
 
-let _addOtherSendData = (sendDataArr: Array<sendData>, [pos, buffer, type]: [attributeLocation, bufferEnum, attributeType]
+let _addOtherSendData = (sendDataArr: Array<sendData>, [pos, buffer, type]: [attributeLocation, attributeBuffer, attributeType]
 ) => {
     sendDataArr.push({
         otherSendData: {
@@ -79,15 +79,15 @@ let _addOtherSendData = (sendDataArr: Array<sendData>, [pos, buffer, type]: [att
 export let addAttributeSendData = (
     gl: WebGLRenderingContext,
     program: WebGLProgram,
-    sendDataArr: Array<sendData>, [name, buffer, type]: [attributeName, bufferEnum, attributeType]
+    sendDataArr: Array<sendData>, [name, buffer, type]: [attributeName, attributeBuffer, attributeType]
 ): Array<sendData> => {
     let pos = gl.getAttribLocation(program, name)
 
     switch (buffer) {
-        case bufferEnum.Instance_model_matrix:
+        case attributeBuffer.Instance_model_matrix:
             _addModelMatrixInstanceArrayBufferSendData(sendDataArr, pos)
             break
-        case bufferEnum.Index:
+        case attributeBuffer.Index:
             _addElementBufferSendData(sendDataArr)
             break
         default:

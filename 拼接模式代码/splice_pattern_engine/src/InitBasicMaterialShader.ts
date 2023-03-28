@@ -7,6 +7,7 @@ import { addAttributeSendData } from "./BasicMaterialShaderAttributeSender"
 import { addUniformSendData } from "./BasicMaterialShaderUniformSender"
 import { Map } from "immutable"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
+import { attributeType, uniformField, uniformFrom, uniformType } from "./GLSLConfigType"
 
 let _createFakePrograms = (shaderLibDataOfAllShaders) => {
     // TODO use glsl after build
@@ -36,9 +37,9 @@ export let initBasicMaterialShader = (state: state, material: material): state =
 
     let sendData = getSendDataOfAllMaterialShaders(
         [(sendDataArr, [name, buffer, type]) => {
-            return addAttributeSendData(state.gl, getExnFromStrictNull(programMap.get(name)), sendDataArr, [name, buffer, type])
+            return addAttributeSendData(state.gl, getExnFromStrictNull(programMap.get(name)), sendDataArr, [name, buffer, type as attributeType])
         }, (sendDataArr, [name, field, type, from]) => {
-            return addUniformSendData(state.gl, getExnFromStrictNull(programMap.get(name)), sendDataArr, [name, field, type, from])
+            return addUniformSendData(state.gl, getExnFromStrictNull(programMap.get(name)), sendDataArr, [name, field as uniformField, type as uniformType, from as uniformFrom])
         }],
         shaderLibDataOfAllShaders
     )

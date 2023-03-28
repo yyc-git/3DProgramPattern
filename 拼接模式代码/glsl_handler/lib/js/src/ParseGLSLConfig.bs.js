@@ -1,7 +1,6 @@
 'use strict';
 
 var Json_decode$Json = require("json/lib/js/src/Json_decode.bs.js");
-var OptionSt$Commonlib = require("commonlib/lib/js/src/structure/OptionSt.bs.js");
 
 function _parseShaderMapData(json) {
   return Json_decode$Json.array((function (json) {
@@ -86,17 +85,14 @@ function _parseVariable(json) {
                                       attributes: Json_decode$Json.optional((function (param) {
                                               return Json_decode$Json.field("attributes", (function (json) {
                                                             return Json_decode$Json.array((function (json) {
-                                                                          var __x = Json_decode$Json.optional((function (param) {
-                                                                                  return Json_decode$Json.field("type", Json_decode$Json.string, param);
-                                                                                }), json);
                                                                           return {
                                                                                   name: Json_decode$Json.optional((function (param) {
                                                                                           return Json_decode$Json.field("name", Json_decode$Json.string, param);
                                                                                         }), json),
                                                                                   buffer: Json_decode$Json.field("buffer", Json_decode$Json.$$int, json),
-                                                                                  type_: OptionSt$Commonlib.map(__x, (function (prim) {
-                                                                                          return prim;
-                                                                                        }))
+                                                                                  type_: Json_decode$Json.optional((function (param) {
+                                                                                          return Json_decode$Json.field("type", Json_decode$Json.string, param);
+                                                                                        }), json)
                                                                                 };
                                                                         }), json);
                                                           }), param);

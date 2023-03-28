@@ -22,10 +22,10 @@ export type condition = string;
 
 // tslint:disable-next-line:interface-over-type-literal
 export type dynamicBranchData = {
-    readonly name: string;
-    readonly condition: condition;
-    readonly pass: (undefined | string);
-    readonly fail: (undefined | string)
+  readonly name: string; 
+  readonly condition: condition; 
+  readonly pass: (undefined | string); 
+  readonly fail: (undefined | string)
 };
 
 // tslint:disable-next-line:interface-over-type-literal
@@ -48,61 +48,49 @@ export type groups = shaderMapData[];
 
 // tslint:disable-next-line:interface-over-type-literal
 export type shaders = {
-    readonly staticBranchs: staticBranchs;
-    readonly dynamicBranchs: dynamicBranchs;
-    readonly groups: groups;
-    readonly shaders: shader[];
+  readonly staticBranchs: staticBranchs; 
+  readonly dynamicBranchs: dynamicBranchs; 
+  readonly groups: groups; 
+  readonly shaders: shader[]
 };
 
 // tslint:disable-next-line:interface-over-type-literal
 export type glsl = { readonly type_: string; readonly name: string };
 
 // tslint:disable-next-line:interface-over-type-literal
-export enum bufferEnum {
-    Vertex = 0,
-    Normal = 1,
-    TexCoord = 2,
-    Index = 3,
-    Instance_normal_matrix = 4,
-    Instance_model_matrix = 5
-}
-
-// tslint:disable-next-line:interface-over-type-literal
 export type attributeName = string;
 
 // tslint:disable-next-line:interface-over-type-literal
-export type attributeType = "vec2" | "vec3" | "vec4";
+export type attributeType = string;
+
+// tslint:disable-next-line:interface-over-type-literal
+export type attributeBuffer = number;
 
 // tslint:disable-next-line:interface-over-type-literal
 export type attribute = {
-    readonly name: (undefined | attributeName);
-    readonly buffer: bufferEnum;
-    readonly type_: (undefined | attributeType)
+  readonly name: (undefined | attributeName); 
+  readonly buffer: attributeBuffer; 
+  readonly type_: (undefined | attributeType)
 };
 
 // tslint:disable-next-line:interface-over-type-literal
 export type uniformName = string;
 
 // tslint:disable-next-line:interface-over-type-literal
-export type uniformField =
-    "mMatrix"
-    | "vMatrix"
-    | "pMatrix"
-    | "color"
-    | "map";
+export type uniformField = string;
 
 // tslint:disable-next-line:interface-over-type-literal
-export type uniformType = "mat4" | "float3" | "float" | "sampler2D";
+export type uniformType = string;
 
 // tslint:disable-next-line:interface-over-type-literal
-export type uniformFrom = "basicMaterial" | "model" | "camera";
+export type uniformFrom = string;
 
 // tslint:disable-next-line:interface-over-type-literal
 export type uniform = {
-    readonly name: uniformName;
-    readonly field: uniformField;
-    readonly type_: uniformType;
-    readonly from: uniformFrom
+  readonly name: uniformName; 
+  readonly field: uniformField; 
+  readonly type_: uniformType; 
+  readonly from: uniformFrom
 };
 
 // tslint:disable-next-line:interface-over-type-literal
@@ -110,9 +98,9 @@ export type variables = { readonly uniforms: (undefined | uniform[]); readonly a
 
 // tslint:disable-next-line:interface-over-type-literal
 export type shaderLib = {
-    readonly name: string;
-    readonly glsls: (undefined | glsl[]);
-    readonly variables: (undefined | variables)
+  readonly name: string; 
+  readonly glsls: (undefined | glsl[]); 
+  readonly variables: (undefined | variables)
 };
 
 // tslint:disable-next-line:interface-over-type-literal
