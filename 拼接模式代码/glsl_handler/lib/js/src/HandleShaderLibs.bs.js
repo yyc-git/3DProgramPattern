@@ -4,17 +4,9 @@ var Curry = require("rescript/lib/js/curry.js");
 var Js_array = require("rescript/lib/js/js_array.js");
 var Log$Commonlib = require("commonlib/lib/js/src/log/Log.bs.js");
 var ArraySt$Commonlib = require("commonlib/lib/js/src/structure/ArraySt.bs.js");
-var OptionSt$Commonlib = require("commonlib/lib/js/src/structure/OptionSt.bs.js");
 var Exception$Commonlib = require("commonlib/lib/js/src/structure/Exception.bs.js");
-var ArrayUtils$Glsl_handler = require("./ArrayUtils.bs.js");
-
-function _isJsonSerializedValueNone(value) {
-  if (value === null) {
-    return true;
-  } else {
-    return value === undefined;
-  }
-}
+var JsonUtils$Glsl_handler = require("./utils/JsonUtils.bs.js");
+var ArrayUtils$Glsl_handler = require("./utils/ArrayUtils.bs.js");
 
 function _findFirstShaderLibExn(shaderLibName, shaderLibs) {
   return ArrayUtils$Glsl_handler.findFirstExn(shaderLibs, (function (item) {
@@ -50,10 +42,10 @@ function _getShaderLibsByBynamicBranch(resultShaderLibs, isPass, name, param) {
           return item.name === name;
         }));
   var dynamicBranchShaderLibNameOption = Curry._1(isPass, dynamicBranchData.condition) ? dynamicBranchData.pass : dynamicBranchData.fail;
-  if (_isJsonSerializedValueNone(dynamicBranchShaderLibNameOption)) {
+  if (JsonUtils$Glsl_handler.isJsonSerializedValueNone(dynamicBranchShaderLibNameOption)) {
     return resultShaderLibs;
   } else {
-    return ArraySt$Commonlib.push(resultShaderLibs, _findFirstShaderLibExn(OptionSt$Commonlib.getExn(dynamicBranchShaderLibNameOption), param[1]));
+    return ArraySt$Commonlib.push(resultShaderLibs, _findFirstShaderLibExn(JsonUtils$Glsl_handler.getJsonSerializedValueExn(dynamicBranchShaderLibNameOption), param[1]));
   }
 }
 
@@ -100,7 +92,7 @@ function getShaderLibsOfShaders(param, shaders, param$1, shaderLibs) {
                         ArraySt$Commonlib.reduceOneParam(shader.shaderLibs, (function (resultShaderLibs, param) {
                                 var name = param.name;
                                 var type_ = param.type_;
-                                if (_isJsonSerializedValueNone(type_)) {
+                                if (JsonUtils$Glsl_handler.isJsonSerializedValueNone(type_)) {
                                   return ArraySt$Commonlib.push(resultShaderLibs, _findFirstShaderLibExn(name, shaderLibs));
                                 } else {
                                   return _getShaderLibsByType(resultShaderLibs, [
@@ -110,7 +102,7 @@ function getShaderLibsOfShaders(param, shaders, param$1, shaderLibs) {
                                               ],
                                               isPassForDynamicBranch
                                             ], [
-                                              OptionSt$Commonlib.getExn(type_),
+                                              JsonUtils$Glsl_handler.getJsonSerializedValueExn(type_),
                                               groups,
                                               name
                                             ], [
@@ -124,10 +116,6 @@ function getShaderLibsOfShaders(param, shaders, param$1, shaderLibs) {
               }));
 }
 
-var _getJsonSerializedValueExn = OptionSt$Commonlib.getExn;
-
-exports._isJsonSerializedValueNone = _isJsonSerializedValueNone;
-exports._getJsonSerializedValueExn = _getJsonSerializedValueExn;
 exports._findFirstShaderLibExn = _findFirstShaderLibExn;
 exports._getShaderLibsByGroup = _getShaderLibsByGroup;
 exports._getShaderLibsByStaticBranch = _getShaderLibsByStaticBranch;

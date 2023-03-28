@@ -1,17 +1,50 @@
 import * as BasicMaterial from "./BasicMaterial"
-import { handleGLSL, parseGLSLConfig } from "glsl_handler"
+import * as Transform from "./Transform"
+import { parseGLSLConfig } from "glsl_handler"
 import { state } from "./MainStateType"
+import { transform } from "./TransformStateType"
 import { material } from "./BasicMaterialStateType"
-import { curry3_1, curry3_2 } from "fp/src/Curry"
-import { getShaderLibFromStaticBranch, isNameValidForStaticBranch, isPassForDynamicBranch } from "./BasicMaterialShader"
+import { createFakeWebGLRenderingContext } from "./FakeGL"
+import * as InitBasicMaterialShader from "./InitBasicMaterialShader"
+import * as InitCamera from "./InitCamera"
+import * as Render from "./Render"
 
 export let createState = (shadersJson, shaderLibsJson): state => {
     let [shaders, shaderLibs] = parseGLSLConfig(shadersJson, shaderLibsJson)
 
     return {
+        gl: createFakeWebGLRenderingContext(),
+        programMap: null,
+        sendData: null,
+        vMatrix: null,
+        pMatrix: null,
         shaders,
         shaderLibs,
-        basicMaterialState: BasicMaterial.createState()
+        basicMaterialState: BasicMaterial.createState(),
+        transformState: Transform.createState()
+    }
+}
+
+export let createTransform = (state: state): [state, transform] => {
+    let transformData = Transform.createTransform(state.transformState)
+    let transformState = transformData[0]
+    let transform = transformData[1]
+
+    return [
+        {
+            ...state,
+            transformState: transformState
+        },
+        transform
+    ]
+}
+
+export let setFakeTransformData = (state: state, transform: transform): state => {
+    let transformState = Transform.setFakeData(state.transformState, transform)
+
+    return {
+        ...state,
+        transformState: transformState
     }
 }
 
@@ -29,19 +62,17 @@ export let createMaterial = (state: state): [state, material] => {
     ]
 }
 
-export let initBasicMaterialShader = (state: state, material: material) => {
-    handleGLSL(
-        [
-            [
-                isNameValidForStaticBranch,
-                curry3_1(getShaderLibFromStaticBranch)(state.basicMaterialState)
-            ],
-            curry3_2(isPassForDynamicBranch)(material, state.basicMaterialState)
-        ],
-        state.shaders,
-        state.shaderLibs
-    )
+export let setFakeMaterialData = (state: state, material: material): state => {
+    let basicMaterialState = BasicMaterial.setFakeData(state.basicMaterialState, material)
 
-
-    console.log("继续其它的逻辑，如创建shader对象等。。。。。。。")
+    return {
+        ...state,
+        basicMaterialState: basicMaterialState
+    }
 }
+
+export let initBasicMaterialShader = InitBasicMaterialShader.initBasicMaterialShader
+
+export let initCamera = InitCamera.initCamera
+
+export let render = Render.render

@@ -108,7 +108,7 @@ use most
 
 run test in engine/
 
-** TODO 
+** DONE 
 independent, add funcs to handle branch
 
 
@@ -134,8 +134,21 @@ uniform
 add pos, type, send func, ...
 
 
+engine:
+add sendDataArr to state;
+add log: create shader with glsl
+add RenderJob:
+    use it when draw;
+
 
 pass run test
+
+** TODO refactor: uniform material_shaders, no_material_shaders to shaders
+
+remove material concept
+
+
+** TODO rename splice_pattern_engine to engine
 
 
 ** TODO 

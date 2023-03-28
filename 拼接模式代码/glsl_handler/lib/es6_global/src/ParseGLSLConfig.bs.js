@@ -1,6 +1,7 @@
 
 
 import * as Json_decode$Json from "../../../../../node_modules/json/lib/es6_global/src/Json_decode.bs.js";
+import * as OptionSt$Commonlib from "../../../../../node_modules/commonlib/lib/es6_global/src/structure/OptionSt.bs.js";
 
 function _parseShaderMapData(json) {
   return Json_decode$Json.array((function (json) {
@@ -102,14 +103,17 @@ function _parseVariable(json) {
                                       attributes: Json_decode$Json.optional((function (param) {
                                               return Json_decode$Json.field("attributes", (function (json) {
                                                             return Json_decode$Json.array((function (json) {
+                                                                          var __x = Json_decode$Json.optional((function (param) {
+                                                                                  return Json_decode$Json.field("type", Json_decode$Json.string, param);
+                                                                                }), json);
                                                                           return {
                                                                                   name: Json_decode$Json.optional((function (param) {
                                                                                           return Json_decode$Json.field("name", Json_decode$Json.string, param);
                                                                                         }), json),
                                                                                   buffer: Json_decode$Json.field("buffer", Json_decode$Json.$$int, json),
-                                                                                  type_: Json_decode$Json.optional((function (param) {
-                                                                                          return Json_decode$Json.field("type", Json_decode$Json.string, param);
-                                                                                        }), json)
+                                                                                  type_: OptionSt$Commonlib.map(__x, (function (prim) {
+                                                                                          return prim;
+                                                                                        }))
                                                                                 };
                                                                         }), json);
                                                           }), param);

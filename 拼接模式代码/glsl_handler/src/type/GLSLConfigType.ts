@@ -22,10 +22,10 @@ export type condition = string;
 
 // tslint:disable-next-line:interface-over-type-literal
 export type dynamicBranchData = {
-  readonly name: string; 
-  readonly condition: condition; 
-  readonly pass: (undefined | string); 
-  readonly fail: (undefined | string)
+    readonly name: string;
+    readonly condition: condition;
+    readonly pass: (undefined | string);
+    readonly fail: (undefined | string)
 };
 
 // tslint:disable-next-line:interface-over-type-literal
@@ -48,29 +48,62 @@ export type groups = shaderMapData[];
 
 // tslint:disable-next-line:interface-over-type-literal
 export type shaders = {
-  readonly staticBranchs: staticBranchs; 
-  readonly dynamicBranchs: dynamicBranchs; 
-  readonly groups: groups; 
-  readonly materialShaders: shader[]; 
-  readonly noMaterialShaders: shader[]
+    readonly staticBranchs: staticBranchs;
+    readonly dynamicBranchs: dynamicBranchs;
+    readonly groups: groups;
+    readonly materialShaders: shader[];
+    readonly noMaterialShaders: shader[]
 };
 
 // tslint:disable-next-line:interface-over-type-literal
 export type glsl = { readonly type_: string; readonly name: string };
 
 // tslint:disable-next-line:interface-over-type-literal
+export enum bufferEnum {
+    Vertex = 0,
+    Normal = 1,
+    TexCoord = 2,
+    Index = 3,
+    Instance_normal_matrix = 4,
+    Instance_model_matrix = 5
+}
+
+// tslint:disable-next-line:interface-over-type-literal
+export type attributeName = string;
+
+// tslint:disable-next-line:interface-over-type-literal
+export type attributeType = "vec2" | "vec3" | "vec4";
+
+// tslint:disable-next-line:interface-over-type-literal
 export type attribute = {
-  readonly name: (undefined | string); 
-  readonly buffer: number; 
-  readonly type_: (undefined | string)
+    readonly name: (undefined | attributeName);
+    readonly buffer: bufferEnum;
+    readonly type_: (undefined | attributeType)
 };
 
 // tslint:disable-next-line:interface-over-type-literal
+export type uniformName = string;
+
+// tslint:disable-next-line:interface-over-type-literal
+export type uniformField =
+    "mMatrix"
+    | "vMatrix"
+    | "pMatrix"
+    | "color"
+    | "map";
+
+// tslint:disable-next-line:interface-over-type-literal
+export type uniformType = "mat4" | "float3" | "float" | "sampler2D";
+
+// tslint:disable-next-line:interface-over-type-literal
+export type uniformFrom = "basicMaterial" | "model" | "camera";
+
+// tslint:disable-next-line:interface-over-type-literal
 export type uniform = {
-  readonly name: string; 
-  readonly field: string; 
-  readonly type_: string; 
-  readonly from: string
+    readonly name: uniformName;
+    readonly field: uniformField;
+    readonly type_: uniformType;
+    readonly from: uniformFrom
 };
 
 // tslint:disable-next-line:interface-over-type-literal
@@ -78,9 +111,9 @@ export type variables = { readonly uniforms: (undefined | uniform[]); readonly a
 
 // tslint:disable-next-line:interface-over-type-literal
 export type shaderLib = {
-  readonly name: string; 
-  readonly glsls: (undefined | glsl[]); 
-  readonly variables: (undefined | variables)
+    readonly name: string;
+    readonly glsls: (undefined | glsl[]);
+    readonly variables: (undefined | variables)
 };
 
 // tslint:disable-next-line:interface-over-type-literal

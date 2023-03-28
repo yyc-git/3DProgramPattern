@@ -84,9 +84,9 @@ let _parseVariable = json => {
           json |> array(
             json => {
               name: json |> field("name", string),
-              field: json |> field("field", string),
-              type_: json |> field("type", string),
-              from: json |> field("from", string),
+              field: json |> field("field", string) |> stringToUniformField,
+              type_: json |> field("type", string) |> stringToUniformType,
+              from: json |> field("from", string) |> stringToUniformFrom,
             },
           )
         ),
@@ -96,8 +96,10 @@ let _parseVariable = json => {
           json |> array(
             json => {
               name: json |> optional(field("name", string)),
-              buffer: json |> field("buffer", int),
-              type_: json |> optional(field("type", string)),
+              buffer: json |> field("buffer", int) |> intToBufferEnum,
+              type_: json
+              |> optional(field("type", string))
+              |> Commonlib.OptionSt.map(_, stringToAttributeType),
             },
           )
         ),

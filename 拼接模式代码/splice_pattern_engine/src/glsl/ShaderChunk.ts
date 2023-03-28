@@ -293,12 +293,12 @@ precision highp int;`, ``],``,[``, ``],``,), "common_vertex": _buildChunk([``, `
 
 //bool isRenderArrayEmpty(int isRenderArrayEmpty){
 //  return isRenderArrayEmpty == 1;
-//}`],``,), "common_fragment": _buildChunk([``, ``],``,[``, ``],``,), "common_define": _buildChunk([``, ``],``,[``, ``],``,), "webgl1_basic_vertex": _buildChunk([``, ``],``,[``, ``],`#import "webgl1_setPos_mvp"`,), "webgl1_basic_end_fragment": _buildChunk([``, ``],``,[``, ``],`gl_FragColor = vec4(totalColor.rgb, totalColor.a);`,), "webgl1_no_basic_map_fragment": _buildChunk([``, ``],``,[``, ``],`vec4 totalColor = vec4(u_color, u_alpha);`,), "webgl1_basic_map_vertex": _buildChunk([``, ``],`varying vec2 v_mapCoord0;`,[``, ``],`//    vec2 sourceTexCoord0 = a_texCoord * u_map0SourceRegion.zw + u_map0SourceRegion.xy;
+//}`],``,), "common_fragment": _buildChunk([``, ``],``,[``, ``],``,), "common_define": _buildChunk([``, ``],``,[``, ``],``,), "webgl1_basic_vertex": _buildChunk([``, ``],``,[``, ``],`#import "webgl1_setPos_mvp"`,), "webgl1_basic_end_fragment": _buildChunk([``, ``],``,[``, ``],`gl_FragColor = vec4(totalColor.rgb, totalColor.a);`,), "webgl1_no_basic_map_fragment": _buildChunk([``, ``],``,[``, ``],`vec4 totalColor = vec4(u_color, 1.0);`,), "webgl1_basic_map_vertex": _buildChunk([``, ``],`varying vec2 v_mapCoord0;`,[``, ``],`//    vec2 sourceTexCoord0 = a_texCoord * u_map0SourceRegion.zw + u_map0SourceRegion.xy;
 //
 //    v_mapCoord0 = sourceTexCoord0 * u_map0RepeatRegion.zw + u_map0RepeatRegion.xy;
 
     v_mapCoord0 = a_texCoord;`,), "webgl1_basic_map_fragment": _buildChunk([``, ``],`varying vec2 v_mapCoord0;`,[``, ``],`vec4 texelColor = texture2D(u_mapSampler, v_mapCoord0);
 
-    vec4 totalColor = vec4(texelColor.rgb * u_color, texelColor.a * u_alpha);`,), 
+    vec4 totalColor = vec4(texelColor.rgb * u_color, texelColor.a);`,), 
         }
   }

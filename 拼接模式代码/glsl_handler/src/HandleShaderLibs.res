@@ -1,10 +1,5 @@
 open GLSLConfigType
 
-let _isJsonSerializedValueNone = value =>
-  Obj.magic(value) === Js.Nullable.null || Obj.magic(value) === Js.Nullable.undefined
-
-let _getJsonSerializedValueExn = Commonlib.OptionSt.getExn
-
 let _findFirstShaderLibExn = (shaderLibName: string, shaderLibs: shaderLibs): shaderLib =>
   ArrayUtils.findFirstExn(shaderLibs, (item: shaderLib) => item.name === shaderLibName)
 
@@ -66,11 +61,11 @@ let _getShaderLibsByBynamicBranch = (
     ? dynamicBranchData.pass
     : dynamicBranchData.fail
 
-  dynamicBranchShaderLibNameOption->_isJsonSerializedValueNone
+  dynamicBranchShaderLibNameOption->JsonUtils.isJsonSerializedValueNone
     ? resultShaderLibs
     : resultShaderLibs->Commonlib.ArraySt.push(
         _findFirstShaderLibExn(
-          dynamicBranchShaderLibNameOption->_getJsonSerializedValueExn,
+          dynamicBranchShaderLibNameOption->JsonUtils.getJsonSerializedValueExn,
           shaderLibs,
         ),
       )
@@ -127,7 +122,7 @@ let getShaderLibsOfShaders = (
     (
       shader.name,
       shader.shaderLibs->Commonlib.ArraySt.reduceOneParam((. resultShaderLibs, {type_, name}) => {
-        _isJsonSerializedValueNone(type_)
+        JsonUtils.isJsonSerializedValueNone(type_)
           ? resultShaderLibs->Commonlib.ArraySt.push(_findFirstShaderLibExn(name, shaderLibs))
           : {
               _getShaderLibsByType(
@@ -136,7 +131,7 @@ let getShaderLibsOfShaders = (
                   (isNameValidForStaticBranch, getShaderLibFromStaticBranch),
                   isPassForDynamicBranch,
                 ),
-                (type_->_getJsonSerializedValueExn, groups, name),
+                (type_->JsonUtils.getJsonSerializedValueExn, groups, name),
                 (shaderLibs, staticBranchs, dynamicBranchs),
               )
             }
