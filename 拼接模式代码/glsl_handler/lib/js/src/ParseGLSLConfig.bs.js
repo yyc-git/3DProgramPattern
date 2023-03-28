@@ -34,24 +34,7 @@ function parseShaders(shaders) {
           staticBranchs: Json_decode$Json.field("static_branchs", _parseShaderMapData, shaders),
           dynamicBranchs: Json_decode$Json.field("dynamic_branchs", _parseDynamicBranchData, shaders),
           groups: Json_decode$Json.field("groups", _parseShaderMapData, shaders),
-          materialShaders: Json_decode$Json.field("material_shaders", (function (json) {
-                  return Json_decode$Json.array((function (json) {
-                                return {
-                                        name: Json_decode$Json.field("name", Json_decode$Json.string, json),
-                                        shaderLibs: Json_decode$Json.field("shader_libs", (function (param) {
-                                                return Json_decode$Json.array((function (json) {
-                                                              return {
-                                                                      type_: Json_decode$Json.optional((function (param) {
-                                                                              return Json_decode$Json.field("type", Json_decode$Json.string, param);
-                                                                            }), json),
-                                                                      name: Json_decode$Json.field("name", Json_decode$Json.string, json)
-                                                                    };
-                                                            }), param);
-                                              }), json)
-                                      };
-                              }), json);
-                }), shaders),
-          noMaterialShaders: Json_decode$Json.field("no_material_shaders", (function (json) {
+          shaders: Json_decode$Json.field("shaders", (function (json) {
                   return Json_decode$Json.array((function (json) {
                                 return {
                                         name: Json_decode$Json.field("name", Json_decode$Json.string, json),

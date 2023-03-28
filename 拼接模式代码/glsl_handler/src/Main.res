@@ -7,31 +7,23 @@ let buildGLSL = (
   shaders: GLSLConfigType.shaders,
   shaderLibs: GLSLConfigType.shaderLibs,
 ) => {
-  let shaderLibDataOfAllMaterialShaders = HandleShaderLibs.getShaderLibsOfShaders(
+  let shaderLibDataOfAllShaders = HandleShaderLibs.getShaderLibsOfShaders(
     ((isNameValidForStaticBranch, getShaderLibFromStaticBranch), isPassForDynamicBranch),
-    shaders.materialShaders,
+    shaders.shaders,
     shaders,
     shaderLibs,
   )
 
-  let shaderLibDataOfAllNoMaterialShaders = HandleShaderLibs.getShaderLibsOfShaders(
-    ((isNameValidForStaticBranch, getShaderLibFromStaticBranch), isPassForDynamicBranch),
-    shaders.noMaterialShaders,
-    shaders,
-    shaderLibs,
-  )
+  Js.log(shaderLibDataOfAllShaders)
 
-  Js.log(shaderLibDataOfAllMaterialShaders)
-  Js.log(shaderLibDataOfAllNoMaterialShaders)
-
-  (shaderLibDataOfAllMaterialShaders, shaderLibDataOfAllNoMaterialShaders)
+  shaderLibDataOfAllShaders
 }
 
 let getSendDataOfAllMaterialShaders = (
   (addAttributeSendData, addUniformSendData),
-  shaderLibDataOfAllMaterialShaders: array<(GLSLConfigType.shaderName, GLSLConfigType.shaderLibs)>,
+  shaderLibDataOfAllShaders: array<(GLSLConfigType.shaderName, GLSLConfigType.shaderLibs)>,
 ) => {
-  shaderLibDataOfAllMaterialShaders->Commonlib.ArraySt.map(((shaderName, shaderLibs)) => {
+  shaderLibDataOfAllShaders->Commonlib.ArraySt.map(((shaderName, shaderLibs)) => {
     (
       shaderName,
       (

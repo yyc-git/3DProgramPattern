@@ -24,7 +24,7 @@ export function buildGLSL(
             isPassForDynamicBranch
         ],
     shaders: shaders, shaderLibs: shaderLibs
-): [Array<[shaderName, shaderLibs]>, Array<[shaderName, shaderLibs]>]
+): Array<[shaderName, shaderLibs]>
 
 export type sendDataOfAllMaterialShaders<AttributeSendData, UniformSendData> = Array<[shaderName, [
     Array<AttributeSendData>,

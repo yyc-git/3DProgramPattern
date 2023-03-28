@@ -30,21 +30,7 @@ let parseShaders = shaders => {
     staticBranchs: json |> field("static_branchs", json => _parseShaderMapData(json)),
     dynamicBranchs: json |> field("dynamic_branchs", json => _parseDynamicBranchData(json)),
     groups: json |> field("groups", json => _parseShaderMapData(json)),
-    materialShaders: json |> field("material_shaders", json =>
-      json |> array((json): shader => {
-        name: json |> field("name", string),
-        shaderLibs: json |> field(
-          "shader_libs",
-          array(
-            (json): shaderLibItem => {
-              type_: json |> optional(field("type", string)),
-              name: json |> field("name", string),
-            },
-          ),
-        ),
-      })
-    ),
-    noMaterialShaders: json |> field("no_material_shaders", json =>
+    shaders: json |> field("shaders", json =>
       json |> array((json): shader => {
         name: json |> field("name", string),
         shaderLibs: json |> field(

@@ -32,7 +32,7 @@
       ]
     }
   ],
-  "material_shaders": [
+  "shaders": [
     {
       "name": "render_basic",
       "shader_libs": [
@@ -60,6 +60,5 @@
         }
       ]
     }
-  ],
-  "no_material_shaders": []
+  ]
 }

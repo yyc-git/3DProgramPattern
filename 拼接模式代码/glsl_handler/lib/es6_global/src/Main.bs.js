@@ -14,36 +14,22 @@ function parseGLSLConfig(shadersJson, shaderLibsJson) {
 }
 
 function buildGLSL(param, shaders, shaderLibs) {
-  var isPassForDynamicBranch = param[1];
   var match = param[0];
-  var getShaderLibFromStaticBranch = match[1];
-  var isNameValidForStaticBranch = match[0];
-  var shaderLibDataOfAllMaterialShaders = HandleShaderLibs$Glsl_handler.getShaderLibsOfShaders([
+  var shaderLibDataOfAllShaders = HandleShaderLibs$Glsl_handler.getShaderLibsOfShaders([
         [
-          isNameValidForStaticBranch,
-          getShaderLibFromStaticBranch
+          match[0],
+          match[1]
         ],
-        isPassForDynamicBranch
-      ], shaders.materialShaders, shaders, shaderLibs);
-  var shaderLibDataOfAllNoMaterialShaders = HandleShaderLibs$Glsl_handler.getShaderLibsOfShaders([
-        [
-          isNameValidForStaticBranch,
-          getShaderLibFromStaticBranch
-        ],
-        isPassForDynamicBranch
-      ], shaders.noMaterialShaders, shaders, shaderLibs);
-  console.log(shaderLibDataOfAllMaterialShaders);
-  console.log(shaderLibDataOfAllNoMaterialShaders);
-  return [
-          shaderLibDataOfAllMaterialShaders,
-          shaderLibDataOfAllNoMaterialShaders
-        ];
+        param[1]
+      ], shaders.shaders, shaders, shaderLibs);
+  console.log(shaderLibDataOfAllShaders);
+  return shaderLibDataOfAllShaders;
 }
 
-function getSendDataOfAllMaterialShaders(param, shaderLibDataOfAllMaterialShaders) {
+function getSendDataOfAllMaterialShaders(param, shaderLibDataOfAllShaders) {
   var addUniformSendData = param[1];
   var addAttributeSendData = param[0];
-  return ArraySt$Commonlib.map(shaderLibDataOfAllMaterialShaders, (function (param) {
+  return ArraySt$Commonlib.map(shaderLibDataOfAllShaders, (function (param) {
                 var shaderLibs = param[1];
                 return [
                         param[0],

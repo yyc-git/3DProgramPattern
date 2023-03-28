@@ -41,8 +41,7 @@ type shaders = {
   staticBranchs: staticBranchs,
   dynamicBranchs: dynamicBranchs,
   groups: groups,
-  materialShaders: array<shader>,
-  noMaterialShaders: array<shader>,
+  shaders: array<shader>,
 }
 
 type glsl = {

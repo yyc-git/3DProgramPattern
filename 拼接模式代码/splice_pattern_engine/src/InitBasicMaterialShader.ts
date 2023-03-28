@@ -8,11 +8,11 @@ import { addUniformSendData } from "./BasicMaterialShaderUniformSender"
 import { Map } from "immutable"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 
-let _createFakePrograms = (shaderLibDataOfAllMaterialShaders) => {
+let _createFakePrograms = (shaderLibDataOfAllShaders) => {
     // TODO use glsl after build
     // console.log("使用GLSL创建shader和program...")
 
-    return shaderLibDataOfAllMaterialShaders.reduce((programMap, [shaderName, _]) => {
+    return shaderLibDataOfAllShaders.reduce((programMap, [shaderName, _]) => {
         let fakeProgram = {} as any as WebGLProgram
 
         return programMap.set(shaderName, fakeProgram)
@@ -20,7 +20,7 @@ let _createFakePrograms = (shaderLibDataOfAllMaterialShaders) => {
 }
 
 export let initBasicMaterialShader = (state: state, material: material): state => {
-    let [shaderLibDataOfAllMaterialShaders, _] = buildGLSL(
+    let shaderLibDataOfAllShaders = buildGLSL(
         [
             [
                 isNameValidForStaticBranch,
@@ -32,7 +32,7 @@ export let initBasicMaterialShader = (state: state, material: material): state =
         state.shaderLibs
     )
 
-    let programMap = _createFakePrograms(shaderLibDataOfAllMaterialShaders)
+    let programMap = _createFakePrograms(shaderLibDataOfAllShaders)
 
     let sendData = getSendDataOfAllMaterialShaders(
         [(sendDataArr, [name, buffer, type]) => {
@@ -40,7 +40,7 @@ export let initBasicMaterialShader = (state: state, material: material): state =
         }, (sendDataArr, [name, field, type, from]) => {
             return addUniformSendData(state.gl, getExnFromStrictNull(programMap.get(name)), sendDataArr, [name, field, type, from])
         }],
-        shaderLibDataOfAllMaterialShaders
+        shaderLibDataOfAllShaders
     )
 
     return {

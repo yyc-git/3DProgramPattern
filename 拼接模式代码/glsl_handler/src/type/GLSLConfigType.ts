@@ -51,8 +51,7 @@ export type shaders = {
     readonly staticBranchs: staticBranchs;
     readonly dynamicBranchs: dynamicBranchs;
     readonly groups: groups;
-    readonly materialShaders: shader[];
-    readonly noMaterialShaders: shader[]
+    readonly shaders: shader[];
 };
 
 // tslint:disable-next-line:interface-over-type-literal

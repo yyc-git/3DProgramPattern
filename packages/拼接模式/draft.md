@@ -182,6 +182,14 @@ for material->shader
 更多的配置：
 e.g. define: handle define const
 
+支持更多材质：
+uniformFrom add 
+
+支持更多顶点：
+修改attribute
+
+支持uniform数据：
+修改uniform
 
 
 <!-- e.g. no material shader -->
