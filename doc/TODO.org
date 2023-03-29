@@ -176,7 +176,7 @@ add set define count:light count
 
 
 
-** TODO refactor glsl: only remain used glsl
+** DONE refactor glsl: only remain used glsl
 
 ** TODO refactor: clean code
 

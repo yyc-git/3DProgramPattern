@@ -84,11 +84,12 @@ domain model
 flow
 
 
+story improve:
 shader组合图
 
 
 abstract UML:
-not only for glsl, but for else!
+this pattern is not only for glsl, but for else!
 
 
 
