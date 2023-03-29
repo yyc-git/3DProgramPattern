@@ -8,6 +8,7 @@ type allTransforms = Array<any>
 
 declare function createScene(state: state): [state, [allMaterials, allTransforms]]
 
+//fix webpack->json loader bug
 let _fixJsonForArrayBug = (jsonWithArray) => {
     if (Array.isArray(jsonWithArray)) {
         return jsonWithArray

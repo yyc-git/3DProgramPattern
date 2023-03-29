@@ -1,14 +1,15 @@
-import { buildGLSL, getSendData } from "../glsl_handler/GLSLHandler"
+import { buildGLSL, getSendData } from "glsl_handler_abstract/GLSLHandler"
 import { state } from "./MainStateType"
-import { material } from "splice_pattern_utils/src/engine/BasicMaterialStateType"
 import { curry2, curry3_1, curry3_2 } from "fp/src/Curry"
 import { buildGLSLChunkInVS, buildGLSLChunkInFS, generateAttributeType, generateUniformType, getShaderLibFromStaticBranch, isNameValidForStaticBranch, isPassForDynamicBranch } from "./XxxMaterialShaderGLSL"
 import { addAttributeSendData } from "./XxxMaterialShaderAttributeSender"
 import { addUniformSendData } from "./XxxMaterialShaderUniformSender"
 import { Map } from "immutable"
 import { attributeType, uniformField, uniformFrom, uniformType } from "./GLSLConfigType"
-import { shaderName } from "glsl_handler/src/type/GLSLConfigType.gen"
+import { shaderName } from "glsl_handler_abstract/src/type/GLSLConfigType.gen"
 import { createProgram, generateShaderIndex, setShaderIndex } from "./Shader"
+
+type material = any
 
 export let initXxxMaterialShader = (state: state, shaderName: shaderName, allMaterials: Array<material>): state => {
     let [programMap, sendDataMap, shaderIndexMap, _allGLSLs, maxShaderIndex] = allMaterials.reduce(([programMap, sendDataMap, shaderIndexMap, glslMap, maxShaderIndex]: any, material) => {

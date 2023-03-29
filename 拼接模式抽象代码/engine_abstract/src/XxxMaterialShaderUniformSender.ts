@@ -1,7 +1,8 @@
 import { state } from "./MainStateType"
-import {  uniformField, uniformType, uniformFrom } from "./GLSLConfigType";
-import { transform } from "splice_pattern_utils/src/engine/TransformStateType";
-import { uniformName } from "glsl_handler/src/type/GLSLConfigType.gen";
+import { uniformField, uniformType, uniformFrom } from "./GLSLConfigType";
+import { uniformName } from "glsl_handler_abstract/src/type/GLSLConfigType.gen";
+
+type transform = any
 
 type getXxxMaterialDataFunc = (state: state, material: any) => any
 
@@ -25,8 +26,8 @@ export type sendData = {
     更多的SendData...
 }
 
-export declare function addUniformSendData  (
+export declare function addUniformSendData(
     gl: WebGLRenderingContext,
     program: WebGLProgram,
     sendDataArr: Array<sendData>, [name, field, type, from]: [uniformName, uniformField, uniformType, uniformFrom]
-): Array<sendData> 
+): Array<sendData>

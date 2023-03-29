@@ -24,7 +24,7 @@ let _sendAttributeData = (attributeSendData: Array<attributeSendData>, state: st
             sendBuffer(gl, size, pos, _getArrayBuffer(state, buffer, shaderIndex))
         }
         if (!!data.更多的SendData) {
-            console.log("发送更多的Data")
+            console.log("发送")
         }
     })
 }
@@ -47,7 +47,7 @@ let _sendUniformData = (uniformSendData: Array<uniformSendData>, state: state, t
             sendData(gl, pos, getData(state, transform))
         }
         if (!!data.更多的SendData) {
-            console.log("发送更多的Data")
+            console.log("发送")
         }
     })
 }

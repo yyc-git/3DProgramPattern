@@ -1,7 +1,7 @@
-import { glslChunk } from "glsl_converter/src/ShaderChunkType.gen"
+import { glslChunk } from "glsl_converter_abstract/src/ShaderChunkType.gen"
 import { state } from "./MainStateType"
 import { attributeType, uniformType, glslNameForBuildGLSLChunk, shaderMapDataName, condition } from "./GLSLConfigType"
-import { shaderMapDataValue } from "glsl_handler/src/type/GLSLConfigType.gen"
+import { shaderMapDataValue } from "glsl_handler_abstract/src/type/GLSLConfigType.gen"
 
 export declare function isNameValidForStaticBranch(name: shaderMapDataName): boolean
 
