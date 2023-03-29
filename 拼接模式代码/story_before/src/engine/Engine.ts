@@ -1,29 +1,20 @@
 import * as BasicMaterial from "./BasicMaterial"
 import * as Transform from "./Transform"
-import { parseGLSLConfig } from "glsl_handler"
 import { state } from "./MainStateType"
 import { createFakeWebGLRenderingContext } from "./FakeGL"
-import { getData } from "./glsl/ShaderChunk"
 import { Map } from "immutable"
 import * as API from "./API"
 
-export let createState = (shadersJson, shaderLibsJson): state => {
-    let [shaders, shaderLibs] = parseGLSLConfig(shadersJson, shaderLibsJson)
-
+export let createState = (): state => {
     return {
         gl: createFakeWebGLRenderingContext(),
         programMap: Map(),
-        sendDataMap: Map(),
         maxShaderIndex: 0,
         vMatrix: null,
         pMatrix: null,
-        shaders,
-        shaderLibs,
         isSupportHardwareInstance: true,
         isSupportBatchInstance: false,
         maxDirectionLightCount: 4,
-        shaderChunk: getData(),
-        precision: "lowp",
 
         basicMaterialState: BasicMaterial.createState(),
         transformState: Transform.createState()

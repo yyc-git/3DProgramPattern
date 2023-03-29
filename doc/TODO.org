@@ -193,6 +193,8 @@ glsl
 send:
 judge when render
 
+*** TODO refactor:move duplicate to utils/
+
 ** TODO abstract
 
 
@@ -214,3 +216,8 @@ judge when render
 
 * TODO package.json supply dependencies, devDependencies
 e.g. most, commonlib
+
+
+
+
+* TODO 书给出网站（包含代码）二维码

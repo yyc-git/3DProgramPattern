@@ -5,6 +5,7 @@ import { uniformName, uniformField, uniformType, uniformFrom } from "./GLSLConfi
 import { transform } from "./TransformStateType";
 import { getColor, getMapUnit } from "./BasicMaterial";
 import { getModelMatrix } from "./Transform";
+import { sendFloat1, sendFloat3, sendInt, sendMatrix4 } from "./GLSLSend";
 
 type getBasicMaterialDataFunc = (state: state, material: material) => any
 
@@ -26,24 +27,16 @@ export type sendData = {
     renderObjectSendMaterialData?: singleSendData<getBasicMaterialDataFunc>
 }
 
-let _sendMatrix4 = (gl, pos: WebGLUniformLocation, value: Float32Array) => gl.uniformMatrix4fv(pos, false, value)
-
-let _sendInt = (gl, pos: WebGLUniformLocation, value: number) => gl.uniform1i(pos, value)
-
-let _sendFloat1 = (gl, pos: WebGLUniformLocation, value: number) => gl.uniform1f(pos, value)
-
-let _sendFloat3 = (gl, pos: WebGLUniformLocation, [x, y, z]: [number, number, number]) => gl.uniform3f(pos, x, y, z)
-
 let _getSendDataByType = (type: uniformType) => {
     switch (type) {
         case "mat4":
-            return _sendMatrix4
+            return sendMatrix4
         case "sampler2D":
-            return _sendInt
+            return sendInt
         case "float":
-            return _sendFloat1
+            return sendFloat1
         case "float3":
-            return _sendFloat3
+            return sendFloat3
         default:
             throw new Error()
     }
