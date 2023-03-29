@@ -1,6 +1,7 @@
 
 
 import * as ArraySt$Commonlib from "../../../../../node_modules/commonlib/lib/es6_global/src/structure/ArraySt.bs.js";
+import * as BuildGLSL$Glsl_handler from "./BuildGLSL.bs.js";
 import * as HandleUniform$Glsl_handler from "./HandleUniform.bs.js";
 import * as HandleAttribute$Glsl_handler from "./HandleAttribute.bs.js";
 import * as ParseGLSLConfig$Glsl_handler from "./ParseGLSLConfig.bs.js";
@@ -13,17 +14,35 @@ function parseGLSLConfig(shadersJson, shaderLibsJson) {
         ];
 }
 
-function buildGLSL(param, shaders, shaderLibs) {
-  var match = param[0];
+function buildGLSL(param, shaders, shaderLibs, shaderChunk, precision) {
+  var match = param[1];
+  var buildGLSLChunkInFS = match[3];
+  var buildGLSLChunkInVS = match[2];
+  var generateUniformType = match[1];
+  var generateAttributeType = match[0];
+  var match$1 = param[0];
+  var match$2 = match$1[0];
   var shaderLibDataOfAllShaders = HandleShaderLibs$Glsl_handler.getShaderLibsOfShaders([
         [
-          match[0],
-          match[1]
+          match$2[0],
+          match$2[1]
         ],
-        param[1]
+        match$1[1]
       ], shaders.shaders, shaders, shaderLibs);
-  console.log(shaderLibDataOfAllShaders);
-  return shaderLibDataOfAllShaders;
+  return [
+          shaderLibDataOfAllShaders,
+          ArraySt$Commonlib.map(shaderLibDataOfAllShaders, (function (param) {
+                  return [
+                          param[0],
+                          BuildGLSL$Glsl_handler.buildGLSL([
+                                generateAttributeType,
+                                generateUniformType,
+                                buildGLSLChunkInVS,
+                                buildGLSLChunkInFS
+                              ], param[1], shaderChunk, precision)
+                        ];
+                }))
+        ];
 }
 
 function getSendDataOfAllMaterialShaders(param, shaderLibDataOfAllShaders) {

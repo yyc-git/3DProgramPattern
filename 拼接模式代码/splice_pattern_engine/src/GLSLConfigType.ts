@@ -22,3 +22,5 @@ export type uniformField =
 export type uniformType = "mat4" | "float3" | "float" | "sampler2D";
 
 export type uniformFrom = "basicMaterial" | "model" | "camera";
+
+export type glslNameForBuildGLSLChunk = "defineMaxDirectionLightCount"

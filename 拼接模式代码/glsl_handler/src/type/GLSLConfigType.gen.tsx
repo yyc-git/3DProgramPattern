@@ -55,7 +55,13 @@ export type shaders = {
 };
 
 // tslint:disable-next-line:interface-over-type-literal
-export type glsl = { readonly type_: string; readonly name: string };
+export type glslName = string;
+
+// tslint:disable-next-line:interface-over-type-literal
+export type glslType = "vs" | "vs_function" | "fs" | "fs_function";
+
+// tslint:disable-next-line:interface-over-type-literal
+export type glsl = { readonly type_: glslType; readonly name: glslName };
 
 // tslint:disable-next-line:interface-over-type-literal
 export type attributeName = string;

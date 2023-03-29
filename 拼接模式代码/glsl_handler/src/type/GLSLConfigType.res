@@ -45,9 +45,14 @@ type shaders = {
   shaders: array<shader>,
 }
 
+@genType
+type glslName = string
+
+type glslType = [#vs | #vs_function | #fs | #fs_function]
+
 type glsl = {
-  type_: string,
-  name: string,
+  type_: glslType,
+  name: glslName,
 }
 
 type attributeName = string
@@ -90,3 +95,5 @@ type shaderLib = {
 
 @genType
 type shaderLibs = array<shaderLib>
+
+external stringToGLSLType: string => glslType = "%identity"

@@ -6,7 +6,7 @@ import * as Glob from "glob";
 import * as Curry from "../../../../../node_modules/rescript/lib/es6/curry.js";
 import * as Js_array from "../../../../../node_modules/rescript/lib/es6/js_array.js";
 import * as Parse$Glsl_converter from "./Parse.bs.js";
-import * as ArraySystem$Glsl_converter from "./ArraySystem.bs.js";
+import * as ArrayUtils$Glsl_converter from "./ArrayUtils.bs.js";
 
 var _functionContentForTs = "\n  let _buildChunk =\n      (\n        [ top, define ]:[string, string],\n        varDeclare: string,\n        [ funcDeclare, funcDefine ]:[string, string],\n        body: string\n      ) => {\n    return {\n      top,\n      define,\n      varDeclare,\n      funcDeclare,\n      funcDefine,\n      body\n    }\n  };\n\n  export let getData = () =>{\n  ";
 
@@ -41,7 +41,7 @@ function _convertArrayToList(array) {
 function _createChunkFile(_buildChunkFileContent, glslPathArr, destFilePath, doneFunc) {
   _writeToChunkFile(destFilePath, doneFunc, Curry._1(_buildChunkFileContent, Parse$Glsl_converter.parseImport(List.map((function (actualGlslPath) {
                       return Parse$Glsl_converter.parseSegment(actualGlslPath, Fs.readFileSync(actualGlslPath, "utf8"));
-                    }), _convertArrayToList(ArraySystem$Glsl_converter.flatten(Js_array.map((function (glslPath) {
+                    }), _convertArrayToList(ArrayUtils$Glsl_converter.flatten(Js_array.map((function (glslPath) {
                                   return Glob.sync(glslPath);
                                 }), glslPathArr)))))));
 }

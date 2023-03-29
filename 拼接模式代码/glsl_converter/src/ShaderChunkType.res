@@ -1,3 +1,4 @@
+@genType
 type glslChunk = {
   mutable top: string,
   mutable define: string,

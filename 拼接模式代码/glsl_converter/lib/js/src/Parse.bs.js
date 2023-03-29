@@ -44,7 +44,7 @@ function _execRegex(regex, content, _startIndex, _recordList, noneFunc, someFunc
 
 function _getAllImportContent(fileName, segmentName, segmentContent, map) {
   var _createImportFlagRe = function (param) {
-    return /#import\\s+"(.+)"/g;
+    return /#import\s+"(.+)"/g;
   };
   var _get = function (fileNameList, segmentName, segmentContent, map) {
     var recordList = _execRegex(_createImportFlagRe(undefined), segmentContent, 0, /* [] */0, (function (startIndex, recordList) {

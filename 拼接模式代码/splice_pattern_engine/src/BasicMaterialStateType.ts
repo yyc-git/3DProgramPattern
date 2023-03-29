@@ -8,8 +8,6 @@ type mapUnit = number
 
 export type state = {
     hasBasicMapMap: Map<material, boolean>,
-    isSupportHardwareInstance: boolean,
-    isSupportBatchInstance: boolean
     colors:Map<material, color>,
     mapUnits:Map<material, mapUnit>
 }

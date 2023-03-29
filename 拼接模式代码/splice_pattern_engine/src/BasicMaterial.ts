@@ -5,8 +5,6 @@ import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 export let createState = (): state => {
     return {
         hasBasicMapMap: Map(),
-        isSupportHardwareInstance: true,
-        isSupportBatchInstance: false,
         colors: Map(),
         mapUnits: Map()
     }

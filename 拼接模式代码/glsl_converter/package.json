@@ -4,9 +4,11 @@
   "main": "lib/js/src/Create.bs.js",
   "types": "src/Main.d.ts",
   "scripts": {
-    "watch": "rescript clean && rescript build -w"
+    "watch": "rescript clean && rescript build -w",
+    "test:watch": "jest --watch --config jest.json"
   },
   "devDependencies": {
+    "jest": "^25.2.3",
     "rescript": "^10.0.1"
   }
 }

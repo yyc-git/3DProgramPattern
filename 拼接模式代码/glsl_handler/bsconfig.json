@@ -14,7 +14,8 @@
     "bs-dependencies": [
         "commonlib",
         "commonlib-type",
-        "json"
+        "json",
+        "glsl_converter"
     ],
     "gentypeconfig": {
         "language": "typescript",

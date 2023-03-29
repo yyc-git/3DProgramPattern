@@ -151,7 +151,7 @@ remove material concept
 # ** TODO rename splice_pattern_engine to engine
 
 
-** TODO 
+** DONE 
 - get shaderChunks to state
 - Builder: shader libs + ShaderChunks to vs glsl, fs glsl
 support all parts
@@ -165,7 +165,14 @@ sender
 
 
 
+add getHandle
 
+add set define count:light count
+
+
+# fix:
+# import
+# body last newLine
 
 
 

@@ -121,6 +121,19 @@
     ]
   },
   {
+    "name": "define_light_count",
+    "glsls": [
+      {
+        "type": "vs_function",
+        "name": "defineMaxDirectionLightCount"
+      },
+      {
+        "type": "fs_function",
+        "name": "defineMaxDirectionLightCount"
+      }
+    ]
+  },
+  {
     "name": "basic_map",
     "glsls": [
       {

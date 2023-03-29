@@ -1,19 +1,16 @@
 import { getSendDataOfAllMaterialShaders, buildGLSL } from "glsl_handler"
 import { state } from "./MainStateType"
 import { material } from "./BasicMaterialStateType"
-import { curry3_1, curry3_2 } from "fp/src/Curry"
-import { getShaderLibFromStaticBranch, isNameValidForStaticBranch, isPassForDynamicBranch } from "./BasicMaterialShader"
+import { curry2, curry3_1, curry3_2 } from "fp/src/Curry"
+import { buildGLSLChunkInVS, buildGLSLChunkInFS, generateAttributeType, generateUniformType, getShaderLibFromStaticBranch, isNameValidForStaticBranch, isPassForDynamicBranch } from "./BasicMaterialShaderGLSL"
 import { addAttributeSendData } from "./BasicMaterialShaderAttributeSender"
 import { addUniformSendData } from "./BasicMaterialShaderUniformSender"
 import { Map } from "immutable"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 import { attributeType, uniformField, uniformFrom, uniformType } from "./GLSLConfigType"
 
-let _createFakePrograms = (shaderLibDataOfAllShaders) => {
-    // TODO use glsl after build
-    // console.log("使用GLSL创建shader和program...")
-
-    return shaderLibDataOfAllShaders.reduce((programMap, [shaderName, _]) => {
+let _createFakePrograms = (glslOfAllShaders) => {
+    return glslOfAllShaders.reduce((programMap, [shaderName, [vsGLSL, fsGLSL]]) => {
         let fakeProgram = {} as any as WebGLProgram
 
         return programMap.set(shaderName, fakeProgram)
@@ -21,19 +18,30 @@ let _createFakePrograms = (shaderLibDataOfAllShaders) => {
 }
 
 export let initBasicMaterialShader = (state: state, material: material): state => {
-    let shaderLibDataOfAllShaders = buildGLSL(
+    let [shaderLibDataOfAllShaders, glslOfAllShaders] = buildGLSL(
         [
-            [
+            [[
                 isNameValidForStaticBranch,
-                curry3_1(getShaderLibFromStaticBranch)(state.basicMaterialState)
+                curry3_1(getShaderLibFromStaticBranch)(state)
             ],
-            curry3_2(isPassForDynamicBranch)(material, state.basicMaterialState)
+            curry3_2(isPassForDynamicBranch)(material, state)],
+            [
+                generateAttributeType,
+                generateUniformType,
+                curry2(buildGLSLChunkInVS)(state),
+                curry2(buildGLSLChunkInFS)(state)
+            ]
         ],
         state.shaders,
-        state.shaderLibs
+        state.shaderLibs,
+        state.shaderChunk,
+        state.precision
     )
 
-    let programMap = _createFakePrograms(shaderLibDataOfAllShaders)
+    console.log(shaderLibDataOfAllShaders)
+    console.log(glslOfAllShaders)
+
+    let programMap = _createFakePrograms(glslOfAllShaders)
 
     let sendData = getSendDataOfAllMaterialShaders(
         [(sendDataArr, [name, buffer, type]) => {

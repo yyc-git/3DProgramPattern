@@ -8,6 +8,7 @@ import { createFakeWebGLRenderingContext } from "./FakeGL"
 import * as InitBasicMaterialShader from "./InitBasicMaterialShader"
 import * as InitCamera from "./InitCamera"
 import * as Render from "./Render"
+import { getData } from "./glsl/ShaderChunk"
 
 export let createState = (shadersJson, shaderLibsJson): state => {
     let [shaders, shaderLibs] = parseGLSLConfig(shadersJson, shaderLibsJson)
@@ -20,6 +21,12 @@ export let createState = (shadersJson, shaderLibsJson): state => {
         pMatrix: null,
         shaders,
         shaderLibs,
+        isSupportHardwareInstance: true,
+        isSupportBatchInstance: false,
+        maxDirectionLightCount: 4,
+        shaderChunk: getData(),
+        precision: "lowp",
+
         basicMaterialState: BasicMaterial.createState(),
         transformState: Transform.createState()
     }

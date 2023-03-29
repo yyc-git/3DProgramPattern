@@ -5,12 +5,29 @@ let _buildGlslContent = (name: string, (top, define, varDeclare, funcDeclare, fu
   | "" =>
     switch (name |> Js.String.startsWith("./"), name |> Js.String.startsWith("../")) {
     | (false, false) =>
-      {j`"$name": _buildChunk(`} 
-      ++ "[`" ++ top ++ "`" ++ ", `" ++ define ++ "`" ++ "],"
-      ++ "`" ++ varDeclare ++ "`" ++ ","
-      ++ "[`" ++ funcDeclare ++ "`" ++ ", `" ++ funcDefine ++ "`" ++ "],"
-      ++ "`" ++ body ++ "`" ++ ","
-      ++"), "
+      {j`"$name": _buildChunk(`} ++
+      "[`" ++
+      top ++
+      "`" ++
+      ", `" ++
+      define ++
+      "`" ++
+      "]," ++
+      "`" ++
+      varDeclare ++
+      "`" ++
+      "," ++
+      "[`" ++
+      funcDeclare ++
+      "`" ++
+      ", `" ++
+      funcDefine ++
+      "`" ++
+      "]," ++
+      "`" ++
+      body ++
+      "`" ++
+      "," ++ "), "
     | (_, _) => failwith(j`should import fileName, not filePath`)
     }
   | extname => failwith(j`should import fileName without $extname`)
@@ -31,7 +48,7 @@ let rec _execRegex = (regex, content, startIndex, recordList, noneFunc, someFunc
   }
 
 let _getAllImportContent = (fileName: string, segmentName: string, segmentContent: string, map) => {
-  let _createImportFlagRe = () => %re(`/#import\\s+"(.+)"/g`)
+  let _createImportFlagRe = () => %re(`/#import\s+"(.+)"/g`)
   let rec _get = (fileNameList: list<string>, segmentName: string, segmentContent: string, map) => {
     let recordList = _execRegex(
       _createImportFlagRe(),
@@ -182,7 +199,8 @@ let parseSegment = (actualGlslPath: string, content: string) => {
       switch endFlagRe->Js.Re.exec_(content) {
       | None => failwith("@end should match to segement flag")
       | Some(result) =>
-        content |> Js.String.slice(~from=startIndex, ~to_=Js.Re.index(result)) |> Js.String.trim
+        content |> Js.String.slice(~from=startIndex, ~to_=Js.Re.index(result)) 
+        |> Js.String.trim
       }
     },
     ...list,

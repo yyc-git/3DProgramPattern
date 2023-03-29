@@ -5,6 +5,10 @@ preprocess:
 - prepare glsl
 - glsl converter->ShaderChunks
 
+handle #import
+
+
+
 runtime:
 <!-- - get shaderChunks to state -->
 - load json
@@ -109,12 +113,8 @@ for material->shader
 
 - 请给出直接的解决方案?
     - 概述解决方案？
-    TODO explain:
-    glsl compiler support ts, res
     - 给出UML？
     - 给出代码？
-    TODO explain:
-    |>
     - 结合UML图，描述如何具体地解决问题？
 
 
@@ -144,9 +144,18 @@ for material->shader
 
 - 请给出使用模式的改进方案?
     - 概述解决方案
+    TODO explain:
+    glsl compiler support ts, res
+    
+
+build glsl->define light count:vs_function, fs_function
     - 遵循哪些设计原则
     - 给出UML？
     - 给出代码？
+    TODO explain:
+    |>
+
+    TODO give how to run rescript code(pipeline pattern should mention it!)
     - 结合UML图，描述如何具体地解决问题？
 
 # 主问题：提出模式
@@ -180,7 +189,8 @@ for material->shader
 
 
 更多的配置：
-e.g. define: handle define const
+<!-- e.g. define: handle define const -->
+static/dynamic branch
 
 支持更多材质：
 uniformFrom add 

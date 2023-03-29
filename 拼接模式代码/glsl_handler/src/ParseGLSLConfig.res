@@ -53,7 +53,7 @@ let _parseGlsl = json => {
   json |> optional(
     field("glsls", json =>
       json |> array(json => {
-        type_: json |> field("type", string),
+        type_: json |> field("type", string) |> stringToGLSLType,
         name: json |> field("name", string),
       })
     ),

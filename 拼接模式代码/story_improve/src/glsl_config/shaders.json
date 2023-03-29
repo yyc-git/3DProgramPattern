@@ -45,6 +45,9 @@
           "name": "modelMatrix_instance"
         },
         {
+          "name": "define_light_count"
+        },
+        {
           "name": "basic"
         },
         {

@@ -6,7 +6,7 @@ var Glob = require("glob");
 var Curry = require("rescript/lib/js/curry.js");
 var Js_array = require("rescript/lib/js/js_array.js");
 var Parse$Glsl_converter = require("./Parse.bs.js");
-var ArraySystem$Glsl_converter = require("./ArraySystem.bs.js");
+var ArrayUtils$Glsl_converter = require("./ArrayUtils.bs.js");
 
 var _functionContentForTs = "\n  let _buildChunk =\n      (\n        [ top, define ]:[string, string],\n        varDeclare: string,\n        [ funcDeclare, funcDefine ]:[string, string],\n        body: string\n      ) => {\n    return {\n      top,\n      define,\n      varDeclare,\n      funcDeclare,\n      funcDefine,\n      body\n    }\n  };\n\n  export let getData = () =>{\n  ";
 
@@ -41,7 +41,7 @@ function _convertArrayToList(array) {
 function _createChunkFile(_buildChunkFileContent, glslPathArr, destFilePath, doneFunc) {
   _writeToChunkFile(destFilePath, doneFunc, Curry._1(_buildChunkFileContent, Parse$Glsl_converter.parseImport(List.map((function (actualGlslPath) {
                       return Parse$Glsl_converter.parseSegment(actualGlslPath, Fs.readFileSync(actualGlslPath, "utf8"));
-                    }), _convertArrayToList(ArraySystem$Glsl_converter.flatten(Js_array.map((function (glslPath) {
+                    }), _convertArrayToList(ArrayUtils$Glsl_converter.flatten(Js_array.map((function (glslPath) {
                                   return Glob.sync(glslPath);
                                 }), glslPathArr)))))));
 }
