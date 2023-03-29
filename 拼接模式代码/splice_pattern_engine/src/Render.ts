@@ -5,7 +5,7 @@ import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 import { sendData as attributeSendData } from "./BasicMaterialShaderAttributeSender"
 import { sendData as uniformSendData } from "./BasicMaterialShaderUniformSender"
 import { attributeBuffer } from "./GLSLConfigType"
-import { getShaderIndex } from "splice_pattern_utils/src/engine/BasicMaterial"
+import { getShaderIndex } from "splice_pattern_utils/src/engine/Shader"
 import { shaderIndex } from "splice_pattern_utils/src/engine/ShaderType"
 
 let _getFakeArrayBuffer = (state, attributeBuffer: attributeBuffer, shaderIndex) => {
@@ -73,7 +73,7 @@ export let render = (state: state): state => {
         let material = _getFakeMaterial(state, gameObject)
         let transform = _getFakeTransform(state, gameObject)
 
-        let shaderIndex = getShaderIndex(state.basicMaterialState, material)
+        let shaderIndex = getShaderIndex(state.shaderIndexMap, material)
 
         let program = getExnFromStrictNull(programMap.get(shaderIndex))
         let sendData = getExnFromStrictNull(sendDataMap.get(shaderIndex))

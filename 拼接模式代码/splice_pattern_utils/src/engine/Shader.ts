@@ -1,5 +1,5 @@
 import { Map } from "immutable"
-import { getExnFromStrictUndefined } from "commonlib-ts/src/NullableUtils"
+import { getExnFromStrictNull, getExnFromStrictUndefined } from "commonlib-ts/src/NullableUtils"
 import { shaderIndex } from "./ShaderType"
 
 type glslMap = Map<shaderIndex, glsl>
@@ -22,4 +22,12 @@ export let createFakeProgram = ([vsGLSL, fsGLSL]) => {
     let fakeProgram = {} as any as WebGLProgram
 
     return fakeProgram
+}
+
+export let getShaderIndex = (shaderIndexMap, material) => {
+    return getExnFromStrictNull(shaderIndexMap.get(material))
+}
+
+export let setShaderIndex = (shaderIndexMap, material, shaderIndex) => {
+    return shaderIndexMap.set(material, shaderIndex)
 }

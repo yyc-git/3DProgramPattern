@@ -1,3 +1,7 @@
+export type shaderMapDataName = "modelMatrix_instance"
+
+export type condition = "basic_has_map"
+
 export enum attributeBuffer {
     Vertex = 0,
     Normal = 1,
@@ -6,11 +10,7 @@ export enum attributeBuffer {
     Instance_model_matrix = 4
 }
 
-export type attributeName = string
-
 export type attributeType = "vec2" | "vec3" | "vec4";
-
-export type uniformName = string;
 
 export type uniformField =
     "mMatrix"

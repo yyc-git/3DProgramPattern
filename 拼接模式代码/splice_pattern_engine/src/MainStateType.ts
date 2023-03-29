@@ -14,11 +14,14 @@ export type programMap = Map<shaderIndex, WebGLProgram>
 
 export type sendDataMap = Map<shaderIndex, sendData>
 
+type material = number
+
 export type state = {
     gl: WebGLRenderingContext,
     programMap: programMap,
     sendDataMap: sendDataMap,
-    maxShaderIndex:number,
+    maxShaderIndex: number,
+    shaderIndexMap: Map<material, shaderIndex>
     vMatrix: Float32Array | null,
     pMatrix: Float32Array | null,
     shaders: shaders,

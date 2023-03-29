@@ -1,9 +1,10 @@
 import { glslChunk } from "glsl_converter/src/ShaderChunkType.gen"
 import { hasBasicMap } from "splice_pattern_utils/src/engine/BasicMaterial"
 import { state } from "./MainStateType"
-import { attributeType, uniformType, glslNameForBuildGLSLChunk } from "./GLSLConfigType"
+import { attributeType, uniformType, glslNameForBuildGLSLChunk, shaderMapDataName, condition } from "./GLSLConfigType"
+import { shaderMapDataValue } from "glsl_handler/src/type/GLSLConfigType.gen"
 
-export let isNameValidForStaticBranch = (name) => {
+export let isNameValidForStaticBranch = (name: shaderMapDataName): boolean => {
     switch (name) {
         case "modelMatrix_instance":
             return true
@@ -12,7 +13,7 @@ export let isNameValidForStaticBranch = (name) => {
     }
 }
 
-export let getShaderLibFromStaticBranch = (state: state, name, value) => {
+export let getShaderLibFromStaticBranch = (state: state, name: shaderMapDataName, value: shaderMapDataValue): string => {
     switch (name) {
         case "modelMatrix_instance":
             if (state.isSupportHardwareInstance) {
@@ -29,7 +30,7 @@ export let getShaderLibFromStaticBranch = (state: state, name, value) => {
     }
 }
 
-export let isPassForDynamicBranch = (material, state: state, condition) => {
+export let isPassForDynamicBranch = (material, state: state, condition: condition): boolean => {
     switch (condition) {
         case "basic_has_map":
             return hasBasicMap(material, state.basicMaterialState)
@@ -68,23 +69,6 @@ export let buildGLSLChunkInVS = (state: state, glslName: glslNameForBuildGLSLChu
 }
 
 export let buildGLSLChunkInFS = (state: state, glslName: glslNameForBuildGLSLChunk): glslChunk => {
-    switch (glslName) {
-        case "defineMaxDirectionLightCount":
-            let maxDirectionLightCount = state.maxDirectionLightCount
-            return {
-                top: "",
-                define: "#define MAX_DIRECTION_LIGHT_COUNT " + maxDirectionLightCount,
-                varDeclare: "",
-                funcDeclare: "",
-                funcDefine: "",
-                body: "",
-            }
-        default:
-            throw new Error()
-    }
-}
-
-export let buildGLSLChunk = (state: state, glslName: glslNameForBuildGLSLChunk): glslChunk => {
     switch (glslName) {
         case "defineMaxDirectionLightCount":
             let maxDirectionLightCount = state.maxDirectionLightCount

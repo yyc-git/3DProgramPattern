@@ -205,6 +205,11 @@ attribute order
 
 ** TODO abstract
 
+draft
+
+
+update import path
+
 
 ** TODO uml
 
@@ -213,13 +218,15 @@ attribute order
 
 * TODO 抽象代码都用Typescript
 
+* TODO 简化抽象代码
+
+* TODO 简化UML
+
 * TODO give where has code, uml and how to run code and run result for each example
 
 
-* TODO 修改接口为type，《type》
+# * TODO 修改接口为type，《type》
 
-
-* TODO 简化UML
 
 
 * TODO package.json supply dependencies, devDependencies
@@ -229,3 +236,8 @@ e.g. most, commonlib
 
 
 * TODO 书给出网站（包含代码）二维码
+
+
+** TODO 代码示例
+
+https://github.com/nivance/DPModel

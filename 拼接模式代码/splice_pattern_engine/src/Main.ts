@@ -16,6 +16,7 @@ export let createState = (shadersJson, shaderLibsJson): state => {
         gl: createFakeWebGLRenderingContext(),
         programMap: Map(),
         sendDataMap: Map(),
+        shaderIndexMap: Map(),
         maxShaderIndex: 0,
         vMatrix: null,
         pMatrix: null,

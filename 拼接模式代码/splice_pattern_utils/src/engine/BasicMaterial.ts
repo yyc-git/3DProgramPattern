@@ -5,7 +5,6 @@ import { getExnFromStrictNull, getExnFromStrictUndefined } from "commonlib-ts/sr
 export let createState = (): state => {
     return {
         maxMaterialIndex: 0,
-        shaderIndexMap: Map(),
         hasBasicMapMap: Map(),
         colors: Map(),
         mapUnits: Map()
@@ -50,17 +49,5 @@ export let setFakeMap = (state: state, material): state => {
         ...state,
         hasBasicMapMap: state.hasBasicMapMap.set(material, true),
         mapUnits: state.mapUnits.set(material, 0)
-    }
-}
-
-
-export let getShaderIndex = (state: state, material) => {
-    return getExnFromStrictNull(state.shaderIndexMap.get(material))
-}
-
-export let setShaderIndex = (state: state, material, shaderIndex) => {
-    return {
-        ...state,
-        shaderIndexMap: state.shaderIndexMap.set(material, shaderIndex)
     }
 }

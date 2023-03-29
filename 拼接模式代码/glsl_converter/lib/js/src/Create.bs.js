@@ -46,7 +46,7 @@ function _createChunkFile(_buildChunkFileContent, glslPathArr, destFilePath, don
                                 }), glslPathArr)))))));
 }
 
-function createChunkFile(glslPathArr, destFilePath, doneFunc) {
+function createChunkFileForTs(glslPathArr, destFilePath, doneFunc) {
   var partial_arg = [
     _buildInitDataContentForTs,
     _functionContentForTs
@@ -74,6 +74,6 @@ exports._buildChunkFileContent = _buildChunkFileContent;
 exports._writeToChunkFile = _writeToChunkFile;
 exports._convertArrayToList = _convertArrayToList;
 exports._createChunkFile = _createChunkFile;
-exports.createChunkFile = createChunkFile;
+exports.createChunkFileForTs = createChunkFileForTs;
 exports.createChunkFileForRes = createChunkFileForRes;
 /* fs Not a pure module */

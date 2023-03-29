@@ -5,10 +5,13 @@ import { shaderIndex } from "splice_pattern_utils/src/engine/ShaderType"
 
 export type programMap = Map<shaderIndex, WebGLProgram>
 
+type material = number
+
 export type state = {
     gl: WebGLRenderingContext,
     programMap: programMap,
     maxShaderIndex: number,
+    shaderIndexMap: Map<material, shaderIndex>,
     vMatrix: Float32Array | null,
     pMatrix: Float32Array | null,
     isSupportHardwareInstance: boolean,

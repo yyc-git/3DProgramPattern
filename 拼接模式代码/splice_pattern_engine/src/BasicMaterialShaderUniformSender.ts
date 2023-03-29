@@ -1,11 +1,12 @@
 import { state } from "./MainStateType"
 import { material } from "splice_pattern_utils/src/engine/BasicMaterialStateType"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
-import { uniformName, uniformField, uniformType, uniformFrom } from "./GLSLConfigType";
+import {  uniformField, uniformType, uniformFrom } from "./GLSLConfigType";
 import { transform } from "splice_pattern_utils/src/engine/TransformStateType";
 import { getColor, getMapUnit } from "splice_pattern_utils/src/engine/BasicMaterial";
 import { getModelMatrix } from "splice_pattern_utils/src/engine/Transform";
 import { sendFloat1, sendFloat3, sendInt, sendMatrix4 } from "splice_pattern_utils/src/engine/GLSLSend";
+import { uniformName } from "glsl_handler/src/type/GLSLConfigType.gen";
 
 type getBasicMaterialDataFunc = (state: state, material: material) => any
 

@@ -12,6 +12,7 @@ export let createState = (): state => {
         gl: createFakeWebGLRenderingContext(),
         programMap: Map(),
         maxShaderIndex: 0,
+        shaderIndexMap: Map(),
         vMatrix: null,
         pMatrix: null,
         isSupportHardwareInstance: true,

@@ -7,7 +7,7 @@ export function parseGLSLConfig(
 
 type isNameValidForStaticBranch = (name: string) => boolean
 
-type getShaderLibFromStaticBranch = (name: shaderMapDataName, value: shaderMapDataValue) => shaderLibs
+type getShaderLibFromStaticBranch = (name: shaderMapDataName, value: shaderMapDataValue) => string
 
 type isPassForDynamicBranch = (condition: condition) => boolean
 

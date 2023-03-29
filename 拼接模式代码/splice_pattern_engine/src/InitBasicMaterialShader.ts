@@ -6,32 +6,9 @@ import { buildGLSLChunkInVS, buildGLSLChunkInFS, generateAttributeType, generate
 import { addAttributeSendData } from "./BasicMaterialShaderAttributeSender"
 import { addUniformSendData } from "./BasicMaterialShaderUniformSender"
 import { Map } from "immutable"
-import { getExnFromStrictUndefined } from "commonlib-ts/src/NullableUtils"
 import { attributeType, uniformField, uniformFrom, uniformType } from "./GLSLConfigType"
 import { shaderName } from "glsl_handler/src/type/GLSLConfigType.gen"
-import { shaderIndex } from "splice_pattern_utils/src/engine/ShaderType"
-
-type glslMap = Map<shaderIndex, glsl>
-
-type glsl = [string, string]
-
-let _generateShaderIndex = (glslMap: glslMap, glsl: glsl, maxShaderIndex: shaderIndex): [shaderIndex, shaderIndex] => {
-    let result = glslMap.findEntry((value) => {
-        return value[0] == glsl[0] && value[1] == glsl[1]
-    })
-
-    if (result === undefined) {
-        return [maxShaderIndex, maxShaderIndex + 1]
-    }
-
-    return [getExnFromStrictUndefined(result[0]), maxShaderIndex]
-}
-
-let _createFakeProgram = ([vsGLSL, fsGLSL]) => {
-    let fakeProgram = {} as any as WebGLProgram
-
-    return fakeProgram
-}
+import { generateShaderIndex, createFakeProgram, setShaderIndex } from "splice_pattern_utils/src/engine/Shader"
 
 export let initBasicMaterialShader = (state: state, shaderName: shaderName, allMaterials: Array<material>): state => {
     let [programMap, sendDataMap, shaderIndexMap, _allGLSLs, maxShaderIndex] = allMaterials.reduce(([programMap, sendDataMap, shaderIndexMap, glslMap, maxShaderIndex]: any, material) => {
@@ -56,9 +33,9 @@ export let initBasicMaterialShader = (state: state, shaderName: shaderName, allM
             state.precision
         )
 
-        let [shaderIndex, newMaxShaderIndex] = _generateShaderIndex(glslMap, glsl, maxShaderIndex)
+        let [shaderIndex, newMaxShaderIndex] = generateShaderIndex(glslMap, glsl, maxShaderIndex)
 
-        let program = _createFakeProgram(glsl)
+        let program = createFakeProgram(glsl)
 
         let sendData = getSendData(
             [(sendDataArr, [name, buffer, type]) => {
@@ -80,18 +57,15 @@ export let initBasicMaterialShader = (state: state, shaderName: shaderName, allM
         return [
             programMap.set(shaderIndex, program),
             sendDataMap.set(shaderIndex, sendData),
-            shaderIndexMap.set(material, shaderIndex),
+            setShaderIndex(shaderIndexMap, material, shaderIndex),
             glslMap,
             newMaxShaderIndex
         ]
-    }, [state.programMap, state.sendDataMap, state.basicMaterialState.shaderIndexMap, Map(), state.maxShaderIndex])
+    }, [state.programMap, state.sendDataMap, state.shaderIndexMap, Map(), state.maxShaderIndex])
 
     return {
         ...state,
         programMap, sendDataMap, maxShaderIndex,
-        basicMaterialState: {
-            ...state.basicMaterialState,
-            shaderIndexMap: shaderIndexMap
-        }
+        shaderIndexMap
     }
 }

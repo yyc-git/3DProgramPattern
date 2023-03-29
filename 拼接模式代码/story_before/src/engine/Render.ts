@@ -2,10 +2,11 @@ import { state } from "./MainStateType"
 import { transform } from "splice_pattern_utils/src/engine/TransformStateType"
 import { material } from "splice_pattern_utils/src/engine/BasicMaterialStateType"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
-import { getColor, getMapUnit, getShaderIndex, hasBasicMap } from "splice_pattern_utils/src/engine/BasicMaterial"
+import { getColor, getMapUnit, hasBasicMap } from "splice_pattern_utils/src/engine/BasicMaterial"
 import { shaderIndex } from "splice_pattern_utils/src/engine/ShaderType"
 import { sendFloat3, sendInt, sendMatrix4 } from "splice_pattern_utils/src/engine/GLSLSend"
 import { getModelMatrix } from "splice_pattern_utils/src/engine/Transform"
+import { getShaderIndex } from "splice_pattern_utils/src/engine/Shader"
 
 let _getFakeArrayBuffer = (state, shaderIndex) => {
     return {} as WebGLBuffer
@@ -93,7 +94,7 @@ export let render = (state: state): state => {
         let material = _getFakeMaterial(state, gameObject)
         let transform = _getFakeTransform(state, gameObject)
 
-        let shaderIndex = getShaderIndex(state.basicMaterialState, material)
+        let shaderIndex = getShaderIndex(state.shaderIndexMap, material)
 
         let program = getExnFromStrictNull(programMap.get(shaderIndex))
 

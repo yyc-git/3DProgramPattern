@@ -1,31 +1,8 @@
 import { state } from "./MainStateType"
 import { material } from "splice_pattern_utils/src/engine/BasicMaterialStateType"
 import { Map } from "immutable"
-import { getExnFromStrictUndefined } from "commonlib-ts/src/NullableUtils"
-import { shaderIndex } from "splice_pattern_utils/src/engine/ShaderType"
 import { hasBasicMap } from "splice_pattern_utils/src/engine/BasicMaterial"
-
-type glslMap = Map<shaderIndex, glsl>
-
-type glsl = [string, string]
-
-let _generateShaderIndex = (glslMap: glslMap, glsl: glsl, maxShaderIndex: shaderIndex): [shaderIndex, shaderIndex] => {
-    let result = glslMap.findEntry((value) => {
-        return value[0] == glsl[0] && value[1] == glsl[1]
-    })
-
-    if (result === undefined) {
-        return [maxShaderIndex, maxShaderIndex + 1]
-    }
-
-    return [getExnFromStrictUndefined(result[0]), maxShaderIndex]
-}
-
-let _createFakeProgram = ([vsGLSL, fsGLSL]) => {
-    let fakeProgram = {} as any as WebGLProgram
-
-    return fakeProgram
-}
+import { generateShaderIndex, createFakeProgram, setShaderIndex } from "splice_pattern_utils/src/engine/Shader"
 
 let _buildDefaultVSGLSL = () => {
     return `
@@ -155,9 +132,9 @@ export let initBasicMaterialShader = (state: state, allMaterials: Array<material
     let [programMap, shaderIndexMap, _allGLSLs, maxShaderIndex] = allMaterials.reduce(([programMap, shaderIndexMap, glslMap, maxShaderIndex]: any, material) => {
         let glsl = _buildGLSL(state, material)
 
-        let [shaderIndex, newMaxShaderIndex] = _generateShaderIndex(glslMap, glsl, maxShaderIndex)
+        let [shaderIndex, newMaxShaderIndex] = generateShaderIndex(glslMap, glsl, maxShaderIndex)
 
-        let program = _createFakeProgram(glsl)
+        let program = createFakeProgram(glsl)
 
         if (!glslMap.has(shaderIndex)) {
             glslMap = glslMap.set(shaderIndex, glsl)
@@ -168,18 +145,15 @@ export let initBasicMaterialShader = (state: state, allMaterials: Array<material
 
         return [
             programMap.set(shaderIndex, program),
-            shaderIndexMap.set(material, shaderIndex),
+            setShaderIndex(shaderIndexMap, material, shaderIndex),
             glslMap,
             newMaxShaderIndex
         ]
-    }, [state.programMap, state.basicMaterialState.shaderIndexMap, Map(), state.maxShaderIndex])
+    }, [state.programMap, state.shaderIndexMap, Map(), state.maxShaderIndex])
 
     return {
         ...state,
         programMap, maxShaderIndex,
-        basicMaterialState: {
-            ...state.basicMaterialState,
-            shaderIndexMap: shaderIndexMap
-        }
+        shaderIndexMap: shaderIndexMap
     }
 }

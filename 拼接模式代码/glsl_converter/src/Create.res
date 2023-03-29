@@ -83,7 +83,7 @@ let _createChunkFile = (
   |> _buildChunkFileContent
   |> _writeToChunkFile(destFilePath, doneFunc)
 
-let createChunkFile = (glslPathArr: array<string>, destFilePath: string, doneFunc) =>
+let createChunkFileForTs = (glslPathArr: array<string>, destFilePath: string, doneFunc) =>
   _createChunkFile(
     _buildChunkFileContent((_buildInitDataContentForTs, _functionContentForTs)),
     glslPathArr,

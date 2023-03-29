@@ -7,7 +7,7 @@ gulp.task("createShaderChunkFile_ts", function (done) {
     var shaderChunkFilePath = path.join(process.cwd(), "src/glsl/ShaderChunk.ts");
     var glslPathArray = [path.join(process.cwd(), "src/glsl/**/*.glsl")];
 
-    compiler.createChunkFile(glslPathArray, shaderChunkFilePath, done);
+    compiler.createChunkFileForTs(glslPathArray, shaderChunkFilePath, done);
 });
 
 gulp.task("createShaderChunkFile_res", function (done) {
