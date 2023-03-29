@@ -112,30 +112,27 @@ let _getShaderLibsByType = (
   }
 }
 
-let getShaderLibsOfShaders = (
+let getShaderLibsOfShader = (
   ((isNameValidForStaticBranch, getShaderLibFromStaticBranch), isPassForDynamicBranch),
   shaders: array<shader>,
+  shaderName: shaderName,
   {staticBranchs, dynamicBranchs, groups}: shaders,
   shaderLibs: shaderLibs,
-): array<(shaderName, shaderLibs)> => {
-  shaders->Commonlib.ArraySt.map(shader => {
-    (
-      shader.name,
-      shader.shaderLibs->Commonlib.ArraySt.reduceOneParam((. resultShaderLibs, {type_, name}) => {
-        JsonUtils.isJsonSerializedValueNone(type_)
-          ? resultShaderLibs->Commonlib.ArraySt.push(_findFirstShaderLibExn(name, shaderLibs))
-          : {
-              _getShaderLibsByType(
-                resultShaderLibs,
-                (
-                  (isNameValidForStaticBranch, getShaderLibFromStaticBranch),
-                  isPassForDynamicBranch,
-                ),
-                (type_->JsonUtils.getJsonSerializedValueExn, groups, name),
-                (shaderLibs, staticBranchs, dynamicBranchs),
-              )
-            }
-      }, []),
-    )
+): shaderLibs => {
+  let shader = shaders->ArrayUtils.findFirstExn(({name}) => {
+    name === shaderName
   })
+
+  shader.shaderLibs->Commonlib.ArraySt.reduceOneParam((. resultShaderLibs, {type_, name}) => {
+    JsonUtils.isJsonSerializedValueNone(type_)
+      ? resultShaderLibs->Commonlib.ArraySt.push(_findFirstShaderLibExn(name, shaderLibs))
+      : {
+          _getShaderLibsByType(
+            resultShaderLibs,
+            ((isNameValidForStaticBranch, getShaderLibFromStaticBranch), isPassForDynamicBranch),
+            (type_->JsonUtils.getJsonSerializedValueExn, groups, name),
+            (shaderLibs, staticBranchs, dynamicBranchs),
+          )
+        }
+  }, [])
 }

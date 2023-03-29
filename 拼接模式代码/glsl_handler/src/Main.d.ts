@@ -47,21 +47,22 @@ export function buildGLSL(
             ]
         ],
     shaders: shaders,
+    shaderName: shaderName,
     shaderLibs: shaderLibs,
     shaderChunk: Record<glslName, glslChunk>,
     precision: "highp" | "mediump" | "lowp"
 ): [
-        Array<[shaderName, shaderLibs]>,
-        Array<[shaderName, [vsGLSL, fsGLSL]]>
+        shaderLibs,
+        [vsGLSL, fsGLSL]
     ]
 
 
-export type sendDataOfAllMaterialShaders<AttributeSendData, UniformSendData> = Array<[shaderName, [
+export type sendData<AttributeSendData, UniformSendData> = [
     Array<AttributeSendData>,
     Array<UniformSendData>
-]]>
+]
 
-export function getSendDataOfAllMaterialShaders<AttributeSendData, UniformSendData>(
+export function getSendData<AttributeSendData, UniformSendData>(
     [
         addAttributeSendData,
         addUniformSendData
@@ -69,5 +70,5 @@ export function getSendDataOfAllMaterialShaders<AttributeSendData, UniformSendDa
             addAttributeSendData<AttributeSendData>,
             addUniformSendData<UniformSendData>
         ],
-    shaderLibDataOfAllMaterialShaders: Array<[shaderName, shaderLibs]>
-): sendDataOfAllMaterialShaders<AttributeSendData, UniformSendData>
+    shaderLib: shaderLibs
+): sendData<AttributeSendData, UniformSendData>

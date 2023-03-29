@@ -1,4 +1,4 @@
-import { getSendDataOfAllMaterialShaders, buildGLSL } from "glsl_handler"
+import { getSendData, buildGLSL } from "glsl_handler"
 import { state } from "./MainStateType"
 import { material } from "./BasicMaterialStateType"
 import { curry2, curry3_1, curry3_2 } from "fp/src/Curry"
@@ -6,55 +6,92 @@ import { buildGLSLChunkInVS, buildGLSLChunkInFS, generateAttributeType, generate
 import { addAttributeSendData } from "./BasicMaterialShaderAttributeSender"
 import { addUniformSendData } from "./BasicMaterialShaderUniformSender"
 import { Map } from "immutable"
-import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
+import { getExnFromStrictUndefined } from "commonlib-ts/src/NullableUtils"
 import { attributeType, uniformField, uniformFrom, uniformType } from "./GLSLConfigType"
+import { shaderName } from "glsl_handler/src/type/GLSLConfigType.gen"
+import { shaderIndex } from "./ShaderType"
 
-let _createFakePrograms = (glslOfAllShaders) => {
-    return glslOfAllShaders.reduce((programMap, [shaderName, [vsGLSL, fsGLSL]]) => {
-        let fakeProgram = {} as any as WebGLProgram
+type glslMap = Map<shaderIndex, glsl>
 
-        return programMap.set(shaderName, fakeProgram)
-    }, Map())
+type glsl = [string, string]
+
+let _generateShaderIndex = (glslMap: glslMap, glsl: glsl, maxShaderIndex: shaderIndex): [shaderIndex, shaderIndex] => {
+    let result = glslMap.findEntry((value) => {
+        return value[0] == glsl[0] && value[1] == glsl[1]
+    })
+
+    if (result === undefined) {
+        return [maxShaderIndex, maxShaderIndex + 1]
+    }
+
+    return [getExnFromStrictUndefined(result[0]), maxShaderIndex]
 }
 
-export let initBasicMaterialShader = (state: state, material: material): state => {
-    let [shaderLibDataOfAllShaders, glslOfAllShaders] = buildGLSL(
-        [
-            [[
-                isNameValidForStaticBranch,
-                curry3_1(getShaderLibFromStaticBranch)(state)
-            ],
-            curry3_2(isPassForDynamicBranch)(material, state)],
+let _createFakeProgram = ([vsGLSL, fsGLSL]) => {
+    let fakeProgram = {} as any as WebGLProgram
+
+    return fakeProgram
+}
+
+export let initBasicMaterialShader = (state: state, shaderName: shaderName, allMaterials: Array<material>): state => {
+    let [programMap, sendDataMap, shaderIndexMap, _allGLSLs, maxShaderIndex] = allMaterials.reduce(([programMap, sendDataMap, shaderIndexMap, glslMap, maxShaderIndex]: any, material) => {
+        let [shaderLibs, glsl] = buildGLSL(
             [
-                generateAttributeType,
-                generateUniformType,
-                curry2(buildGLSLChunkInVS)(state),
-                curry2(buildGLSLChunkInFS)(state)
-            ]
-        ],
-        state.shaders,
-        state.shaderLibs,
-        state.shaderChunk,
-        state.precision
-    )
+                [[
+                    isNameValidForStaticBranch,
+                    curry3_1(getShaderLibFromStaticBranch)(state)
+                ],
+                curry3_2(isPassForDynamicBranch)(material, state)],
+                [
+                    generateAttributeType,
+                    generateUniformType,
+                    curry2(buildGLSLChunkInVS)(state),
+                    curry2(buildGLSLChunkInFS)(state)
+                ]
+            ],
+            state.shaders,
+            shaderName,
+            state.shaderLibs,
+            state.shaderChunk,
+            state.precision
+        )
 
-    console.log(shaderLibDataOfAllShaders)
-    console.log(glslOfAllShaders)
+        let [shaderIndex, newMaxShaderIndex] = _generateShaderIndex(glslMap, glsl, maxShaderIndex)
 
-    let programMap = _createFakePrograms(glslOfAllShaders)
+        let program = _createFakeProgram(glsl)
 
-    let sendData = getSendDataOfAllMaterialShaders(
-        [(sendDataArr, [name, buffer, type]) => {
-            return addAttributeSendData(state.gl, getExnFromStrictNull(programMap.get(name)), sendDataArr, [name, buffer, type as attributeType])
-        }, (sendDataArr, [name, field, type, from]) => {
-            return addUniformSendData(state.gl, getExnFromStrictNull(programMap.get(name)), sendDataArr, [name, field as uniformField, type as uniformType, from as uniformFrom])
-        }],
-        shaderLibDataOfAllShaders
-    )
+        let sendData = getSendData(
+            [(sendDataArr, [name, buffer, type]) => {
+                return addAttributeSendData(state.gl, program, sendDataArr, [name, buffer, type as attributeType])
+            }, (sendDataArr, [name, field, type, from]) => {
+                return addUniformSendData(state.gl, program, sendDataArr, [name, field as uniformField, type as uniformType, from as uniformFrom])
+            }],
+            shaderLibs
+        )
+
+        if (!glslMap.has(shaderIndex)) {
+            glslMap = glslMap.set(shaderIndex, glsl)
+        }
+
+        console.log("glsl:", glsl)
+        console.log("sendData:", sendData)
+        console.log("shaderIndex:", shaderIndex)
+
+        return [
+            programMap.set(shaderIndex, program),
+            sendDataMap.set(shaderIndex, sendData),
+            shaderIndexMap.set(material, shaderIndex),
+            glslMap,
+            newMaxShaderIndex
+        ]
+    }, [state.programMap, state.sendDataMap, state.basicMaterialState.shaderIndexMap, Map(), state.maxShaderIndex])
 
     return {
         ...state,
-        programMap,
-        sendData
+        programMap, sendDataMap, maxShaderIndex,
+        basicMaterialState: {
+            ...state.basicMaterialState,
+            shaderIndexMap: shaderIndexMap
+        }
     }
 }

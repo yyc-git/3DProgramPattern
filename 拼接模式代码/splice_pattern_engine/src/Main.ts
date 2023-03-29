@@ -9,14 +9,16 @@ import * as InitBasicMaterialShader from "./InitBasicMaterialShader"
 import * as InitCamera from "./InitCamera"
 import * as Render from "./Render"
 import { getData } from "./glsl/ShaderChunk"
+import { Map } from "immutable"
 
 export let createState = (shadersJson, shaderLibsJson): state => {
     let [shaders, shaderLibs] = parseGLSLConfig(shadersJson, shaderLibsJson)
 
     return {
         gl: createFakeWebGLRenderingContext(),
-        programMap: null,
-        sendData: null,
+        programMap: Map(),
+        sendDataMap: Map(),
+        maxShaderIndex: 0,
         vMatrix: null,
         pMatrix: null,
         shaders,
@@ -69,8 +71,17 @@ export let createMaterial = (state: state): [state, material] => {
     ]
 }
 
-export let setFakeMaterialData = (state: state, material: material): state => {
-    let basicMaterialState = BasicMaterial.setFakeData(state.basicMaterialState, material)
+export let setMaterialFakeColor = (state: state, material: material): state => {
+    let basicMaterialState = BasicMaterial.setFakeColor(state.basicMaterialState, material)
+
+    return {
+        ...state,
+        basicMaterialState: basicMaterialState
+    }
+}
+
+export let setMaterialFakeMap = (state: state, material: material): state => {
+    let basicMaterialState = BasicMaterial.setFakeMap(state.basicMaterialState, material)
 
     return {
         ...state,

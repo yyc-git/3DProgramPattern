@@ -2,19 +2,23 @@ import { glslName, shaderLibs, shaders } from "glsl_handler/src/type/GLSLConfigT
 import { state as basicMaterialState } from "./BasicMaterialStateType"
 import { state as transformState } from "./TransformStateType"
 import type { Map } from "immutable"
-import { sendDataOfAllMaterialShaders } from "../../glsl_handler/src/Main"
+import { sendData as sendDataGLSLHandler } from "glsl_handler/src/Main"
 import { sendData as attributeSendData } from "./BasicMaterialShaderAttributeSender"
 import { sendData as uniformSendData } from "./BasicMaterialShaderUniformSender"
 import { glslChunk } from "glsl_converter/src/ShaderChunkType.gen"
+import { shaderIndex } from "./ShaderType"
 
-type shaderName = string
+export type sendData = sendDataGLSLHandler<attributeSendData, uniformSendData>
 
-export type sendData = sendDataOfAllMaterialShaders<attributeSendData, uniformSendData>
+export type programMap = Map<shaderIndex, WebGLProgram>
+
+export type sendDataMap = Map<shaderIndex, sendData>
 
 export type state = {
     gl: WebGLRenderingContext,
-    programMap: Map<shaderName, WebGLProgram> | null,
-    sendData: sendData | null,
+    programMap: programMap,
+    sendDataMap: sendDataMap,
+    maxShaderIndex:number,
     vMatrix: Float32Array | null,
     pMatrix: Float32Array | null,
     shaders: shaders,

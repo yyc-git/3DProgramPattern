@@ -78,7 +78,7 @@ function _getShaderLibsByType(resultShaderLibs, param, param$1, param$2) {
   }
 }
 
-function getShaderLibsOfShaders(param, shaders, param$1, shaderLibs) {
+function getShaderLibsOfShader(param, shaders, shaderName, param$1, shaderLibs) {
   var groups = param$1.groups;
   var dynamicBranchs = param$1.dynamicBranchs;
   var staticBranchs = param$1.staticBranchs;
@@ -86,34 +86,32 @@ function getShaderLibsOfShaders(param, shaders, param$1, shaderLibs) {
   var match = param[0];
   var getShaderLibFromStaticBranch = match[1];
   var isNameValidForStaticBranch = match[0];
-  return ArraySt$Commonlib.map(shaders, (function (shader) {
-                return [
-                        shader.name,
-                        ArraySt$Commonlib.reduceOneParam(shader.shaderLibs, (function (resultShaderLibs, param) {
-                                var name = param.name;
-                                var type_ = param.type_;
-                                if (JsonUtils$Glsl_handler.isJsonSerializedValueNone(type_)) {
-                                  return ArraySt$Commonlib.push(resultShaderLibs, _findFirstShaderLibExn(name, shaderLibs));
-                                } else {
-                                  return _getShaderLibsByType(resultShaderLibs, [
-                                              [
-                                                isNameValidForStaticBranch,
-                                                getShaderLibFromStaticBranch
-                                              ],
-                                              isPassForDynamicBranch
-                                            ], [
-                                              JsonUtils$Glsl_handler.getJsonSerializedValueExn(type_),
-                                              groups,
-                                              name
-                                            ], [
-                                              shaderLibs,
-                                              staticBranchs,
-                                              dynamicBranchs
-                                            ]);
-                                }
-                              }), [])
-                      ];
-              }));
+  var shader = ArrayUtils$Glsl_handler.findFirstExn(shaders, (function (param) {
+          return param.name === shaderName;
+        }));
+  return ArraySt$Commonlib.reduceOneParam(shader.shaderLibs, (function (resultShaderLibs, param) {
+                var name = param.name;
+                var type_ = param.type_;
+                if (JsonUtils$Glsl_handler.isJsonSerializedValueNone(type_)) {
+                  return ArraySt$Commonlib.push(resultShaderLibs, _findFirstShaderLibExn(name, shaderLibs));
+                } else {
+                  return _getShaderLibsByType(resultShaderLibs, [
+                              [
+                                isNameValidForStaticBranch,
+                                getShaderLibFromStaticBranch
+                              ],
+                              isPassForDynamicBranch
+                            ], [
+                              JsonUtils$Glsl_handler.getJsonSerializedValueExn(type_),
+                              groups,
+                              name
+                            ], [
+                              shaderLibs,
+                              staticBranchs,
+                              dynamicBranchs
+                            ]);
+                }
+              }), []);
 }
 
 export {
@@ -122,6 +120,6 @@ export {
   _getShaderLibsByStaticBranch ,
   _getShaderLibsByBynamicBranch ,
   _getShaderLibsByType ,
-  getShaderLibsOfShaders ,
+  getShaderLibsOfShader ,
 }
 /* No side effect */

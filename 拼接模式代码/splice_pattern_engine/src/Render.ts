@@ -1,32 +1,25 @@
-import { sendData, state } from "./MainStateType"
+import { state } from "./MainStateType"
 import { transform } from "./TransformStateType"
 import { material } from "./BasicMaterialStateType"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 import { sendData as attributeSendData } from "./BasicMaterialShaderAttributeSender"
 import { sendData as uniformSendData } from "./BasicMaterialShaderUniformSender"
 import { attributeBuffer } from "./GLSLConfigType"
-import { shaderName } from "glsl_handler/src/type/GLSLConfigType.gen"
+import { getShaderIndex } from "./BasicMaterial"
+import { shaderIndex } from "./ShaderType"
 
-let _getShaderSendData = (sendData: sendData, shaderName): [Array<attributeSendData>, Array<uniformSendData>] => {
-    let [_, shaderSendData] = sendData.filter(([shaderName_, _]) => {
-        return shaderName_ == shaderName
-    })[0]
-
-    return shaderSendData
-}
-
-let _getFakeArrayBuffer = (state, attributeBuffer: attributeBuffer, shaderName) => {
+let _getFakeArrayBuffer = (state, attributeBuffer: attributeBuffer, shaderIndex) => {
     return {} as WebGLBuffer
 }
 
-let _getFakeElementArrayBuffer = (state, shaderName) => {
+let _getFakeElementArrayBuffer = (state, shaderIndex) => {
     return {} as WebGLBuffer
 }
 
-let _sendAttributeData = (attributeSendData: Array<attributeSendData>, state: state, shaderName: shaderName, gl: WebGLRenderingContext) => {
+let _sendAttributeData = (attributeSendData: Array<attributeSendData>, state: state, shaderIndex: shaderIndex, gl: WebGLRenderingContext) => {
     attributeSendData.forEach(data => {
         if (!!data.elementSendData) {
-            data.elementSendData.sendBuffer(gl, _getFakeElementArrayBuffer(state, shaderName))
+            data.elementSendData.sendBuffer(gl, _getFakeElementArrayBuffer(state, shaderIndex))
         }
         else if (!!data.instanceSendData) {
             console.log("发送instance相关的顶点数据...")
@@ -34,7 +27,7 @@ let _sendAttributeData = (attributeSendData: Array<attributeSendData>, state: st
         else {
             let { pos, size, sendBuffer, buffer } = data.otherSendData
 
-            sendBuffer(gl, size, pos, _getFakeArrayBuffer(state, buffer, shaderName))
+            sendBuffer(gl, size, pos, _getFakeArrayBuffer(state, buffer, shaderIndex))
         }
     })
 }
@@ -71,28 +64,26 @@ let _getFakeTransform = (state, gameObject) => {
     return 0 as any as transform
 }
 
-let _getFakeShaderName = (state, material) => {
-    return "render_basic" as any as shaderName
-}
-
 export let render = (state: state): state => {
     let gl = state.gl
-    let sendData = state.sendData
+    let sendDataMap = state.sendDataMap
     let programMap = state.programMap
 
     _getAllFakeGameObjects().forEach(gameObject => {
         let material = _getFakeMaterial(state, gameObject)
         let transform = _getFakeTransform(state, gameObject)
 
-        let shaderName = _getFakeShaderName(state, material)
-        let program = getExnFromStrictNull(programMap.get(shaderName))
+        let shaderIndex = getShaderIndex(state.basicMaterialState, material)
+
+        let program = getExnFromStrictNull(programMap.get(shaderIndex))
+        let sendData = getExnFromStrictNull(sendDataMap.get(shaderIndex))
 
 
         gl.useProgram(program)
 
-        let [attributeSendData, uniformSendData] = _getShaderSendData(sendData, shaderName)
+        let [attributeSendData, uniformSendData] = sendData
 
-        _sendAttributeData(attributeSendData, state, shaderName, gl)
+        _sendAttributeData(attributeSendData, state, shaderIndex, gl)
         _sendUniformData(uniformSendData, state, transform, material, gl)
 
         console.log("其它渲染逻辑...")

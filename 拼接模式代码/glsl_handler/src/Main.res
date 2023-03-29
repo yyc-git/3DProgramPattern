@@ -8,47 +8,36 @@ let buildGLSL = (
     (generateAttributeType, generateUniformType, buildGLSLChunkInVS, buildGLSLChunkInFS),
   ),
   shaders: GLSLConfigType.shaders,
+  shaderName: GLSLConfigType.shaderName,
   shaderLibs: GLSLConfigType.shaderLibs,
   shaderChunk,
   precision,
-): (
-  array<(GLSLConfigType.shaderName, GLSLConfigType.shaderLibs)>,
-  array<(GLSLConfigType.shaderName, (string, string))>,
-) => {
-  let shaderLibDataOfAllShaders = HandleShaderLibs.getShaderLibsOfShaders(
+): (GLSLConfigType.shaderLibs, (string, string)) => {
+  let shaderLibs = HandleShaderLibs.getShaderLibsOfShader(
     ((isNameValidForStaticBranch, getShaderLibFromStaticBranch), isPassForDynamicBranch),
     shaders.shaders,
+    shaderName,
     shaders,
     shaderLibs,
   )
 
   (
-    shaderLibDataOfAllShaders,
-    shaderLibDataOfAllShaders->Commonlib.ArraySt.map(((shaderName, shaderLibs)) => {
-      (
-        shaderName,
-        BuildGLSL.buildGLSL(
-          (generateAttributeType, generateUniformType, buildGLSLChunkInVS, buildGLSLChunkInFS),
-          shaderLibs,
-          shaderChunk,
-          precision,
-        ),
-      )
-    }),
+    shaderLibs,
+    BuildGLSL.buildGLSL(
+      (generateAttributeType, generateUniformType, buildGLSLChunkInVS, buildGLSLChunkInFS),
+      shaderLibs,
+      shaderChunk,
+      precision,
+    ),
   )
 }
 
-let getSendDataOfAllMaterialShaders = (
+let getSendData = (
   (addAttributeSendData, addUniformSendData),
-  shaderLibDataOfAllShaders: array<(GLSLConfigType.shaderName, GLSLConfigType.shaderLibs)>,
+  shaderLibs: GLSLConfigType.shaderLibs,
 ) => {
-  shaderLibDataOfAllShaders->Commonlib.ArraySt.map(((shaderName, shaderLibs)) => {
-    (
-      shaderName,
-      (
-        HandleAttribute.addAttributeSendData(addAttributeSendData, shaderLibs),
-        HandleUniform.addUniformSendData(addUniformSendData, shaderLibs),
-      ),
-    )
-  })
+  (
+    HandleAttribute.addAttributeSendData(addAttributeSendData, shaderLibs),
+    HandleUniform.addUniformSendData(addUniformSendData, shaderLibs),
+  )
 }

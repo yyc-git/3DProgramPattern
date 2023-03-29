@@ -175,10 +175,28 @@ add set define count:light count
 # body last newLine
 
 
+# fix:
+# basic material use render_basic;
+# move render_basic from client to engine;
+# handle multiple materials?:
+#     change initBasicMaterialShader to allMaterials
+
 
 ** DONE refactor glsl: only remain used glsl
 
-** TODO refactor: clean code
+# ** TODO refactor: clean code
+
+** TODO story before
+
+glsl
+
+send:
+judge when render
+
+** TODO abstract
+
+
+** TODO uml
 
 
 * TODO 重命名“类图”为“领域模型”
