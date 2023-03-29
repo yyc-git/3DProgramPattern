@@ -39,15 +39,15 @@ let _sendUniformData = (uniformSendData: Array<uniformSendData>, state: state, t
 
             sendData(gl, pos, getData(state))
         }
+        if (!!data.renderObjectSendMaterialData) {
+            let { pos, getData, sendData } = data.renderObjectSendMaterialData
+
+            sendData(gl, pos, getData(state, material))
+        }
         if (!!data.renderObjectSendModelData) {
             let { pos, getData, sendData } = data.renderObjectSendModelData
 
             sendData(gl, pos, getData(state, transform))
-        }
-        if (!!data.renderObjectSendModelData) {
-            let { pos, getData, sendData } = data.renderObjectSendMaterialData
-
-            sendData(gl, pos, getData(state, material))
         }
     })
 }

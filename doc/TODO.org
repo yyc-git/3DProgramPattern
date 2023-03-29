@@ -186,16 +186,21 @@ add set define count:light count
 
 # ** TODO refactor: clean code
 
-** TODO story before
+** DONE story before
 
 glsl
 
 send:
 judge when render
 
-*** TODO refactor:move duplicate to utils/
+*** DONE refactor:move duplicate to utils/
 
 
+** DONE fix
+
+2uniform
+
+attribute order
 
 
 ** TODO abstract

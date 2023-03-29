@@ -41,10 +41,6 @@
           "name": "top"
         },
         {
-          "type": "static_branch",
-          "name": "modelMatrix_instance"
-        },
-        {
           "name": "define_light_count"
         },
         {
@@ -53,6 +49,10 @@
         {
           "type": "dynamic_branch",
           "name": "basic_map"
+        },
+        {
+          "type": "static_branch",
+          "name": "modelMatrix_instance"
         },
         {
           "name": "basic_end"

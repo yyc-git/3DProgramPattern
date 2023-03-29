@@ -7,10 +7,6 @@ import { shaderIndex } from "splice_pattern_utils/src/engine/ShaderType"
 import { sendFloat3, sendInt, sendMatrix4 } from "splice_pattern_utils/src/engine/GLSLSend"
 import { getModelMatrix } from "splice_pattern_utils/src/engine/Transform"
 
-let _hasArrayBuffer = (state, shaderIndex) => {
-    return true
-}
-
 let _getFakeArrayBuffer = (state, shaderIndex) => {
     return {} as WebGLBuffer
 }
@@ -28,11 +24,6 @@ let _getFakeElementArrayBuffer = (state, shaderIndex) => {
 }
 
 let _sendAttributeData = (state: state, shaderIndex: shaderIndex, gl: WebGLRenderingContext, program: WebGLProgram) => {
-    if (state.isSupportHardwareInstance) {
-        console.log("发送instance相关的顶点数据...")
-    }
-
-
     let pos = gl.getAttribLocation(program, "a_position")
     if (pos !== -1) {
         gl.bindBuffer(gl.ARRAY_BUFFER, _getFakeArrayBuffer(state, shaderIndex))
@@ -47,25 +38,33 @@ let _sendAttributeData = (state: state, shaderIndex: shaderIndex, gl: WebGLRende
     }
 
 
+    if (state.isSupportHardwareInstance) {
+        console.log("发送instance相关的顶点数据1...")
+        console.log("发送instance相关的顶点数据2...")
+        console.log("发送instance相关的顶点数据3...")
+        console.log("发送instance相关的顶点数据4...")
+    }
+
+
     if (_hasElementArrayBuffer(state, shaderIndex)) {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, _getFakeElementArrayBuffer(state, shaderIndex))
     }
 }
 
 let _sendUniformData = (state: state, transform, material, gl: WebGLRenderingContext, program: WebGLProgram) => {
-    let pos = getExnFromStrictNull(gl.getUniformLocation(program, "u_color"))
+    let pos = getExnFromStrictNull(gl.getUniformLocation(program, "u_vMatrix"))
+    sendMatrix4(gl, pos, state.vMatrix)
+    pos = getExnFromStrictNull(gl.getUniformLocation(program, "u_pMatrix"))
+    sendMatrix4(gl, pos, state.pMatrix)
+
+
+    pos = getExnFromStrictNull(gl.getUniformLocation(program, "u_color"))
     sendFloat3(gl, pos, getColor(state.basicMaterialState, material))
 
     if (hasBasicMap(material, state.basicMaterialState)) {
         pos = getExnFromStrictNull(gl.getUniformLocation(program, "u_mapSampler"))
         sendInt(gl, pos, getMapUnit(state.basicMaterialState, material))
     }
-
-
-    pos = getExnFromStrictNull(gl.getUniformLocation(program, "u_vMatrix"))
-    sendMatrix4(gl, pos, state.vMatrix)
-    pos = getExnFromStrictNull(gl.getUniformLocation(program, "u_pMatrix"))
-    sendMatrix4(gl, pos, state.pMatrix)
 
 
     if (state.isSupportBatchInstance || !(state.isSupportHardwareInstance || state.isSupportBatchInstance)) {
