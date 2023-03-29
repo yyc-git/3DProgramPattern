@@ -1,11 +1,10 @@
 import * as BasicMaterial from "./BasicMaterial"
 import * as Transform from "./Transform"
-import { state } from "./MainStateType"
 import { transform } from "./TransformStateType"
 import { material } from "./BasicMaterialStateType"
-import * as InitBasicMaterialShader from "./InitBasicMaterialShader"
 import * as InitCamera from "./InitCamera"
-import * as Render from "./Render"
+
+type state = any
 
 export let createTransform = (state: state): [state, transform] => {
     let transformData = Transform.createTransform(state.transformState)
@@ -62,8 +61,4 @@ export let setMaterialFakeMap = (state: state, material: material): state => {
     }
 }
 
-export let initBasicMaterialShader = InitBasicMaterialShader.initBasicMaterialShader
-
 export let initCamera = InitCamera.initCamera
-
-export let render = Render.render

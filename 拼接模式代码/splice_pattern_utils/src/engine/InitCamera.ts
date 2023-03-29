@@ -1,4 +1,4 @@
-import { state } from "./MainStateType";
+type state = any
 
 export let initCamera = (state: state): state => {
     return {

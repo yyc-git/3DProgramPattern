@@ -1,12 +1,12 @@
 import { glslName, shaderLibs, shaders } from "glsl_handler/src/type/GLSLConfigType.gen"
-import { state as basicMaterialState } from "./BasicMaterialStateType"
-import { state as transformState } from "./TransformStateType"
+import { state as basicMaterialState } from "splice_pattern_utils/src/engine/BasicMaterialStateType"
+import { state as transformState } from "splice_pattern_utils/src/engine/TransformStateType"
 import type { Map } from "immutable"
 import { sendData as sendDataGLSLHandler } from "glsl_handler/src/Main"
 import { sendData as attributeSendData } from "./BasicMaterialShaderAttributeSender"
 import { sendData as uniformSendData } from "./BasicMaterialShaderUniformSender"
 import { glslChunk } from "glsl_converter/src/ShaderChunkType.gen"
-import { shaderIndex } from "./ShaderType"
+import { shaderIndex } from "splice_pattern_utils/src/engine/ShaderType"
 
 export type sendData = sendDataGLSLHandler<attributeSendData, uniformSendData>
 

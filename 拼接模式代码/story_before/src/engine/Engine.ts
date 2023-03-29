@@ -1,9 +1,11 @@
-import * as BasicMaterial from "./BasicMaterial"
-import * as Transform from "./Transform"
+import * as BasicMaterial from "splice_pattern_utils/src/engine/BasicMaterial"
+import * as Transform from "splice_pattern_utils/src/engine/Transform"
 import { state } from "./MainStateType"
-import { createFakeWebGLRenderingContext } from "./FakeGL"
+import { createFakeWebGLRenderingContext } from "splice_pattern_utils/src/engine/FakeGL"
 import { Map } from "immutable"
-import * as API from "./API"
+import * as API from "splice_pattern_utils/src/engine/API"
+import * as InitBasicMaterialShader from "./InitBasicMaterialShader"
+import * as Render from "./Render"
 
 export let createState = (): state => {
     return {
@@ -31,8 +33,8 @@ export let setMaterialFakeColor = API.setMaterialFakeColor
 
 export let setMaterialFakeMap = API.setMaterialFakeMap
 
-export let initBasicMaterialShader = API.initBasicMaterialShader
-
 export let initCamera = API.initCamera
 
-export let render = API.render
+export let initBasicMaterialShader = InitBasicMaterialShader.initBasicMaterialShader
+
+export let render = Render.render

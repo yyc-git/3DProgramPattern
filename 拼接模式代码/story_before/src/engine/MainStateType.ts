@@ -1,7 +1,7 @@
-import { state as basicMaterialState } from "./BasicMaterialStateType"
-import { state as transformState } from "./TransformStateType"
+import { state as basicMaterialState } from "splice_pattern_utils/src/engine/BasicMaterialStateType"
+import { state as transformState } from "splice_pattern_utils/src/engine/TransformStateType"
 import type { Map } from "immutable"
-import { shaderIndex } from "./ShaderType"
+import { shaderIndex } from "splice_pattern_utils/src/engine/ShaderType"
 
 export type programMap = Map<shaderIndex, WebGLProgram>
 

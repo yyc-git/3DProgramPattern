@@ -1,5 +1,5 @@
 import { glslChunk } from "glsl_converter/src/ShaderChunkType.gen"
-import { hasBasicMap } from "./BasicMaterial"
+import { hasBasicMap } from "splice_pattern_utils/src/engine/BasicMaterial"
 import { state } from "./MainStateType"
 import { attributeType, uniformType, glslNameForBuildGLSLChunk } from "./GLSLConfigType"
 

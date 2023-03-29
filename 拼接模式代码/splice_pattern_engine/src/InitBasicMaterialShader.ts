@@ -1,6 +1,6 @@
 import { getSendData, buildGLSL } from "glsl_handler"
 import { state } from "./MainStateType"
-import { material } from "./BasicMaterialStateType"
+import { material } from "splice_pattern_utils/src/engine/BasicMaterialStateType"
 import { curry2, curry3_1, curry3_2 } from "fp/src/Curry"
 import { buildGLSLChunkInVS, buildGLSLChunkInFS, generateAttributeType, generateUniformType, getShaderLibFromStaticBranch, isNameValidForStaticBranch, isPassForDynamicBranch } from "./BasicMaterialShaderGLSL"
 import { addAttributeSendData } from "./BasicMaterialShaderAttributeSender"
@@ -9,7 +9,7 @@ import { Map } from "immutable"
 import { getExnFromStrictUndefined } from "commonlib-ts/src/NullableUtils"
 import { attributeType, uniformField, uniformFrom, uniformType } from "./GLSLConfigType"
 import { shaderName } from "glsl_handler/src/type/GLSLConfigType.gen"
-import { shaderIndex } from "./ShaderType"
+import { shaderIndex } from "splice_pattern_utils/src/engine/ShaderType"
 
 type glslMap = Map<shaderIndex, glsl>
 

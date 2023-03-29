@@ -1,9 +1,9 @@
 import { state } from "./MainStateType"
-import { material } from "./BasicMaterialStateType"
+import { material } from "splice_pattern_utils/src/engine/BasicMaterialStateType"
 import { Map } from "immutable"
 import { getExnFromStrictUndefined } from "commonlib-ts/src/NullableUtils"
-import { shaderIndex } from "./ShaderType"
-import { hasBasicMap } from "./BasicMaterial"
+import { shaderIndex } from "splice_pattern_utils/src/engine/ShaderType"
+import { hasBasicMap } from "splice_pattern_utils/src/engine/BasicMaterial"
 
 type glslMap = Map<shaderIndex, glsl>
 

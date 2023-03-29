@@ -1,11 +1,11 @@
 import { state } from "./MainStateType"
-import { transform } from "./TransformStateType"
-import { material } from "./BasicMaterialStateType"
+import { transform } from "splice_pattern_utils/src/engine/TransformStateType"
+import { material } from "splice_pattern_utils/src/engine/BasicMaterialStateType"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
-import { getColor, getMapUnit, getShaderIndex, hasBasicMap } from "./BasicMaterial"
-import { shaderIndex } from "./ShaderType"
-import { sendFloat3, sendInt, sendMatrix4 } from "./GLSLSend"
-import { getModelMatrix } from "./Transform"
+import { getColor, getMapUnit, getShaderIndex, hasBasicMap } from "splice_pattern_utils/src/engine/BasicMaterial"
+import { shaderIndex } from "splice_pattern_utils/src/engine/ShaderType"
+import { sendFloat3, sendInt, sendMatrix4 } from "splice_pattern_utils/src/engine/GLSLSend"
+import { getModelMatrix } from "splice_pattern_utils/src/engine/Transform"
 
 let _hasArrayBuffer = (state, shaderIndex) => {
     return true
@@ -32,15 +32,20 @@ let _sendAttributeData = (state: state, shaderIndex: shaderIndex, gl: WebGLRende
         console.log("发送instance相关的顶点数据...")
     }
 
-    if (_hasArrayBuffer(state, shaderIndex)) {
-        let pos = gl.getAttribLocation(program, "a_position")
 
-        if (pos !== -1) {
-            gl.bindBuffer(gl.ARRAY_BUFFER, _getFakeArrayBuffer(state, shaderIndex))
-            gl.vertexAttribPointer(pos, _getFakeSize(state, shaderIndex), gl.FLOAT, false, 0, 0)
-            gl.enableVertexAttribArray(pos)
-        }
+    let pos = gl.getAttribLocation(program, "a_position")
+    if (pos !== -1) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, _getFakeArrayBuffer(state, shaderIndex))
+        gl.vertexAttribPointer(pos, 3, gl.FLOAT, false, 0, 0)
+        gl.enableVertexAttribArray(pos)
     }
+    pos = gl.getAttribLocation(program, "a_texCoord")
+    if (pos !== -1) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, 2)
+        gl.vertexAttribPointer(pos, _getFakeSize(state, shaderIndex), gl.FLOAT, false, 0, 0)
+        gl.enableVertexAttribArray(pos)
+    }
+
 
     if (_hasElementArrayBuffer(state, shaderIndex)) {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, _getFakeElementArrayBuffer(state, shaderIndex))

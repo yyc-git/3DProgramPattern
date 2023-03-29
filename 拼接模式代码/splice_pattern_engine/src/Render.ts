@@ -1,12 +1,12 @@
 import { state } from "./MainStateType"
-import { transform } from "./TransformStateType"
-import { material } from "./BasicMaterialStateType"
+import { transform } from "splice_pattern_utils/src/engine/TransformStateType"
+import { material } from "splice_pattern_utils/src/engine/BasicMaterialStateType"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 import { sendData as attributeSendData } from "./BasicMaterialShaderAttributeSender"
 import { sendData as uniformSendData } from "./BasicMaterialShaderUniformSender"
 import { attributeBuffer } from "./GLSLConfigType"
-import { getShaderIndex } from "./BasicMaterial"
-import { shaderIndex } from "./ShaderType"
+import { getShaderIndex } from "splice_pattern_utils/src/engine/BasicMaterial"
+import { shaderIndex } from "splice_pattern_utils/src/engine/ShaderType"
 
 let _getFakeArrayBuffer = (state, attributeBuffer: attributeBuffer, shaderIndex) => {
     return {} as WebGLBuffer
@@ -21,10 +21,10 @@ let _sendAttributeData = (attributeSendData: Array<attributeSendData>, state: st
         if (!!data.elementSendData) {
             data.elementSendData.sendBuffer(gl, _getFakeElementArrayBuffer(state, shaderIndex))
         }
-        else if (!!data.instanceSendData) {
+        if (!!data.instanceSendData) {
             console.log("发送instance相关的顶点数据...")
         }
-        else {
+        if (!!data.otherSendData) {
             let { pos, size, sendBuffer, buffer } = data.otherSendData
 
             sendBuffer(gl, size, pos, _getFakeArrayBuffer(state, buffer, shaderIndex))
@@ -39,12 +39,12 @@ let _sendUniformData = (uniformSendData: Array<uniformSendData>, state: state, t
 
             sendData(gl, pos, getData(state))
         }
-        else if (!!data.renderObjectSendModelData) {
+        if (!!data.renderObjectSendModelData) {
             let { pos, getData, sendData } = data.renderObjectSendModelData
 
             sendData(gl, pos, getData(state, transform))
         }
-        else {
+        if (!!data.renderObjectSendModelData) {
             let { pos, getData, sendData } = data.renderObjectSendMaterialData
 
             sendData(gl, pos, getData(state, material))
