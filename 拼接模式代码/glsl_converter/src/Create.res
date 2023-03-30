@@ -27,7 +27,7 @@ let _buildInitDataContentForTs = (glslContent: string) =>
   `
 
 let _functionContentForRes = `
-  open Glsl_converter.ShaderChunkType
+  open Glsl_converter.ChunkType
 
 
   let _buildChunk =

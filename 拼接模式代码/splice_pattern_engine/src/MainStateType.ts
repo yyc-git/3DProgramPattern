@@ -5,7 +5,7 @@ import type { Map } from "immutable"
 import { sendData as sendDataGLSLHandler } from "glsl_handler/src/Main"
 import { sendData as attributeSendData } from "./BasicMaterialShaderAttributeSender"
 import { sendData as uniformSendData } from "./BasicMaterialShaderUniformSender"
-import { glslChunk } from "glsl_converter/src/ShaderChunkType.gen"
+import { glslChunk } from "../../glsl_converter/src/ChunkType.gen"
 import { shaderIndex } from "splice_pattern_utils/src/engine/ShaderType"
 
 export type sendData = sendDataGLSLHandler<attributeSendData, uniformSendData>
@@ -29,7 +29,7 @@ export type state = {
     isSupportHardwareInstance: boolean,
     isSupportBatchInstance: boolean,
     maxDirectionLightCount: number,
-    shaderChunk: Record<glslName, glslChunk>,
+    chunk: Record<glslName, glslChunk>,
     precision: "highp" | "mediump" | "lowp",
 
     basicMaterialState: basicMaterialState

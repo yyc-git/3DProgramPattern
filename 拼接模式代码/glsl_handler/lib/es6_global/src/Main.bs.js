@@ -13,7 +13,7 @@ function parseGLSLConfig(shadersJson, shaderLibsJson) {
         ];
 }
 
-function buildGLSL(param, shaders, shaderName, shaderLibs, shaderChunk, precision) {
+function buildGLSL(param, shaders, shaderName, shaderLibs, chunk, precision) {
   var match = param[1];
   var match$1 = param[0];
   var match$2 = match$1[0];
@@ -31,7 +31,7 @@ function buildGLSL(param, shaders, shaderName, shaderLibs, shaderChunk, precisio
                 match[1],
                 match[2],
                 match[3]
-              ], shaderLibs$1, shaderChunk, precision)
+              ], shaderLibs$1, chunk, precision)
         ];
 }
 

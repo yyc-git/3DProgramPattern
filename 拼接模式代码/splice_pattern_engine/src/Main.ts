@@ -3,15 +3,15 @@ import * as Transform from "splice_pattern_utils/src/engine/Transform"
 import { parseGLSLConfig } from "glsl_handler"
 import { state } from "./MainStateType"
 import { createFakeWebGLRenderingContext } from "splice_pattern_utils/src/engine/FakeGL"
-import { getData } from "./glsl/ShaderChunk"
+import { getData } from "./glsl/Chunk"
 import { Map } from "immutable"
 import * as API from "splice_pattern_utils/src/engine/API"
 import * as InitBasicMaterialShader from "./InitBasicMaterialShader"
 import * as Render from "./Render"
 
-export let createState = (shadersJson, shaderLibsJson): state => {
-    let [shaders, shaderLibs] = parseGLSLConfig(shadersJson, shaderLibsJson)
+export let parseConfig = parseGLSLConfig
 
+export let createState = ([shaders, shaderLibs]): state => {
     return {
         gl: createFakeWebGLRenderingContext(),
         programMap: Map(),
@@ -25,7 +25,7 @@ export let createState = (shadersJson, shaderLibsJson): state => {
         isSupportHardwareInstance: true,
         isSupportBatchInstance: false,
         maxDirectionLightCount: 4,
-        shaderChunk: getData(),
+        chunk: getData(),
         precision: "lowp",
 
         basicMaterialState: BasicMaterial.createState(),

@@ -1,0 +1,5 @@
+{
+  "name": "chunk_handler_abstract",
+  "version": "0.0.1",
+  "main": "src/Main.ts"
+}

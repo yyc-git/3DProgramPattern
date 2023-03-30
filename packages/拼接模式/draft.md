@@ -3,14 +3,14 @@
 preprocess:
 
 - prepare glsl
-- glsl converter->ShaderChunks
+- glsl converter->Chunks
 
 handle #import
 
 
 
 runtime:
-<!-- - get shaderChunks to state -->
+<!-- - get chunks to state -->
 - load json
 <!-- use most -->
 use webpack->json loader
@@ -44,8 +44,8 @@ handle result:
 shader libs
 sender array -->
 
-- get shaderChunks to state
-- Builder: shader libs + ShaderChunks to vs glsl, fs glsl
+- get chunks to state
+- Builder: shader libs + Chunks to vs glsl, fs glsl
 support all parts
 
 
@@ -151,6 +151,13 @@ send性能
 
 - 请给出使用模式的改进方案?
     - 概述解决方案
+    TODO explain:
+    use json loader to load json
+
+
+    parse config
+
+
     TODO explain:
     glsl compiler support ts, res
     

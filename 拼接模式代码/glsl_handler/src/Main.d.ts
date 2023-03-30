@@ -1,5 +1,5 @@
 import { shaderLibs, shaderMapDataName, shaderMapDataValue, condition, shaders, attributeName, attributeBuffer, attributeType, uniformName, uniformField, uniformType, uniformFrom, shaderName, glslName } from "./type/GLSLConfigType.gen";
-import { glslChunk } from "glsl_converter/src/ShaderChunkType.gen"
+import { glslChunk } from "../../glsl_converter/src/ChunkType.gen"
 
 export function parseGLSLConfig(
     shadersJson: JSON, shaderLibsJson: JSON
@@ -49,7 +49,7 @@ export function buildGLSL(
     shaders: shaders,
     shaderName: shaderName,
     shaderLibs: shaderLibs,
-    shaderChunk: Record<glslName, glslChunk>,
+    chunk: Record<glslName, glslChunk>,
     precision: "highp" | "mediump" | "lowp"
 ): [
         shaderLibs,

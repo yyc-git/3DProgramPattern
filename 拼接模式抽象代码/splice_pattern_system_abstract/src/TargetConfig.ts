@@ -1,0 +1,1 @@
+console.log("定义target config中一些字段的具体类型")

@@ -29,7 +29,7 @@ export let initBasicMaterialShader = (state: state, shaderName: shaderName, allM
             state.shaders,
             shaderName,
             state.shaderLibs,
-            state.shaderChunk,
+            state.chunk,
             state.precision
         )
 

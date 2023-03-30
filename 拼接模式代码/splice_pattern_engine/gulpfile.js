@@ -1,20 +1,20 @@
 var gulp = require("gulp");
 var path = require("path");
 
-gulp.task("createShaderChunkFile_ts", function (done) {
+gulp.task("createChunkFile_ts", function (done) {
     var compiler = require("glsl_converter");
 
-    var shaderChunkFilePath = path.join(process.cwd(), "src/glsl/ShaderChunk.ts");
+    var chunkFilePath = path.join(process.cwd(), "src/glsl/Chunk.ts");
     var glslPathArray = [path.join(process.cwd(), "src/glsl/**/*.glsl")];
 
-    compiler.createChunkFileForTs(glslPathArray, shaderChunkFilePath, done);
+    compiler.createChunkFileForTs(glslPathArray, chunkFilePath, done);
 });
 
-gulp.task("createShaderChunkFile_res", function (done) {
+gulp.task("createChunkFile_res", function (done) {
     var compiler = require("glsl_converter");
 
-    var shaderChunkFilePath = path.join(process.cwd(), "src/glsl/ShaderChunk.res");
+    var chunkFilePath = path.join(process.cwd(), "src/glsl/Chunk.res");
     var glslPathArray = [path.join(process.cwd(), "src/glsl/**/*.glsl")];
 
-    compiler.createChunkFileForRes(glslPathArray, shaderChunkFilePath, done);
+    compiler.createChunkFileForRes(glslPathArray, chunkFilePath, done);
 });

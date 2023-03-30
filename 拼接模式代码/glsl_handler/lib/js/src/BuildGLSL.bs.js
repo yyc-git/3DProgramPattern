@@ -141,14 +141,14 @@ function _createEmptyChunk(param) {
         };
 }
 
-function _buildVsAndFsByType(param, param$1, param$2, shaderChunk) {
+function _buildVsAndFsByType(param, param$1, param$2, chunk) {
   var name = param$2[1];
   var type_ = param$2[0];
   var fs = param[1];
   var vs = param[0];
   if (type_ === "vs") {
     return [
-            _setSource(vs)(ImmutableHashMap$Commonlib.getExn(shaderChunk, name)),
+            _setSource(vs)(ImmutableHashMap$Commonlib.getExn(chunk, name)),
             fs
           ];
   } else if (type_ === "fs_function") {
@@ -164,12 +164,12 @@ function _buildVsAndFsByType(param, param$1, param$2, shaderChunk) {
   } else {
     return [
             vs,
-            _setSource(fs)(ImmutableHashMap$Commonlib.getExn(shaderChunk, name))
+            _setSource(fs)(ImmutableHashMap$Commonlib.getExn(chunk, name))
           ];
   }
 }
 
-function _buildVsAndFs(param, param$1, shaderChunk, shaderLibs) {
+function _buildVsAndFs(param, param$1, chunk, shaderLibs) {
   var buildGLSLChunkInFS = param$1[1];
   var buildGLSLChunkInVS = param$1[0];
   return ArraySt$Commonlib.reduceOneParam(shaderLibs, (function (glslTuple, param) {
@@ -184,7 +184,7 @@ function _buildVsAndFs(param, param$1, shaderChunk, shaderLibs) {
                                           ], [
                                             param.type_,
                                             param.name
-                                          ], shaderChunk);
+                                          ], chunk);
                               }), glslTuple);
                 }
               }), [
@@ -203,7 +203,7 @@ function _buildPrecisionTop(precision) {
   }
 }
 
-function buildGLSL(param, shaderLibs, shaderChunk, precision) {
+function buildGLSL(param, shaderLibs, chunk, precision) {
   var generateUniformType = param[1];
   var precisionTop = _buildPrecisionTop(precision);
   var vs = {
@@ -232,7 +232,7 @@ function buildGLSL(param, shaderLibs, shaderChunk, precision) {
       ], [
         param[2],
         param[3]
-      ], shaderChunk, shaderLibs);
+      ], chunk, shaderLibs);
   var fs$1 = match[1];
   var vs$1 = match[0];
   vs$1.body = _buildBody(vs$1);

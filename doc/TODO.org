@@ -81,7 +81,7 @@ SharedArrayBuffer
 
 * TODO glsl build demo
 
-** DONE glsl compiler->ShaderChunks
+** DONE glsl compiler->Chunks
 
 # change to rescript
 
@@ -152,8 +152,8 @@ remove material concept
 
 
 ** DONE 
-- get shaderChunks to state
-- Builder: shader libs + ShaderChunks to vs glsl, fs glsl
+- get chunks to state
+- Builder: shader libs + Chunks to vs glsl, fs glsl
 support all parts
 
 
@@ -212,6 +212,31 @@ update import path
 
 
 ** TODO uml
+
+domain model
+
+flow
+
+
+story improve:
+shader组合图
+
+
+abstract UML:
+this pattern is not only for glsl, but for else!
+
+load config
+
+parse config
+
+build target(string) by config
+
+get runtime data when init by target
+
+
+
+
+
 
 
 * TODO 重命名“类图”为“领域模型”

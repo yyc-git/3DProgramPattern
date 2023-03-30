@@ -17,8 +17,8 @@ let _buildNewLine = () => {
   `
 }
 
-let _getChunk = (shaderChunk, name) => {
-  shaderChunk->Commonlib.ImmutableHashMap.getExn(name)
+let _getChunk = (chunk, name) => {
+  chunk->Commonlib.ImmutableHashMap.getExn(name)
 }
 
 let _generateAttributeSource = (generateAttributeType, shaderLibs: shaderLibs) =>
@@ -93,7 +93,7 @@ let _setSource = (
     funcDeclare: sourceFuncDeclare,
     funcDefine: sourceFuncDefine,
     body: sourceBody,
-  } as sourceChunk: Glsl_converter.ShaderChunkType.glslChunk,
+  } as sourceChunk: Glsl_converter.ChunkType.glslChunk,
   {
     top,
     define,
@@ -101,7 +101,7 @@ let _setSource = (
     funcDeclare,
     funcDefine,
     body,
-  }: Glsl_converter.ShaderChunkType.glslChunk,
+  }: Glsl_converter.ChunkType.glslChunk,
 ) => {
   sourceChunk.top = sourceTop ++ _addNewLine(top)
   sourceChunk.define = sourceDefine ++ _addNewLine(define)
@@ -113,12 +113,12 @@ let _setSource = (
   sourceChunk
 }
 
-let _buildBody = ({body}: Glsl_converter.ShaderChunkType.glslChunk) =>
+let _buildBody = ({body}: Glsl_converter.ChunkType.glslChunk) =>
   body ++ _get_webgl1_main_end()
 
 let _buildVarDeclare = (
   generateUniformType,
-  {top, varDeclare, funcDefine, body}: Glsl_converter.ShaderChunkType.glslChunk,
+  {top, varDeclare, funcDefine, body}: Glsl_converter.ChunkType.glslChunk,
   shaderLibs,
 ) =>
   varDeclare ++
@@ -133,10 +133,10 @@ let _addAlllParts = (
     funcDeclare,
     funcDefine,
     body,
-  }: Glsl_converter.ShaderChunkType.glslChunk,
+  }: Glsl_converter.ChunkType.glslChunk,
 ) => top ++ (define ++ (varDeclare ++ (funcDeclare ++ (funcDefine ++ body))))
 
-let _createEmptyChunk = (): Glsl_converter.ShaderChunkType.glslChunk => {
+let _createEmptyChunk = (): Glsl_converter.ChunkType.glslChunk => {
   top: "",
   define: "",
   varDeclare: "",
@@ -149,12 +149,12 @@ let _buildVsAndFsByType = (
   (vs, fs),
   (buildGLSLChunkInVS, buildGLSLChunkInFS),
   (type_: glslType, name),
-  shaderChunk,
+  chunk,
 ) =>
   switch type_ {
-  | #vs => (_setSource(vs, _getChunk(shaderChunk, name)), fs)
+  | #vs => (_setSource(vs, _getChunk(chunk, name)), fs)
   | #vs_function => (_setSource(vs, buildGLSLChunkInVS(name)), fs)
-  | #fs => (vs, _setSource(fs, _getChunk(shaderChunk, name)))
+  | #fs => (vs, _setSource(fs, _getChunk(chunk, name)))
   | #fs_function => (vs, _setSource(fs, buildGLSLChunkInFS(name)))
   | _ =>
     Commonlib.Exception.throwErr(
@@ -170,7 +170,7 @@ let _buildVsAndFsByType = (
     )
   }
 
-let _buildVsAndFs = ((vs, fs), (buildGLSLChunkInVS, buildGLSLChunkInFS), shaderChunk, shaderLibs) =>
+let _buildVsAndFs = ((vs, fs), (buildGLSLChunkInVS, buildGLSLChunkInFS), chunk, shaderLibs) =>
   shaderLibs->Commonlib.ArraySt.reduceOneParam(
     (. glslTuple, {glsls}) =>
       JsonUtils.isJsonSerializedValueNone(glsls)
@@ -183,7 +183,7 @@ let _buildVsAndFs = ((vs, fs), (buildGLSLChunkInVS, buildGLSLChunkInFS), shaderC
                 sourceTuple,
                 (buildGLSLChunkInVS, buildGLSLChunkInFS),
                 (type_, name),
-                shaderChunk,
+                chunk,
               ),
             glslTuple,
           ),
@@ -205,13 +205,13 @@ let buildGLSL = (
   (
     generateAttributeType: attributeType => string,
     generateUniformType: uniformType => string,
-    buildGLSLChunkInVS: glslName => Glsl_converter.ShaderChunkType.glslChunk,
-    buildGLSLChunkInFS: glslName => Glsl_converter.ShaderChunkType.glslChunk,
+    buildGLSLChunkInVS: glslName => Glsl_converter.ChunkType.glslChunk,
+    buildGLSLChunkInFS: glslName => Glsl_converter.ChunkType.glslChunk,
   ),
   shaderLibs: shaderLibs,
-  shaderChunk: CommonlibType.ImmutableHashMapType.t<
+  chunk: CommonlibType.ImmutableHashMapType.t<
     glslName,
-    Glsl_converter.ShaderChunkType.glslChunk,
+    Glsl_converter.ChunkType.glslChunk,
   >,
   precision: [#highp | #mediump | #lowp],
 ): (string, string) => {
@@ -228,7 +228,7 @@ let buildGLSL = (
   let (vs, fs) = _buildVsAndFs(
     (vs, fs),
     (buildGLSLChunkInVS, buildGLSLChunkInFS),
-    shaderChunk,
+    chunk,
     shaderLibs,
   )
 

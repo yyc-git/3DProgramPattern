@@ -1,5 +1,5 @@
 {
-  "name": "splice_pattern_engine",
+  "name": "splice_pattern_system_abstract",
   "version": "0.0.1",
   "scripts": {
     "watch": "tsc -w -noEmit",

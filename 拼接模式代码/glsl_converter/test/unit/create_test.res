@@ -5,7 +5,7 @@
 //   open Expect.Operators
 //   open Sinon
 //   let sandbox = getSandboxDefaultVal()
-//   let destFilePath = ref("./shaderChunkSystem.re")
+//   let destFilePath = ref("./chunkSystem.re")
 //   beforeEach(() => sandbox := createSandbox())
 //   afterEach(() =>
 //     if Node.Fs.existsSync(destFilePath.contents) {
@@ -21,7 +21,7 @@
 //     |> expect
 //     |> toContainString(
 //       `
-// open ShaderChunkType;
+// open ChunkType;
 
 // let _getGLSLChunkMap = (state) => state.glslChunkRecord.chunkMap;
 

@@ -10,7 +10,7 @@ let buildGLSL = (
   shaders: GLSLConfigType.shaders,
   shaderName: GLSLConfigType.shaderName,
   shaderLibs: GLSLConfigType.shaderLibs,
-  shaderChunk,
+  chunk,
   precision,
 ): (GLSLConfigType.shaderLibs, (string, string)) => {
   let shaderLibs = HandleShaderLibs.getShaderLibsOfShader(
@@ -26,7 +26,7 @@ let buildGLSL = (
     BuildGLSL.buildGLSL(
       (generateAttributeType, generateUniformType, buildGLSLChunkInVS, buildGLSLChunkInFS),
       shaderLibs,
-      shaderChunk,
+      chunk,
       precision,
     ),
   )

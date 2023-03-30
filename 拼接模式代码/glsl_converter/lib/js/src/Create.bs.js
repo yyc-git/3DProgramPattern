@@ -14,7 +14,7 @@ function _buildInitDataContentForTs(glslContent) {
   return "\n        return {\n          " + glslContent + "\n        }\n  ";
 }
 
-var _functionContentForRes = "\n  open Glsl_converter.ShaderChunkType\n\n\n  let _buildChunk =\n      (\n        ( top:string, define:string ),\n        varDeclare: string,\n        ( funcDeclare:string, funcDefine:string ),\n        body: string\n      ) => {\n    {\n      top,\n      define,\n      varDeclare,\n      funcDeclare,\n      funcDefine,\n      body\n    }\n  };\n\n  let getData = () =>{\n  ";
+var _functionContentForRes = "\n  open Glsl_converter.ChunkType\n\n\n  let _buildChunk =\n      (\n        ( top:string, define:string ),\n        varDeclare: string,\n        ( funcDeclare:string, funcDefine:string ),\n        body: string\n      ) => {\n    {\n      top,\n      define,\n      varDeclare,\n      funcDeclare,\n      funcDefine,\n      body\n    }\n  };\n\n  let getData = () =>{\n  ";
 
 function _buildInitDataContentForRes(glslContent) {
   return "\n          " + glslContent + "\n  ";

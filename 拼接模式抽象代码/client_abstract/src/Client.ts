@@ -1,31 +1,13 @@
-import * as shadersJson from "./glsl_config/shaders.json"
-import * as shaderLibsJson from "./glsl_config/shader_libs.json"
-import { createState, initXxxMaterialShader, render } from "splice_pattern_engine_abstract/src/Main"
-import { state } from "splice_pattern_engine_abstract/src/MainStateType"
+// use json loader to load config
+import * as configJson from "./target_config/config.json"
 
-type allMaterials = Array<any>
-type allTransforms = Array<any>
+import { parseConfig, createState, init, operateWhenLoop } from "splice_pattern_system_abstract/src/Main"
 
-declare function createScene(state: state): [state, [allMaterials, allTransforms]]
+let parsedConfig = parseConfig(configJson)
 
-//fix webpack->json loader bug
-let _fixJsonForArrayBug = (jsonWithArray) => {
-    if (Array.isArray(jsonWithArray)) {
-        return jsonWithArray
-    }
+let state = createState(parsedConfig)
 
-    return (jsonWithArray as any).default
-}
+declare let someConfigData
+state = init(state, someConfigData)
 
-let state = createState(shadersJson, _fixJsonForArrayBug(shaderLibsJson))
-
-let sceneData = createScene(state)
-state = sceneData[0]
-let [allMaterials, _] = sceneData[1]
-
-
-declare let xxxMaterialShaderName
-
-state = initXxxMaterialShader(state, xxxMaterialShaderName, allMaterials)
-
-state = render(state)
+state = operateWhenLoop(state)
