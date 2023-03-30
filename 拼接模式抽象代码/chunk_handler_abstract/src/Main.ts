@@ -4,7 +4,7 @@ export declare function parseConfig(configJson: JSON): config
 
 type target = any
 
-export declare function buildTarget(handleConfigFuncs, parsedConfig: config, chunk, someConfigData): target
+export declare function buildTarget(handleConfigFuncs, parsedConfig: config, targetChunk, someConfigData): target
 
 type runtimeData = any
 
