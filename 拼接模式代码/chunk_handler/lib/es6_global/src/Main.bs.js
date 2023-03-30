@@ -1,15 +1,15 @@
 
 
 import * as BuildGLSL$Chunk_handler from "./BuildGLSL.bs.js";
+import * as ParseConfig$Chunk_handler from "./ParseConfig.bs.js";
 import * as HandleUniform$Chunk_handler from "./HandleUniform.bs.js";
 import * as HandleAttribute$Chunk_handler from "./HandleAttribute.bs.js";
-import * as ParseGLSLConfig$Chunk_handler from "./ParseGLSLConfig.bs.js";
 import * as HandleShaderLibs$Chunk_handler from "./HandleShaderLibs.bs.js";
 
-function parseGLSLConfig(shadersJson, shaderLibsJson) {
+function parseConfig(shadersJson, shaderLibsJson) {
   return [
-          ParseGLSLConfig$Chunk_handler.parseShaders(shadersJson),
-          ParseGLSLConfig$Chunk_handler.parseShaderLibs(shaderLibsJson)
+          ParseConfig$Chunk_handler.parseShaders(shadersJson),
+          ParseConfig$Chunk_handler.parseShaderLibs(shaderLibsJson)
         ];
 }
 
@@ -43,7 +43,7 @@ function getSendData(param, shaderLibs) {
 }
 
 export {
-  parseGLSLConfig ,
+  parseConfig ,
   buildGLSL ,
   getSendData ,
 }

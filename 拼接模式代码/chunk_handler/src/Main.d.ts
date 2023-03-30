@@ -1,7 +1,7 @@
 import { shaderLibs, shaderMapDataName, shaderMapDataValue, condition, shaders, attributeName, attributeBuffer, attributeType, uniformName, uniformField, uniformType, uniformFrom, shaderName, glslName } from "./type/GLSLConfigType.gen";
 import { glslChunk } from "../../chunk_converter/src/ChunkType.gen"
 
-export function parseGLSLConfig(
+export function parseConfig(
     shadersJson: JSON, shaderLibsJson: JSON
 ): [shaders, shaderLibs]
 

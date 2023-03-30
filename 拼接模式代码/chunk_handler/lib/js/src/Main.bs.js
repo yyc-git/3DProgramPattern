@@ -1,15 +1,15 @@
 'use strict';
 
 var BuildGLSL$Chunk_handler = require("./BuildGLSL.bs.js");
+var ParseConfig$Chunk_handler = require("./ParseConfig.bs.js");
 var HandleUniform$Chunk_handler = require("./HandleUniform.bs.js");
 var HandleAttribute$Chunk_handler = require("./HandleAttribute.bs.js");
-var ParseGLSLConfig$Chunk_handler = require("./ParseGLSLConfig.bs.js");
 var HandleShaderLibs$Chunk_handler = require("./HandleShaderLibs.bs.js");
 
-function parseGLSLConfig(shadersJson, shaderLibsJson) {
+function parseConfig(shadersJson, shaderLibsJson) {
   return [
-          ParseGLSLConfig$Chunk_handler.parseShaders(shadersJson),
-          ParseGLSLConfig$Chunk_handler.parseShaderLibs(shaderLibsJson)
+          ParseConfig$Chunk_handler.parseShaders(shadersJson),
+          ParseConfig$Chunk_handler.parseShaderLibs(shaderLibsJson)
         ];
 }
 
@@ -42,7 +42,7 @@ function getSendData(param, shaderLibs) {
         ];
 }
 
-exports.parseGLSLConfig = parseGLSLConfig;
+exports.parseConfig = parseConfig;
 exports.buildGLSL = buildGLSL;
 exports.getSendData = getSendData;
 /* No side effect */

@@ -1,5 +1,5 @@
-let parseGLSLConfig = (shadersJson, shaderLibsJson) => {
-  (ParseGLSLConfig.parseShaders(shadersJson), ParseGLSLConfig.parseShaderLibs(shaderLibsJson))
+let parseConfig = (shadersJson, shaderLibsJson) => {
+  (ParseConfig.parseShaders(shadersJson), ParseConfig.parseShaderLibs(shaderLibsJson))
 }
 
 let buildGLSL = (

@@ -1,6 +1,6 @@
 import * as BasicMaterial from "splice_pattern_utils/src/engine/BasicMaterial"
 import * as Transform from "splice_pattern_utils/src/engine/Transform"
-import { parseGLSLConfig } from "chunk_handler"
+import * as ChunkHandler from "chunk_handler"
 import { state } from "./MainStateType"
 import { createFakeWebGLRenderingContext } from "splice_pattern_utils/src/engine/FakeGL"
 import { getData } from "./glsl/Chunk"
@@ -9,7 +9,7 @@ import * as API from "splice_pattern_utils/src/engine/API"
 import * as InitBasicMaterialShader from "./InitBasicMaterialShader"
 import * as Render from "./Render"
 
-export let parseConfig = parseGLSLConfig
+export let parseConfig = ChunkHandler.parseConfig
 
 export let createState = ([shaders, shaderLibs]): state => {
     return {
