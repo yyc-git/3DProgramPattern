@@ -1,4 +1,4 @@
-import { createState, initBasicMaterialShader, render, initCamera } from "./engine/Engine"
+import { createState, initBasicMaterialShader, render, initCamera } from "./engine/Main"
 import { createScene } from "splice_pattern_utils/src/Client"
 
 let state = createState()

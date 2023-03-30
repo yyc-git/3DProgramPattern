@@ -1,6 +1,6 @@
 import * as BasicMaterial from "splice_pattern_utils/src/engine/BasicMaterial"
 import * as Transform from "splice_pattern_utils/src/engine/Transform"
-import { parseGLSLConfig } from "glsl_handler"
+import { parseGLSLConfig } from "chunk_handler"
 import { state } from "./MainStateType"
 import { createFakeWebGLRenderingContext } from "splice_pattern_utils/src/engine/FakeGL"
 import { getData } from "./glsl/Chunk"

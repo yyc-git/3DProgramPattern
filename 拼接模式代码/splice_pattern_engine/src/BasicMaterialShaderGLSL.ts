@@ -1,8 +1,8 @@
-import { glslChunk } from "../../glsl_converter/src/ChunkType.gen"
+import { glslChunk } from "../../chunk_converter/src/ChunkType.gen"
 import { hasBasicMap } from "splice_pattern_utils/src/engine/BasicMaterial"
 import { state } from "./MainStateType"
 import { attributeType, uniformType, glslNameForBuildGLSLChunk, shaderMapDataName, condition } from "./GLSLConfigType"
-import { shaderMapDataValue } from "glsl_handler/src/type/GLSLConfigType.gen"
+import { shaderMapDataValue } from "chunk_handler/src/type/GLSLConfigType.gen"
 
 export let isNameValidForStaticBranch = (name: shaderMapDataName): boolean => {
     switch (name) {

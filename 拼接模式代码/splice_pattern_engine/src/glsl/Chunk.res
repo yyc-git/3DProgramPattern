@@ -1,5 +1,5 @@
 
-  open Glsl_converter.ShaderChunkType
+  open Chunk_converter.ShaderChunkType
 
 
   let _buildChunk =

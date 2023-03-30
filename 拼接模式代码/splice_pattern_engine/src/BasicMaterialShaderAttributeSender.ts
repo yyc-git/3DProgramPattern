@@ -1,4 +1,4 @@
-import { attributeName } from "glsl_handler/src/type/GLSLConfigType.gen";
+import { attributeName } from "chunk_handler/src/type/GLSLConfigType.gen";
 import { attributeType, attributeBuffer } from "./GLSLConfigType";
 
 type attributeLocation = GLint

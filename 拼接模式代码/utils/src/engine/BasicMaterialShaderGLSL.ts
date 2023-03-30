@@ -1,4 +1,4 @@
-import { glslChunk } from "glsl_converter/src/ChunkType.gen"
+import { glslChunk } from "chunk_converter/src/ChunkType.gen"
 import { hasBasicMap } from "./BasicMaterial"
 import { state } from "./MainStateType"
 import { attributeType, uniformType, glslNameForBuildGLSLChunk } from "./GLSLConfigType"

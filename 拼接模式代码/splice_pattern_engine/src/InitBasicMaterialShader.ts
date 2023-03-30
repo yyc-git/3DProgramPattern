@@ -1,4 +1,4 @@
-import { getSendData, buildGLSL } from "glsl_handler"
+import { getSendData, buildGLSL } from "chunk_handler"
 import { state } from "./MainStateType"
 import { material } from "splice_pattern_utils/src/engine/BasicMaterialStateType"
 import { curry2, curry3_1, curry3_2 } from "fp/src/Curry"
@@ -7,7 +7,7 @@ import { addAttributeSendData } from "./BasicMaterialShaderAttributeSender"
 import { addUniformSendData } from "./BasicMaterialShaderUniformSender"
 import { Map } from "immutable"
 import { attributeType, uniformField, uniformFrom, uniformType } from "./GLSLConfigType"
-import { shaderName } from "glsl_handler/src/type/GLSLConfigType.gen"
+import { shaderName } from "chunk_handler/src/type/GLSLConfigType.gen"
 import { generateShaderIndex, createFakeProgram, setShaderIndex } from "splice_pattern_utils/src/engine/Shader"
 
 export let initBasicMaterialShader = (state: state, shaderName: shaderName, allMaterials: Array<material>): state => {
@@ -27,9 +27,9 @@ export let initBasicMaterialShader = (state: state, shaderName: shaderName, allM
                 ]
             ],
             state.shaders,
-            shaderName,
             state.shaderLibs,
             state.chunk,
+            shaderName,
             state.precision
         )
 
