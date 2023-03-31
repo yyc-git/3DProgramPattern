@@ -5,7 +5,7 @@ import { hasBasicMap } from "splice_pattern_utils/src/engine/BasicMaterial"
 import { generateShaderIndex, createFakeProgram, setShaderIndex } from "splice_pattern_utils/src/engine/Shader"
 
 let _buildDefaultVSGLSL = () => {
-    return `
+  return `
 precision lowp float;
 precision lowp int;
 
@@ -65,7 +65,7 @@ void main(void){
 }
 
 let _buildDefaultFSGLSL = () => {
-    return `
+  return `
 precision lowp float;
 precision lowp int;
 
@@ -93,67 +93,67 @@ void main(void){
 }
 
 let _addDefineWithValue = (glsl: string, name: string, value: string): string => {
-    return "#define " + name + " " + value + "\n" + glsl
+  return "#define " + name + " " + value + "\n" + glsl
 }
 
 let _addDefine = (glsl: string, name: string): string => {
-    return "#define " + name + "\n" + glsl
+  return "#define " + name + "\n" + glsl
 }
 
 let _buildGLSL = (state: state, material: material): [string, string] => {
-    let vsGLSL = _buildDefaultVSGLSL()
-    let fsGLSL = _buildDefaultFSGLSL()
+  let vsGLSL = _buildDefaultVSGLSL()
+  let fsGLSL = _buildDefaultFSGLSL()
 
-    if (state.isSupportHardwareInstance) {
-        vsGLSL = _addDefine(vsGLSL, "HARDWARE_INSTANCE")
-    }
-    else if (state.isSupportBatchInstance) {
-        vsGLSL = _addDefine(vsGLSL, "BATCH_INSTANCE")
-    }
-    else {
-        vsGLSL = _addDefine(vsGLSL, "NO_INSTANCE")
-    }
+  if (state.isSupportHardwareInstance) {
+    vsGLSL = _addDefine(vsGLSL, "HARDWARE_INSTANCE")
+  }
+  else if (state.isSupportBatchInstance) {
+    vsGLSL = _addDefine(vsGLSL, "BATCH_INSTANCE")
+  }
+  else {
+    vsGLSL = _addDefine(vsGLSL, "NO_INSTANCE")
+  }
 
-    if (hasBasicMap(material, state.basicMaterialState)) {
-        vsGLSL = _addDefine(vsGLSL, "MAP")
-        fsGLSL = _addDefine(fsGLSL, "MAP")
-    }
-    else {
-        vsGLSL = _addDefine(vsGLSL, "NO_MAP")
-        fsGLSL = _addDefine(fsGLSL, "NO_MAP")
-    }
+  if (hasBasicMap(state.basicMaterialState, material)) {
+    vsGLSL = _addDefine(vsGLSL, "MAP")
+    fsGLSL = _addDefine(fsGLSL, "MAP")
+  }
+  else {
+    vsGLSL = _addDefine(vsGLSL, "NO_MAP")
+    fsGLSL = _addDefine(fsGLSL, "NO_MAP")
+  }
 
-    fsGLSL = _addDefineWithValue(fsGLSL, "MAX_DIRECTION_LIGHT_COUNT", String(state.maxDirectionLightCount))
+  fsGLSL = _addDefineWithValue(fsGLSL, "MAX_DIRECTION_LIGHT_COUNT", String(state.maxDirectionLightCount))
 
-    return [vsGLSL, fsGLSL]
+  return [vsGLSL, fsGLSL]
 }
 
 export let initBasicMaterialShader = (state: state, allMaterials: Array<material>): state => {
-    let [programMap, shaderIndexMap, _allGLSLs, maxShaderIndex] = allMaterials.reduce(([programMap, shaderIndexMap, glslMap, maxShaderIndex]: any, material) => {
-        let glsl = _buildGLSL(state, material)
+  let [programMap, shaderIndexMap, _allGLSLs, maxShaderIndex] = allMaterials.reduce(([programMap, shaderIndexMap, glslMap, maxShaderIndex]: any, material) => {
+    let glsl = _buildGLSL(state, material)
 
-        let [shaderIndex, newMaxShaderIndex] = generateShaderIndex(glslMap, glsl, maxShaderIndex)
+    let [shaderIndex, newMaxShaderIndex] = generateShaderIndex(glslMap, glsl, maxShaderIndex)
 
-        let program = createFakeProgram(glsl)
+    let program = createFakeProgram(glsl)
 
-        if (!glslMap.has(shaderIndex)) {
-            glslMap = glslMap.set(shaderIndex, glsl)
-        }
-
-        console.log("glsl:", glsl)
-        console.log("shaderIndex:", shaderIndex)
-
-        return [
-            programMap.set(shaderIndex, program),
-            setShaderIndex(shaderIndexMap, material, shaderIndex),
-            glslMap,
-            newMaxShaderIndex
-        ]
-    }, [state.programMap, state.shaderIndexMap, Map(), state.maxShaderIndex])
-
-    return {
-        ...state,
-        programMap, maxShaderIndex,
-        shaderIndexMap: shaderIndexMap
+    if (!glslMap.has(shaderIndex)) {
+      glslMap = glslMap.set(shaderIndex, glsl)
     }
+
+    console.log("glsl:", glsl)
+    console.log("shaderIndex:", shaderIndex)
+
+    return [
+      programMap.set(shaderIndex, program),
+      setShaderIndex(shaderIndexMap, material, shaderIndex),
+      glslMap,
+      newMaxShaderIndex
+    ]
+  }, [state.programMap, state.shaderIndexMap, Map(), state.maxShaderIndex])
+
+  return {
+    ...state,
+    programMap, maxShaderIndex,
+    shaderIndexMap: shaderIndexMap
+  }
 }

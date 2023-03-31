@@ -32,7 +32,7 @@ export let getShaderLibFromStaticBranch = (state: state, name, value) => {
 export let isPassForDynamicBranch = (material, state: state, condition) => {
     switch (condition) {
         case "basic_has_map":
-            return hasBasicMap(material, state.basicMaterialState)
+            return hasBasicMap(state.basicMaterialState, material)
         default:
             throw new Error("unknown condition: " + condition)
     }

@@ -238,7 +238,6 @@ get runtime data when init by target
 
 * TODO finish splice pattern article
 
-fix hasBasicMap
 
 
 

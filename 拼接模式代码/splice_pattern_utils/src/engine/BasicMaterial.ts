@@ -25,7 +25,7 @@ export let createMaterial = (state: state): [state, material] => {
     return [state, newMaterial]
 }
 
-export let hasBasicMap = (material: material, state: state) => {
+export let hasBasicMap = (state: state, material: material) => {
     return getExnFromStrictUndefined(state.hasBasicMapMap.get(material))
 }
 

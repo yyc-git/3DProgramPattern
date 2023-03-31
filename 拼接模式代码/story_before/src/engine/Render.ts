@@ -62,7 +62,7 @@ let _sendUniformData = (state: state, transform, material, gl: WebGLRenderingCon
     pos = getExnFromStrictNull(gl.getUniformLocation(program, "u_color"))
     sendFloat3(gl, pos, getColor(state.basicMaterialState, material))
 
-    if (hasBasicMap(material, state.basicMaterialState)) {
+    if (hasBasicMap(state.basicMaterialState, material)) {
         pos = getExnFromStrictNull(gl.getUniformLocation(program, "u_mapSampler"))
         sendInt(gl, pos, getMapUnit(state.basicMaterialState, material))
     }

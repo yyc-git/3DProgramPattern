@@ -262,7 +262,7 @@ let _buildGLSL = (state: state, material: material): [string, string] => {
         vsGLSL = _addDefine(vsGLSL, "NO_INSTANCE")
     }
 
-    if (hasBasicMap(material, state.basicMaterialState)) {
+    if (hasBasicMap(state.basicMaterialState, material)) {
         vsGLSL = _addDefine(vsGLSL, "MAP")
         fsGLSL = _addDefine(fsGLSL, "MAP")
     }
@@ -392,7 +392,7 @@ let _sendUniformData = (state: state, transform, material, gl: WebGLRenderingCon
     pos = getExnFromStrictNull(gl.getUniformLocation(program, "u_color"))
     sendFloat3(gl, pos, getColor(state.basicMaterialState, material))
 
-    if (hasBasicMap(material, state.basicMaterialState)) {
+    if (hasBasicMap(state.basicMaterialState, material)) {
         pos = getExnFromStrictNull(gl.getUniformLocation(program, "u_mapSampler"))
         sendInt(gl, pos, getMapUnit(state.basicMaterialState, material))
     }
