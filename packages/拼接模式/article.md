@@ -58,7 +58,7 @@ Main是引擎的门户，负责暴露API给Client
 
 InitBasicMaterialShader负责初始化基础材质的Shader，判断材质是否支持功能，支持的话就在默认的GLSL中加入Define变量，然后创建对应的Shader
 
-Render负责渲染，遍历所有的GameObjects，发送它们的顶点数据和Uniform数据
+Render负责渲染，遍历所有的GameObjects，获得并发送它们的顶点数据和Uniform数据
 
 
 
@@ -106,7 +106,9 @@ export let createState = (): state => {
 }
 ```
 
-我们构造了假的gl（WebGLRenderContext)；通过设置配置字段isSupportHardwareInstance, isSupportBatchInstance开启了Hardware Instance；设置最大的方向光个数为4个
+我们构造了假的gl（WebGLRenderContext)；
+通过设置配置字段isSupportHardwareInstance, isSupportBatchInstance，开启了Hardware Instance；
+设置最大的方向光个数为4个
 
 
 
@@ -124,7 +126,6 @@ export let initBasicMaterialShader = (state: state, allMaterials: Array<material
             glslMap = glslMap.set(shaderIndex, glsl)
         }
 
-        console.log("glsl:", glsl)
         console.log("shaderIndex:", shaderIndex)
 
         return [
@@ -405,41 +406,54 @@ let _sendUniformData = (state: state, transform, material, gl: WebGLRenderingCon
 }
 ```
 
-
-该函数通过判断来处理各种情况，获得并发送了VBO数据
-
-<!-- 该函数从BasicMaterial、Transform组件中获得对应的数据并发送
-
-该函数通过分支判断来处理各种情况，获得并发送了VBO数据 -->
-
-<!-- state = initCamera(state)
-
-state = render(state) -->
+该函数首先发送了相机数据；
+然后判断了材质对功能的支持情况，数从BasicMaterial、Transform组件中获得对应的数据并发送
 
 
+下面，我们运行代码，运行结果如下：
+```text
+shaderIndex: 0
+shaderIndex: 1
+shaderIndex: 0
+useProgram
+bindBuffer
+vertexAttribPointer
+enableVertexAttribArray
+bindBuffer
+vertexAttribPointer
+enableVertexAttribArray
+发送instance相关的顶点数据1...
+发送instance相关的顶点数据2...
+发送instance相关的顶点数据3...
+发送instance相关的顶点数据4...
+bindBuffer
+uniformMatrix4fv
+uniformMatrix4fv
+uniform3f
+uniform1i
+其它渲染逻辑...
+```
+
+我们首先看到material1、material2、material3的shaderIndex分别为0、1、0，说明mateiral1和material3共享同一个shader；
+
+然后发送了a_position、a_texCoord的VBO；
+
+然后发送了instance的顶点数据；
+
+然后通过"bindBuffer"发送了Element Array Buffer;
+
+然后因为渲染render函数中调用的_getAllFakeGameObjects只返回了一个GameObject(值为0)，所以只渲染了一个GameObject，具体为： 发送了一次相机的视图矩阵u_vMatrix和透视矩阵u_pMatrix数据； 发送了一次材质的color和map数据；
+
+最后执行其它渲染逻辑
 
 
-
-
-
-
-<!-- program- shaderIndex
-
-_buildGLSL->_addDefineWithValue
-这里为了简化代码，我们通过“在FS GLSL中定义最大的方向光个数”来表示 “支持方向光”
-
-GLSL并不完整
-
-TODO generateShaderIndex -->
-
-
-
-TODO 运行代码
 
 ## 提出问题
 
+TODO continue!
 
-# [解决问题的方案，分析存在的问题]?
+
+<!-- # [解决问题的方案，分析存在的问题]?
 
 
 ## 概述解决方案？
@@ -463,7 +477,7 @@ TODO 运行代码
 
 
 ## 请分析存在的问题?
-## 提出改进方向？
+## 提出改进方向？ -->
 
 
 # [给出使用模式的改进方案]

@@ -50,8 +50,6 @@ export let initBasicMaterialShader = (state: state, shaderName: shaderName, allM
             glslMap = glslMap.set(shaderIndex, glsl)
         }
 
-        console.log("glsl:", glsl)
-        console.log("sendData:", sendData)
         console.log("shaderIndex:", shaderIndex)
 
         return [
