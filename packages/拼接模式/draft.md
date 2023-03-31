@@ -165,6 +165,7 @@ send性能
 build glsl->define light count:vs_function, fs_function
     - 遵循哪些设计原则
     - 给出UML？
+TODO add shader组合图?
     - 给出代码？
     TODO explain:
     |>

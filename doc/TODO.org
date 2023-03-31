@@ -79,7 +79,7 @@ SharedArrayBuffer
 ** DONE add abstract code
 
 
-* TODO glsl build demo
+* DONE glsl build demo
 
 ** DONE glsl compiler->Chunks
 
@@ -211,7 +211,7 @@ draft
 update import path
 
 
-** TODO uml
+** DONE uml
 
 domain model
 
@@ -236,6 +236,9 @@ get runtime data when init by target
 
 
 
+* TODO finish splice pattern article
+
+fix hasBasicMap
 
 
 
@@ -258,6 +261,14 @@ get runtime data when init by target
 e.g. most, commonlib
 
 
+* TODO 移除"import"相关代码
+
+
+
+* TODO 重写“依赖隔离模式”，统一格式
+
+
+* TODO 整理每个package代码，给出运行代码的script，并在README中说明
 
 
 * TODO 书给出网站（包含代码）二维码
