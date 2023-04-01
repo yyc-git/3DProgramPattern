@@ -3,13 +3,16 @@
 
 
 // tslint:disable-next-line:interface-over-type-literal
+export type shaderLibName = string;
+
+// tslint:disable-next-line:interface-over-type-literal
 export type shaderLibItemName = string;
 
 // tslint:disable-next-line:interface-over-type-literal
 export type shaderLibItemType = string;
 
 // tslint:disable-next-line:interface-over-type-literal
-export type shaderMapDataValue = string[];
+export type shaderMapDataValue = shaderLibName[];
 
 // tslint:disable-next-line:interface-over-type-literal
 export type shaderMapDataName = string;
@@ -104,7 +107,7 @@ export type variables = { readonly uniforms: (undefined | uniform[]); readonly a
 
 // tslint:disable-next-line:interface-over-type-literal
 export type shaderLib = {
-  readonly name: string; 
+  readonly name: shaderLibName; 
   readonly glsls: (undefined | glsl[]); 
   readonly variables: (undefined | variables)
 };

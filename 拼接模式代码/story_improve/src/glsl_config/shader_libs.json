@@ -48,11 +48,11 @@
     }
   },
   {
-    "name": "modelMatrix_hardware_instance",
+    "name": "modelMatrix_instance",
     "glsls": [
       {
         "type": "vs",
-        "name": "modelMatrix_hardware_instance_vertex"
+        "name": "modelMatrix_instance_vertex"
       }
     ],
     "variables": {

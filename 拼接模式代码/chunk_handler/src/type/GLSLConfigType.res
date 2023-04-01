@@ -1,8 +1,10 @@
+type shaderLibName = string
+
 type shaderLibItemName = string
 
 type shaderLibItemType = string
 
-type shaderMapDataValue = array<string>
+type shaderMapDataValue = array<shaderLibName>
 
 type shaderMapDataName = string
 
@@ -88,7 +90,7 @@ type variables = {
 }
 
 type shaderLib = {
-  name: string,
+  name: shaderLibName,
   glsls: option<array<glsl>>,
   variables: option<variables>,
 }

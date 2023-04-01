@@ -5,6 +5,7 @@ import * as shaderLibsJson from "./glsl_config/shader_libs.json"
 import { createState, initBasicMaterialShader, render, initCamera, parseConfig } from "splice_pattern_engine/src/Main"
 import { createScene } from "splice_pattern_utils/src/Client"
 
+//修复json loader关于Array.isArray的bug 
 let _fixJsonForArrayBug = (jsonWithArray) => {
     if (Array.isArray(jsonWithArray)) {
         return jsonWithArray

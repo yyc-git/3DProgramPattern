@@ -81,8 +81,8 @@ state = render(state)
 ```
 
 我们首先创建了引擎的state；
-然后创建了场景，主要包括3个材质material1、material2、material3，其中material1、material3都有贴图，material2没有贴图；
-然后初始化所有材质的shader；
+然后创建了场景，主要包括3个基础材质material1、material2、material3，其中material1、material3都有贴图，material2没有贴图；
+然后初始化所有基础材质的shader；
 接着初始化相机，设置相机的假数据；
 最后渲染场景
 
@@ -98,8 +98,7 @@ export let createState = (): state => {
         shaderIndexMap: Map(),
         vMatrix: null,
         pMatrix: null,
-        isSupportHardwareInstance: true,
-        isSupportBatchInstance: false,
+        isSupportInstance: true,
         maxDirectionLightCount: 4,
 
         ...
@@ -108,7 +107,7 @@ export let createState = (): state => {
 ```
 
 我们构造了假的gl（WebGLRenderContext)；
-通过设置配置字段isSupportHardwareInstance, isSupportBatchInstance，开启了Hardware Instance；
+通过设置配置字段isSupportInstance，开启了Instance；
 设置最大的方向光个数为4个
 
 
@@ -145,7 +144,7 @@ export let initBasicMaterialShader = (state: state, allMaterials: Array<material
 }
 ```
 
-该函数得到了材质对应的Program，保存在programMap中
+该函数最终创建了材质对应的Program，保存在state.programMap中
 
 这里提出了shaderIndex的概念，它是shader的索引。因为一个shaderIndex对应一个Shader，而一个Shader又对应一套GLSL(VS GLSL和FS GLSL)，所以一个shaderIndex对应一套GLSL
 
@@ -175,10 +174,6 @@ varying vec2 v_mapCoord0;
 #endif
 
 
-#ifdef BATCH_INSTANCE
-uniform mat4 u_mMatrix;
-#endif
-
 #ifdef NO_INSTANCE
 uniform mat4 u_mMatrix;
 #endif
@@ -195,10 +190,6 @@ mat2 transpose(mat2 m) {
 void main(void){
 #ifdef INSTANCE
   mat4 mMatrix = mat4(a_mVec4_0, a_mVec4_1, a_mVec4_2, a_mVec4_3);
-#endif
-
-#ifdef BATCH_INSTANCE
-  mat4 mMatrix = u_mMatrix;
 #endif
 
 #ifdef NO_INSTANCE
@@ -254,11 +245,8 @@ let _buildGLSL = (state: state, material: material): [string, string] => {
     let vsGLSL = _buildDefaultVSGLSL()
     let fsGLSL = _buildDefaultFSGLSL()
 
-    if (state.isSupportHardwareInstance) {
+    if (state.isSupportInstance) {
         vsGLSL = _addDefine(vsGLSL, "INSTANCE")
-    }
-    else if (state.isSupportBatchInstance) {
-        vsGLSL = _addDefine(vsGLSL, "BATCH_INSTANCE")
     }
     else {
         vsGLSL = _addDefine(vsGLSL, "NO_INSTANCE")
@@ -365,7 +353,7 @@ let _sendAttributeData = (state: state, shaderIndex: shaderIndex, gl: WebGLRende
     }
 
 
-    if (state.isSupportHardwareInstance) {
+    if (state.isSupportInstance) {
         console.log("发送instance相关的顶点数据1...")
         console.log("发送instance相关的顶点数据2...")
         console.log("发送instance相关的顶点数据3...")
@@ -400,7 +388,7 @@ let _sendUniformData = (state: state, transform, material, gl: WebGLRenderingCon
     }
 
 
-    if (state.isSupportBatchInstance || !(state.isSupportHardwareInstance || state.isSupportBatchInstance)) {
+    if (!state.isSupportInstance){
         pos = getExnFromStrictNull(gl.getUniformLocation(program, "u_mMatrix"))
         sendMatrix4(gl, pos, getModelMatrix(state.transformState, transform))
     }
@@ -474,9 +462,9 @@ GLSL Config是的Shader的JSON配置文件，由Client定义
 
 GLSL Chunks是多个小块的Shader代码文件，由引擎实现
 
-引擎需要进行预处理，在gulp任务中调用ChunkConverter模块，将多个GLSL Chunk代码文件合并为一个GLSL Chunk，它是一个可被调用的Typescript或者Rescript文件
+引擎需要进行预处理，在gulp任务中调用ChunkConverter模块，将所有的GLSL Chunks代码文件合并为一个GLSL Chunk，它是一个可被调用的Typescript或者Rescript文件
 
-InitBasicMaterialShader仍然负责初始化基础材质的Shader，通过调用ChunkHandler的buildGLSL函数来按照GLSL Config的配置将GLSL Chunk中的对应的小块GLSL组装为材质的Shader代码:GLSL，然后使用它创建材质的Shader；通过调用ChunkHandler的getSendData函数来从GLSL Config中获得发送的数据:Send Data
+InitBasicMaterialShader仍然负责初始化基础材质的Shader，通过调用ChunkHandler的buildGLSL函数来按照GLSL Config的配置将GLSL Chunk中的对应的小块GLSL组装为材质的Shader代码-GLSL，然后使用它创建材质的Shader；通过调用ChunkHandler的getSendData函数来从GLSL Config中获得发送的数据-Send Data
 
 Render仍然负责渲染，不过不需要再获得发送数据后发送，而是直接发送之前获得的Send Data
 
@@ -489,12 +477,650 @@ Render仍然负责渲染，不过不需要再获得发送数据后发送，而�
 - 现在在每次渲染时不需要进行分支判断，而是直接发送Send Data即可
 
 
+## 给出代码
 
-## 给出代码？
+<!-- 我们首先创建了引擎的state；
+然后创建了场景，主要包括3个材质material1、material2、material3，其中material1、material3都有贴图，material2没有贴图；
+然后初始化所有材质的shader；
+接着初始化相机，设置相机的假数据；
+最后渲染场景 -->
 
-TODO continue
+Client定义的GLSL Config包括两个JSON文件：shaders.json和shader_libs.json
+
+<!-- 我们首先使用webpack的json loader来加载GLSL Config。 -->
+
+shaders.json代码如下：
+```ts
+{
+  "static_branchs": [
+    {
+      "name": "modelMatrix_instance",
+      "value": [
+        "modelMatrix_noInstance",
+        "modelMatrix_instance"
+      ]
+    }
+  ],
+  "dynamic_branchs": [
+    {
+      "name": "basic_map",
+      "condition": "basic_has_map",
+      "pass": "basic_map",
+      "fail": "no_basic_map"
+    }
+  ],
+  "groups": [
+    {
+      "name": "top",
+      "value": [
+        "common",
+        "vertex"
+      ]
+    },
+    {
+      "name": "end",
+      "value": [
+        "end"
+      ]
+    }
+  ],
+  "shaders": [
+    {
+      "name": "render_basic",
+      "shader_libs": [
+        {
+          "type": "group",
+          "name": "top"
+        },
+        {
+          "name": "define_light_count"
+        },
+        {
+          "name": "basic"
+        },
+        {
+          "type": "dynamic_branch",
+          "name": "basic_map"
+        },
+        {
+          "type": "static_branch",
+          "name": "modelMatrix_instance"
+        },
+        {
+          "name": "basic_end"
+        },
+        {
+          "type": "group",
+          "name": "end"
+        }
+      ]
+    }
+  ]
+}
+```
+
+该文件定义了所有的Shader由哪些代码块组成
+
+static_branchs字段定义了所有不会变化的分支判断。比如是否支持Instance就属于这类判断，因为它只跟引擎是否支持Instance，而这是一开始就确定了的，不会在运行时变化
+
+dynamic_branchs字段定义了所有会在运行时变换的分支判断。比如是否支持贴图就属于这类判断，因为材质可能在运行时设置贴图或者移除贴图
+
+groups字段定义了多组代码块；
+
+shaders字段定义了所有的Shader。此处定义了一个名为render_basic的Shader，它包含的所有的代码块定义在shader_libs中。在shader_libs中，如果type为static_branch，那么该块（此处称为lib)就通过name关联到static_branchs字段；如果type为dynamic_branch，那么该块就通过name关联到dynamic_branchs字段；如果type为group，那么该块就通过name关联到groups字段；如果没有定义type，那么就通过name关联到shader_libs.json
 
 
+
+shader_libs.json代码如下：
+```ts
+[
+  {
+    "name": "common",
+    "glsls": [
+      {
+        "type": "vs",
+        "name": "common_vertex"
+      },
+      {
+        "type": "fs",
+        "name": "common_fragment"
+      }
+    ],
+    "variables": {
+      "uniforms": [
+        {
+          "name": "u_vMatrix",
+          "field": "vMatrix",
+          "type": "mat4",
+          "from": "camera"
+        },
+        {
+          "name": "u_pMatrix",
+          "field": "pMatrix",
+          "type": "mat4",
+          "from": "camera"
+        }
+      ]
+    }
+  },
+  {
+    "name": "modelMatrix_noInstance",
+    "glsls": [
+      {
+        "type": "vs",
+        "name": "modelMatrix_noInstance_vertex"
+      }
+    ],
+    "variables": {
+      "uniforms": [
+        {
+          "name": "u_mMatrix",
+          "field": "mMatrix",
+          "type": "mat4",
+          "from": "model"
+        }
+      ]
+    }
+  },
+  {
+    "name": "modelMatrix_instance",
+    "glsls": [
+      {
+        "type": "vs",
+        "name": "modelMatrix_instance_vertex"
+      }
+    ],
+    "variables": {
+      "attributes": [
+        {
+          "name": "a_mVec4_0",
+          "buffer": 4,
+          "type": "vec4"
+        },
+        {
+          "name": "a_mVec4_1",
+          "buffer": 4,
+          "type": "vec4"
+        },
+        {
+          "name": "a_mVec4_2",
+          "buffer": 4,
+          "type": "vec4"
+        },
+        {
+          "name": "a_mVec4_3",
+          "buffer": 4,
+          "type": "vec4"
+        }
+      ]
+    }
+  },
+  {
+    "name": "vertex",
+    "variables": {
+      "attributes": [
+        {
+          "name": "a_position",
+          "buffer": 0,
+          "type": "vec3"
+        }
+      ]
+    }
+  },
+  {
+    "name": "basic",
+    "glsls": [
+      {
+        "type": "vs",
+        "name": "webgl1_basic_vertex"
+      }
+    ]
+  },
+  {
+    "name": "define_light_count",
+    "glsls": [
+      {
+        "type": "vs_function",
+        "name": "defineMaxDirectionLightCount"
+      },
+      {
+        "type": "fs_function",
+        "name": "defineMaxDirectionLightCount"
+      }
+    ]
+  },
+  {
+    "name": "basic_map",
+    "glsls": [
+      {
+        "type": "vs",
+        "name": "webgl1_basic_map_vertex"
+      },
+      {
+        "type": "fs",
+        "name": "webgl1_basic_map_fragment"
+      }
+    ],
+    "variables": {
+      "attributes": [
+        {
+          "name": "a_texCoord",
+          "buffer": 2,
+          "type": "vec2"
+        }
+      ],
+      "uniforms": [
+        {
+          "name": "u_color",
+          "field": "color",
+          "type": "float3",
+          "from": "basicMaterial"
+        },
+        {
+          "name": "u_mapSampler",
+          "field": "map",
+          "type": "sampler2D",
+          "from": "basicMaterial"
+        }
+      ]
+    }
+  },
+  {
+    "name": "no_basic_map",
+    "glsls": [
+      {
+        "type": "fs",
+        "name": "webgl1_no_basic_map_fragment"
+      }
+    ],
+    "variables": {
+      "uniforms": [
+        {
+          "name": "u_color",
+          "field": "color",
+          "type": "float3",
+          "from": "basicMaterial"
+        }
+      ]
+    }
+  },
+  {
+    "name": "basic_end",
+    "glsls": [
+      {
+        "type": "fs",
+        "name": "webgl1_basic_end_fragment"
+      }
+    ]
+  },
+  {
+    "name": "end",
+    "variables": {
+      "attributes": [
+        {
+          "buffer": 3
+        }
+      ]
+    }
+  }
+]
+```
+
+该文件定义了所有的代码块
+
+name字段是代码块的名字，与shaders.json关联
+
+glsls字段定义了包含的VS GLSL和FS GLSL。其中如果type为vs或者fs，则name为VS GLSL或者FS GLSL的文件名，与GLSL Chunks的文件名关联；而type为vs_function或者fs_function的情况后面再讨论
+
+variables字段定义了属于Send Data的顶点数据和Uniform数据
+
+
+
+
+现在继续回到Client，看相关代码：
+```ts
+// use json loader to load config
+import * as shadersJson from "./glsl_config/shaders.json"
+import * as shaderLibsJson from "./glsl_config/shader_libs.json"
+```
+
+这里使用webpack的json loader来加载GLSL Config文件
+
+继续看Client后面的代码：
+```ts
+//修复json loader关于Array.isArray的bug 
+let _fixJsonForArrayBug = (jsonWithArray) => {
+    if (Array.isArray(jsonWithArray)) {
+        return jsonWithArray
+    }
+
+    return (jsonWithArray as any).default
+}
+
+
+let parsedConfig = parseConfig(shadersJson as any, _fixJsonForArrayBug(shaderLibsJson))
+
+```
+
+这里最终是调用ChunkHandler的parseConfig函数来对GLSL Config进行解析。
+因为ChunkHandler是Rescript写的，所有在parseConfig函数中将JSON文件转换为Rescript的Record的数据格式。
+如果ChunkHandler使用Typescript写的，则不需要这一步。
+
+
+继续看Client后面的代码：
+```ts
+let state = createState(parsedConfig)
+
+let sceneData = createScene(state)
+state = sceneData[0]
+let [allMaterials, _] = sceneData[1]
+
+state = initBasicMaterialShader(state, "render_basic", allMaterials)
+
+state = initCamera(state)
+
+state = render(state)
+```
+
+这里跟之前类似：
+我们首先创建了引擎的state；
+然后创建了场景，场景跟之前一样；
+然后初始化所有基础材质的shader；
+接着初始化相机，设置相机的假数据；
+最后渲染场景
+
+这里跟之前不一样的就是在调用initBasicMaterialShader函数时，传入了"render_basic"这个参数，它用来指定使用shaders.json->shaders->render_basic的Shader的配置数据
+
+
+
+我们看下Main中的createState代码：
+```ts
+export let createState = ([shaders, shaderLibs]): state => {
+    return {
+        gl: createFakeWebGLRenderingContext(),
+        programMap: Map(),
+        sendDataMap: Map(),
+        shaderIndexMap: Map(),
+        maxShaderIndex: 0,
+        vMatrix: null,
+        pMatrix: null,
+        shaders,
+        shaderLibs,
+        isSupportInstance: true,
+        maxDirectionLightCount: 4,
+        chunk: getData(),
+        precision: "lowp",
+
+        ...
+    }
+}
+```
+
+相比之前的代码，值得说明的是调用了getData函数来获得GLSL Chunk的数据，保存到chunk字段
+
+我们介绍下相关的情况：
+
+引擎定义的GLSL Chunks具体为多个.glsl的文件，其中每个文件通过字符@top、@define、@varDeclare、@funcDeclare、@funcDefine、@body以及对应的@end定义了对应的GLSL代码片段
+
+我们来看下Instance相关的两个.glsl文件：
+modelMatrix_instance_vertex.glsl
+```ts
+@body
+mat4 mMatrix = mat4(a_mVec4_0, a_mVec4_1, a_mVec4_2, a_mVec4_3);
+@end
+```
+modelMatrix_noInstance_vertex.glsl
+```ts
+@body
+mat4 mMatrix = u_mMatrix;
+@end
+```
+
+这些.glsl文件是进行了抽象处理的，从而能够被正确地组合起来
+
+
+在预处理阶段，引擎通过gulp任务来调用ChunkConverter模块，将所有的.glsl文件合并为一个GLSL Chunk，具体就是Chunk.ts或者Chunk.res文件
+
+我们来看下Chunk.ts的代码：
+```ts
+  let _buildChunk =
+      (
+        [ top, define ]:[string, string],
+        varDeclare: string,
+        [ funcDeclare, funcDefine ]:[string, string],
+        body: string
+      ) => {
+    return {
+      top,
+      define,
+      varDeclare,
+      funcDeclare,
+      funcDefine,
+      body
+    }
+  };
+
+  export let getData = () =>{
+  
+        return {
+            "modelMatrix_noInstance_vertex": _buildChunk([``, ``],``,[``, ``],`mat4 mMatrix = u_mMatrix;`,), "modelMatrix_instance_vertex": _buildChunk([``, ``],``,[``, ``],`mat4 mMatrix = mat4(a_mVec4_0, a_mVec4_1, a_mVec4_2, a_mVec4_3);`,), ...
+        }
+  }
+```
+
+我们可以看到，getData函数返回的GLSL Chunk数据确实包含了所有的GLSL Chunks的数据
+
+
+我们继续来看下InitBasicMaterialShader中的initBasicMaterialShader代码：
+```ts
+export let initBasicMaterialShader = (state: state, shaderName: shaderName, allMaterials: Array<material>): state => {
+    let [programMap, sendDataMap, shaderIndexMap, _allGLSLs, maxShaderIndex] = allMaterials.reduce(([programMap, sendDataMap, shaderIndexMap, glslMap, maxShaderIndex]: any, material) => {
+        let [shaderLibs, glsl] = buildGLSL(
+            [
+                [[
+                    isNameValidForStaticBranch,
+                    curry3_1(getShaderLibFromStaticBranch)(state)
+                ],
+                curry3_2(isPassForDynamicBranch)(material, state)],
+                [
+                    generateAttributeType,
+                    generateUniformType,
+                    curry2(buildGLSLChunkInVS)(state),
+                    curry2(buildGLSLChunkInFS)(state)
+                ]
+            ],
+            state.shaders,
+            state.shaderLibs,
+            state.chunk,
+            shaderName,
+            state.precision
+        )
+
+        let [shaderIndex, newMaxShaderIndex] = generateShaderIndex(glslMap, glsl, maxShaderIndex)
+
+        let program = createFakeProgram(glsl)
+
+        let sendData = getSendData(
+            [(sendDataArr, [name, buffer, type]) => {
+                return addAttributeSendData(state.gl, program, sendDataArr, [name, buffer, type as attributeType])
+            }, (sendDataArr, [name, field, type, from]) => {
+                return addUniformSendData(state.gl, program, sendDataArr, [name, field as uniformField, type as uniformType, from as uniformFrom])
+            }],
+            shaderLibs
+        )
+
+        if (!glslMap.has(shaderIndex)) {
+            glslMap = glslMap.set(shaderIndex, glsl)
+        }
+
+        console.log("shaderIndex:", shaderIndex)
+
+        return [
+            programMap.set(shaderIndex, program),
+            sendDataMap.set(shaderIndex, sendData),
+            setShaderIndex(shaderIndexMap, material, shaderIndex),
+            glslMap,
+            newMaxShaderIndex
+        ]
+    }, [state.programMap, state.sendDataMap, state.shaderIndexMap, Map(), state.maxShaderIndex])
+
+    return {
+        ...state,
+        programMap, sendDataMap, maxShaderIndex,
+        shaderIndexMap
+    }
+}
+```
+
+
+<!-- TODO buildGLSL hook
+
+
+TODO:
+shaders.json hook
+vs_function或者fs_function -->
+
+
+该函数首先调用了ChunkHandler的buildGLSL函数来按照shaders.json和shader_libs.json的配置将Chunk.ts文件中对应的小块GLSL组装为材质的一套GLSL（即一个VS GLSL和一个FS GLSL），并且通过处理后返回了shaders.json中名为"render_basic"的Shader的所有shaderLibs；
+然后调用了ChunkHandler的getSendData函数来从shaderLibs中获得顶点Send Data和Uniform Send Data，将其保存在state.sendDataMap中
+
+
+ChunkHandler的buildGLSL函数和getSendData函数都接受了来自引擎的函数（如isNameValidForStaticBranch、addAttributeSendData），它们用于处理shaders.json和shader_libs.json中的一些字段。
+由于这些字段的值是引擎定义的，所以它们的类型是定义在引擎端，并且明确了有哪些具体的值。具体的定义在GLSLConfigType.ts中，代码如下：
+```ts
+export type shaderMapDataName = "modelMatrix_instance"
+
+export type condition = "basic_has_map"
+
+export enum attributeBuffer {
+    Vertex = 0,
+    Normal = 1,
+    TexCoord = 2,
+    Index = 3,
+    Instance_model_matrix = 4
+}
+
+export type attributeType = "vec2" | "vec3" | "vec4";
+
+export type uniformField =
+    "mMatrix"
+    | "vMatrix"
+    | "pMatrix"
+    | "color"
+    | "map";
+
+export type uniformType = "mat4" | "float3" | "float" | "sampler2D";
+
+export type uniformFrom = "basicMaterial" | "model" | "camera";
+
+export type glslNameForBuildGLSLChunk = "defineMaxDirectionLightCount"
+```
+
+
+我们继续来看Client调用的下一个函数：位于Render中的render代码：
+```ts
+export let render = (state: state): state => {
+    let gl = state.gl
+    let sendDataMap = state.sendDataMap
+    let programMap = state.programMap
+
+    _getAllFakeGameObjects().forEach(gameObject => {
+        let material = _getFakeMaterial(state, gameObject)
+        let transform = _getFakeTransform(state, gameObject)
+
+        let shaderIndex = getShaderIndex(state.shaderIndexMap, material)
+
+        let program = getExnFromStrictNull(programMap.get(shaderIndex))
+        let sendData = getExnFromStrictNull(sendDataMap.get(shaderIndex))
+
+
+        gl.useProgram(program)
+
+        let [attributeSendData, uniformSendData] = sendData
+
+        _sendAttributeData(attributeSendData, state, shaderIndex, gl)
+        _sendUniformData(uniformSendData, state, transform, material, gl)
+
+        console.log("其它渲染逻辑...")
+    })
+
+    return state
+}
+```
+
+该函数跟之前几乎是一样的，只是多了从state.sendDataMap获得Send Data
+
+我们看下_sendAttributeData代码：
+```ts
+let _sendAttributeData = (attributeSendData: Array<attributeSendData>, state: state, shaderIndex: shaderIndex, gl: WebGLRenderingContext) => {
+    attributeSendData.forEach(data => {
+        if (!!data.elementSendData) {
+            data.elementSendData.sendBuffer(gl, _getFakeElementArrayBuffer(state, shaderIndex))
+        }
+        if (!!data.instanceSendData) {
+            console.log("发送instance相关的顶点数据...")
+        }
+        if (!!data.otherSendData) {
+            let { pos, size, sendBuffer, buffer } = data.otherSendData
+
+            sendBuffer(gl, size, pos, _getFakeArrayBuffer(state, buffer, shaderIndex))
+        }
+    })
+}
+```
+
+这里直接遍历顶点的Send Data，发送顶点数据
+
+
+我们看下_sendUniformData代码：
+```ts
+let _sendUniformData = (uniformSendData: Array<uniformSendData>, state: state, transform, material, gl: WebGLRenderingContext) => {
+    uniformSendData.forEach(data => {
+        if (!!data.shaderSendData) {
+            let { pos, getData, sendData } = data.shaderSendData
+
+            sendData(gl, pos, getData(state))
+        }
+        if (!!data.renderObjectSendMaterialData) {
+            let { pos, getData, sendData } = data.renderObjectSendMaterialData
+
+            sendData(gl, pos, getData(state, material))
+        }
+        if (!!data.renderObjectSendModelData) {
+            let { pos, getData, sendData } = data.renderObjectSendModelData
+
+            sendData(gl, pos, getData(state, transform))
+        }
+    })
+}
+```
+
+这里也是直接遍历Uniform的Send Data，发送Uniform数据
+
+
+下面，我们运行代码，运行结果与一样
+```text
+shaderIndex: 0
+shaderIndex: 1
+shaderIndex: 0
+useProgram
+bindBuffer
+vertexAttribPointer
+enableVertexAttribArray
+bindBuffer
+vertexAttribPointer
+enableVertexAttribArray
+发送instance相关的顶点数据...
+发送instance相关的顶点数据...
+发送instance相关的顶点数据...
+发送instance相关的顶点数据...
+bindBuffer
+uniformMatrix4fv
+uniformMatrix4fv
+uniform3f
+uniform1i
+其它渲染逻辑...
+```
 
 
 # 设计意图
