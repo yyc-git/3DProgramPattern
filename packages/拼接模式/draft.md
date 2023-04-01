@@ -170,7 +170,7 @@ TODO add shader组合图?
     TODO explain:
     |>
 
-    TODO give how to run rescript code(pipeline pattern should mention it!)
+    <!-- TODO give how to run rescript code(pipeline pattern should mention it!) -->
     - 结合UML图，描述如何具体地解决问题？
 
 # 主问题：提出模式

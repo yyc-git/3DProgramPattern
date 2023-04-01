@@ -1,5 +1,6 @@
 <!-- # 着色器语言GLSL太长了 -->
 
+
 <!-- # 越来越复杂的GLSL代码 -->
 # 复杂的Shader
 <!-- # 如何管理GLSL？ -->
@@ -434,7 +435,7 @@ uniform1i
 其它渲染逻辑...
 ```
 
-我们首先看到material1、material2、material3的shaderIndex分别为0、1、0，说明mateiral1和material3共享同一个shader；
+我们首先初始化Shader时，看到material1、material2、material3的shaderIndex分别为0、1、0，说明mateiral1和material3共享同一个shader；
 
 然后发送了a_position、a_texCoord的VBO；
 
@@ -450,43 +451,49 @@ uniform1i
 
 ## 提出问题
 
-TODO continue!
+- Shader组合的方式在引擎端固定死了，引擎的用户不能指定Shader的组合方式
 
-
-<!-- # [解决问题的方案，分析存在的问题]?
-
-
-## 概述解决方案？
-## 给出UML？
-## 给出代码？
-## 结合UML图，描述如何具体地解决问题？
-
-
-## 请分析存在的问题?
-## 提出改进方向？
-
-
-# [给出可能的改进方案，分析存在的问题]?
-
-
-
-## 概述解决方案？
-## 给出UML？
-## 给出代码？
-## 结合UML图，描述如何具体地解决问题？
-
-
-## 请分析存在的问题?
-## 提出改进方向？ -->
+- 在每次渲染时都要进行分支判断，这样即增加了代码的维护成本（Shader每增加一个#ifdef分支，渲染时也要对应增加该分支的判断），也降低了性能（因为各种跳转而降低了CPU的缓存命中）
 
 
 # [给出使用模式的改进方案]
 
 ## 概述解决方案
+
+在引擎端将这个很大的能支持各种功能的Shader分解为多个小块；
+在用户端定义Shader的JSON配置文件，指定如何来组合Shader，以及指定如何获得渲染时发送的顶点数据和Uniform数据
+
 ## 遵循哪些设计原则
+TODO finish
+
 ## 给出UML？
-## 给出代码？
+
+TODO tu
+
+GLSL Config是的Shader的JSON配置文件，由Client定义
+
+GLSL Chunks是多个小块的Shader代码文件，由引擎实现
+
+引擎需要进行预处理，在gulp任务中调用ChunkConverter模块，将多个GLSL Chunk代码文件合并为一个GLSL Chunk，它是一个可被调用的Typescript或者Rescript文件
+
+InitBasicMaterialShader仍然负责初始化基础材质的Shader，通过调用ChunkHandler的buildGLSL函数来按照GLSL Config的配置将GLSL Chunk中的对应的小块GLSL组装为材质的Shader代码:GLSL，然后使用它创建材质的Shader；通过调用ChunkHandler的getSendData函数来从GLSL Config中获得发送的数据:Send Data
+
+Render仍然负责渲染，不过不需要再获得发送数据后发送，而是直接发送之前获得的Send Data
+
+
+
+
 ## 结合UML图，描述如何具体地解决问题？
+
+- 现在用户可以通过指定GLSL Config，来设置如何组合Shader了
+- 现在在每次渲染时不需要进行分支判断，而是直接发送Send Data即可
+
+
+
+## 给出代码？
+
+TODO continue
+
 
 
 
