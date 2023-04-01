@@ -15,8 +15,7 @@ export let createState = (): state => {
         shaderIndexMap: Map(),
         vMatrix: null,
         pMatrix: null,
-        isSupportHardwareInstance: true,
-        isSupportBatchInstance: false,
+        isSupportInstance: true,
         maxDirectionLightCount: 4,
 
         basicMaterialState: BasicMaterial.createState(),

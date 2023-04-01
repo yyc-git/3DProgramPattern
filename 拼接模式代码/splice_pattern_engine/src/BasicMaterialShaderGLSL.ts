@@ -16,11 +16,8 @@ export let isNameValidForStaticBranch = (name: shaderMapDataName): boolean => {
 export let getShaderLibFromStaticBranch = (state: state, name: shaderMapDataName, value: shaderMapDataValue): string => {
     switch (name) {
         case "modelMatrix_instance":
-            if (state.isSupportHardwareInstance) {
+            if (state.isSupportInstance) {
                 return value[1]
-            }
-            else if (state.isSupportBatchInstance) {
-                return value[2]
             }
             else {
                 return value[0]

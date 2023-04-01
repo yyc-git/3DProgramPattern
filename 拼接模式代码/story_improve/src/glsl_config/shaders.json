@@ -4,8 +4,7 @@
       "name": "modelMatrix_instance",
       "value": [
         "modelMatrix_noInstance",
-        "modelMatrix_hardware_instance",
-        "modelMatrix_batch_instance"
+        "modelMatrix_hardware_instance"
       ]
     }
   ],

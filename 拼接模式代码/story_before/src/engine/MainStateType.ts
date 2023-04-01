@@ -14,8 +14,7 @@ export type state = {
     shaderIndexMap: Map<material, shaderIndex>,
     vMatrix: Float32Array | null,
     pMatrix: Float32Array | null,
-    isSupportHardwareInstance: boolean,
-    isSupportBatchInstance: boolean,
+    isSupportInstance: boolean,
     maxDirectionLightCount: number,
 
     basicMaterialState: basicMaterialState

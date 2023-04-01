@@ -9,7 +9,7 @@ let _buildDefaultVSGLSL = () => {
 precision lowp float;
 precision lowp int;
 
-#ifdef HARDWARE_INSTANCE
+#ifdef INSTANCE
 attribute vec4 a_mVec4_0;
 attribute vec4 a_mVec4_1;
 attribute vec4 a_mVec4_2;
@@ -25,10 +25,6 @@ varying vec2 v_mapCoord0;
 #endif
 
 
-#ifdef BATCH_INSTANCE
-uniform mat4 u_mMatrix;
-#endif
-
 #ifdef NO_INSTANCE
 uniform mat4 u_mMatrix;
 #endif
@@ -43,12 +39,8 @@ mat2 transpose(mat2 m) {
 }
 
 void main(void){
-#ifdef HARDWARE_INSTANCE
+#ifdef INSTANCE
   mat4 mMatrix = mat4(a_mVec4_0, a_mVec4_1, a_mVec4_2, a_mVec4_3);
-#endif
-
-#ifdef BATCH_INSTANCE
-  mat4 mMatrix = u_mMatrix;
 #endif
 
 #ifdef NO_INSTANCE
@@ -104,11 +96,8 @@ let _buildGLSL = (state: state, material: material): [string, string] => {
   let vsGLSL = _buildDefaultVSGLSL()
   let fsGLSL = _buildDefaultFSGLSL()
 
-  if (state.isSupportHardwareInstance) {
-    vsGLSL = _addDefine(vsGLSL, "HARDWARE_INSTANCE")
-  }
-  else if (state.isSupportBatchInstance) {
-    vsGLSL = _addDefine(vsGLSL, "BATCH_INSTANCE")
+  if (state.isSupportInstance) {
+    vsGLSL = _addDefine(vsGLSL, "INSTANCE")
   }
   else {
     vsGLSL = _addDefine(vsGLSL, "NO_INSTANCE")

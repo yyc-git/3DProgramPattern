@@ -81,25 +81,6 @@
     }
   },
   {
-    "name": "modelMatrix_batch_instance",
-    "glsls": [
-      {
-        "type": "vs",
-        "name": "modelMatrix_batch_instance_vertex"
-      }
-    ],
-    "variables": {
-      "uniforms": [
-        {
-          "name": "u_mMatrix",
-          "field": "mMatrix",
-          "type": "mat4",
-          "from": "model"
-        }
-      ]
-    }
-  },
-  {
     "name": "vertex",
     "variables": {
       "attributes": [

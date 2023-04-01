@@ -39,7 +39,7 @@ let _sendAttributeData = (state: state, shaderIndex: shaderIndex, gl: WebGLRende
     }
 
 
-    if (state.isSupportHardwareInstance) {
+    if (state.isSupportInstance) {
         console.log("发送instance相关的顶点数据1...")
         console.log("发送instance相关的顶点数据2...")
         console.log("发送instance相关的顶点数据3...")
@@ -68,7 +68,7 @@ let _sendUniformData = (state: state, transform, material, gl: WebGLRenderingCon
     }
 
 
-    if (state.isSupportBatchInstance || !(state.isSupportHardwareInstance || state.isSupportBatchInstance)) {
+    if (!state.isSupportInstance) {
         pos = getExnFromStrictNull(gl.getUniformLocation(program, "u_mMatrix"))
         sendMatrix4(gl, pos, getModelMatrix(state.transformState, transform))
     }
