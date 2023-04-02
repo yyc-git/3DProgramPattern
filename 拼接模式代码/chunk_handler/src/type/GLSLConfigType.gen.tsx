@@ -3,16 +3,16 @@
 
 
 // tslint:disable-next-line:interface-over-type-literal
-export type shaderLibName = string;
+export type shaderChunkName = string;
 
 // tslint:disable-next-line:interface-over-type-literal
-export type shaderLibItemName = string;
+export type shaderChunkItemName = string;
 
 // tslint:disable-next-line:interface-over-type-literal
-export type shaderLibItemType = string;
+export type shaderChunkItemType = string;
 
 // tslint:disable-next-line:interface-over-type-literal
-export type shaderMapDataValue = shaderLibName[];
+export type shaderMapDataValue = shaderChunkName[];
 
 // tslint:disable-next-line:interface-over-type-literal
 export type shaderMapDataName = string;
@@ -32,13 +32,13 @@ export type dynamicBranchData = {
 };
 
 // tslint:disable-next-line:interface-over-type-literal
-export type shaderLibItem = { readonly type_: (undefined | shaderLibItemType); readonly name: shaderLibItemName };
+export type shaderChunkItem = { readonly type_: (undefined | shaderChunkItemType); readonly name: shaderChunkItemName };
 
 // tslint:disable-next-line:interface-over-type-literal
 export type shaderName = string;
 
 // tslint:disable-next-line:interface-over-type-literal
-export type shader = { readonly name: shaderName; readonly shaderLibs: shaderLibItem[] };
+export type shader = { readonly name: shaderName; readonly shaderChunks: shaderChunkItem[] };
 
 // tslint:disable-next-line:interface-over-type-literal
 export type staticBranchs = shaderMapData[];
@@ -106,11 +106,11 @@ export type uniform = {
 export type variables = { readonly uniforms: (undefined | uniform[]); readonly attributes: (undefined | attribute[]) };
 
 // tslint:disable-next-line:interface-over-type-literal
-export type shaderLib = {
-  readonly name: shaderLibName; 
+export type shaderChunk = {
+  readonly name: shaderChunkName; 
   readonly glsls: (undefined | glsl[]); 
   readonly variables: (undefined | variables)
 };
 
 // tslint:disable-next-line:interface-over-type-literal
-export type shaderLibs = shaderLib[];
+export type shaderChunks = shaderChunk[];

@@ -37,7 +37,7 @@ function parseShaders(shaders) {
                   return Json_decode$Json.array((function (json) {
                                 return {
                                         name: Json_decode$Json.field("name", Json_decode$Json.string, json),
-                                        shaderLibs: Json_decode$Json.field("shader_libs", (function (param) {
+                                        shaderChunks: Json_decode$Json.field("shader_chunks", (function (param) {
                                                 return Json_decode$Json.array((function (json) {
                                                               return {
                                                                       type_: Json_decode$Json.optional((function (param) {
@@ -102,14 +102,14 @@ function _parseVariable(json) {
               }), json);
 }
 
-function parseShaderLibs(shaderLibs) {
+function parseShaderChunks(shaderChunks) {
   return Json_decode$Json.array((function (json) {
                 return {
                         name: Json_decode$Json.field("name", Json_decode$Json.string, json),
                         glsls: _parseGlsl(json),
                         variables: _parseVariable(json)
                       };
-              }), shaderLibs);
+              }), shaderChunks);
 }
 
 export {
@@ -118,6 +118,6 @@ export {
   parseShaders ,
   _parseGlsl ,
   _parseVariable ,
-  parseShaderLibs ,
+  parseShaderChunks ,
 }
 /* No side effect */

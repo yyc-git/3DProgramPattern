@@ -1,7 +1,7 @@
 open GLSLConfigType
 
-let addAttributeSendData = (add, shaderLibs: shaderLibs) => {
-  shaderLibs->Commonlib.ArraySt.reduceOneParam((. sendDataArr, {variables}) => {
+let addAttributeSendData = (add, shaderChunks: shaderChunks) => {
+  shaderChunks->Commonlib.ArraySt.reduceOneParam((. sendDataArr, {variables}) => {
     variables->JsonUtils.isJsonSerializedValueNone
       ? sendDataArr
       : {

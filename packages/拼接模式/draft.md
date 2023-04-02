@@ -17,7 +17,7 @@ use webpack->json loader
 
 配置数据
     shaders.json
-    shader_libs.json
+    shader_chunks.json
 
 - parse json
 <!-- - handle shader libs with shader config -->

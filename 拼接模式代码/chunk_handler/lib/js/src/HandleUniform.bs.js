@@ -4,8 +4,8 @@ var Curry = require("rescript/lib/js/curry.js");
 var ArraySt$Commonlib = require("commonlib/lib/js/src/structure/ArraySt.bs.js");
 var JsonUtils$Chunk_handler = require("./utils/JsonUtils.bs.js");
 
-function addUniformSendData(add, shaderLibs) {
-  return ArraySt$Commonlib.reduceOneParam(shaderLibs, (function (sendDataArr, param) {
+function addUniformSendData(add, shaderChunks) {
+  return ArraySt$Commonlib.reduceOneParam(shaderChunks, (function (sendDataArr, param) {
                 var variables = param.variables;
                 if (JsonUtils$Chunk_handler.isJsonSerializedValueNone(variables)) {
                   return sendDataArr;

@@ -1,0 +1,21 @@
+[
+    {
+        "name": "chunk name",
+        "target chunk": [
+            {
+                "type": "xxx",
+                "name": "target chunk name"
+            },
+            ...
+        ],
+        "runtime data": {
+            "data1": [
+                {
+                    xxx
+                },
+            ],
+            ...
+        }
+    },
+    ...
+]

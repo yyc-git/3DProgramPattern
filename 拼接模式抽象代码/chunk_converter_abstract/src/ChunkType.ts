@@ -1,8 +1,5 @@
 export type chunk = {
-  top: string,
-  define: string,
-  varDeclare: string,
-  funcDeclare: string,
-  funcDefine: string
-  body: string
+  part1: string,
+  part2: string,
+  ...
 }

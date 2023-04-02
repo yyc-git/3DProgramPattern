@@ -2,7 +2,7 @@ import { getSendData, buildGLSL } from "chunk_handler"
 import { state } from "./MainStateType"
 import { material } from "splice_pattern_utils/src/engine/BasicMaterialStateType"
 import { curry2, curry3_1, curry3_2 } from "fp/src/Curry"
-import { buildGLSLChunkInVS, buildGLSLChunkInFS, generateAttributeType, generateUniformType, getShaderLibFromStaticBranch, isNameValidForStaticBranch, isPassForDynamicBranch } from "./BasicMaterialShaderGLSL"
+import { buildGLSLChunkInVS, buildGLSLChunkInFS, generateAttributeType, generateUniformType, getShaderChunkFromStaticBranch, isNameValidForStaticBranch, isPassForDynamicBranch } from "./BasicMaterialShaderGLSL"
 import { addAttributeSendData } from "./BasicMaterialShaderAttributeSender"
 import { addUniformSendData } from "./BasicMaterialShaderUniformSender"
 import { Map } from "immutable"
@@ -12,11 +12,11 @@ import { generateShaderIndex, createFakeProgram, setShaderIndex } from "splice_p
 
 export let initBasicMaterialShader = (state: state, shaderName: shaderName, allMaterials: Array<material>): state => {
     let [programMap, sendDataMap, shaderIndexMap, _allGLSLs, maxShaderIndex] = allMaterials.reduce(([programMap, sendDataMap, shaderIndexMap, glslMap, maxShaderIndex]: any, material) => {
-        let [shaderLibs, glsl] = buildGLSL(
+        let [shaderChunks, glsl] = buildGLSL(
             [
                 [[
                     isNameValidForStaticBranch,
-                    curry3_1(getShaderLibFromStaticBranch)(state)
+                    curry3_1(getShaderChunkFromStaticBranch)(state)
                 ],
                 curry3_2(isPassForDynamicBranch)(material, state)],
                 [
@@ -27,7 +27,7 @@ export let initBasicMaterialShader = (state: state, shaderName: shaderName, allM
                 ]
             ],
             state.shaders,
-            state.shaderLibs,
+            state.shaderChunks,
             state.chunk,
             shaderName,
             state.precision
@@ -43,13 +43,14 @@ export let initBasicMaterialShader = (state: state, shaderName: shaderName, allM
             }, (sendDataArr, [name, field, type, from]) => {
                 return addUniformSendData(state.gl, program, sendDataArr, [name, field as uniformField, type as uniformType, from as uniformFrom])
             }],
-            shaderLibs
+            shaderChunks
         )
 
         if (!glslMap.has(shaderIndex)) {
             glslMap = glslMap.set(shaderIndex, glsl)
         }
 
+        // console.log(glsl)
         console.log("shaderIndex:", shaderIndex)
 
         return [

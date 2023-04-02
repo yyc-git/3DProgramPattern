@@ -129,6 +129,7 @@ export let initBasicMaterialShader = (state: state, allMaterials: Array<material
       glslMap = glslMap.set(shaderIndex, glsl)
     }
 
+    // console.log(glsl)
     console.log("shaderIndex:", shaderIndex)
 
     return [

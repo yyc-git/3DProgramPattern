@@ -1,3 +1,5 @@
+[TOC]
+
 <!-- # 着色器语言GLSL太长了 -->
 
 
@@ -451,20 +453,18 @@ uniform1i
 在引擎端将这个很大的能支持各种功能的Shader分解为多个小块；
 在用户端定义Shader的JSON配置文件，指定如何来组合Shader，以及指定如何获得渲染时发送的顶点数据和Uniform数据
 
-## 遵循哪些设计原则
-TODO finish
 
 ## 给出UML？
 
 TODO tu
 
-GLSL Config是的Shader的JSON配置文件，由Client定义
+GLSL Config是的Shader的JSON配置文件，它的内容由Client给出，它的格式（类型）由ChunkConverter定义
 
-GLSL Chunks是多个小块的Shader代码文件，由引擎实现
+GLSL Chunk是小块的Shader代码文件，由引擎给出
 
-引擎需要进行预处理，在gulp任务中调用ChunkConverter模块，将所有的GLSL Chunks代码文件合并为一个GLSL Chunk，它是一个可被调用的Typescript或者Rescript文件
+引擎需要进行预处理，在gulp任务中调用ChunkConverter模块，将所有的GLSL Chunk代码文件合并为一个Merged GLSL Chunk，它是一个可被调用的Typescript或者Rescript文件
 
-InitBasicMaterialShader仍然负责初始化基础材质的Shader，通过调用ChunkHandler的buildGLSL函数来按照GLSL Config的配置将GLSL Chunk中的对应的小块GLSL组装为材质的Shader代码-GLSL，然后使用它创建材质的Shader；通过调用ChunkHandler的getSendData函数来从GLSL Config中获得发送的数据-Send Data
+InitBasicMaterialShader仍然负责初始化基础材质的Shader，通过调用ChunkHandler的buildGLSL函数来按照GLSL Config的配置将GLSL Chunk中的对应的小块GLSL拼接为材质的Shader代码-GLSL，然后使用它创建材质的Shader；通过调用ChunkHandler的getSendData函数来从GLSL Config中获得发送的数据-Send Data
 
 Render仍然负责渲染，不过不需要再获得发送数据后发送，而是直接发送之前获得的Send Data
 
@@ -485,11 +485,9 @@ Render仍然负责渲染，不过不需要再获得发送数据后发送，而�
 接着初始化相机，设置相机的假数据；
 最后渲染场景 -->
 
-Client定义的GLSL Config包括两个JSON文件：shaders.json和shader_libs.json
+Client定义的GLSL Config包括两个JSON文件：shaders.json和shader_chunks.json，它们的格式（也就是类型）定义在ChunkHandler->GLSLConfigType.res中
 
-<!-- 我们首先使用webpack的json loader来加载GLSL Config。 -->
-
-shaders.json代码如下：
+shaders.json部分代码如下：
 ```ts
 {
   "static_branchs": [
@@ -514,7 +512,7 @@ shaders.json代码如下：
       "name": "top",
       "value": [
         "common",
-        "vertex"
+        ...
       ]
     },
     {
@@ -527,17 +525,12 @@ shaders.json代码如下：
   "shaders": [
     {
       "name": "render_basic",
-      "shader_libs": [
+      "shader_chunks": [
         {
           "type": "group",
           "name": "top"
         },
-        {
-          "name": "define_light_count"
-        },
-        {
-          "name": "basic"
-        },
+        ...
         {
           "type": "dynamic_branch",
           "name": "basic_map"
@@ -549,10 +542,7 @@ shaders.json代码如下：
         {
           "name": "basic_end"
         },
-        {
-          "type": "group",
-          "name": "end"
-        }
+        ...
       ]
     }
   ]
@@ -567,11 +557,11 @@ dynamic_branchs字段定义了所有会在运行时变换的分支判断。比�
 
 groups字段定义了多组代码块；
 
-shaders字段定义了所有的Shader。此处定义了一个名为render_basic的Shader，它包含的所有的代码块定义在shader_libs中。在shader_libs中，如果type为static_branch，那么该块（此处称为lib)就通过name关联到static_branchs字段；如果type为dynamic_branch，那么该块就通过name关联到dynamic_branchs字段；如果type为group，那么该块就通过name关联到groups字段；如果没有定义type，那么就通过name关联到shader_libs.json
+shaders字段定义了所有的Shader。此处定义了一个名为render_basic的Shader，它包含的所有的代码块定义在shader_chunks中。在shader_chunks中，如果type为static_branch，那么该块就通过name关联到static_branchs字段；如果type为dynamic_branch，那么该块就通过name关联到dynamic_branchs字段；如果type为group，那么该块就通过name关联到groups字段；如果没有定义type，那么就通过name关联到shader_chunks.json
 
 
 
-shader_libs.json代码如下：
+shader_chunks.json部分代码如下：
 ```ts
 [
   {
@@ -594,12 +584,7 @@ shader_libs.json代码如下：
           "type": "mat4",
           "from": "camera"
         },
-        {
-          "name": "u_pMatrix",
-          "field": "pMatrix",
-          "type": "mat4",
-          "from": "camera"
-        }
+        ...
       ]
     }
   },
@@ -637,132 +622,11 @@ shader_libs.json代码如下：
           "buffer": 4,
           "type": "vec4"
         },
-        {
-          "name": "a_mVec4_1",
-          "buffer": 4,
-          "type": "vec4"
-        },
-        {
-          "name": "a_mVec4_2",
-          "buffer": 4,
-          "type": "vec4"
-        },
-        {
-          "name": "a_mVec4_3",
-          "buffer": 4,
-          "type": "vec4"
-        }
+        ...
       ]
     }
   },
-  {
-    "name": "vertex",
-    "variables": {
-      "attributes": [
-        {
-          "name": "a_position",
-          "buffer": 0,
-          "type": "vec3"
-        }
-      ]
-    }
-  },
-  {
-    "name": "basic",
-    "glsls": [
-      {
-        "type": "vs",
-        "name": "webgl1_basic_vertex"
-      }
-    ]
-  },
-  {
-    "name": "define_light_count",
-    "glsls": [
-      {
-        "type": "vs_function",
-        "name": "defineMaxDirectionLightCount"
-      },
-      {
-        "type": "fs_function",
-        "name": "defineMaxDirectionLightCount"
-      }
-    ]
-  },
-  {
-    "name": "basic_map",
-    "glsls": [
-      {
-        "type": "vs",
-        "name": "webgl1_basic_map_vertex"
-      },
-      {
-        "type": "fs",
-        "name": "webgl1_basic_map_fragment"
-      }
-    ],
-    "variables": {
-      "attributes": [
-        {
-          "name": "a_texCoord",
-          "buffer": 2,
-          "type": "vec2"
-        }
-      ],
-      "uniforms": [
-        {
-          "name": "u_color",
-          "field": "color",
-          "type": "float3",
-          "from": "basicMaterial"
-        },
-        {
-          "name": "u_mapSampler",
-          "field": "map",
-          "type": "sampler2D",
-          "from": "basicMaterial"
-        }
-      ]
-    }
-  },
-  {
-    "name": "no_basic_map",
-    "glsls": [
-      {
-        "type": "fs",
-        "name": "webgl1_no_basic_map_fragment"
-      }
-    ],
-    "variables": {
-      "uniforms": [
-        {
-          "name": "u_color",
-          "field": "color",
-          "type": "float3",
-          "from": "basicMaterial"
-        }
-      ]
-    }
-  },
-  {
-    "name": "basic_end",
-    "glsls": [
-      {
-        "type": "fs",
-        "name": "webgl1_basic_end_fragment"
-      }
-    ]
-  },
-  {
-    "name": "end",
-    "variables": {
-      "attributes": [
-        {
-          "buffer": 3
-        }
-      ]
-    }
-  }
+  ...
 ]
 ```
 
@@ -770,7 +634,7 @@ shader_libs.json代码如下：
 
 name字段是代码块的名字，与shaders.json关联
 
-glsls字段定义了包含的VS GLSL和FS GLSL。其中如果type为vs或者fs，则name为VS GLSL或者FS GLSL的文件名，与GLSL Chunks的文件名关联；而type为vs_function或者fs_function的情况后面再讨论
+glsls字段定义了包含的VS GLSL和FS GLSL。其中如果type为vs或者fs，则name为VS GLSL或者FS GLSL的文件名，与GLSL Chunk的文件名关联；而type为vs_function或者fs_function的情况后面再讨论
 
 variables字段定义了属于Send Data的顶点数据和Uniform数据
 
@@ -781,7 +645,7 @@ variables字段定义了属于Send Data的顶点数据和Uniform数据
 ```ts
 // use json loader to load config
 import * as shadersJson from "./glsl_config/shaders.json"
-import * as shaderLibsJson from "./glsl_config/shader_libs.json"
+import * as shaderChunksJson from "./glsl_config/shader_chunks.json"
 ```
 
 这里使用webpack的json loader来加载GLSL Config文件
@@ -798,7 +662,7 @@ let _fixJsonForArrayBug = (jsonWithArray) => {
 }
 
 
-let parsedConfig = parseConfig(shadersJson as any, _fixJsonForArrayBug(shaderLibsJson))
+let parsedConfig = parseConfig(shadersJson as any, _fixJsonForArrayBug(shaderChunksJson))
 
 ```
 
@@ -835,7 +699,7 @@ state = render(state)
 
 我们看下Main中的createState代码：
 ```ts
-export let createState = ([shaders, shaderLibs]): state => {
+export let createState = ([shaders, shaderChunks]): state => {
     return {
         gl: createFakeWebGLRenderingContext(),
         programMap: Map(),
@@ -845,7 +709,7 @@ export let createState = ([shaders, shaderLibs]): state => {
         vMatrix: null,
         pMatrix: null,
         shaders,
-        shaderLibs,
+        shaderChunks,
         isSupportInstance: true,
         maxDirectionLightCount: 4,
         chunk: getData(),
@@ -860,7 +724,7 @@ export let createState = ([shaders, shaderLibs]): state => {
 
 我们介绍下相关的情况：
 
-引擎定义的GLSL Chunks具体为多个.glsl的文件，其中每个文件通过字符@top、@define、@varDeclare、@funcDeclare、@funcDefine、@body以及对应的@end定义了对应的GLSL代码片段
+引擎定义的GLSL Chunk具体为多个.glsl的文件，其中每个文件通过字符@top、@define、@varDeclare、@funcDeclare、@funcDefine、@body以及对应的@end定义了对应的GLSL代码片段
 
 我们来看下Instance相关的两个.glsl文件：
 modelMatrix_instance_vertex.glsl
@@ -879,9 +743,9 @@ mat4 mMatrix = u_mMatrix;
 这些.glsl文件是进行了抽象处理的，从而能够被正确地组合起来
 
 
-在预处理阶段，引擎通过gulp任务来调用ChunkConverter模块，将所有的.glsl文件合并为一个GLSL Chunk，具体就是Chunk.ts或者Chunk.res文件
+在预处理阶段，引擎通过gulp任务来调用ChunkConverter模块，将所有的.glsl文件合并为一个Merged GLSL Chunk，具体就是MergedGLSLChunk.ts或者MergedGLSLChunk.res文件
 
-我们来看下Chunk.ts的代码：
+我们来看下MergedGLSLChunk.ts的代码：
 ```ts
   let _buildChunk =
       (
@@ -908,18 +772,18 @@ mat4 mMatrix = u_mMatrix;
   }
 ```
 
-我们可以看到，getData函数返回的GLSL Chunk数据确实包含了所有的GLSL Chunks的数据
+我们可以看到，getData函数返回的Merged GLSL Chunk数据确实包含了所有的GLSL Chunk的数据
 
 
 我们继续来看下InitBasicMaterialShader中的initBasicMaterialShader代码：
 ```ts
 export let initBasicMaterialShader = (state: state, shaderName: shaderName, allMaterials: Array<material>): state => {
     let [programMap, sendDataMap, shaderIndexMap, _allGLSLs, maxShaderIndex] = allMaterials.reduce(([programMap, sendDataMap, shaderIndexMap, glslMap, maxShaderIndex]: any, material) => {
-        let [shaderLibs, glsl] = buildGLSL(
+        let [shaderChunks, glsl] = buildGLSL(
             [
                 [[
                     isNameValidForStaticBranch,
-                    curry3_1(getShaderLibFromStaticBranch)(state)
+                    curry3_1(getShaderChunkFromStaticBranch)(state)
                 ],
                 curry3_2(isPassForDynamicBranch)(material, state)],
                 [
@@ -930,7 +794,7 @@ export let initBasicMaterialShader = (state: state, shaderName: shaderName, allM
                 ]
             ],
             state.shaders,
-            state.shaderLibs,
+            state.shaderChunks,
             state.chunk,
             shaderName,
             state.precision
@@ -946,7 +810,7 @@ export let initBasicMaterialShader = (state: state, shaderName: shaderName, allM
             }, (sendDataArr, [name, field, type, from]) => {
                 return addUniformSendData(state.gl, program, sendDataArr, [name, field as uniformField, type as uniformType, from as uniformFrom])
             }],
-            shaderLibs
+            shaderChunks
         )
 
         if (!glslMap.has(shaderIndex)) {
@@ -981,12 +845,12 @@ shaders.json hook
 vs_function或者fs_function -->
 
 
-该函数首先调用了ChunkHandler的buildGLSL函数来按照shaders.json和shader_libs.json的配置将Chunk.ts文件中对应的小块GLSL组装为材质的一套GLSL（即一个VS GLSL和一个FS GLSL），并且通过处理后返回了shaders.json中名为"render_basic"的Shader的所有shaderLibs；
-然后调用了ChunkHandler的getSendData函数来从shaderLibs中获得顶点Send Data和Uniform Send Data，将其保存在state.sendDataMap中
+该函数首先调用了ChunkHandler的buildGLSL函数来按照shaders.json和shader_chunks.json的配置将MergedGLSLChunk.ts文件中对应的小块GLSL拼接为材质的一套GLSL（即一个VS GLSL和一个FS GLSL），并且通过处理后返回了shaders.json中名为"render_basic"的Shader的所有shaderChunks；
+然后调用了ChunkHandler的getSendData函数来从shaderChunks中获得顶点Send Data和Uniform Send Data，将其保存在state.sendDataMap中
 
 
-ChunkHandler的buildGLSL函数和getSendData函数都接受了来自引擎的函数（如isNameValidForStaticBranch、addAttributeSendData），它们用于处理shaders.json和shader_libs.json中的一些字段。
-由于这些字段的值是引擎定义的，所以它们的类型是定义在引擎端，并且明确了有哪些具体的值。具体的定义在GLSLConfigType.ts中，代码如下：
+ChunkHandler的buildGLSL函数和getSendData函数都接受了来自引擎的函数（如isNameValidForStaticBranch、addAttributeSendData），它们用于处理shaders.json和shader_chunks.json中的一些字段。
+由于这些字段的值是引擎定义的，所以它们的类型是定义在引擎端，并且明确了有哪些具体的值。具体的定义在引擎的GLSLConfigType.ts中，代码如下：
 ```ts
 export type shaderMapDataName = "modelMatrix_instance"
 
@@ -1123,20 +987,319 @@ uniform1i
 ```
 
 
-# 设计意图
+<!-- # 设计意图 -->
+<!-- 分解大块数据为小块单位，按照配置文件来拼接 -->
 
-阐明模式的设计目标
 
 # 定义
 
 ## 一句话定义？
-## 描述定义？
-## 通用UML？
-## 分析角色？
-## 角色之间的关系？
-## 角色的抽象代码？
-## 遵循的设计原则在UML中的体现？
 
+<!-- 可配置地拼接小块数据 -->
+
+分解处理各种分支的大数据为小块单位，按照配置文件来拼接
+
+
+## 描述定义？
+
+
+
+
+## 通用UML？
+TODO tu
+
+
+## 分析角色？
+
+我们来看看拼接模式的相关角色：
+
+
+- Target Config
+该角色是配置数据，用来指定如何拼接数据
+
+- Target Chunk
+该角色是小块的数据，该数据是通过对原始的大数据抽象分解后得到的，一般来说一个分支对应一块数据
+
+- Merged Target Chunk
+该角色是合并了所有的Target Chunk后的数据，它将所有的Target Chunk文件合并为一个Hash Map
+
+- Target
+该角色是拼接后的符合某种特定分支条件的数据，如[支持方向光，支持贴图，支持Instance]的GLSL
+
+- Runtime Data
+该角色是运行时数据，它在初始化时从Target Config中获得，在运行时被发送
+
+- ChunkConverter
+该角色合并所有的Target Chunk为一个Merged Target Chunk文件，这发生在预处理阶段
+
+- ChunkHandler
+该角色定义了Target Config的格式（类型），实现了拼接Target和获得Runtime Data的函数
+
+- Main
+该角色为系统的门户，提供API给Client
+
+- Init
+该角色实现系统的初始化，调用ChunkHandler->buildTarget来拼接了Target并且直接使用它，调用ChunkHandler->getRuntimeData来获得了Runtime Data
+
+- OperateWhenLoop
+该角色进行某个在主循环时的操作，使用了Runtime Data
+
+
+## 角色之间的关系？
+
+- Target Chunk由系统给出
+
+- Target Config的格式（类型）由ChunkHandler定义。其中由系统处理的字段的类型则由系统再次定义，给出了这些字段的所有可能的值
+
+- Target Config的内容由Client给出
+
+
+
+
+## 角色的抽象代码？
+
+下面我们来看看各个角色的抽象代码：
+
+
+- 一个Target Chunk的抽象代码
+```ts
+@part1
+...
+@end
+
+@part2
+...
+@end
+
+...
+```
+
+- ChunkConverter的抽象代码
+```ts
+//create MergedGLSLChunk.ts
+export declare function createChunkForTs(chunkPathArr: Array<string>, destFilePath: string, doneFunc): void
+
+//create MergedGLSLChunk.res
+export declare function createChunkForRes(chunkPathArr: Array<string>, destFilePath: string, doneFunc): void
+```
+
+- Target Chunk的抽象代码
+```ts
+import { chunk } from "chunk_converter_abstract/src/ChunkType";
+import { chunkName } from "chunk_handler_abstract/src/type/TargetConfigType";
+
+let _buildChunk =
+    (
+        part1: string,
+        part2: string,
+        ...
+    ):chunk => {
+        return {
+            part1,
+            part2,
+            ...
+        }
+    };
+
+export let getData = (): Record<chunkName, chunk> => {
+
+    return {
+        "chunk1": _buildChunk("...", "...", ...),
+        ... 
+    }
+}
+```
+
+在预处理时，系统调用下面的gulp任务来创建Target Chunk:
+```ts
+var gulp = require("gulp");
+var path = require("path");
+
+//create for typescript
+gulp.task("createChunkFile_ts", function (done) {
+    var compiler = require("chunk_converter_abstract");
+
+    var chunkFilePath = path.join(process.cwd(), "src/target_chunks/MergedTargetChunk.ts");
+    var chunkPathArray = [path.join(process.cwd(), "src/target_chunks/**/*")];
+
+    compiler.createChunkFileForTs(chunkPathArray, chunkFilePath, done);
+});
+
+//create for rescript
+gulp.task("createChunkFile_res", function (done) {
+    var compiler = require("chunk_converter_abstract");
+
+    var chunkFilePath = path.join(process.cwd(), "src/target_chunks/MergedTargetChunk.res");
+    var chunkPathArray = [path.join(process.cwd(), "src/target_chunks/**/*")];
+
+    compiler.createChunkFileForRes(chunkPathArray, chunkFilePath, done);
+});
+```
+
+
+- Target Config的抽象代码
+Target Config应该包含whole_config.json和chunk_config.json两个配置文件，其中前者应该指定有哪些静态分支和动态分支、要构造哪些Target；后者应该指定所有的块的配置数据
+
+whole_config.json如下
+```ts
+{
+  "static_branchs": [
+    {
+      "name": "xxx",
+      "value": [
+        "chunk name with condition1",
+        "chunk name with condition2",
+        ...
+      ]
+    },
+    ...
+  ],
+  "dynamic_branchs": [
+    {
+      "name": "xxx",
+      "condition": "xxx",
+      "pass": "chunk name when condition pass",
+      "fail": "chunk name when condition fail"
+    },
+    ...
+  ],
+  "groups": [
+    {
+      "name": "xxx",
+      "value": [
+        "chunk name",
+        "chunk name",
+        ...
+      ]
+    },
+    ...
+  ],
+  "targets": [
+    {
+      "name": "target1",
+      "target_chunks": [
+        {
+          "type": "static_branch | dynamic_branch | group",
+          "name": "xxx"
+        },
+        {
+          "name": "chunk name"
+        },
+        ...
+      ]
+    }
+  ]
+}
+```
+
+chunk_config.json如下
+```ts
+[
+    {
+        "name": "chunk name",
+        "chunks": [
+            {
+                "type": "xxx",
+                "name": "chunks name"
+            },
+            ...
+        ],
+        "runtime data": {
+            "data1": [
+                {
+                    xxx
+                },
+            ],
+            ...
+        }
+    },
+    ...
+]
+```
+
+- Client的抽象代码
+```ts
+// use json loader to load target config
+import * as wholeConfigJson from "./target_config/whole_config.json"
+import * as chunkConfigJson from "./target_config/chunk_config.json"
+
+import { parseConfig, createState, init, operateWhenLoop } from "splice_pattern_system_abstract/src/Main"
+
+let parsedConfig = parseConfig(wholeConfigJson, chunkConfigJson)
+
+let state = createState(parsedConfig)
+
+declare let someConfigData
+state = init(state, someConfigData)
+
+state = operateWhenLoop(state)
+```
+
+- System的抽象代码
+```ts
+declare function _handleConfigFunc1(state: state, someConfigData): any
+
+declare function _addRuntimeDataFunc1(someRuntimeDataFromState, someConfigData): any
+
+export let parseConfig = ChunkHandler.parseConfig
+
+export let createState = (parsedConfig): state => {
+    return {
+        parsedConfig: parsedConfig,
+        chunk: getData(),
+
+        创建更多字段...
+    }
+}
+
+export let init = (state: state, someConfigData): state => {
+    let target = ChunkHandler.buildTarget(
+        [_handleConfigFunc1, ...],
+
+        state.parsedConfig,
+        state.chunk,
+        someConfigData
+    )
+
+    console.log("使用target...")
+
+    let runtimeData = ChunkHandler.getRuntimeData(
+        [_addRuntimeDataFunc1, ... ],
+
+        target
+    )
+
+    return {
+        ...state,
+        target: target,
+        runtimeData: runtimeData
+    }
+}
+
+export let operateWhenLoop = (state: state): state => {
+    console.log("使用state.runtimeData...")
+
+    return state
+}
+```
+
+- ChunkHandler的抽象代码
+```ts
+export declare function parseConfig(configJson: JSON): config
+
+type target = any
+
+export declare function buildTarget(handleConfigFuncs, parsedConfig: config, targetChunk, someConfigData): target
+
+type runtimeData = any
+
+export declare function getRuntimeData(addRuntimeDataFuncs, target: target): runtimeData
+```
+
+
+## 遵循的设计原则在UML中的体现？
+    
+TODO finish
 
 
 
@@ -1144,21 +1307,114 @@ uniform1i
 
 ## 优点
 
+<!-- - Shader组合的方式在引擎端固定死了，引擎的用户不能指定Shader的组合方式
+
+- 在每次渲染时都要进行分支判断，这样即增加了代码的维护成本（Shader每增加一个#ifdef分支，渲染时也要对应增加该分支的判断），也降低了性能（因为各种跳转而降低了CPU的缓存命中） -->
+
+- 用户能够灵活地拼接Target数据 
+用户能够通过Target Config配置文件，在系统限制的范围内拼接自己想要的Target数据
+
+- 提高性能
+系统能够在初始化时一次性从配置文件中获得Runtime Data，然后在运行时无需进行分支判断而是直接发送Runtime Data，这样就提高了性能
+
+
+
 ## 缺点
+
+- Target Config配置文件的格式（类型)由系统端定义，用户需要遵守该格式来写配置内容，这样增加了一些限制
+
+- 因为Target Chunk使用了自定义的分段字符（如@top），所以无法正确使用该文件的编译检查，如无法正确使用.glsl的shader编译检查
+
+
+
 
 ## 使用场景
 
+### 场景描述
 
-## 实现该场景需要修改模式的哪些角色？
-## 使用模式有什么好处？
+系统需要构造处理各种分支的数据
+
+### 解决方案
+
+把每个分支对应的数据都对应分解为一块数据；
+
+由用户给出配置文件来指定：这些数据有哪些分支、要构造哪些数据、每个数据包含哪些块、所有的块的配置数据
+
+### 具体实例
+
+- 构造引擎的Shader代码
+
+- 构造游戏的地图数据
+
+一张大的世界地图可以分成多个区域，每个区域的地图可以根据各种分支条件来生成，如是否有水、是否有很多树等。
+
+那么可以将大的世界地图按照区域分解为很多块小地图，然后又把小地图按照各种分支条件分解为小块数据
+
+由用户给出配置文件来指定：要构造哪些区域的地图、每个区域有哪些分支条件、每个区域包含哪些块
+
+
+
+
+<!-- ## 实现该场景需要修改模式的哪些角色？
+## 使用模式有什么好处？ -->
 
 ## 注意事项
 
 
-# 扩展
+- Target Chunk应该进行了适当抽象的，从而能够保证在拼接为Target后是正确的
+
+如对于片元着色器的GLSL，有两个GLSL Chunk：basic_map_fragment.glsl, no_basic_map_fragment.glsl, basic_end_fragment.glsl。前两者分别处理有贴图和没有贴图的情况，第三个负责输出到gl_FragColor
+
+如果没有进行抽象的话，前两者的代码可能为：
+basic_map_fragment.glsl
+```ts
+@body
+    vec4 texelColor = texture2D(u_mapSampler, v_mapCoord0);
+
+    //对texelColor进行一些处理...
+@end
+```
+no_basic_map_fragment.glsl
+```ts
+@body
+    vec4 color = vec4(u_color, u_alpha);
+@end
+```
+
+这里的问题就是需要在basic_end_fragment.glsl中输出颜色，而两者中的颜色变量名不一样，无法统一地输出颜色。
+
+因此需要进行抽象，抽象出名为“totalColor”变量名作为输出的颜色变量名。那么这三个GLSL Chunk的代码就应该修改为：
+basic_map_fragment.glsl
+```ts
+@body
+    vec4 texelColor = texture2D(u_mapSampler, v_mapCoord0);
+
+    //对texelColor进行一些处理...
+
+    vec4 totalColor = texelColor;
+@end
+```
+no_basic_map_fragment.glsl
+```ts
+@body
+    vec4 texelColor = vec4(u_color, u_alpha);
+@end
+```
+basic_end_fragment.glsl
+```ts
+@body
+    gl_FragColor = vec4(totalColor.rgb, totalColor.a);
+@end
+```
+
+
+
+<!-- # 扩展 -->
 
 
 # 结合其它模式
+
+TODO continue
 
 ## 结合哪些模式？
 ## 使用场景是什么？

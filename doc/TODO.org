@@ -238,9 +238,9 @@ get runtime data when init by target
 
 * TODO finish splice pattern article
 
-shaders.json hook
+# shaders.json hook
 
-vs_function或者fs_function
+# vs_function或者fs_function
 
 ** DONE remove batch instance
 

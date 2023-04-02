@@ -33,10 +33,10 @@ let parseShaders = shaders => {
     shaders: json |> field("shaders", json =>
       json |> array((json): shader => {
         name: json |> field("name", string),
-        shaderLibs: json |> field(
-          "shader_libs",
+        shaderChunks: json |> field(
+          "shader_chunks",
           array(
-            (json): shaderLibItem => {
+            (json): shaderChunkItem => {
               type_: json |> optional(field("type", string)),
               name: json |> field("name", string),
             },
@@ -92,10 +92,10 @@ let _parseVariable = json => {
   )
 }
 
-let parseShaderLibs = shaderLibs => {
+let parseShaderChunks = shaderChunks => {
   open Json
   open Decode
-  shaderLibs |> array(json => {
+  shaderChunks |> array(json => {
     name: json |> field("name", string),
     glsls: _parseGlsl(json),
     variables: _parseVariable(json),

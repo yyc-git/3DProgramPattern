@@ -12,7 +12,7 @@ export let isNameValidForStaticBranch = (name) => {
     }
 }
 
-export let getShaderLibFromStaticBranch = (state: state, name, value) => {
+export let getShaderChunkFromStaticBranch = (state: state, name, value) => {
     switch (name) {
         case "modelMatrix_instance":
             if (state.isSupportHardwareInstance) {

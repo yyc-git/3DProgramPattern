@@ -34,7 +34,7 @@
   "shaders": [
     {
       "name": "render_basic",
-      "shader_libs": [
+      "shader_chunks": [
         {
           "type": "group",
           "name": "top"

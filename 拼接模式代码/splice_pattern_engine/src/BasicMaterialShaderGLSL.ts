@@ -13,7 +13,7 @@ export let isNameValidForStaticBranch = (name: shaderMapDataName): boolean => {
     }
 }
 
-export let getShaderLibFromStaticBranch = (state: state, name: shaderMapDataName, value: shaderMapDataValue): string => {
+export let getShaderChunkFromStaticBranch = (state: state, name: shaderMapDataName, value: shaderMapDataValue): string => {
     switch (name) {
         case "modelMatrix_instance":
             if (state.isSupportInstance) {

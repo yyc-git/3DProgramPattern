@@ -1,10 +1,10 @@
-type shaderLibName = string
+type shaderChunkName = string
 
-type shaderLibItemName = string
+type shaderChunkItemName = string
 
-type shaderLibItemType = string
+type shaderChunkItemType = string
 
-type shaderMapDataValue = array<shaderLibName>
+type shaderMapDataValue = array<shaderChunkName>
 
 type shaderMapDataName = string
 
@@ -22,16 +22,16 @@ type dynamicBranchData = {
   fail: option<string>,
 }
 
-type shaderLibItem = {
-  type_: option<shaderLibItemType>,
-  name: shaderLibItemName,
+type shaderChunkItem = {
+  type_: option<shaderChunkItemType>,
+  name: shaderChunkItemName,
 }
 
 type shaderName = string
 
 type shader = {
   name: shaderName,
-  shaderLibs: array<shaderLibItem>,
+  shaderChunks: array<shaderChunkItem>,
 }
 
 type staticBranchs = array<shaderMapData>
@@ -89,13 +89,13 @@ type variables = {
   attributes: option<array<attribute>>,
 }
 
-type shaderLib = {
-  name: shaderLibName,
+type shaderChunk = {
+  name: shaderChunkName,
   glsls: option<array<glsl>>,
   variables: option<variables>,
 }
 
 @genType
-type shaderLibs = array<shaderLib>
+type shaderChunks = array<shaderChunk>
 
 external stringToGLSLType: string => glslType = "%identity"

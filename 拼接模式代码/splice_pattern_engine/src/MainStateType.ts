@@ -1,4 +1,4 @@
-import { glslName, shaderLibs, shaders } from "chunk_handler/src/type/GLSLConfigType.gen"
+import { glslName, shaderChunks, shaders } from "chunk_handler/src/type/GLSLConfigType.gen"
 import { state as basicMaterialState } from "splice_pattern_utils/src/engine/BasicMaterialStateType"
 import { state as transformState } from "splice_pattern_utils/src/engine/TransformStateType"
 import type { Map } from "immutable"
@@ -25,7 +25,7 @@ export type state = {
     vMatrix: Float32Array | null,
     pMatrix: Float32Array | null,
     shaders: shaders,
-    shaderLibs: shaderLibs,
+    shaderChunks: shaderChunks,
     isSupportInstance: boolean,
     maxDirectionLightCount: number,
     chunk: Record<glslName, glslChunk>,

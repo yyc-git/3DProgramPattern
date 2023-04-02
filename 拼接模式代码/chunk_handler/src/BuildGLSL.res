@@ -21,8 +21,8 @@ let _getChunk = (chunk, name) => {
   chunk->Commonlib.ImmutableHashMap.getExn(name)
 }
 
-let _generateAttributeSource = (generateAttributeType, shaderLibs: shaderLibs) =>
-  shaderLibs->Commonlib.ArraySt.reduceOneParam((. result: string, {variables}) => {
+let _generateAttributeSource = (generateAttributeType, shaderChunks: shaderChunks) =>
+  shaderChunks->Commonlib.ArraySt.reduceOneParam((. result: string, {variables}) => {
     variables->JsonUtils.isJsonSerializedValueNone
       ? result
       : {
@@ -53,11 +53,11 @@ let _isInSource = (key: string, source: string) => Js.String.indexOf(key, source
 
 let _generateUniformSource = (
   generateUniformType,
-  shaderLibs: shaderLibs,
+  shaderChunks: shaderChunks,
   sourceVarDeclare: string,
   sourceFuncDefine: string,
   sourceBody: string,
-) => shaderLibs->Commonlib.ArraySt.reduceOneParam((. result: string, {variables}) => {
+) => shaderChunks->Commonlib.ArraySt.reduceOneParam((. result: string, {variables}) => {
     variables->JsonUtils.isJsonSerializedValueNone
       ? result
       : {
@@ -119,11 +119,11 @@ let _buildBody = ({body}: Chunk_converter.ChunkType.glslChunk) =>
 let _buildVarDeclare = (
   generateUniformType,
   {top, varDeclare, funcDefine, body}: Chunk_converter.ChunkType.glslChunk,
-  shaderLibs,
+  shaderChunks,
 ) =>
   varDeclare ++
   (_buildNewLine() ++
-  _generateUniformSource(generateUniformType, shaderLibs, varDeclare, funcDefine, body))
+  _generateUniformSource(generateUniformType, shaderChunks, varDeclare, funcDefine, body))
 
 let _addAlllParts = (
   {
@@ -170,8 +170,8 @@ let _buildVsAndFsByType = (
     )
   }
 
-let _buildVsAndFs = ((vs, fs), (buildGLSLChunkInVS, buildGLSLChunkInFS), chunk, shaderLibs) =>
-  shaderLibs->Commonlib.ArraySt.reduceOneParam(
+let _buildVsAndFs = ((vs, fs), (buildGLSLChunkInVS, buildGLSLChunkInFS), chunk, shaderChunks) =>
+  shaderChunks->Commonlib.ArraySt.reduceOneParam(
     (. glslTuple, {glsls}) =>
       JsonUtils.isJsonSerializedValueNone(glsls)
         ? glslTuple
@@ -208,7 +208,7 @@ let buildGLSL = (
     buildGLSLChunkInVS: glslName => Chunk_converter.ChunkType.glslChunk,
     buildGLSLChunkInFS: glslName => Chunk_converter.ChunkType.glslChunk,
   ),
-  shaderLibs: shaderLibs,
+  shaderChunks: shaderChunks,
   chunk: CommonlibType.ImmutableHashMapType.t<
     glslName,
     Chunk_converter.ChunkType.glslChunk,
@@ -229,17 +229,17 @@ let buildGLSL = (
     (vs, fs),
     (buildGLSLChunkInVS, buildGLSLChunkInFS),
     chunk,
-    shaderLibs,
+    shaderChunks,
   )
 
   vs.body = _buildBody(vs)
   fs.body = _buildBody(fs)
   vs.varDeclare =
     _buildNewLine() ++
-    (_generateAttributeSource(generateAttributeType, shaderLibs) ++
+    (_generateAttributeSource(generateAttributeType, shaderChunks) ++
     vs.varDeclare)
-  vs.varDeclare = _buildVarDeclare(generateUniformType, vs, shaderLibs)
-  fs.varDeclare = _buildVarDeclare(generateUniformType, fs, shaderLibs)
+  vs.varDeclare = _buildVarDeclare(generateUniformType, vs, shaderChunks)
+  fs.varDeclare = _buildVarDeclare(generateUniformType, fs, shaderChunks)
 
   (_addAlllParts(vs), _addAlllParts(fs))
 }

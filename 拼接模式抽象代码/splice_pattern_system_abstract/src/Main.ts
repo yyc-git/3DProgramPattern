@@ -26,7 +26,7 @@ export let init = (state: state, someConfigData): state => {
         someConfigData
     )
 
-    console.log("使用target来初始化...")
+    console.log("使用target...")
 
     let runtimeData = ChunkHandler.getRuntimeData(
         [_addRuntimeDataFunc1, ... ],

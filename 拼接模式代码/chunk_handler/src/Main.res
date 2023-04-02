@@ -1,31 +1,31 @@
-let parseConfig = (shadersJson, shaderLibsJson) => {
-  (ParseConfig.parseShaders(shadersJson), ParseConfig.parseShaderLibs(shaderLibsJson))
+let parseConfig = (shadersJson, shaderChunksJson) => {
+  (ParseConfig.parseShaders(shadersJson), ParseConfig.parseShaderChunks(shaderChunksJson))
 }
 
 let buildGLSL = (
   (
-    ((isNameValidForStaticBranch, getShaderLibFromStaticBranch), isPassForDynamicBranch),
+    ((isNameValidForStaticBranch, getShaderChunkFromStaticBranch), isPassForDynamicBranch),
     (generateAttributeType, generateUniformType, buildGLSLChunkInVS, buildGLSLChunkInFS),
   ),
   shaders: GLSLConfigType.shaders,
-  shaderLibs: GLSLConfigType.shaderLibs,
+  shaderChunks: GLSLConfigType.shaderChunks,
   chunk,
   shaderName: GLSLConfigType.shaderName,
   precision,
-): (GLSLConfigType.shaderLibs, (string, string)) => {
-  let shaderLibs = HandleShaderLibs.getShaderLibsOfShader(
-    ((isNameValidForStaticBranch, getShaderLibFromStaticBranch), isPassForDynamicBranch),
+): (GLSLConfigType.shaderChunks, (string, string)) => {
+  let shaderChunks = HandleShaderChunks.getShaderChunksOfShader(
+    ((isNameValidForStaticBranch, getShaderChunkFromStaticBranch), isPassForDynamicBranch),
     shaders.shaders,
     shaderName,
     shaders,
-    shaderLibs,
+    shaderChunks,
   )
 
   (
-    shaderLibs,
+    shaderChunks,
     BuildGLSL.buildGLSL(
       (generateAttributeType, generateUniformType, buildGLSLChunkInVS, buildGLSLChunkInFS),
-      shaderLibs,
+      shaderChunks,
       chunk,
       precision,
     ),
@@ -34,10 +34,10 @@ let buildGLSL = (
 
 let getSendData = (
   (addAttributeSendData, addUniformSendData),
-  shaderLibs: GLSLConfigType.shaderLibs,
+  shaderChunks: GLSLConfigType.shaderChunks,
 ) => {
   (
-    HandleAttribute.addAttributeSendData(addAttributeSendData, shaderLibs),
-    HandleUniform.addUniformSendData(addUniformSendData, shaderLibs),
+    HandleAttribute.addAttributeSendData(addAttributeSendData, shaderChunks),
+    HandleUniform.addUniformSendData(addUniformSendData, shaderChunks),
   )
 }

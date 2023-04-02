@@ -3,7 +3,7 @@ import * as Transform from "splice_pattern_utils/src/engine/Transform"
 import * as ChunkHandler from "chunk_handler"
 import { state } from "./MainStateType"
 import { createFakeWebGLRenderingContext } from "splice_pattern_utils/src/engine/FakeGL"
-import { getData } from "./glsl/Chunk"
+import { getData } from "./glsl/MergedGLSLChunk"
 import { Map } from "immutable"
 import * as API from "splice_pattern_utils/src/engine/API"
 import * as InitBasicMaterialShader from "./InitBasicMaterialShader"
@@ -11,7 +11,7 @@ import * as Render from "./Render"
 
 export let parseConfig = ChunkHandler.parseConfig
 
-export let createState = ([shaders, shaderLibs]): state => {
+export let createState = ([shaders, shaderChunks]): state => {
     return {
         gl: createFakeWebGLRenderingContext(),
         programMap: Map(),
@@ -21,7 +21,7 @@ export let createState = ([shaders, shaderLibs]): state => {
         vMatrix: null,
         pMatrix: null,
         shaders,
-        shaderLibs,
+        shaderChunks,
         isSupportInstance: true,
         maxDirectionLightCount: 4,
         chunk: getData(),

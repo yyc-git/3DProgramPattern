@@ -1,6 +1,6 @@
 // use json loader to load config
 import * as shadersJson from "./glsl_config/shaders.json"
-import * as shaderLibsJson from "./glsl_config/shader_libs.json"
+import * as shaderChunksJson from "./glsl_config/shader_chunks.json"
 
 import { createState, initBasicMaterialShader, render, initCamera, parseConfig } from "splice_pattern_engine/src/Main"
 import { createScene } from "splice_pattern_utils/src/Client"
@@ -15,7 +15,7 @@ let _fixJsonForArrayBug = (jsonWithArray) => {
 }
 
 
-let parsedConfig = parseConfig(shadersJson as any, _fixJsonForArrayBug(shaderLibsJson))
+let parsedConfig = parseConfig(shadersJson as any, _fixJsonForArrayBug(shaderChunksJson))
 
 let state = createState(parsedConfig)
 

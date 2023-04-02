@@ -1,0 +1,48 @@
+{
+  "static_branchs": [
+    {
+      "name": "xxx",
+      "value": [
+        "chunk name with condition1",
+        "chunk name with condition2",
+        ...
+      ]
+    },
+    ...
+  ],
+  "dynamic_branchs": [
+    {
+      "name": "xxx",
+      "condition": "xxx",
+      "pass": "chunk name when condition pass",
+      "fail": "chunk name when condition fail"
+    },
+    ...
+  ],
+  "groups": [
+    {
+      "name": "xxx",
+      "value": [
+        "chunk name",
+        "chunk name",
+        ...
+      ]
+    },
+    ...
+  ],
+  "targets": [
+    {
+      "name": "target1",
+      "target_chunks": [
+        {
+          "type": "static_branch | dynamic_branch | group",
+          "name": "xxx"
+        },
+        {
+          "name": "chunk name"
+        },
+        ...
+      ]
+    }
+  ]
+}
