@@ -217,7 +217,8 @@ log
 - 扩展
     - 如何扩展、推广、发散？
 
-
+加载模型线程:
+    ecs buffer->set copied gameObject, components data in load worker?
 
 - 结合其它模式
     - 结合哪些模式？

@@ -626,6 +626,19 @@ shader_chunks.json部分代码如下：
       ]
     }
   },
+  {
+    "name": "define_light_count",
+    "glsls": [
+      {
+        "type": "vs_function",
+        "name": "defineMaxDirectionLightCount"
+      },
+      {
+        "type": "fs_function",
+        "name": "defineMaxDirectionLightCount"
+      }
+    ]
+  },
   ...
 ]
 ```
@@ -634,7 +647,7 @@ shader_chunks.json部分代码如下：
 
 name字段是代码块的名字，与shaders.json关联
 
-glsls字段定义了包含的VS GLSL和FS GLSL。其中如果type为vs或者fs，则name为VS GLSL或者FS GLSL的文件名，与GLSL Chunk的文件名关联；而type为vs_function或者fs_function的情况后面再讨论
+glsls字段定义了包含的VS GLSL和FS GLSL。其中如果type为vs或者fs，则name为VS GLSL或者FS GLSL的文件名，与GLSL Chunk的文件名关联；如果type为vs_function或者fs_function，则name为设置GLSL的动作名，此处具体为定义最大方向光的个数的动作名
 
 variables字段定义了属于Send Data的顶点数据和Uniform数据
 
@@ -849,7 +862,8 @@ vs_function或者fs_function -->
 然后调用了ChunkHandler的getSendData函数来从shaderChunks中获得顶点Send Data和Uniform Send Data，将其保存在state.sendDataMap中
 
 
-ChunkHandler的buildGLSL函数和getSendData函数都接受了来自引擎的函数（如isNameValidForStaticBranch、addAttributeSendData），它们用于处理shaders.json和shader_chunks.json中的一些字段。
+ChunkHandler的buildGLSL函数和getSendData函数都接受了来自引擎的函数（如isNameValidForStaticBranch、addAttributeSendData），它们用于处理shaders.json和shader_chunks.json中的一些字段，实现分支处理或者获得Send Data。
+
 由于这些字段的值是引擎定义的，所以它们的类型是定义在引擎端，并且明确了有哪些具体的值。具体的定义在引擎的GLSLConfigType.ts中，代码如下：
 ```ts
 export type shaderMapDataName = "modelMatrix_instance"
@@ -878,6 +892,29 @@ export type uniformType = "mat4" | "float3" | "float" | "sampler2D";
 export type uniformFrom = "basicMaterial" | "model" | "camera";
 
 export type glslNameForBuildGLSLChunk = "defineMaxDirectionLightCount"
+```
+
+
+另外值得注意的是我们对部分传入buildGLSL函数的函数进行了柯西化，这是因为这些函数的一部分参数需要在此处获得，所以就通过柯西化而将参数传入
+
+相关代码如下：
+```ts
+        let [shaderChunks, glsl] = buildGLSL(
+            [
+                [[
+                    isNameValidForStaticBranch,
+                    curry3_1(getShaderChunkFromStaticBranch)(state)
+                ],
+                curry3_2(isPassForDynamicBranch)(material, state)],
+                [
+                    generateAttributeType,
+                    generateUniformType,
+                    curry2(buildGLSLChunkInVS)(state),
+                    curry2(buildGLSLChunkInFS)(state)
+                ]
+            ],
+            ...
+        )
 ```
 
 
@@ -1138,7 +1175,7 @@ gulp.task("createChunkFile_res", function (done) {
 
 
 - Target Config的抽象代码
-Target Config应该包含whole_config.json和chunk_config.json两个配置文件，其中前者应该指定有哪些静态分支和动态分支、要构造哪些Target；后者应该指定所有的块的配置数据
+Target Config应该包含whole_config.json和chunks_config.json两个配置文件，其中前者应该指定有哪些静态分支和动态分支、要构造哪些Target；后者应该指定所有的块的配置数据
 
 whole_config.json如下
 ```ts
@@ -1192,7 +1229,7 @@ whole_config.json如下
 }
 ```
 
-chunk_config.json如下
+chunks_config.json如下
 ```ts
 [
     {
@@ -1221,11 +1258,11 @@ chunk_config.json如下
 ```ts
 // use json loader to load target config
 import * as wholeConfigJson from "./target_config/whole_config.json"
-import * as chunkConfigJson from "./target_config/chunk_config.json"
+import * as chunksConfigJson from "./target_config/chunks_config.json"
 
 import { parseConfig, createState, init, operateWhenLoop } from "splice_pattern_system_abstract/src/Main"
 
-let parsedConfig = parseConfig(wholeConfigJson, chunkConfigJson)
+let parsedConfig = parseConfig(wholeConfigJson, chunksConfigJson)
 
 let state = createState(parsedConfig)
 
@@ -1307,12 +1344,11 @@ TODO finish
 
 ## 优点
 
-<!-- - Shader组合的方式在引擎端固定死了，引擎的用户不能指定Shader的组合方式
-
-- 在每次渲染时都要进行分支判断，这样即增加了代码的维护成本（Shader每增加一个#ifdef分支，渲染时也要对应增加该分支的判断），也降低了性能（因为各种跳转而降低了CPU的缓存命中） -->
-
 - 用户能够灵活地拼接Target数据 
 用户能够通过Target Config配置文件，在系统限制的范围内拼接自己想要的Target数据
+
+- 精简Target数据
+拼接后的Target数据没有分支判断，非常精简
 
 - 提高性能
 系统能够在初始化时一次性从配置文件中获得Runtime Data，然后在运行时无需进行分支判断而是直接发送Runtime Data，这样就提高了性能
@@ -1383,7 +1419,7 @@ no_basic_map_fragment.glsl
 
 这里的问题就是需要在basic_end_fragment.glsl中输出颜色，而两者中的颜色变量名不一样，无法统一地输出颜色。
 
-因此需要进行抽象，抽象出名为“totalColor”变量名作为输出的颜色变量名。那么这三个GLSL Chunk的代码就应该修改为：
+因此需要进行抽象，抽象出名为“totalColor”变量作为输出的颜色变量。那么这三个GLSL Chunk的代码就应该修改为：
 basic_map_fragment.glsl
 ```ts
 @body
@@ -1409,17 +1445,52 @@ basic_end_fragment.glsl
 
 
 
-<!-- # 扩展 -->
+# 扩展
+
+我们可以通过扩展配置文件的格式（类型），来支持更灵活的配置
+
+如我们可以在shader_chunks.json->glsls字段中增加值为“custom_vs”的type，从而能够在配置文件中插入用户自定义的GLSL
+
+具体shader_chunks.json相关代码如下：
+```ts
+  {
+    ...,
+    "glsls": [
+      {
+        "type": "custom_vs",
+        "content":{
+            "top":"xxx",
+            "define":"xxx",
+            "varDeclare":"xxx",
+            "funcDeclare":"xxx",
+            "funcDefine":"xxx",
+            "body":"xxx"
+        }
+      },
+    ],
+    ...
+  },
+```
+
+要实现这个，需要进行下面的修改：
+- 修改ChunkHandler->GLSLConfigType.res中对应的类型
+- 修改ChunkHanlder->buildGLSL函数，增加新的传入的函数参数，并在ChunkHanlder->BuildGLSL->buildGLSL函数中使用它来处理type为custom_vs的情况
 
 
-# 结合其它模式
 
-TODO continue
+
+另外，可以把Target Config配置文件升级成新的Shader语言；把ChunkConverter、ChunkHandler升级为Shader编译器，负责把新的Shader语言编译为GLSL。这样做的好处是用户能够更加灵活地自定义Shader
+
+
+
+
+<!-- # 结合其它模式
+
 
 ## 结合哪些模式？
 ## 使用场景是什么？
 ## UML如何变化？
-## 代码如何变化？
+## 代码如何变化？ -->
 
 
 
@@ -1428,9 +1499,19 @@ TODO continue
 
 <!-- ## 结合具体项目实践经验，如何应用模式来改进项目？ -->
 ## 哪些场景不需要使用模式？
-## 哪些场景需要使用模式？
-## 给出具体的实践案例？
+
+如果Target数据很单一，那么就只需要一个很大的Target数据即可。
+如对于路径追踪渲染而言，它是一个统一的框架，没有什么分支判断，因此只需要一个一个大的Shader即可。
+
+这种大的Shader的代码量可能达到上万行，因此可以使用[slang](https://github.com/shader-slang/slang)这种更容易维护、更模块化的编程语言来写Shader。
+
+它相当于着色器语言中的Typescript，也就是在原始的着色器语言之上增加了一层编译器，可以编译为GLSL、HLSL等各种着色器语言
+
+
+<!-- ## 给出具体的实践案例？ -->
 
 
 
 # 更多资料推荐
+
+Unity、taichi实现了自己的Shader语言
