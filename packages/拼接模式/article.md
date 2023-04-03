@@ -1,5 +1,6 @@
 [TOC]
 
+
 # 复杂的Shader
 
 
@@ -1006,6 +1007,7 @@ uniform1i
 
 
 
+
 ## 通用UML？
 ![](./resources/role_abstract.png)
 
@@ -1448,7 +1450,7 @@ shader_chunks.json相关代码可以改为：
 
 
 另外，可以把Target Config配置文件升级成新的Shader语言；把ChunkConverter、ChunkHandler升级为Shader编译器，负责把新的Shader语言编译为GLSL。
-这样做的好处是让用户能够更加灵活地自定义Shader
+这样做的好处是让用户能够更加灵活地自定义Shader，而且还可以进行Shader编译检查
 
 
 
