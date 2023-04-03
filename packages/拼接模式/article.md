@@ -1,6 +1,5 @@
 [TOC]
 
-
 # 复杂的Shader
 
 
@@ -726,6 +725,20 @@ mat4 mMatrix = u_mMatrix;
 @end
 ```
 
+在每个GLSL代码片段中，还可以通过"#import 相对路径"来引入其它的GLSL Chunk，如common_vertex.glsl：
+```ts
+@define
+#import "common_define"
+@end
+
+@funcDefine
+#import "common_function"
+@end
+```
+
+它引入了common_define的define片段和common_function的funcDefine片段
+
+
 <!-- 这些.glsl文件是进行了抽象处理的，从而能够被正确地组合起来 -->
 
 在预处理时，引擎通过gulp任务来调用ChunkConverter模块，将所有的.glsl文件合并为一个Merged GLSL Chunk，它具体就是MergedGLSLChunk.ts或者MergedGLSLChunk.res文件
@@ -1007,9 +1020,9 @@ uniform1i
 
 
 
-
 ## 通用UML？
-![](./resources/role_abstract.png)
+![image](https://img2023.cnblogs.com/blog/419321/202304/419321-20230403163737312-1241675852.png)
+
 
 
 ## 分析角色？
