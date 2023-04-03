@@ -1,4 +1,4 @@
-import { command } from "./CommandType";
+import { command } from "./Command";
 
 let _commandsForUndo: Array<command> = []
 
@@ -12,9 +12,9 @@ export let pushCommand = (command: command) => {
 export let undo = () => {
     let command = _commandsForUndo.pop()
 
-    _commandsForRedo.push(command)
-
     command.undo()
+
+    _commandsForRedo.push(command)
 }
 
 export let redo = () => {
@@ -25,7 +25,7 @@ export let redo = () => {
 
     let command = _commandsForRedo.pop()
 
-    _commandsForUndo.push(command)
-
     command.exec()
+
+    _commandsForUndo.push(command)
 }

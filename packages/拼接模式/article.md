@@ -44,7 +44,7 @@ Render负责渲染，遍历所有的GameObjects，获得并发送它们的顶点
 
 ## 给出代码
 
-Client相关代码:
+Client代码:
 ```ts
 let state = createState()
 

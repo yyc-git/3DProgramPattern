@@ -1,7 +1,7 @@
 import * as Engine from "./Engine"
 import * as EditorLogic from "./EditorLogic"
 import * as EditorUI from "./EditorUI"
-import { command } from "./CommandType"
+import { command } from "./Command"
 
 let _engineData1Before: number
 let _editorLogicData1Before: number

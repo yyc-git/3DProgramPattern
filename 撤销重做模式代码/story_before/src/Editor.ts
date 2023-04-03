@@ -15,9 +15,9 @@ export let move = () => {
 
     let moveCommand = createCommand()
 
-    pushCommand(moveCommand)
-
     moveCommand.exec()
+
+    pushCommand(moveCommand)
 }
 
 export let undo = () => {
