@@ -11,7 +11,7 @@
 
 ## 实现思路
 
-![](./resources/材质ShaderGLSL.png)
+![image](https://img2023.cnblogs.com/blog/419321/202304/419321-20230403160805774-559164177.png)
 
 如上图所示，一个材质对应一个Shader；一个Shader对应一套GLSL，即一个顶点着色器的GLSL和一个片元着色器的GLSL
 
@@ -19,7 +19,7 @@
 [支持方向光，支持贴图，支持Instance]
 [支持方向光，支持贴图，不支持Instance]
 [支持方向光，不支持贴图，支持Instance]
-[支持方向光，不支持贴图，支持Instance]
+[支持方向光，不支持贴图，不支持Instance]
 
 
 我们每支持一种新的功能，Shader的个数就要翻倍。手工去写这每一个Shader是不可能的
@@ -32,7 +32,7 @@
 
 ## 给出UML
 
-![](./resources/story_before.png)
+![image](https://img2023.cnblogs.com/blog/419321/202304/419321-20230403160816959-1182182065.png)
 
 Main是引擎的门户，负责暴露API给Client
 
@@ -124,7 +124,7 @@ export let initBasicMaterialShader = (state: state, allMaterials: Array<material
 <!-- 它们的对应关系为：因为一个shaderIndex对应一个Shader，一个Shader对应一套GLSL(VS GLSL和FS GLSL)，所以一个shaderIndex对应一套GLSL -->
 
 Material、ShaderIndex、Program、GLSL对应关系如下图所示：
-![](./resources/材质ShaderGLSL.png)
+![image](https://img2023.cnblogs.com/blog/419321/202304/419321-20230403160828435-1930437553.png)
 
 _buildGLSL函数构造了一个Material对应的一套GLSL，它的实现代码如下：
 ```ts
@@ -394,7 +394,9 @@ uniform1i
 
 
 最后进行渲染。
-因为渲染render函数中调用的_getAllFakeGameObjects只返回了一个GameObject，所以只渲染了一次。
+因为渲染render函数中调用的_getAllFakeGameObjects只返回了第一个GameObject，所以只渲染了一次
+
+该次渲染发送的是material1的相关的数据，而material1的Shader是有贴图+支持Instance的
 
 这一次渲染分别进行了下面的操作：
 首先use program；
@@ -407,7 +409,7 @@ uniform1i
 
 然后发送了一次相机的视图矩阵u_vMatrix和透视矩阵u_pMatrix数据；
 
-然后发送了一次材质的color和map数据；
+然后发送了一次材质material1的color和map数据；
 
 最后执行其它渲染逻辑
 
@@ -431,7 +433,7 @@ uniform1i
 
 ## 给出UML？
 
-![](./resources/story_improve.png)
+![image](https://img2023.cnblogs.com/blog/419321/202304/419321-20230403160841165-629936287.png)
 
 GLSL Config是的Shader的JSON配置文件，它的内容由Client给出，它的格式（也就是类型）由ChunkConverter定义
 
@@ -1040,8 +1042,8 @@ uniform1i
 - Init
 该角色实现系统的初始化，调用ChunkHandler->buildTarget来拼接了Target并且直接使用它，调用ChunkHandler->getRuntimeData来获得了Runtime Data
 
-- OperateWhenLoop
-该角色进行某个在主循环时的操作，使用了Runtime Data
+- OperateWhenRuntime
+该角色进行某个在运行时的操作，使用了Runtime Data
 
 
 ## 角色之间的关系？
@@ -1231,7 +1233,7 @@ let state = createState(parsedConfig)
 declare let someConfigData
 state = init(state, someConfigData)
 
-state = operateWhenLoop(state)
+state = operateWhenRuntime(state)
 ```
 
 - System的抽象代码
@@ -1275,7 +1277,7 @@ export let init = (state: state, someConfigData): state => {
     }
 }
 
-export let operateWhenLoop = (state: state): state => {
+export let operateWhenRuntime = (state: state): state => {
     console.log("使用state.runtimeData...")
 
     return state
@@ -1338,7 +1340,7 @@ TODO finish
 
 由用户给出配置文件来指定：有哪些分支、要构造哪些Target数据、每个Target数据包含哪些块、每块有哪些配置数据
 
-### 具体实例
+### 具体案例
 
 - 构造引擎的Shader代码
 

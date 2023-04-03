@@ -41,7 +41,7 @@ export let init = (state: state, someConfigData): state => {
     }
 }
 
-export let operateWhenLoop = (state: state): state => {
+export let operateWhenRuntime = (state: state): state => {
     console.log("使用state.runtimeData...")
 
     return state
