@@ -236,7 +236,7 @@ get runtime data when init by target
 
 
 
-* TODO finish splice pattern article
+* DONE finish splice pattern article
 
 # shaders.json hook
 
@@ -246,7 +246,7 @@ get runtime data when init by target
 
 ** DONE update article 1
 
-** TODO update article 2
+** DONE update article 2
 
 remove comment
 

@@ -1,12 +1,6 @@
 [TOC]
 
-<!-- # 着色器语言GLSL太长了 -->
-
-
-<!-- # 越来越复杂的GLSL代码 -->
 # 复杂的Shader
-<!-- # 如何管理GLSL？ -->
-
 
 
 ## 需求
@@ -17,7 +11,7 @@
 
 ## 实现思路
 
-TODO tu
+![](./resources/材质ShaderGLSL.png)
 
 如上图所示，一个材质对应一个Shader；一个Shader对应一套GLSL，即一个顶点着色器的GLSL和一个片元着色器的GLSL
 
@@ -38,7 +32,7 @@ TODO tu
 
 ## 给出UML
 
-TODO tu
+![](./resources/story_before.png)
 
 Main是引擎的门户，负责暴露API给Client
 
@@ -130,7 +124,7 @@ export let initBasicMaterialShader = (state: state, allMaterials: Array<material
 <!-- 它们的对应关系为：因为一个shaderIndex对应一个Shader，一个Shader对应一套GLSL(VS GLSL和FS GLSL)，所以一个shaderIndex对应一套GLSL -->
 
 Material、ShaderIndex、Program、GLSL对应关系如下图所示：
-TODO tu
+![](./resources/材质ShaderGLSL.png)
 
 _buildGLSL函数构造了一个Material对应的一套GLSL，它的实现代码如下：
 ```ts
@@ -437,7 +431,7 @@ uniform1i
 
 ## 给出UML？
 
-TODO tu
+![](./resources/story_improve.png)
 
 GLSL Config是的Shader的JSON配置文件，它的内容由Client给出，它的格式（也就是类型）由ChunkConverter定义
 
@@ -1011,7 +1005,7 @@ uniform1i
 
 
 ## 通用UML？
-TODO tu
+![](./resources/role_abstract.png)
 
 
 ## 分析角色？
