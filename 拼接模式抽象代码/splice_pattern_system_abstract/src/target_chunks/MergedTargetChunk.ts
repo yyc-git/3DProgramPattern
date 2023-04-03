@@ -17,7 +17,7 @@ let _buildChunk =
 export let getData = (): Record<chunkName, chunk> => {
 
     return {
-        "chunk1": _buildChunk("...", "...", ...),
+        "target_chunk1": _buildChunk("...", "...", ...),
         ... 
     }
 }

@@ -38,7 +38,7 @@ function _convertArrayToList(array) {
               }), /* [] */0, array);
 }
 
-function _createChunkFile(_buildChunkFileContent, glslPathArr, destFilePath, doneFunc) {
+function _createMergedTargetChunkFile(_buildChunkFileContent, glslPathArr, destFilePath, doneFunc) {
   _writeToChunkFile(destFilePath, doneFunc, Curry._1(_buildChunkFileContent, Parse$Chunk_converter.parseImport(List.map((function (actualGlslPath) {
                       return Parse$Chunk_converter.parseSegment(actualGlslPath, Fs.readFileSync(actualGlslPath, "utf8"));
                     }), _convertArrayToList(ArrayUtils$Chunk_converter.flatten(Js_array.map((function (glslPath) {
@@ -46,22 +46,22 @@ function _createChunkFile(_buildChunkFileContent, glslPathArr, destFilePath, don
                                 }), glslPathArr)))))));
 }
 
-function createChunkFileForTs(glslPathArr, destFilePath, doneFunc) {
+function createMergedGLSLChunkFileForTs(glslPathArr, destFilePath, doneFunc) {
   var partial_arg = [
     _buildInitDataContentForTs,
     _functionContentForTs
   ];
-  _createChunkFile((function (param) {
+  _createMergedTargetChunkFile((function (param) {
           return _buildChunkFileContent(partial_arg, param);
         }), glslPathArr, destFilePath, doneFunc);
 }
 
-function createChunkFileForRes(glslPathArr, destFilePath, doneFunc) {
+function createMergedGLSLChunkFileForRes(glslPathArr, destFilePath, doneFunc) {
   var partial_arg = [
     _buildInitDataContentForRes,
     _functionContentForRes
   ];
-  _createChunkFile((function (param) {
+  _createMergedTargetChunkFile((function (param) {
           return _buildChunkFileContent(partial_arg, param);
         }), glslPathArr, destFilePath, doneFunc);
 }
@@ -74,8 +74,8 @@ export {
   _buildChunkFileContent ,
   _writeToChunkFile ,
   _convertArrayToList ,
-  _createChunkFile ,
-  createChunkFileForTs ,
-  createChunkFileForRes ,
+  _createMergedTargetChunkFile ,
+  createMergedGLSLChunkFileForTs ,
+  createMergedGLSLChunkFileForRes ,
 }
 /* fs Not a pure module */

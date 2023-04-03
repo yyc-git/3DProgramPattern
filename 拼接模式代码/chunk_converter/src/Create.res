@@ -66,7 +66,7 @@ let _writeToChunkFile = (destFilePath, doneFunc, content) => {
 let _convertArrayToList = (array: array<string>) =>
   array |> Js.Array.reduce((list, str) => list{str, ...list}, list{})
 
-let _createChunkFile = (
+let _createMergedTargetChunkFile = (
   _buildChunkFileContent,
   glslPathArr: array<string>,
   destFilePath: string,
@@ -83,16 +83,16 @@ let _createChunkFile = (
   |> _buildChunkFileContent
   |> _writeToChunkFile(destFilePath, doneFunc)
 
-let createChunkFileForTs = (glslPathArr: array<string>, destFilePath: string, doneFunc) =>
-  _createChunkFile(
+let createMergedGLSLChunkFileForTs = (glslPathArr: array<string>, destFilePath: string, doneFunc) =>
+  _createMergedTargetChunkFile(
     _buildChunkFileContent((_buildInitDataContentForTs, _functionContentForTs)),
     glslPathArr,
     destFilePath,
     doneFunc,
   )
 
-let createChunkFileForRes = (glslPathArr: array<string>, destFilePath: string, doneFunc) =>
-  _createChunkFile(
+let createMergedGLSLChunkFileForRes = (glslPathArr: array<string>, destFilePath: string, doneFunc) =>
+  _createMergedTargetChunkFile(
     _buildChunkFileContent((_buildInitDataContentForRes, _functionContentForRes)),
     glslPathArr,
     destFilePath,

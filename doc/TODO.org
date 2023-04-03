@@ -244,6 +244,15 @@ get runtime data when init by target
 
 ** DONE remove batch instance
 
+** DONE update article 1
+
+** TODO update article 2
+
+remove comment
+
+add image
+
+finish TODO
 
 
 

@@ -12,42 +12,25 @@
 ## 需求
 
 
-实现一个材质系统，默认支持方向光，并且能选择性地支持贴图、Instance批量渲染
+实现一个材质系统，默认支持方向光，并且能选择性地支持贴图、Instance(一种批量渲染的技术)
 
 
 ## 实现思路
 
 TODO tu
 
-如上图所示，一个材质对应一个Shader；一个Shader对应一套GLSL，即顶点着色器的GLSL(VS GLSL)和片元着色器的GLSL(FS GLSL)
+如上图所示，一个材质对应一个Shader；一个Shader对应一套GLSL，即一个顶点着色器的GLSL和一个片元着色器的GLSL
 
-我们要为选择性支持的每种情况都写一个Shader，也就是4个Shader，分别为：
+我们要为选择性支持的每种情况都写一个Shader，也就是4个Shader，它们分别是：
 [支持方向光，支持贴图，支持Instance]
 [支持方向光，支持贴图，不支持Instance]
 [支持方向光，不支持贴图，支持Instance]
 [支持方向光，不支持贴图，支持Instance]
 
 
-当我们每支持一种新的功能的时候，Shader的个数就要翻倍。手工去写这每一个Shader是不可能的
+我们每支持一种新的功能，Shader的个数就要翻倍。手工去写这每一个Shader是不可能的
 
-<!-- 
-Map
-instance
-Direction Light:define Count
-
-
-实现一个材质系统，我们希望它能够支持各种效果.你会发现随着支持的效果越来越多,需要写的Shader的数量会急剧上升,比如:
-　　*.一开始我们希望我们的材质系统能够支持普通光照,我们为这种最简单的效果写一个Shader
-　　*.然后我们希望这个材质还可以支持贴图,我们为它再写一个Shader,现在有两个Shader了--[支持普通光照,不支持贴图]和[支持普通光照,支持贴图]
-　　*.然后我们希望为它加上骨骼动画,我们需要为已有的Shader各写一个带骨骼动画的版本,这样Shader的个数就变成4个了,分别是:
-		[支持普通光照,不支持贴图,不支持骨骼动画]
-		[支持普通光照,支持贴图,支持骨骼动画]
-		[支持普通光照,支持贴图,不支持骨骼动画]
-		[支持普通光照,不支持贴图,支持骨骼动画] -->
-
-<!-- 使用预定义的宏可以比较好的解决这个问题,我们可以写一个长长的容纳各种功能的Shader文件,然后在里面用大量#ifdef/#else/#endif来将各个功能分隔开来,然后在使用Shader时,我们通过指定不同的预定宏的组合来编译这个Shader文件,以得到一个功能被正确裁剪的Shader.既然我们无法在Shader内部里完成动态分支,我们只能让编译器帮我们把各个分支组合编译成一个个静态的Shader了. -->
-
-可以通过使用预定义的宏来解决这个问题。我们只需要写一个很大的能支持各种功能的Shader，通过用大量#ifdef 功能名/#else/#endif来将各个功能分开处理；然后在初始化时，判断材质是否支持某个功能，支持的话则加入"#define 功能名"来开启该功能。这样的话就可以将其分别编译为4个Shader了
+可以通过使用预定义的宏来解决这个问题。我们只需要写一个很大的能支持各种功能的Shader，通过用大量“#ifdef 功能名/#else/#endif”来将各个功能分开处理；然后在初始化时，判断材质是否支持某个功能，支持的话则加入"#define 功能名"来开启该功能。这样的话就可以将这个大Shader分别编译为4个Shader了
 
 
 
@@ -59,7 +42,7 @@ TODO tu
 
 Main是引擎的门户，负责暴露API给Client
 
-InitBasicMaterialShader负责初始化基础材质的Shader，判断材质是否支持功能，支持的话就在默认的GLSL中加入Define变量，然后创建对应的Shader
+InitBasicMaterialShader负责初始化基础材质的Shader，判断材质是否支持功能，支持的话就在默认的有预定义宏的GLSL中加入Define变量；然后使用它创建对应的Shader
 
 Render负责渲染，遍历所有的GameObjects，获得并发送它们的顶点数据和Uniform数据
 
@@ -82,35 +65,30 @@ state = initCamera(state)
 state = render(state)
 ```
 
-我们首先创建了引擎的state；
+我们首先创建了引擎的state，用来保存引擎的所有数据；
 然后创建了场景，主要包括3个基础材质material1、material2、material3，其中material1、material3都有贴图，material2没有贴图；
 然后初始化所有基础材质的shader；
-接着初始化相机，设置相机的假数据；
+接着初始化相机，设置与相机相关的假的视图矩阵和透视矩阵；
 最后渲染场景
 
-这里值得说明的是因为我们使用ECS模式，所以在场景中创建的所有的GameObject、组件（如BasicMaterial组件、Transform组件）都只是一个number而已
+这里值得说明的是我们这里使用ECS模式的思路，在场景中创建的所有的GameObject、组件（如BasicMaterial组件、Transform组件）都只是一个number而已
 
 我们看下Main中的createState代码：
 ```ts
 export let createState = (): state => {
     return {
         gl: createFakeWebGLRenderingContext(),
-        programMap: Map(),
-        maxShaderIndex: 0,
-        shaderIndexMap: Map(),
-        vMatrix: null,
-        pMatrix: null,
+        ...
         isSupportInstance: true,
         maxDirectionLightCount: 4,
-
         ...
     }
 }
 ```
 
-我们构造了假的gl（WebGLRenderContext)；
-通过设置配置字段isSupportInstance，开启了Instance；
-设置最大的方向光个数为4个
+我们构造了假的WebGL上下文-gl；
+通过设置配置字段isSupportInstance为true，开启了Instance；
+设置最大的方向光个数为4个，这个与支持方向光的Shader有关
 
 
 
@@ -146,14 +124,15 @@ export let initBasicMaterialShader = (state: state, allMaterials: Array<material
 }
 ```
 
-该函数最终创建了材质对应的Program，保存在state.programMap中
+该函数最终创建了所有的基础材质对应的Program，保存在state.programMap中
 
-这里提出了shaderIndex的概念，它是shader的索引。因为一个shaderIndex对应一个Shader，而一个Shader又对应一套GLSL(VS GLSL和FS GLSL)，所以一个shaderIndex对应一套GLSL
+这里提出了shaderIndex的概念：它是shader的索引，一个shaderIndex对应一个Shader
+<!-- 它们的对应关系为：因为一个shaderIndex对应一个Shader，一个Shader对应一套GLSL(VS GLSL和FS GLSL)，所以一个shaderIndex对应一套GLSL -->
 
-Material、ShaderIndex、Program三者的对应关系如下图所示：
+Material、ShaderIndex、Program、GLSL对应关系如下图所示：
 TODO tu
 
-_buildGLSL函数构造了一个Material对应的一套GLSL，它的相关代码如下：
+_buildGLSL函数构造了一个Material对应的一套GLSL，它的实现代码如下：
 ```ts
 let _buildDefaultVSGLSL = () => {
     return `
@@ -162,19 +141,15 @@ precision lowp int;
 
 #ifdef INSTANCE
 attribute vec4 a_mVec4_0;
-attribute vec4 a_mVec4_1;
-attribute vec4 a_mVec4_2;
-attribute vec4 a_mVec4_3;
+...
 #endif
 
 attribute vec3 a_position;
-
 
 #ifdef MAP
 attribute vec2 a_texCoord;
 varying vec2 v_mapCoord0;
 #endif
-
 
 #ifdef NO_INSTANCE
 uniform mat4 u_mMatrix;
@@ -183,12 +158,7 @@ uniform mat4 u_mMatrix;
 uniform mat4 u_vMatrix;
 uniform mat4 u_pMatrix;
 
-mat2 transpose(mat2 m) {
-  return mat2(m[0][0], m[1][0],   // new col 0
-    m[0][1], m[1][1]    // new col 1
-  );
-}
-
+...
 void main(void){
 #ifdef INSTANCE
   mat4 mMatrix = mat4(a_mVec4_0, a_mVec4_1, a_mVec4_2, a_mVec4_3);
@@ -269,19 +239,19 @@ let _buildGLSL = (state: state, material: material): [string, string] => {
 }
 ```
 
-该函数首先判断材质是否有贴图以及判断对Instance的支持情况，在默认的GLSL中加入对应的Define变量；
-然后需要继续加入支持方向光的代码，为了简化代码，我们只是在FS GLSL中加入了最大方向光个数的define变量；
+该函数首先判断材质是否有贴图以及判断对Instance的支持情况，在默认GLSL中加入对应的Define变量；
+然后继续加入支持方向光的GLSL代码，这里为了简化代码，我们只是在FS GLSL中加入了“定义最大方向光个数”的代码；
 最后返回修改后的一套GLSL
 
-值得说明的是：这套GLSL是简化后的代码，只给出了一些重点片段代码
+值得说明的是：这套GLSL是简化后的代码，只给出了一些用于案例展示的代码
 
 
-我们继续回到initBasicMaterialShader函数，它通过generateShaderIndex来生成shaderIndex：
+我们继续回到initBasicMaterialShader函数，它调用generateShaderIndex函数来生成shaderIndex：
 ```ts
         let [shaderIndex, newMaxShaderIndex] = generateShaderIndex(glslMap, glsl, maxShaderIndex)
 ```
 
-我们看下Shader中的generateShaderIndex代码：
+我们看下Shader中的generateShaderIndex的实现代码：
 ```ts
 type glslMap = Map<shaderIndex, glsl>
 
@@ -300,7 +270,7 @@ export let generateShaderIndex = (glslMap: glslMap, glsl: glsl, maxShaderIndex: 
 }
 ```
 
-该函数通过比较新的GLSL是否与之前的GLSL相同，如果相同，则返回之前的GLSL对应的shaderIndex；否则返回新的shaderIndex
+该函数比较新的GLSL是否与之前的GLSL相同，如果相同，则返回之前的GLSL对应的shaderIndex；否则返回新的shaderIndex
 
 这样做的目的是使得支持同样功能的材质共享同一个Shader
 
@@ -398,7 +368,7 @@ let _sendUniformData = (state: state, transform, material, gl: WebGLRenderingCon
 ```
 
 该函数首先发送了相机数据；
-然后判断了材质对功能的支持情况，数从BasicMaterial、Transform组件中获得对应的数据并发送
+然后判断了材质对功能的支持情况，从BasicMaterial、Transform组件中获得并发送对应的Uniform数据
 
 
 下面，我们运行代码，运行结果如下：
@@ -425,7 +395,15 @@ uniform1i
 其它渲染逻辑...
 ```
 
-我们首先初始化Shader时，看到material1、material2、material3的shaderIndex分别为0、1、0，说明mateiral1和material3共享同一个shader；
+这里首先进行初始化Shader，打印shaderIndex。
+我们看到material1、material2、material3的shaderIndex分别为0、1、0，这说明mateiral1和material3正确地共享了同一个shader；
+
+
+最后进行渲染。
+因为渲染render函数中调用的_getAllFakeGameObjects只返回了一个GameObject，所以只渲染了一次。
+
+这一次渲染分别进行了下面的操作：
+首先use program；
 
 然后发送了a_position、a_texCoord的VBO；
 
@@ -433,7 +411,9 @@ uniform1i
 
 然后通过"bindBuffer"发送了Element Array Buffer;
 
-然后因为渲染render函数中调用的_getAllFakeGameObjects只返回了一个GameObject(值为0)，所以只渲染了一个GameObject，具体为： 发送了一次相机的视图矩阵u_vMatrix和透视矩阵u_pMatrix数据； 发送了一次材质的color和map数据；
+然后发送了一次相机的视图矩阵u_vMatrix和透视矩阵u_pMatrix数据；
+
+然后发送了一次材质的color和map数据；
 
 最后执行其它渲染逻辑
 
@@ -441,51 +421,46 @@ uniform1i
 
 ## 提出问题
 
-- Shader组合的方式在引擎端固定死了，引擎的用户不能指定Shader的组合方式
+- Shader组合的方式在引擎端固定死了，用户不能指定如何组合Shader
 
-- 在每次渲染时都要进行分支判断，这样即增加了代码的维护成本（Shader每增加一个#ifdef分支，渲染时也要对应增加该分支的判断），也降低了性能（因为各种跳转而降低了CPU的缓存命中）
+- 在每次渲染时都要进行分支判断，这样即增加了代码的维护成本（Shader每增加一个#ifdef分支，渲染时也要对应增加该分支的判断），也降低了性能（因为有各种分支跳转，所以降低了CPU的缓存命中）
 
 
 # [给出使用模式的改进方案]
 
 ## 概述解决方案
 
-在引擎端将这个很大的能支持各种功能的Shader分解为多个小块；
-在用户端定义Shader的JSON配置文件，指定如何来组合Shader，以及指定如何获得渲染时发送的顶点数据和Uniform数据
+在引擎端将这个很大的能支持各种功能的默认GLSL分解为多个小块；
+
+在用户端定义Shader的JSON配置文件，指定如何来组合Shader，以及如何获得渲染时发送的顶点数据和Uniform数据
 
 
 ## 给出UML？
 
 TODO tu
 
-GLSL Config是的Shader的JSON配置文件，它的内容由Client给出，它的格式（类型）由ChunkConverter定义
+GLSL Config是的Shader的JSON配置文件，它的内容由Client给出，它的格式（也就是类型）由ChunkConverter定义
 
 GLSL Chunk是小块的Shader代码文件，由引擎给出
 
-引擎需要进行预处理，在gulp任务中调用ChunkConverter模块，将所有的GLSL Chunk代码文件合并为一个Merged GLSL Chunk，它是一个可被调用的Typescript或者Rescript文件
+引擎需要进行预处理，在gulp任务中调用ChunkConverter，将所有的GLSL Chunk代码文件合并为一个Merged GLSL Chunk,它是一个可被调用的Typescript或者Rescript文件
 
 InitBasicMaterialShader仍然负责初始化基础材质的Shader，通过调用ChunkHandler的buildGLSL函数来按照GLSL Config的配置将GLSL Chunk中的对应的小块GLSL拼接为材质的Shader代码-GLSL，然后使用它创建材质的Shader；通过调用ChunkHandler的getSendData函数来从GLSL Config中获得发送的数据-Send Data
 
-Render仍然负责渲染，不过不需要再获得发送数据后发送，而是直接发送之前获得的Send Data
+Render仍然负责渲染，不过不需要再获得Send Data，而是直接发送之前获得的Send Data
 
 
 
 
 ## 结合UML图，描述如何具体地解决问题？
 
-- 现在用户可以通过指定GLSL Config，来设置如何组合Shader了
-- 现在在每次渲染时不需要进行分支判断，而是直接发送Send Data即可
+- 现在用户可以通过指定GLSL Config，来指定如何组合Shader了
+- 现在在每次渲染时不需要进行分支判断，而是直接遍历发送Send Data即可
 
 
 ## 给出代码
 
-<!-- 我们首先创建了引擎的state；
-然后创建了场景，主要包括3个材质material1、material2、material3，其中material1、material3都有贴图，material2没有贴图；
-然后初始化所有材质的shader；
-接着初始化相机，设置相机的假数据；
-最后渲染场景 -->
-
-Client定义的GLSL Config包括两个JSON文件：shaders.json和shader_chunks.json，它们的格式（也就是类型）定义在ChunkHandler->GLSLConfigType.res中
+Client定义的GLSL Config包括两个JSON文件：shaders.json和shader_chunks.json，它们的格式定义在ChunkHandler->GLSLConfigType.res中
 
 shaders.json部分代码如下：
 ```ts
@@ -515,12 +490,7 @@ shaders.json部分代码如下：
         ...
       ]
     },
-    {
-      "name": "end",
-      "value": [
-        "end"
-      ]
-    }
+    ...
   ],
   "shaders": [
     {
@@ -549,7 +519,9 @@ shaders.json部分代码如下：
 }
 ```
 
-该文件定义了所有的Shader由哪些代码块组成
+该文件定义了所有Shader的配置数据
+
+下面介绍各个字段的用处：
 
 static_branchs字段定义了所有不会变化的分支判断。比如是否支持Instance就属于这类判断，因为它只跟引擎是否支持Instance，而这是一开始就确定了的，不会在运行时变化
 
@@ -557,7 +529,9 @@ dynamic_branchs字段定义了所有会在运行时变换的分支判断。比�
 
 groups字段定义了多组代码块；
 
-shaders字段定义了所有的Shader。此处定义了一个名为render_basic的Shader，它包含的所有的代码块定义在shader_chunks中。在shader_chunks中，如果type为static_branch，那么该块就通过name关联到static_branchs字段；如果type为dynamic_branch，那么该块就通过name关联到dynamic_branchs字段；如果type为group，那么该块就通过name关联到groups字段；如果没有定义type，那么就通过name关联到shader_chunks.json
+shaders字段定义了所有的Shader。
+此处定义了一个名为render_basic的Shader，它包含的所有的代码块定义在shader_chunks字段中。 
+在shader_chunks字段中，如果type为static_branch，那么就通过name关联到static_branchs字段；如果type为dynamic_branch，那么就通过name关联到dynamic_branchs字段；如果type为group，那么就通过name关联到groups字段；如果没有定义type，那么就通过name关联到shader_chunks.json
 
 
 
@@ -643,18 +617,20 @@ shader_chunks.json部分代码如下：
 ]
 ```
 
-该文件定义了所有的代码块
+该文件定义了所有代码块的配置数据
+
+下面介绍各个字段的用处：
 
 name字段是代码块的名字，与shaders.json关联
 
-glsls字段定义了包含的VS GLSL和FS GLSL。其中如果type为vs或者fs，则name为VS GLSL或者FS GLSL的文件名，与GLSL Chunk的文件名关联；如果type为vs_function或者fs_function，则name为设置GLSL的动作名，此处具体为定义最大方向光的个数的动作名
+glsls字段定义了VS GLSL和FS GLSL。其中如果type为vs或者fs，则name为VS GLSL或者FS GLSL的文件名，与GLSL Chunk的文件名关联；如果type为vs_function或者fs_function，则name为设置GLSL的动作名。此处为定义最大方向光的个数的动作名
 
 variables字段定义了属于Send Data的顶点数据和Uniform数据
 
 
 
 
-现在继续回到Client，看相关代码：
+现在看下Client的代码：
 ```ts
 // use json loader to load config
 import * as shadersJson from "./glsl_config/shaders.json"
@@ -680,7 +656,7 @@ let parsedConfig = parseConfig(shadersJson as any, _fixJsonForArrayBug(shaderChu
 ```
 
 这里最终是调用ChunkHandler的parseConfig函数来对GLSL Config进行解析。
-因为ChunkHandler是Rescript写的，所有在parseConfig函数中将JSON文件转换为Rescript的Record的数据格式。
+因为ChunkHandler是Rescript写的，所以需要在parseConfig函数中将JSON文件转换为Rescript的数据格式。
 如果ChunkHandler使用Typescript写的，则不需要这一步。
 
 
@@ -706,8 +682,15 @@ state = render(state)
 接着初始化相机，设置相机的假数据；
 最后渲染场景
 
-这里跟之前不一样的就是在调用initBasicMaterialShader函数时，传入了"render_basic"这个参数，它用来指定使用shaders.json->shaders->render_basic的Shader的配置数据
+这里跟之前不一样的地方是在调用initBasicMaterialShader函数时，传入了"render_basic"这个参数，它用来指定所有的基础材质都使用shaders.json->shaders->render_basic的配置数据
 
+如果引擎再加入更多的材质，比如加入Phong材质，那么Client的代码就会变为：
+```ts
+state = initBasicMaterialShader(state, "render_basic", allBasicMaterials)
+state = initPhongMaterialShader(state, "render_phong", allPhongMaterials)
+```
+
+也就是说基础材质对应render_basic Shader，Phong材质对应render_phong Shader
 
 
 我们看下Main中的createState代码：
@@ -715,31 +698,24 @@ state = render(state)
 export let createState = ([shaders, shaderChunks]): state => {
     return {
         gl: createFakeWebGLRenderingContext(),
-        programMap: Map(),
-        sendDataMap: Map(),
-        shaderIndexMap: Map(),
-        maxShaderIndex: 0,
-        vMatrix: null,
-        pMatrix: null,
+        ...
         shaders,
         shaderChunks,
         isSupportInstance: true,
         maxDirectionLightCount: 4,
         chunk: getData(),
-        precision: "lowp",
-
         ...
     }
 }
 ```
 
-相比之前的代码，值得说明的是调用了getData函数来获得GLSL Chunk的数据，保存到chunk字段
+这里调用了Merge GLSL Chunk的getData函数来获得所有的GLSL Chunk的数据，将其保存到state.chunk字段
 
 我们介绍下相关的情况：
 
 引擎定义的GLSL Chunk具体为多个.glsl的文件，其中每个文件通过字符@top、@define、@varDeclare、@funcDeclare、@funcDefine、@body以及对应的@end定义了对应的GLSL代码片段
 
-我们来看下Instance相关的两个.glsl文件：
+举例来说，我们看下Instance相关的两个.glsl文件：
 modelMatrix_instance_vertex.glsl
 ```ts
 @body
@@ -753,10 +729,9 @@ mat4 mMatrix = u_mMatrix;
 @end
 ```
 
-这些.glsl文件是进行了抽象处理的，从而能够被正确地组合起来
+<!-- 这些.glsl文件是进行了抽象处理的，从而能够被正确地组合起来 -->
 
-
-在预处理阶段，引擎通过gulp任务来调用ChunkConverter模块，将所有的.glsl文件合并为一个Merged GLSL Chunk，具体就是MergedGLSLChunk.ts或者MergedGLSLChunk.res文件
+在预处理时，引擎通过gulp任务来调用ChunkConverter模块，将所有的.glsl文件合并为一个Merged GLSL Chunk，它具体就是MergedGLSLChunk.ts或者MergedGLSLChunk.res文件
 
 我们来看下MergedGLSLChunk.ts的代码：
 ```ts
@@ -785,7 +760,7 @@ mat4 mMatrix = u_mMatrix;
   }
 ```
 
-我们可以看到，getData函数返回的Merged GLSL Chunk数据确实包含了所有的GLSL Chunk的数据
+我们可以看到，getData函数返回了Merged GLSL Chunk数据，它是一个Hash Map，包含了所有的GLSL Chunk的数据
 
 
 我们继续来看下InitBasicMaterialShader中的initBasicMaterialShader代码：
@@ -830,7 +805,7 @@ export let initBasicMaterialShader = (state: state, shaderName: shaderName, allM
             glslMap = glslMap.set(shaderIndex, glsl)
         }
 
-        console.log("shaderIndex:", shaderIndex)
+        ...
 
         return [
             programMap.set(shaderIndex, program),
@@ -849,22 +824,14 @@ export let initBasicMaterialShader = (state: state, shaderName: shaderName, allM
 }
 ```
 
-
-<!-- TODO buildGLSL hook
-
-
-TODO:
-shaders.json hook
-vs_function或者fs_function -->
+该函数首先调用了ChunkHandler的buildGLSL函数，按照shaders.json和shader_chunks.json的配置将MergedGLSLChunk.ts文件中对应的小块GLSL拼接为材质的一套GLSL（即一个VS GLSL和一个FS GLSL），并且经过处理后返回了shaders.json->render_basic->shaderChunks的值；
+然后调用了ChunkHandler的getSendData函数，从shaderChunks的值中获得了顶点Send Data和Uniform Send Data，将其保存在state.sendDataMap中
 
 
-该函数首先调用了ChunkHandler的buildGLSL函数来按照shaders.json和shader_chunks.json的配置将MergedGLSLChunk.ts文件中对应的小块GLSL拼接为材质的一套GLSL（即一个VS GLSL和一个FS GLSL），并且通过处理后返回了shaders.json中名为"render_basic"的Shader的所有shaderChunks；
-然后调用了ChunkHandler的getSendData函数来从shaderChunks中获得顶点Send Data和Uniform Send Data，将其保存在state.sendDataMap中
+ChunkHandler的buildGLSL函数和getSendData函数都接受了来自引擎的函数（如isNameValidForStaticBranch、addAttributeSendData），它们用于处理shaders.json和shader_chunks.json中的一些字段，从而实现分支处理或者从中获得Send Data。
 
-
-ChunkHandler的buildGLSL函数和getSendData函数都接受了来自引擎的函数（如isNameValidForStaticBranch、addAttributeSendData），它们用于处理shaders.json和shader_chunks.json中的一些字段，实现分支处理或者获得Send Data。
-
-由于这些字段的值是引擎定义的，所以它们的类型是定义在引擎端，并且明确了有哪些具体的值。具体的定义在引擎的GLSLConfigType.ts中，代码如下：
+由于这些字段的值是引擎定义的，所以它们的类型是再次定义在引擎端，明确了有哪些具体的值。
+具体的定义在引擎的GLSLConfigType.ts中，代码如下：
 ```ts
 export type shaderMapDataName = "modelMatrix_instance"
 
@@ -895,7 +862,7 @@ export type glslNameForBuildGLSLChunk = "defineMaxDirectionLightCount"
 ```
 
 
-另外值得注意的是我们对部分传入buildGLSL函数的函数进行了柯西化，这是因为这些函数的一部分参数需要在此处获得，所以就通过柯西化而将参数传入
+另外值得注意的是我们对传入buildGLSL的部分函数进行了柯西化。这是因为这些函数的一部分参数需要在此处获得，所以就通过柯西化而将参数传入
 
 相关代码如下：
 ```ts
@@ -996,10 +963,10 @@ let _sendUniformData = (uniformSendData: Array<uniformSendData>, state: state, t
 }
 ```
 
-这里也是直接遍历Uniform的Send Data，发送Uniform数据
+这里直接遍历Uniform的Send Data，发送Uniform数据
 
 
-下面，我们运行代码，运行结果与一样
+下面，我们运行代码，运行结果如下：
 ```text
 shaderIndex: 0
 shaderIndex: 1
@@ -1023,6 +990,7 @@ uniform1i
 其它渲染逻辑...
 ```
 
+运行结果与之前基本上一样，通过了运行测试
 
 <!-- # 设计意图 -->
 <!-- 分解大块数据为小块单位，按照配置文件来拼接 -->
@@ -1034,7 +1002,7 @@ uniform1i
 
 <!-- 可配置地拼接小块数据 -->
 
-分解处理各种分支的大数据为小块单位，按照配置文件来拼接
+分解包含各种分支的大数据为小块单位，按照配置文件来拼接
 
 
 ## 描述定义？
@@ -1055,7 +1023,7 @@ TODO tu
 该角色是配置数据，用来指定如何拼接数据
 
 - Target Chunk
-该角色是小块的数据，该数据是通过对原始的大数据抽象分解后得到的，一般来说一个分支对应一块数据
+该角色是小块的数据，它是通过对原始的大数据抽象分解后得到的，一般来说大数据中的一个分支对应一个Target Chunk数据
 
 - Merged Target Chunk
 该角色是合并了所有的Target Chunk后的数据，它将所有的Target Chunk文件合并为一个Hash Map
@@ -1064,13 +1032,13 @@ TODO tu
 该角色是拼接后的符合某种特定分支条件的数据，如[支持方向光，支持贴图，支持Instance]的GLSL
 
 - Runtime Data
-该角色是运行时数据，它在初始化时从Target Config中获得，在运行时被发送
+该角色是运行时数据，它在初始化时从Target Config中获得，在运行时被使用
 
 - ChunkConverter
-该角色合并所有的Target Chunk为一个Merged Target Chunk文件，这发生在预处理阶段
+该角色负责在预处理时合并所有的Target Chunk为一个Merged Target Chunk文件
 
 - ChunkHandler
-该角色定义了Target Config的格式（类型），实现了拼接Target和获得Runtime Data的函数
+该角色定义了Target Config的格式（也就是类型），并且实现了拼接Target和获得Runtime Data的相关函数
 
 - Main
 该角色为系统的门户，提供API给Client
@@ -1086,7 +1054,7 @@ TODO tu
 
 - Target Chunk由系统给出
 
-- Target Config的格式（类型）由ChunkHandler定义。其中由系统处理的字段的类型则由系统再次定义，给出了这些字段的所有可能的值
+- Target Config的格式由ChunkHandler定义。其中由系统处理的字段的类型由系统再次定义，目的是定义这些字段的所有可能的值
 
 - Target Config的内容由Client给出
 
@@ -1113,11 +1081,11 @@ TODO tu
 
 - ChunkConverter的抽象代码
 ```ts
-//create MergedGLSLChunk.ts
-export declare function createChunkForTs(chunkPathArr: Array<string>, destFilePath: string, doneFunc): void
+//create MergedTargetChunk.ts
+export declare function createMergedTargetChunkForTs(targetChunkPathArr: Array<string>, destFilePath: string, doneFunc): void
 
-//create MergedGLSLChunk.res
-export declare function createChunkForRes(chunkPathArr: Array<string>, destFilePath: string, doneFunc): void
+//create MergedTargetChunk.res
+export declare function createMergedTargetChunkForRes(targetChunkPathArr: Array<string>, destFilePath: string, doneFunc): void
 ```
 
 - Target Chunk的抽象代码
@@ -1141,7 +1109,7 @@ let _buildChunk =
 export let getData = (): Record<chunkName, chunk> => {
 
     return {
-        "chunk1": _buildChunk("...", "...", ...),
+        "target_chunk1": _buildChunk("...", "...", ...),
         ... 
     }
 }
@@ -1153,31 +1121,31 @@ var gulp = require("gulp");
 var path = require("path");
 
 //create for typescript
-gulp.task("createChunkFile_ts", function (done) {
+gulp.task("createMergedTargetChunkFile_ts", function (done) {
     var compiler = require("chunk_converter_abstract");
 
     var chunkFilePath = path.join(process.cwd(), "src/target_chunks/MergedTargetChunk.ts");
-    var chunkPathArray = [path.join(process.cwd(), "src/target_chunks/**/*")];
+    var targetChunkPathArray = [path.join(process.cwd(), "src/target_chunks/**/*")];
 
-    compiler.createChunkFileForTs(chunkPathArray, chunkFilePath, done);
+    compiler.createMergedTargetChunkFileForTs(targetChunkPathArray, chunkFilePath, done);
 });
 
 //create for rescript
-gulp.task("createChunkFile_res", function (done) {
+gulp.task("createMergedTargetChunkFile_res", function (done) {
     var compiler = require("chunk_converter_abstract");
 
     var chunkFilePath = path.join(process.cwd(), "src/target_chunks/MergedTargetChunk.res");
-    var chunkPathArray = [path.join(process.cwd(), "src/target_chunks/**/*")];
+    var targetChunkPathArray = [path.join(process.cwd(), "src/target_chunks/**/*")];
 
-    compiler.createChunkFileForRes(chunkPathArray, chunkFilePath, done);
+    compiler.createMergedTargetChunkFileForRes(targetChunkPathArray, chunkFilePath, done);
 });
 ```
 
 
 - Target Config的抽象代码
-Target Config应该包含whole_config.json和chunks_config.json两个配置文件，其中前者应该指定有哪些静态分支和动态分支、要构造哪些Target；后者应该指定所有的块的配置数据
+Target Config应该包含targets_config.json和chunks_config.json两个配置文件，其中前者应该指定有哪些静态分支和动态分支、要构造哪些Target；后者应该指定所有的块的配置数据
 
-whole_config.json如下
+targets_config.json如下
 ```ts
 {
   "static_branchs": [
@@ -1234,10 +1202,10 @@ chunks_config.json如下
 [
     {
         "name": "chunk name",
-        "chunks": [
+        "target chunk": [
             {
                 "type": "xxx",
-                "name": "chunks name"
+                "name": "target chunk name"
             },
             ...
         ],
@@ -1257,12 +1225,12 @@ chunks_config.json如下
 - Client的抽象代码
 ```ts
 // use json loader to load target config
-import * as wholeConfigJson from "./target_config/whole_config.json"
+import * as targetsConfigJson from "./target_config/targets_config.json"
 import * as chunksConfigJson from "./target_config/chunks_config.json"
 
-import { parseConfig, createState, init, operateWhenLoop } from "splice_pattern_system_abstract/src/Main"
+...
 
-let parsedConfig = parseConfig(wholeConfigJson, chunksConfigJson)
+let parsedConfig = parseConfig(targetsConfigJson, chunksConfigJson)
 
 let state = createState(parsedConfig)
 
@@ -1345,9 +1313,9 @@ TODO finish
 ## 优点
 
 - 用户能够灵活地拼接Target数据 
-用户能够通过Target Config配置文件，在系统限制的范围内拼接自己想要的Target数据
+用户能够通过Target Config配置文件，拼接自己想要的Target数据
 
-- 精简Target数据
+- 精简的Target数据
 拼接后的Target数据没有分支判断，非常精简
 
 - 提高性能
@@ -1357,7 +1325,7 @@ TODO finish
 
 ## 缺点
 
-- Target Config配置文件的格式（类型)由系统端定义，用户需要遵守该格式来写配置内容，这样增加了一些限制
+- Target Config配置文件的格式由系统端定义，用户需要遵守该格式来写配置内容，这样增加了一些限制
 
 - 因为Target Chunk使用了自定义的分段字符（如@top），所以无法正确使用该文件的编译检查，如无法正确使用.glsl的shader编译检查
 
@@ -1368,13 +1336,13 @@ TODO finish
 
 ### 场景描述
 
-系统需要构造处理各种分支的数据
+系统需要构造包含各种分支的数据
 
 ### 解决方案
 
 把每个分支对应的数据都对应分解为一块数据；
 
-由用户给出配置文件来指定：这些数据有哪些分支、要构造哪些数据、每个数据包含哪些块、所有的块的配置数据
+由用户给出配置文件来指定：有哪些分支、要构造哪些Target数据、每个Target数据包含哪些块、每块有哪些配置数据
 
 ### 具体实例
 
@@ -1382,11 +1350,13 @@ TODO finish
 
 - 构造游戏的地图数据
 
-一张大的世界地图可以分成多个区域，每个区域的地图可以根据各种分支条件来生成，如是否有水、是否有很多树等。
+一张大的世界地图可以分成多个区域，每个区域的地图可以根据各种分支条件来生成，如分支条件可以为是否有水、是否有很多树等。
 
-那么可以将大的世界地图按照区域分解为很多块小地图，然后又把小地图按照各种分支条件分解为小块数据
+那么可以将大的世界地图按照区域分解为很多个小地图，然后又把每个小地图按照各种分支条件分解为小块数据
 
-由用户给出配置文件来指定：要构造哪些区域的地图、每个区域有哪些分支条件、每个区域包含哪些块
+将一个区域的地图数据看作一个Target数据，将每块数据看作一个Target Chunk数据
+
+由用户给出配置文件来指定：要构造哪些区域的地图、每个区域有哪些分支条件、每个区域包含哪些块，每块有哪些配置数据
 
 
 
@@ -1397,9 +1367,9 @@ TODO finish
 ## 注意事项
 
 
-- Target Chunk应该进行了适当抽象的，从而能够保证在拼接为Target后是正确的
+- Target Chunk应该进行了适当抽象，从而能够保证在拼接为Target后是正确的
 
-如对于片元着色器的GLSL，有两个GLSL Chunk：basic_map_fragment.glsl, no_basic_map_fragment.glsl, basic_end_fragment.glsl。前两者分别处理有贴图和没有贴图的情况，第三个负责输出到gl_FragColor
+如对于片元着色器的GLSL，有三个GLSL Chunk：basic_map_fragment.glsl, no_basic_map_fragment.glsl, basic_end_fragment.glsl。前两者分别处理有贴图和没有贴图的情况，第三个负责输出到gl_FragColor
 
 如果没有进行抽象的话，前两者的代码可能为：
 basic_map_fragment.glsl
@@ -1417,9 +1387,11 @@ no_basic_map_fragment.glsl
 @end
 ```
 
-这里的问题就是需要在basic_end_fragment.glsl中输出颜色，而两者中的颜色变量名不一样，无法统一地输出颜色。
+这里的问题是需要在basic_end_fragment.glsl中输出颜色，而两者中的颜色变量名不一样，无法统一地输出颜色。
 
-因此需要进行抽象，抽象出名为“totalColor”变量作为输出的颜色变量。那么这三个GLSL Chunk的代码就应该修改为：
+因此需要进行抽象，抽象出名为“totalColor”变量作为输出的颜色变量。
+
+那么这三个GLSL Chunk的代码就应该修改为：
 basic_map_fragment.glsl
 ```ts
 @body
@@ -1447,11 +1419,11 @@ basic_end_fragment.glsl
 
 # 扩展
 
-我们可以通过扩展配置文件的格式（类型），来支持更灵活的配置
+我们可以通过扩展配置文件的格式，来支持更灵活的配置
 
 如我们可以在shader_chunks.json->glsls字段中增加值为“custom_vs”的type，从而能够在配置文件中插入用户自定义的GLSL
 
-具体shader_chunks.json相关代码如下：
+shader_chunks.json相关代码可以改为：
 ```ts
   {
     ...,
@@ -1472,14 +1444,15 @@ basic_end_fragment.glsl
   },
 ```
 
-要实现这个，需要进行下面的修改：
-- 修改ChunkHandler->GLSLConfigType.res中对应的类型
-- 修改ChunkHanlder->buildGLSL函数，增加新的传入的函数参数，并在ChunkHanlder->BuildGLSL->buildGLSL函数中使用它来处理type为custom_vs的情况
+要实现这个扩展，需要进行下面的修改：
+- 修改ChunkHandler->GLSLConfigType.res中glsls的类型
+- 修改ChunkHanlder->buildGLSL函数->传入参数，传入来自引擎的新的函数；然后在ChunkHanlder->BuildGLSL->buildGLSL函数中使用该函数来处理type为custom_vs的情况
 
 
 
 
-另外，可以把Target Config配置文件升级成新的Shader语言；把ChunkConverter、ChunkHandler升级为Shader编译器，负责把新的Shader语言编译为GLSL。这样做的好处是用户能够更加灵活地自定义Shader
+另外，可以把Target Config配置文件升级成新的Shader语言；把ChunkConverter、ChunkHandler升级为Shader编译器，负责把新的Shader语言编译为GLSL。
+这样做的好处是让用户能够更加灵活地自定义Shader
 
 
 
@@ -1501,11 +1474,12 @@ basic_end_fragment.glsl
 ## 哪些场景不需要使用模式？
 
 如果Target数据很单一，那么就只需要一个很大的Target数据即可。
-如对于路径追踪渲染而言，它是一个统一的框架，没有什么分支判断，因此只需要一个一个大的Shader即可。
 
-这种大的Shader的代码量可能达到上万行，因此可以使用[slang](https://github.com/shader-slang/slang)这种更容易维护、更模块化的编程语言来写Shader。
+如对于路径追踪渲染而言，它是一个统一的框架，没有什么分支判断，因此只需要一个大的Shader即可。
 
-它相当于着色器语言中的Typescript，也就是在原始的着色器语言之上增加了一层编译器，可以编译为GLSL、HLSL等各种着色器语言
+因为这个大的Shader的代码量可能达到上万行，所以可以使用[slang](https://github.com/shader-slang/slang)这种更容易维护、更模块化的编程语言来写Shader。
+
+slang相当于着色器语言中的Typescript，在原始的着色器语言之上增加了一层编译器，可以编译为GLSL、HLSL等各种着色器语言
 
 
 <!-- ## 给出具体的实践案例？ -->
@@ -1514,4 +1488,4 @@ basic_end_fragment.glsl
 
 # 更多资料推荐
 
-Unity、taichi实现了自己的Shader语言
+Unity、taichi实现了Shader编译，提出了自己的Shader语言

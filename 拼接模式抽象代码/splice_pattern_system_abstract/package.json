@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "scripts": {
     "watch": "tsc -w -noEmit",
-    "preprocess:ts": "gulp createChunkFile_ts",
-    "preprocess:res": "gulp createChunkFile_res"
+    "preprocess:ts": "gulp createMergedTargetChunkFile_ts",
+    "preprocess:res": "gulp createMergedTargetChunkFile_res"
   },
   "devDependencies": {
     "gulp": "^4.0.2",
