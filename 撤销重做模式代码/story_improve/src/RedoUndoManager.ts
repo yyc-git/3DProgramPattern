@@ -2,7 +2,7 @@ import { Stack } from "immutable"
 import * as Engine from "./Engine"
 import * as Editor from "./Editor"
 
-export let pushEditorState = (editorState: Editor.state): Editor.state => {
+export let pushAllSubSystemStates = (editorState: Editor.state): Editor.state => {
     return {
         ...editorState,
         engineStatesForUndo: editorState.engineStatesForUndo.push(

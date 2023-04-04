@@ -2,7 +2,7 @@ import { Stack } from "immutable"
 import * as ImmutableAndMutableSubSystem1 from "./ImmutableAndMutableSubSystem1"
 import * as System from "./System"
 
-export let pushSystemState = (systemState: System.state): System.state => {
+export let pushAllSubSystemStates = (systemState: System.state): System.state => {
     return {
         ...systemState,
         immutableAndMutableSubSystem1StatesForUndo: systemState.immutableAndMutableSubSystem1StatesForUndo.push(

@@ -17,6 +17,8 @@ export let doWhenMove = (state: state) => {
         immutableData1: state.immutableData1 + 1
     }
 
+    //更新mutable字段
+    //并没有像更新immutable数据那样拷贝后再修改，而是直接修改了原始数据
     state.mutableData2.push(1)
 
     return state

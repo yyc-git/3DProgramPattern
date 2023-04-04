@@ -1,5 +1,5 @@
 import { Stack } from "immutable"
-import { pushSystemState, undo as undoRedoUndoManager, redo as redoRedoUndoManager } from "./RedoUndoManager"
+import { pushAllSubSystemStates, undo as undoRedoUndoManager, redo as redoRedoUndoManager } from "./RedoUndoManager"
 import * as ImmutableAndMutableSubSystem1 from "./ImmutableAndMutableSubSystem1"
 import * as ImmutableSubSystem1 from "./ImmutableSubSystem1"
 
@@ -24,7 +24,7 @@ export let createState = (): state => {
 }
 
 export let doSomething = (state: state) => {
-    state = pushSystemState(state)
+    state = pushAllSubSystemStates(state)
 
     let immutableAndMutableSubSystem1State = ImmutableAndMutableSubSystem1.doSomething(state.immutableAndMutableSubSystem1State)
 

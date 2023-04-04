@@ -5,21 +5,24 @@
 ## 需求
 
 <!-- 编辑器实现了Move操作，该操作会操作引擎、更新编辑器中与逻辑相关的数据、更新编辑器的UI -->
-编辑器实现了Move操作，该操作会操作子系统，更新它们的数据
+编辑器实现了Move操作，该操作会操作编辑器的子系统，更新它们的数据
 
-现在需要实现该操作的撤销/重做功能
+现在需要实现Move操作的撤销/重做功能，具体来说就是能够撤销Move操作的的影响，恢复子系统的数据为操作前的数据；以及能够重新执行撤销的Move操作，再次更新子系统的数据
+
+
 
 ## 实现思路
 
-使用命令模式，编辑器的每个操作都是一个命令
+使用命令模式，将编辑器的每个操作都建模为一个命令
 
-进行Move操作时，首先创建Move命令；然后拷贝执行前的数据，保存在命令中；然后执行命令来更新数据；最后保存命令到撤销栈中
+进行Move操作时，首先创建Move命令；然后拷贝执行前子系统的数据到命令中；然后执行命令，调用子系统，来更新子系统的数据；最后保存命令到撤销栈中
 
-撤销时，首先从撤销栈中得到最近保存的命令；然后撤销该命令，它会恢复为执行前的数据；最后将该命令保存重做栈中
+撤销时，首先从撤销栈中得到最近保存的命令；然后执行该命令的撤销函数，它会恢复子系统为执行前的数据；最后将该命令保存到重做栈中
 
-重做时，首先从重做栈中得到最近保存的命令；然后执行该命令来更新数据；最后将该命令保存撤销栈中
+重做时，首先从重做栈中得到最近保存的命令；然后执行该命令，更新子系统的数据；最后将该命令保存撤销栈中
 
 
+因为我们用函数而不是类来实现，所以数据都保存在各自的闭包中
 
 ## 给出UML
 
@@ -27,9 +30,9 @@ TODO tu
 
 编辑器的子系统包括引擎-Engine、编辑器逻辑-EngineLogic、编辑器UI-EditorUI
 
-MoveCommand对应编辑器的Move操作，负责与子系统交互，拷贝了它们数据
+MoveCommand命令对应编辑器的Move操作，负责与子系统交互，拷贝它们数据
 
-CommandManager负责管理所有的命令，维护了撤销和重做的命令栈
+CommandManager负责管理所有的命令，维护用来保存命令的撤销栈和重做栈
 
 
 
@@ -53,11 +56,11 @@ redo()
 printAllData()
 ```
 
-我们首先执行编辑器的move操作；
+我们首先执行编辑器的Move操作；
 然后撤销该操作；
 最后重做该操作
 
-每一步我们都打印了当前的数据，用来检查是否通过了运行测试
+每一步我们都打印了当前的数据，用来检查是否运行正确
 
 
 Editor代码：
@@ -69,9 +72,7 @@ export let printAllData = () => {
 }
 ```
 
-子系统的每个模块都只有一个数据data1
-
-printAllData函数打印了它们的数据data1
+子系统的每个模块都只有一个数据data1，printAllData函数打印了它们的数据
 
 下面是子系统相关代码：
 Engine
@@ -111,7 +112,7 @@ export let setData1 = (data1) => {
 }
 ```
 
-数据data1保存在闭包中
+它们的数据data1保存在它们的闭包中
 
 我们继续看Editor的代码：
 Editor
@@ -127,7 +128,7 @@ export let move = () => {
 }
 ```
 
-该函数首先创建了Move命令；然后执行命令；最后保存命令到CommandManager的撤销栈中
+该函数为编辑器的Move操作函数，它首先创建了Move命令；然后执行该命令；最后保存该命令到CommandManager的撤销栈中
 
 我们看下MoveCommand相关代码：
 MoveCommand
@@ -152,9 +153,10 @@ export let createCommand = (): command => {
 }
 ```
 
-该命令将执行命令前的子系统每个模块的data1数据分别拷贝到闭包的_engineData1Before、_editorLogicData1Before、_editorUIData1Before中
+createCommand函数返回了实现了Command接口的Move命令，它包括了exec函数
+该函数实现了执行命令的逻辑，它首先拷贝数据，将执行前的子系统每个模块的data1数据分别拷贝到_engineData1Before、_editorLogicData1Before、_editorUIData1Before中保存；
+后执行子系统每个模块的对应逻辑
 
-exec函数实现了执行命令，它首先拷贝数据；最后执行子系统每个模块的逻辑
 
 我们看下子系统相关代码：
 Engine
@@ -182,9 +184,9 @@ export let doWhenMove = () => {
 }
 ```
 
-它们都更新了数据data1，只是更新的值不一样
+它们都更新了自己的数据，只是更新的值不一样
 
-另外，EditorUI还操作了dom，模拟绘制逻辑
+除此之外，EditorUI还操作了dom来绘制
 
 
 我们看下CommandManager相关代码：
@@ -199,7 +201,7 @@ export let pushCommand = (command: command) => {
 }
 ```
 
-CommandManager将撤销栈、重做栈保存在闭包中
+值得注意的是，pushCommand函数将重做栈清空了
 
 
 我们继续看Editor剩余代码：
@@ -245,6 +247,9 @@ export let redo = () => {
 ```
 MoveCommand
 ```ts
+export let createCommand = (): command => {
+    return {
+        ...
         undo: () => {
             Engine.setData1(_engineData1Before)
             EditorLogic.setData1(_editorLogicData1Before)
@@ -252,6 +257,8 @@ MoveCommand
 
             EditorUI.undraw()
         }
+    }
+}
 ```
 EditorUI
 ```ts
@@ -260,7 +267,8 @@ export let undraw = () => {
 }
 ```
 
-MoveCommand的undo函数中，通过调用EditorUI的undraw函数来撤销EditorUI的绘制
+值得注意的是，MoveCommand的undo函数除了恢复子系统的数据为操作前的数据外，还调用EditorUI的undraw函数来撤销EditorUI的绘制
+
 
 
 下面，我们运行代码，运行结果如下：
@@ -285,12 +293,11 @@ EditorLogic->data1: 2
 EditorUI->data1: 3
 ```
 
-在执行move操作前，子系统每个模块的data1都为初始值：0
+在执行Move操作前，子系统每个模块的data1都为初始值：0
 
 执行move后，操作了dom来绘制，并且子系统每个模块的data1分别更新为1、2、3
 
-撤销后，操作了dom来撤销绘制，
-执行move后，操作了dom来绘制，并且子系统每个模块的data1都恢复为初始值0
+撤销后，操作了dom来撤销绘制，并且子系统每个模块的data1都恢复为初始值0
 
 重做后，操作了dom来绘制，并且子系统每个模块的data1再次更新为1、2、3
 
@@ -300,8 +307,13 @@ EditorUI->data1: 3
 
 ## 提出问题
 
-- 因为命令需要知道子系统数据的拷贝、撤销的逻辑，所以每当修改子系统数据时，所有涉及到该数据的命令都需要对应修改
-<!-- 在命令执行时，命令需要知道如何如何获得和保存更新前的数据；在命令撤销时，命令需要知道如何撤销数据 -->
+- 因为命令需要知道子系统数据的拷贝、恢复、状态撤销（如撤销EditorUI的绘制）的逻辑，所以每当修改子系统数据时，所有涉及到该数据的命令都需要对应修改
+
+假设Editor有10个操作，那么就有对应的10个命令。
+假设每个命令都操作了子系统1，那么首先每个命令都需要实现子系统1的数据的“拷贝、恢复、状态撤销”的逻辑；
+另外，如果子系统1的数据修改时，这10个命令也需要对应修改对子系统1数据的拷贝、恢复、状态撤销的逻辑
+
+终上所述，命令越多，实现成本和维护成本就越高
 
 
 
@@ -309,26 +321,18 @@ EditorUI->data1: 3
 
 ## 概述解决方案
 
-将子系统中每个模块的数据集中起来保存在对应的state中，然后一起保存在编辑器的EditorState中；
+使用一个大的EditorState来保存编辑器的所有数据；
 
-确保每个模块的state中的数据尽量为不可变数据；
+将子系统中每个模块的数据集中起来保存在对应的state中，并将每个state保存在EditorState中；
+
+确保子系统中每个模块的state中的数据尽量为不可变数据；
 
 因为不可变数据是唯一的，没有共享状态，所以在撤销、重做时不需要进行拷贝等操作；
 反之，对于每个模块的state中的可变数据，则需要实现它们的拷贝和恢复的逻辑；
 
+进行Move操作时，将当前的EditorState中的子系统每个模块的state保存到对应的栈中
 
-
-<!-- 这里将当前子系统各个模块的state保存到对应的重做栈中；并将保存在对应的撤销栈的子系统各个模块的state取出来，替换为新的当前的子系统各个模块的state
-
-值得注意的是由于引擎的EngineState有可变数据，所以对其进行了深拷贝和恢复操作 -->
-<!-- 因为不可变数据是唯一的，没有共享状态，所以在撤销、重做时不需要进行拷贝等操作；
-反之，对于每个模块的state中的可变数据，则需要实现它们的拷贝和恢复的逻辑； -->
-
-
-
-
-
-在撤销或者重做时，只需要把当前的EditorState替换为对应的EditorState
+在撤销或者重做时，从对应的栈中取出最近保存的EditorState，将其作为当前的EditorState
 
 
 
@@ -336,9 +340,10 @@ EditorUI->data1: 3
 TODO tu
 
 
-EditorState是编辑器的state数据，包括了三个子系统模块的state：EngineState、EditorLogicState、EditorUIState
-其中EngineState包括了不可变和可变数据，另外两个模块的state只有不可变数据
-这是因为EngineState将会有WebGLBuffer这种图形API创建的对象，它是可变数据；除此以外还有些性能热点的数据也是可变数据，所以EngineState需要有这些可变数据
+EditorState是编辑器的state，保存了编辑器的所有数据，包括了三个子系统模块的state：EngineState、EditorLogicState、EditorUIState
+其中EngineState包括了不可变和可变数据，这是因为EngineState会有WebGLBuffer这种图形API创建的对象，它是可变数据；
+除此以外，为了优化，性能热点的数据也是可变数据，所以EngineState需要有这些可变数据
+另外两个模块的state只有不可变数据
 
 EditorState还包括了每个子系统模块对应的撤销栈和重做栈，它们用来保存子系统模块的state
 
@@ -347,17 +352,17 @@ EditorState还包括了每个子系统模块对应的撤销栈和重做栈，它
 从撤销栈或者重做栈中取出EngineState后，需要调用Engine的restore函数进行恢复操作，然后再将其设置为当前的EditorState中的EngineState
 
 
-子系统的EditorUI可以使用React或者Vue作为UI框架，从而不再需要直接操作dom了，而是只操作数据即可
+子系统的EditorUI一般都会使用React或者Vue等UI框架，因此不需要直接操作dom，而是只操作数据即可，所以没有draw、undraw函数
 
 
-RedoUndoManager负责管理EditorState，维护了EditorState中的撤销和重做栈
+RedoUndoManager负责管理EditorState，维护EditorState中的撤销和重做栈
 
 
 
 ## 结合UML图，描述如何具体地解决问题？
 
-- 每当修改子系统的不可变数据时，因为它不需要拷贝或者撤销，所以系统不需要任何修改
-- 每当修改子系统的可变数据时，如修改EngineState的可变数据时，则只需要修改Engine的deepCopy和restore函数
+- 每当修改子系统的不可变数据时，因为它没有共享状态，不需要拷贝或者撤销，所以整个系统不需要任何修改
+- 每当修改子系统的可变数据时，如修改EngineState的可变数据时，则只需要修改Engine的deepCopy和restore函数，其它地方不需要修改
 
 
 ## 给出代码？
@@ -383,9 +388,8 @@ printAllData(state)
 
 ```
 
-这里跟之前类似
-
-这里跟之前不一样的地方是首先创建了EditorState，然后每一步的函数都传入和返回了EditorState
+这里的步骤跟之前一样，不一样的地方是首先创建了EditorState，然后每一步的函数都传入和返回了EditorState。
+这是一种操作state的通用模式。在函数式编程中，数据与逻辑是分开的，所有的数据都保存到state中，函数负责实现逻辑。调用函数时，要将state传入，并且返回更新后的新的state
 
 
 我们看下Editor的createState代码：
@@ -418,6 +422,8 @@ export let createState = (): state => {
 ```
 
 createState函数创建并返回了EditorState，它包含子系统模块的state，以及对应的撤销、重做栈
+我们看到每个子系统对有一个对应的撤销栈和一个对应的重做栈
+
 
 
 我们看下Editor的printAllData代码：
@@ -429,16 +435,15 @@ export let printAllData = ({ engineState, editorLogicState, editorUIState }: sta
 }
 ```
 
-printAllData函数打子系统模块的state
+printAllData函数打印了子系统所有模块的state
 
-<!-- 我们看下Editor的move以及RedoUndoManager相关的代码：
-Editor -->
+
 我们看下Editor的move代码：
 ```ts
 export let move = (state: state) => {
     console.log("move")
 
-    state = pushEditorState(state)
+    state = pushAllSubSystemStates(state)
 
     let engineState = Engine.doWhenMove(state.engineState)
     let editorLogicState = EditorLogic.doWhenMove(state.editorLogicState)
@@ -453,13 +458,13 @@ export let move = (state: state) => {
 }
 ```
 
-这里首先保存了EditorState；
-然后执行子系统每个模块的操作；
+这里首先保存EditorState中的子系统每个模块的state到对应的撤销栈中；
+然后执行子系统每个模块对应的操作；
 最后更新EditorState中子系统每个模块的state
 
-我们看下RedoUndoManager中保存EditorState的代码：
+我们看下RedoUndoManager中相关代码：
 ```ts
-export let pushEditorState = (editorState: Editor.state): Editor.state => {
+export let pushAllSubSystemStates = (editorState: Editor.state): Editor.state => {
     return {
         ...editorState,
         engineStatesForUndo: editorState.engineStatesForUndo.push(
@@ -474,11 +479,9 @@ export let pushEditorState = (editorState: Editor.state): Editor.state => {
 }
 ```
 
-这里将子系统每个模块的state保存到对应的撤销栈中
+因为EngineState有可变数据，所以进行了深拷贝，然后再保存到Engine的撤销栈中
 
-其中因为EngineState有可变数据，所以进行了深拷贝
-
-我们看下Engine中深拷贝相关代码：
+我们看下Engine的代码：
 ```ts
 //一些字段是immutable，另外的字段是mutable
 export type state = {
@@ -499,6 +502,8 @@ export let doWhenMove = (state: state) => {
         immutableData1: state.immutableData1 + 1
     }
 
+    //更新mutable字段
+    //并没有像更新immutable数据那样拷贝后再修改，而是直接修改了原始数据
     state.mutableData2.push(1)
 
     return state
@@ -516,7 +521,7 @@ export let deepCopy = (state: state): state => {
 deepCopy函数只对可变字段mutableData2进行了深拷贝；其它不可变的字段则没有被拷贝，而是直接被赋值到新的state中
 
 
-我们再看下另外两个模块的相关代码：
+这里给出子系统另外两个模块的代码：
 EditorLogic
 ```ts
 //所有字段都应该是immutable
@@ -557,7 +562,6 @@ export let doWhenMove = (state: state) => {
     }
 }
 ```
-
 
 
 
@@ -617,9 +621,9 @@ export let undo = (editorState: Editor.state): Editor.state => {
 ```
 
 
-这里将当前子系统各个模块的state保存到对应的重做栈中；并将保存在对应的撤销栈的子系统各个模块的state取出来，替换为新的当前的子系统各个模块的state
+这里将当前子系统各个模块的state保存到对应的重做栈中；并将保存在对应的撤销栈的子系统各个模块的state取出来，作为新的当前的子系统各个模块的state
 
-值得注意的是由于引擎的EngineState有可变数据，所以对其进行了深拷贝和恢复操作
+值得注意的是因为引擎的EngineState有可变数据，所以对其进行了深拷贝和恢复操作
 
 
 RedoUndoManager的redo与undo类似，代码如下
@@ -681,28 +685,25 @@ EditorLogic->state: { data1: 2 }
 EditorUI->state: { data1: 3 }
 ```
 
-运行结果与之前一样，只是打印的值不一样
-通过了运行测试
+运行结果的步骤与之前一样，只是打印的值不一样
 
+通过检查打印的值，说明通过了运行测试
 
-<!-- # 设计意图
-
-阐明模式的设计目标 -->
 
 # 定义
 
 ## 一句话定义？
 
-替换不可变数据
+操作时保存不可变的state，撤销/重做时取出对应的state来作为当前的state
 
-## 概述抽象的解决方案
+## 补充说明
 
 
 将数据集中起来保存在state中
 
 确保state中的数据尽量为不可变数据
 
-在撤销或者重做时，只需要把当前的state替换为对应的state
+对于state中的可变数据，则需要实现它们的拷贝和恢复的逻辑
 
 
 ## 通用UML？
@@ -724,21 +725,22 @@ TODO tu
 该角色相比ImmutableSubSystem，需要多实现deepCopy、restore这两个函数，分别用来深拷贝和恢复state中的可变数据
 
 - SystemState
-该角色是系统System的state数据，包含了子系统所有模块的state，以及每个子系统模块对应的撤销栈和重做栈，这些栈用来保存子系统对应模块的state
+该角色是系统System的state数据，包含了子系统所有模块的state，以及每个子系统模块对应的撤销栈和重做栈
+这些栈用来保存子系统对应模块的state
 
 - RedoUndoManager
-该角色负责管理SystemState，维护了SystemState中的撤销和重做栈
+该角色负责管理SystemState，维护SystemState中的撤销和重做栈
 
 
 
 
 ## 角色之间的关系？
 
-- System只有一个SystemState
+- 只有一个SystemState，它保存了系统的所有数据
 
 - 子系统可以有多个ImmutableAndMutableSubSystem模块和多个ImmutableSubSystem模块
 
-- 每个子系统只有一个SubSystemState，它们保存在SystemState中
+- 子系统的每个模块只有一个SubSystemState，它保存在SystemState中
 
 - 每个SubSystemState对应一个撤销栈和重做栈
 
@@ -783,7 +785,7 @@ export let createState = (): state => {
 }
 
 export let doSomething = (state: state) => {
-    state = pushSystemState(state)
+    state = pushAllSubSystemStates(state)
 
     let immutableAndMutableSubSystem1State = ImmutableAndMutableSubSystem1.doSomething(state.immutableAndMutableSubSystem1State)
 
@@ -860,15 +862,17 @@ export let deepCopy = (state: state): state => {
 }
 
 export let restore = (currentState: state, targetState: state): state => {
-    console.log("处理currentState中与targetState共享的数据（如图形API的对象：WebGLBuffer），然后将处理结果重新共享到targetState")
+    console.log("处理currentState中与targetState共享的数据（如图形API的对象：WebGLBuffer），将处理结果重新共享到targetState")
 
     return targetState
 }
 ```
 
+会在后面给出restore函数的实现案例
+
 - RedoUndoManager的抽象代码
 ```ts
-export let pushSystemState = (systemState: System.state): System.state => {
+export let pushAllSubSystemStates = (systemState: System.state): System.state => {
     return {
         ...systemState,
         immutableAndMutableSubSystem1StatesForUndo: systemState.immutableAndMutableSubSystem1StatesForUndo.push(
@@ -955,13 +959,12 @@ TODO finish
 
 ## 优点
 
-- 直接将相关的不可变数据替换为当前数据即可，非常简单
+- 撤销/重做时，直接将相关的不可变数据替换为当前数据即可，非常简单
 
-- 可变数据的拷贝和恢复逻辑集中在ImmutableAndMutableSubSystem模块中，而不是分散在各个命令中，从而便于维护
+- 可变数据的拷贝和恢复的逻辑集中在ImmutableAndMutableSubSystem模块中，而不是分散在各个命令中，便于维护
 
 
 ## 缺点
-
 
 - “不可变数据”和“将数据集中保存在state”的方法属于函数式编程范式，使用面向对象编程范式的系统无法使用该模式
 
@@ -979,13 +982,14 @@ TODO finish
 
 - 需要保存/载入功能的游戏
 
-如游戏通常都需要保存玩家的当前进度，使得玩家可以在下次进入游戏后载入保存的进度
+如游戏通常都需要保存玩家的当前进度，使得玩家可以在下次进入后可以载入保存的进度
 
 实现的方案如下：
 整个游戏的数据保存在游戏state中；
 保存时，将游戏state保存到一个Hash Map<当前进度名, 游戏state>中；
-载入某个进度时，从Hash Map中获得该进度名的游戏state，将其替换为当前的游戏state即可；
-对于游戏state中的可变数据，在保存时深拷贝这些数据，然后在载入时还原这些数据
+载入某个进度时，从Hash Map中获得该进度名的游戏state，将其替换为当前的游戏state
+
+对于游戏state中的可变数据，在保存时先深拷贝这些数据再保存；在载入时还原这些数据
 
 
 
@@ -995,8 +999,7 @@ TODO finish
 ## 注意事项
 
 - state中的数据尽量为不可变数据
-- 对于state中的可变数据，在保存state时需要深拷贝它们，在取出保存的state来替换为当前state时需要还原它们
-
+- 对于state中的可变数据，在保存state时需要先深拷贝它们，在取出保存的state来替换为当前state时需要先还原它们
 
 <!-- # 扩展 -->
 
@@ -1008,11 +1011,11 @@ TODO finish
 
 ## 结合ECS模式
 
-如果引擎使用了ECS模式，那么各个组件的数据分别保存在自己的ArrayBuffer中，这些都是可变数据
+如果引擎使用了ECS模式，那么引擎的各个组件的数据分别保存在自己的ArrayBuffer中，它们是可变数据
 
 在深拷贝各个组件的ArrayBuffer数据时，由于它很大，所以不应该全部拷贝，而是只拷贝使用到的数据
 
-以Transform组件为例，它有一个buffer数据，存储了position数据
+以Transform组件为例，它有一个buffer数据，存储了所有Transform组件的position数据
 深拷贝Transform组件数据的相关代码如下：
 ```ts
 let _getPositionSize = () => 3
@@ -1023,15 +1026,16 @@ let getPositionLength = (count) => count * _getPositionSize()
 
 //当前创建了10个transform组件
 let maxIndex = 10
-//总共可容纳1000个transform组件的数据
-let count = 1000
+//总共可容纳10000个transform组件的数据
+let count = 10000
 
 let buffer = new ArrayBuffer(count * Float32Array.BYTES_PER_ELEMENT * _getPositionSize())
 
 let transformComponentState = {
     maxIndex,
     buffer,
-    positions: new Float32Array(buffer, getPositionOffset(count), getPositionLength(count))
+    positions: new Float32Array(buffer, getPositionOffset(count), getPositionLength(count)),
+    ...
 }
 
 ...
@@ -1047,8 +1051,8 @@ export let deepCopy = (transformComponentState) => {
 
 恢复Transform组件数据的相关代码如下：
 ```ts
-//总共可容纳1000个transform组件的数据
-let count = 1000
+//总共可容纳10000个transform组件的数据
+let count = 10000
 
 ...
 
@@ -1085,7 +1089,7 @@ let _restoreTypeArrays = (currentTransformComponentState, targetTransformCompone
 	//将currentTransformComponentState.positions的值都恢复为默认值
 	let _ = _setAllTypeArrDataToDefault([currentTransformComponentState.positions], count, [currentTransformComponentState.defaultPosition])
 
-	//将targetTransformComponentState.positions的值写到currentTransformComponentState.positions
+	//将targetTransformComponentState.positions的值写到currentTransformComponentState.positions中
 	_fillFloat32ArrayWithFloat32Array(
 		[currentTransformComponentState.positions, 0],
 		[targetTransformComponentState.positions, 0],
@@ -1120,15 +1124,15 @@ export let restore = (currentTransformComponentState, targetTransformComponentSt
 <!-- ## 结合具体项目实践经验，如何应用模式来改进项目？ -->
 ## 哪些场景不需要使用模式？
 
-使用面向对象编程范式开发的系统不需要该模式，而是可以使用最开始给出的基于命令模式的解决方案或者备忘录模式来实现撤销/重做功能
+使用面向对象编程范式开发的系统不需要该模式，而是可以使用最开始给出的基于命令模式的解决方案或者设计模式中的备忘录模式来实现撤销/重做功能
 
 
 ## 给出具体的实践案例？
 
 我们之前说过，Engine的EngineState中通常会保存WebGL的对象，我们需要在深拷贝和恢复时对它们进行处理
 
-下面以VBO为例，展示如何进行处理：
-假设EngineState有一个VBO Buffer的Pool，用于保存不再使用的所有VBO Buffer。加入Pool的设计是为了优化，因为可以在创建VBO Buffer时首先从Pool中获得之前创建的VBO Buffer，所以不需要再创建一次，从而提高性能
+下面以WebGL的VBO为例，展示如何进行处理：
+假设EngineState有一个VBO Buffer的Pool，用于保存不再使用的所有的VBO Buffer。使用Pool的目的是为了优化，因为可以在创建VBO Buffer时首先从Pool中获得之前创建的VBO Buffer，而不需要再创建一次，从而提高性能
 
 对Pool的深拷贝和恢复的相关代码如下：
 ```ts
@@ -1155,4 +1159,4 @@ export let restore = (currentState, targetState) => {
 
 # 更多资料推荐
 
-对于面向对象编程范式而言，可以使用设计模式中的“备忘录模式”以及本文最开始给出的命令模式的案例来实现撤销/重做功能
+对于面向对象编程范式而言，可以使用最开始给出的命令模式的案例以及设计模式中的“备忘录模式”来实现撤销/重做功能
