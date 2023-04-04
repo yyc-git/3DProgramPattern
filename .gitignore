@@ -14,12 +14,4 @@ npm-debug
 yarn.lock
 
 
-example/
-
-output/
-
 .CodeCounter/
-
-log/
-
-record/
