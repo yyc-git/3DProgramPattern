@@ -25,12 +25,10 @@ export let undo = (systemState: System.state): System.state => {
     previousImmutableAndMutableSubSystem1State = ImmutableAndMutableSubSystem1.restore(systemState.immutableAndMutableSubSystem1State, previousImmutableAndMutableSubSystem1State)
 
 
-
     let previousImmutableSubSystem1State = systemState.immutableSubSystem1StatesForUndo.first()
     let immutableSubSystem1StatesForUndo = systemState.immutableSubSystem1StatesForUndo.pop()
 
     let immutableSubSystem1StatesForRedo = systemState.immutableSubSystem1StatesForRedo.push(systemState.immutableSubSystem1State)
-
 
     return {
         ...systemState,
@@ -39,6 +37,7 @@ export let undo = (systemState: System.state): System.state => {
         immutableAndMutableSubSystem1StatesForRedo,
         immutableSubSystem1StatesForRedo,
 
+        //替换当前子系统各个模块的state
         immutableAndMutableSubSystem1State: previousImmutableAndMutableSubSystem1State,
         immutableSubSystem1State: previousImmutableSubSystem1State
     }
@@ -59,13 +58,10 @@ export let redo = (systemState: System.state): System.state => {
     nextImmutableAndMutableSubSystem1State = ImmutableAndMutableSubSystem1.restore(systemState.immutableAndMutableSubSystem1State, nextImmutableAndMutableSubSystem1State)
 
 
-
-
     let nextImmutableSubSystem1State = systemState.immutableSubSystem1StatesForRedo.first()
     let immutableSubSystem1StatesForRedo = systemState.immutableSubSystem1StatesForRedo.pop()
 
     let immutableSubSystem1StatesForUndo = systemState.immutableSubSystem1StatesForUndo.push(systemState.immutableSubSystem1State)
-
 
     return {
         ...systemState,
@@ -74,6 +70,7 @@ export let redo = (systemState: System.state): System.state => {
         immutableAndMutableSubSystem1StatesForRedo,
         immutableSubSystem1StatesForRedo,
 
+        //替换当前子系统各个模块的state
         immutableAndMutableSubSystem1State: nextImmutableAndMutableSubSystem1State,
         immutableSubSystem1State: nextImmutableSubSystem1State
     }

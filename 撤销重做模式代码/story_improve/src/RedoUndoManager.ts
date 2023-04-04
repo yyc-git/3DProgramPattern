@@ -53,6 +53,7 @@ export let undo = (editorState: Editor.state): Editor.state => {
         editorLogicStatesForRedo,
         editorUIStatesForRedo,
 
+        //替换当前子系统各个模块的state
         engineState: previousEngineState,
         editorLogicState: previousEditorLogicState,
         editorUIState: previousEditorUIState
@@ -99,6 +100,7 @@ export let redo = (editorState: Editor.state): Editor.state => {
         editorLogicStatesForRedo,
         editorUIStatesForRedo,
 
+        //替换当前子系统各个模块的state
         engineState: nextEngineState,
         editorLogicState: nextEditorLogicState,
         editorUIState: nextEditorUIState

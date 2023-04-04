@@ -309,24 +309,32 @@ EditorUI->data1: 3
 
 ## 概述解决方案
 
-将子系统中每个模块的数据集中起来保存在对应的state中；
+将子系统中每个模块的数据集中起来保存在对应的state中，然后一起保存在编辑器的EditorState中；
 
 确保每个模块的state中的数据尽量为不可变数据；
 
-因为不可变数据是唯一的，没有共享状态，所以在撤销、重做时不需要拷贝或者恢复；
+因为不可变数据是唯一的，没有共享状态，所以在撤销、重做时不需要进行拷贝等操作；
 反之，对于每个模块的state中的可变数据，则需要实现它们的拷贝和恢复的逻辑；
+
+在撤销或者重做时，只需要把当前的EditorState替换为对应的EditorState
+
 
 
 ## 给出UML？
 TODO tu
 
 
-EditorState是编辑器的state数据，包括了三个子系统模块的state：EngineState、EditorLogicState、EditorUIState，其中EngineState包括了不可变和可变数据，另外两个模块的state只有不可变数据。
+EditorState是编辑器的state数据，包括了三个子系统模块的state：EngineState、EditorLogicState、EditorUIState
+其中EngineState包括了不可变和可变数据，另外两个模块的state只有不可变数据
 这是因为EngineState将会有WebGLBuffer这种图形API创建的对象，它是可变数据；除此以外还有些性能热点的数据也是可变数据，所以EngineState需要有可变数据
 
 EditorState还包括了每个子系统模块对应的撤销堆栈和重做堆栈，它们用来保存子系统模块的state
 
 在子系统的模块中，Engine模块相比其它两个模块，多出了deepCopy和restore函数，它们分别用来深拷贝和恢复EngineState中的可变数据
+
+
+子系统的EditorUI可以使用React或者Vue作为UI框架，从而不再需要直接操作dom了，而是只操作数据即可
+
 
 RedoUndoManager负责管理EditorState，维护了EditorState中的撤销和重做堆栈
 
@@ -537,6 +545,8 @@ export let doWhenMove = (state: state) => {
 ```
 
 
+
+
 我们继续看Editor剩余代码：
 ```ts
 export let undo = (state: state) => {
@@ -555,7 +565,7 @@ export let redo = (state: state) => {
 它分别调用了RedoUndoManager的undo、redo函数
 
 
-RedoUndoManager相关代码如下
+RedoUndoManager的undo代码如下
 ```ts
 export let undo = (editorState: Editor.state): Editor.state => {
     let previousEngineState = editorState.engineStatesForUndo.first()
@@ -584,12 +594,22 @@ export let undo = (editorState: Editor.state): Editor.state => {
         editorLogicStatesForRedo,
         ...
 
+        //替换当前子系统各个模块的state
         engineState: previousEngineState,
         editorLogicState: previousEditorLogicState,
         ...
     }
 }
+```
 
+
+这里将当前子系统各个模块的state保存到对应的重做堆栈中；并将保存在对应的撤销堆栈的子系统各个模块的state取出来，替换为新的当前的子系统各个模块的state
+
+值得注意的是由于引擎的EngineState有可变数据，所以对其进行了深拷贝和恢复操作
+
+
+RedoUndoManager的redo与undo类似，代码如下
+```ts
 export let redo = (editorState: Editor.state): Editor.state => {
     ...
 
@@ -619,6 +639,7 @@ export let redo = (editorState: Editor.state): Editor.state => {
         editorLogicStatesForRedo,
         ...
 
+        //替换当前子系统各个模块的state
         engineState: nextEngineState,
         editorLogicState: nextEditorLogicState,
         ...
@@ -658,15 +679,261 @@ EditorUI->state: { data1: 3 }
 
 ## 一句话定义？
 
-TODO continue
+替换不可变数据
 
 ## 描述定义？
+
+
+将数据集中起来保存在state中
+
+确保state中的数据尽量为不可变数据
+
+在撤销或者重做时，只需要把当前的state替换为对应的state
+
+
 ## 通用UML？
+
+TODO tu
+
+
 ## 分析角色？
+
+
+我们来看看模式的相关角色：
+
+- ImmutableSubSystem
+该角色属于子系统的一个模块，它的state数据只有不可变数据
+
+- ImmutableAndMutableSubSystem
+该角色属于子系统的一个模块，它的state数据既包括不可变数据又包括可变数据
+其中，图形API创建的对象、性能热点数据为可变数据；其它数据为不可变数据
+该角色相比ImmutableSubSystem，需要多实现deepCopy、restore这两个函数，分别用来深拷贝和恢复state中的可变数据
+
+- SystemState
+该角色是系统System的state数据，包含了子系统所有模块的state，以及每个子系统模块对应的撤销堆栈和重做堆栈，这些堆栈用来保存子系统对应模块的state
+
+- RedoUndoManager
+该角色负责管理SystemState，维护了SystemState中的撤销和重做堆栈
+
+
+
+
 ## 角色之间的关系？
+
+- System只有一个SystemState
+
+- 子系统可以有多个ImmutableAndMutableSubSystem模块和多个ImmutableSubSystem模块
+
+- 每个子系统只有一个SubSystemState，它们保存在SystemState中
+
+- 每个SubSystemState对应一个撤销堆栈和重做堆栈
+
+
 ## 角色的抽象代码？
+
+
+下面我们来看看各个角色的抽象代码：
+
+- Client的抽象代码
+```ts
+let state = createState()
+
+state = doSomething(state)
+
+state = undo(state)
+
+state = redo(state)
+
+```
+
+- System的抽象代码
+```ts
+export type state = {
+    immutableAndMutableSubSystem1StatesForUndo: Stack<ImmutableAndMutableSubSystem1.state>,
+    immutableAndMutableSubSystem1StatesForRedo: Stack<ImmutableAndMutableSubSystem1.state>,
+    immutableSubSystem1StatesForUndo: Stack<ImmutableSubSystem1.state>,
+    immutableSubSystem1StatesForRedo: Stack<ImmutableSubSystem1.state>,
+    immutableAndMutableSubSystem1State: ImmutableAndMutableSubSystem1.state,
+    immutableSubSystem1State: ImmutableSubSystem1.state,
+}
+
+export let createState = (): state => {
+    return {
+        immutableAndMutableSubSystem1StatesForUndo: Stack(),
+        immutableAndMutableSubSystem1StatesForRedo: Stack(),
+        immutableSubSystem1StatesForUndo: Stack(),
+        immutableSubSystem1StatesForRedo: Stack(),
+        immutableAndMutableSubSystem1State: ImmutableAndMutableSubSystem1.createState(),
+        immutableSubSystem1State: ImmutableSubSystem1.createState(),
+    }
+}
+
+export let doSomething = (state: state) => {
+    state = pushSystemState(state)
+
+    let immutableAndMutableSubSystem1State = ImmutableAndMutableSubSystem1.doSomething(state.immutableAndMutableSubSystem1State)
+
+    let immutableSubSystem1State = ImmutableSubSystem1.doSomething(state.immutableSubSystem1State)
+
+    return {
+        ...state,
+        immutableAndMutableSubSystem1State,
+        immutableSubSystem1State
+    }
+}
+
+export let undo = (state: state) => {
+    return undoRedoUndoManager(state)
+}
+
+export let redo = (state: state) => {
+    return redoRedoUndoManager(state)
+}
+```
+
+- ImmutableSubSystem的抽象代码
+```ts
+//所有字段都应该是immutable
+export type state = {
+    immutable数据: xxx,
+}
+
+export let createState = (): state => {
+    return {
+        immutable数据: 初始值1,
+    }
+}
+
+export let doSomething = (state: state) => {
+    return {
+        ...state,
+        immutable数据: 更新immutable数据(state.immutable数据)
+    }
+}
+```
+
+- ImmutableAndMutableSubSystem的抽象代码
+```ts
+//一些字段是immutable，另外的字段是mutable
+export type state = {
+    immutable数据: xxx,
+    mutable数据: xxx
+}
+
+export let createState = (): state => {
+    return {
+        immutable数据: 初始值1,
+        mutable数据: 初始值2
+    }
+}
+
+export let doSomething = (state: state) => {
+    state = {
+        ...state,
+        immutable数据: 更新immutable数据(state.immutable数据)
+    }
+
+    更新mutable数据(state.mutable数据)
+
+    return state
+}
+
+export let deepCopy = (state: state): state => {
+    return {
+        ...state,
+        mutable数据: 深拷贝(state.mutable数据)
+    }
+}
+
+export let restore = (currentState: state, targetState: state): state => {
+    console.log("处理currentState中与targetState共享的数据（如图形API的对象：WebGLBuffer），然后将处理结果重新共享到targetState")
+
+    return targetState
+}
+```
+
+- RedoUndoManager的抽象代码
+```ts
+export let pushSystemState = (systemState: System.state): System.state => {
+    return {
+        ...systemState,
+        immutableAndMutableSubSystem1StatesForUndo: systemState.immutableAndMutableSubSystem1StatesForUndo.push(
+            ImmutableAndMutableSubSystem1.deepCopy(systemState.immutableAndMutableSubSystem1State)
+        ),
+        immutableSubSystem1StatesForUndo: systemState.immutableSubSystem1StatesForUndo.push(
+            systemState.immutableSubSystem1State
+        ),
+        immutableAndMutableSubSystem1StatesForRedo: Stack(),
+        immutableSubSystem1StatesForRedo: Stack(),
+    }
+}
+
+export let undo = (systemState: System.state): System.state => {
+    let previousImmutableAndMutableSubSystem1State = systemState.immutableAndMutableSubSystem1StatesForUndo.first()
+    let immutableAndMutableSubSystem1StatesForUndo = systemState.immutableAndMutableSubSystem1StatesForUndo.pop()
+
+    let immutableAndMutableSubSystem1StatesForRedo = systemState.immutableAndMutableSubSystem1StatesForRedo.push(ImmutableAndMutableSubSystem1.deepCopy(systemState.immutableAndMutableSubSystem1State))
+
+    previousImmutableAndMutableSubSystem1State = ImmutableAndMutableSubSystem1.restore(systemState.immutableAndMutableSubSystem1State, previousImmutableAndMutableSubSystem1State)
+
+
+    let previousImmutableSubSystem1State = systemState.immutableSubSystem1StatesForUndo.first()
+    let immutableSubSystem1StatesForUndo = systemState.immutableSubSystem1StatesForUndo.pop()
+
+    let immutableSubSystem1StatesForRedo = systemState.immutableSubSystem1StatesForRedo.push(systemState.immutableSubSystem1State)
+
+    return {
+        ...systemState,
+        immutableAndMutableSubSystem1StatesForUndo,
+        immutableSubSystem1StatesForUndo,
+        immutableAndMutableSubSystem1StatesForRedo,
+        immutableSubSystem1StatesForRedo,
+
+        //替换当前子系统各个模块的state
+        immutableAndMutableSubSystem1State: previousImmutableAndMutableSubSystem1State,
+        immutableSubSystem1State: previousImmutableSubSystem1State
+    }
+}
+
+export let redo = (systemState: System.state): System.state => {
+    if (systemState.immutableAndMutableSubSystem1StatesForRedo.size === 0) {
+        console.log("do nothing")
+
+        return systemState
+    }
+
+    let nextImmutableAndMutableSubSystem1State = systemState.immutableAndMutableSubSystem1StatesForRedo.first()
+    let immutableAndMutableSubSystem1StatesForRedo = systemState.immutableAndMutableSubSystem1StatesForRedo.pop()
+
+    let immutableAndMutableSubSystem1StatesForUndo = systemState.immutableAndMutableSubSystem1StatesForUndo.push(ImmutableAndMutableSubSystem1.deepCopy(systemState.immutableAndMutableSubSystem1State))
+
+    nextImmutableAndMutableSubSystem1State = ImmutableAndMutableSubSystem1.restore(systemState.immutableAndMutableSubSystem1State, nextImmutableAndMutableSubSystem1State)
+
+
+    let nextImmutableSubSystem1State = systemState.immutableSubSystem1StatesForRedo.first()
+    let immutableSubSystem1StatesForRedo = systemState.immutableSubSystem1StatesForRedo.pop()
+
+    let immutableSubSystem1StatesForUndo = systemState.immutableSubSystem1StatesForUndo.push(systemState.immutableSubSystem1State)
+
+    return {
+        ...systemState,
+        immutableAndMutableSubSystem1StatesForUndo,
+        immutableSubSystem1StatesForUndo,
+        immutableAndMutableSubSystem1StatesForRedo,
+        immutableSubSystem1StatesForRedo,
+
+        //替换当前子系统各个模块的state
+        immutableAndMutableSubSystem1State: nextImmutableAndMutableSubSystem1State,
+        immutableSubSystem1State: nextImmutableSubSystem1State
+    }
+}
+```
+
+
+
 ## 遵循的设计原则在UML中的体现？
 
+TODO finish
 
 
 
@@ -674,13 +941,12 @@ TODO continue
 
 ## 优点
 
+TODO continue
+
 ## 缺点
 
 ## 使用场景
 
-
-<!-- ## 实现该场景需要修改模式的哪些角色？ -->
-<!-- ## 使用模式有什么好处？ -->
 
 ## 注意事项
 

@@ -1027,7 +1027,7 @@ uniform1i
 
 ## 分析角色？
 
-我们来看看拼接模式的相关角色：
+我们来看看模式的相关角色：
 
 
 - Target Config
@@ -1063,13 +1063,15 @@ uniform1i
 
 ## 角色之间的关系？
 
-- Target Chunk由系统给出
+- 应该有多个Target Chunk，它们由系统给出
 
 - Target Config的格式由ChunkHandler定义。其中由系统处理的字段的类型由系统再次定义，目的是定义这些字段的所有可能的值
 
 - Target Config的内容由Client给出
 
+- Target Config通常包含两个配置文件：targets_config、chunks_config
 
+- 应该有多个Target，如[支持方向光，支持贴图，支持Instance]的GLSL和[支持方向光，不支持贴图，支持Instance]的GLSL
 
 
 ## 角色的抽象代码？
