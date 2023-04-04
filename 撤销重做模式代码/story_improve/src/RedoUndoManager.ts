@@ -2,7 +2,7 @@ import { Stack } from "immutable"
 import * as Engine from "./Engine"
 import * as Editor from "./Editor"
 
-export let pushAllStates = (editorState: Editor.state): Editor.state => {
+export let pushEditorState = (editorState: Editor.state): Editor.state => {
     return {
         ...editorState,
         engineStatesForUndo: editorState.engineStatesForUndo.push(
@@ -20,8 +20,10 @@ export let undo = (editorState: Editor.state): Editor.state => {
     let previousEngineState = editorState.engineStatesForUndo.first()
     let engineStatesForUndo = editorState.engineStatesForUndo.pop()
 
+    //深拷贝
     let engineStatesForRedo = editorState.engineStatesForRedo.push(Engine.deepCopy(editorState.engineState))
 
+    //恢复
     previousEngineState = Engine.restore(editorState.engineState, previousEngineState)
 
 
@@ -67,8 +69,10 @@ export let redo = (editorState: Editor.state): Editor.state => {
     let nextEngineState = editorState.engineStatesForRedo.first()
     let engineStatesForRedo = editorState.engineStatesForRedo.pop()
 
+    //深拷贝
     let engineStatesForUndo = editorState.engineStatesForUndo.push(Engine.deepCopy(editorState.engineState))
 
+    //恢复
     nextEngineState = Engine.restore(editorState.engineState, nextEngineState)
 
 

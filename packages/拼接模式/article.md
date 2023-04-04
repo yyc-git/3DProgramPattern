@@ -526,7 +526,7 @@ dynamic_branchs字段定义了所有会在运行时变换的分支判断。比�
 groups字段定义了多组代码块；
 
 shaders字段定义了所有的Shader。
-此处定义了一个名为render_basic的Shader，它包含的所有的代码块定义在shader_chunks字段中。 
+此处定义了一个名为render_basic的Shader，它包括的所有的代码块定义在shader_chunks字段中。 
 在shader_chunks字段中，如果type为static_branch，那么就通过name关联到static_branchs字段；如果type为dynamic_branch，那么就通过name关联到dynamic_branchs字段；如果type为group，那么就通过name关联到groups字段；如果没有定义type，那么就通过name关联到shader_chunks.json
 
 
@@ -770,7 +770,7 @@ mat4 mMatrix = u_mMatrix;
   }
 ```
 
-我们可以看到，getData函数返回了Merged GLSL Chunk数据，它是一个Hash Map，包含了所有的GLSL Chunk的数据
+我们可以看到，getData函数返回了Merged GLSL Chunk数据，它是一个Hash Map，包括了所有的GLSL Chunk的数据
 
 
 我们继续来看下InitBasicMaterialShader中的initBasicMaterialShader代码：
@@ -1012,7 +1012,7 @@ uniform1i
 
 <!-- 可配置地拼接小块数据 -->
 
-分解包含各种分支的大数据为小块单位，按照配置文件来拼接
+分解包括各种分支的大数据为小块单位，按照配置文件来拼接
 
 
 ## 描述定义？
@@ -1154,7 +1154,7 @@ gulp.task("createMergedTargetChunkFile_res", function (done) {
 
 
 - Target Config的抽象代码
-Target Config应该包含targets_config.json和chunks_config.json两个配置文件，其中前者应该指定有哪些静态分支和动态分支、要构造哪些Target；后者应该指定所有的块的配置数据
+Target Config应该包括targets_config.json和chunks_config.json两个配置文件，其中前者应该指定有哪些静态分支和动态分支、要构造哪些Target；后者应该指定所有的块的配置数据
 
 targets_config.json如下
 ```ts
@@ -1347,13 +1347,13 @@ TODO finish
 
 ### 场景描述
 
-系统需要构造包含各种分支的数据
+系统需要构造包括各种分支的数据
 
 ### 解决方案
 
 把每个分支对应的数据都对应分解为一块数据；
 
-由用户给出配置文件来指定：有哪些分支、要构造哪些Target数据、每个Target数据包含哪些块、每块有哪些配置数据
+由用户给出配置文件来指定：有哪些分支、要构造哪些Target数据、每个Target数据包括哪些块、每块有哪些配置数据
 
 ### 具体案例
 
@@ -1367,7 +1367,7 @@ TODO finish
 
 将一个区域的地图数据看作一个Target数据，将每块数据看作一个Target Chunk数据
 
-由用户给出配置文件来指定：要构造哪些区域的地图、每个区域有哪些分支条件、每个区域包含哪些块，每块有哪些配置数据
+由用户给出配置文件来指定：要构造哪些区域的地图、每个区域有哪些分支条件、每个区域包括哪些块，每块有哪些配置数据
 
 
 

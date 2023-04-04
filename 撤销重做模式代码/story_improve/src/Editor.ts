@@ -1,5 +1,5 @@
 import { Stack } from "immutable"
-import { pushAllStates, undo as undoRedoUndoManager, redo as redoRedoUndoManager } from "./RedoUndoManager"
+import { pushEditorState, undo as undoRedoUndoManager, redo as redoRedoUndoManager } from "./RedoUndoManager"
 import * as Engine from "./Engine"
 import * as EditorLogic from "./EditorLogic"
 import * as EditorUI from "./EditorUI"
@@ -39,7 +39,7 @@ export let printAllData = ({ engineState, editorLogicState, editorUIState }: sta
 export let move = (state: state) => {
     console.log("move")
 
-    state = pushAllStates(state)
+    state = pushEditorState(state)
 
     let engineState = Engine.doWhenMove(state.engineState)
     let editorLogicState = EditorLogic.doWhenMove(state.editorLogicState)
