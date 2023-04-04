@@ -13,11 +13,11 @@
 
 使用命令模式，编辑器的每个操作都是一个命令
 
-进行Move操作时，首先创建Move命令；然后拷贝执行前的数据，保存在命令中；然后执行命令来更新数据；最后保存命令到撤销堆栈中
+进行Move操作时，首先创建Move命令；然后拷贝执行前的数据，保存在命令中；然后执行命令来更新数据；最后保存命令到撤销栈中
 
-撤销时，首先从撤销堆栈中得到最近保存的命令；然后撤销该命令，它会恢复为执行前的数据；最后将该命令保存重做堆栈中
+撤销时，首先从撤销栈中得到最近保存的命令；然后撤销该命令，它会恢复为执行前的数据；最后将该命令保存重做栈中
 
-重做时，首先从重做堆栈中得到最近保存的命令；然后执行该命令来更新数据；最后将该命令保存撤销堆栈中
+重做时，首先从重做栈中得到最近保存的命令；然后执行该命令来更新数据；最后将该命令保存撤销栈中
 
 
 
@@ -29,7 +29,7 @@ TODO tu
 
 MoveCommand对应编辑器的Move操作，负责与子系统交互，拷贝了它们数据
 
-CommandManager负责管理所有的命令，维护了撤销和重做的命令堆栈
+CommandManager负责管理所有的命令，维护了撤销和重做的命令栈
 
 
 
@@ -127,7 +127,7 @@ export let move = () => {
 }
 ```
 
-该函数首先创建了Move命令；然后执行命令；最后保存命令到CommandManager的撤销堆栈中
+该函数首先创建了Move命令；然后执行命令；最后保存命令到CommandManager的撤销栈中
 
 我们看下MoveCommand相关代码：
 MoveCommand
@@ -199,7 +199,7 @@ export let pushCommand = (command: command) => {
 }
 ```
 
-CommandManager将撤销堆栈、重做堆栈保存在闭包中
+CommandManager将撤销栈、重做栈保存在闭包中
 
 
 我们继续看Editor剩余代码：
@@ -316,6 +316,18 @@ EditorUI->data1: 3
 因为不可变数据是唯一的，没有共享状态，所以在撤销、重做时不需要进行拷贝等操作；
 反之，对于每个模块的state中的可变数据，则需要实现它们的拷贝和恢复的逻辑；
 
+
+
+<!-- 这里将当前子系统各个模块的state保存到对应的重做栈中；并将保存在对应的撤销栈的子系统各个模块的state取出来，替换为新的当前的子系统各个模块的state
+
+值得注意的是由于引擎的EngineState有可变数据，所以对其进行了深拷贝和恢复操作 -->
+<!-- 因为不可变数据是唯一的，没有共享状态，所以在撤销、重做时不需要进行拷贝等操作；
+反之，对于每个模块的state中的可变数据，则需要实现它们的拷贝和恢复的逻辑； -->
+
+
+
+
+
 在撤销或者重做时，只需要把当前的EditorState替换为对应的EditorState
 
 
@@ -326,17 +338,19 @@ TODO tu
 
 EditorState是编辑器的state数据，包括了三个子系统模块的state：EngineState、EditorLogicState、EditorUIState
 其中EngineState包括了不可变和可变数据，另外两个模块的state只有不可变数据
-这是因为EngineState将会有WebGLBuffer这种图形API创建的对象，它是可变数据；除此以外还有些性能热点的数据也是可变数据，所以EngineState需要有可变数据
+这是因为EngineState将会有WebGLBuffer这种图形API创建的对象，它是可变数据；除此以外还有些性能热点的数据也是可变数据，所以EngineState需要有这些可变数据
 
-EditorState还包括了每个子系统模块对应的撤销堆栈和重做堆栈，它们用来保存子系统模块的state
+EditorState还包括了每个子系统模块对应的撤销栈和重做栈，它们用来保存子系统模块的state
 
 在子系统的模块中，Engine模块相比其它两个模块，多出了deepCopy和restore函数，它们分别用来深拷贝和恢复EngineState中的可变数据
+具体来说，在保存EngineState到撤销栈或者重做栈时，需要调用Engine的deepCopy函数来深拷贝EngineState中的可变数据；
+从撤销栈或者重做栈中取出EngineState后，需要调用Engine的restore函数进行恢复操作，然后再将其设置为当前的EditorState中的EngineState
 
 
 子系统的EditorUI可以使用React或者Vue作为UI框架，从而不再需要直接操作dom了，而是只操作数据即可
 
 
-RedoUndoManager负责管理EditorState，维护了EditorState中的撤销和重做堆栈
+RedoUndoManager负责管理EditorState，维护了EditorState中的撤销和重做栈
 
 
 
@@ -403,7 +417,7 @@ export let createState = (): state => {
 }
 ```
 
-createState函数创建并返回了EditorState，它包含子系统模块的state，以及对应的撤销、重做堆栈
+createState函数创建并返回了EditorState，它包含子系统模块的state，以及对应的撤销、重做栈
 
 
 我们看下Editor的printAllData代码：
@@ -460,7 +474,7 @@ export let pushEditorState = (editorState: Editor.state): Editor.state => {
 }
 ```
 
-这里将子系统每个模块的state保存到对应的撤销堆栈中
+这里将子系统每个模块的state保存到对应的撤销栈中
 
 其中因为EngineState有可变数据，所以进行了深拷贝
 
@@ -603,7 +617,7 @@ export let undo = (editorState: Editor.state): Editor.state => {
 ```
 
 
-这里将当前子系统各个模块的state保存到对应的重做堆栈中；并将保存在对应的撤销堆栈的子系统各个模块的state取出来，替换为新的当前的子系统各个模块的state
+这里将当前子系统各个模块的state保存到对应的重做栈中；并将保存在对应的撤销栈的子系统各个模块的state取出来，替换为新的当前的子系统各个模块的state
 
 值得注意的是由于引擎的EngineState有可变数据，所以对其进行了深拷贝和恢复操作
 
@@ -681,7 +695,7 @@ EditorUI->state: { data1: 3 }
 
 替换不可变数据
 
-## 描述定义？
+## 概述抽象的解决方案
 
 
 将数据集中起来保存在state中
@@ -710,10 +724,10 @@ TODO tu
 该角色相比ImmutableSubSystem，需要多实现deepCopy、restore这两个函数，分别用来深拷贝和恢复state中的可变数据
 
 - SystemState
-该角色是系统System的state数据，包含了子系统所有模块的state，以及每个子系统模块对应的撤销堆栈和重做堆栈，这些堆栈用来保存子系统对应模块的state
+该角色是系统System的state数据，包含了子系统所有模块的state，以及每个子系统模块对应的撤销栈和重做栈，这些栈用来保存子系统对应模块的state
 
 - RedoUndoManager
-该角色负责管理SystemState，维护了SystemState中的撤销和重做堆栈
+该角色负责管理SystemState，维护了SystemState中的撤销和重做栈
 
 
 
@@ -726,7 +740,7 @@ TODO tu
 
 - 每个子系统只有一个SubSystemState，它们保存在SystemState中
 
-- 每个SubSystemState对应一个撤销堆栈和重做堆栈
+- 每个SubSystemState对应一个撤销栈和重做栈
 
 
 ## 角色的抽象代码？
@@ -941,25 +955,162 @@ TODO finish
 
 ## 优点
 
-TODO continue
+- 直接将相关的不可变数据替换为当前数据即可，非常简单
+
+- 可变数据的拷贝和恢复逻辑集中在ImmutableAndMutableSubSystem模块中，而不是分散在各个命令中，从而便于维护
+
 
 ## 缺点
 
+
+- “不可变数据”和“将数据集中保存在state”的方法属于函数式编程范式，使用面向对象编程范式的系统无法使用该模式
+
+
 ## 使用场景
+
+### 场景描述
+
+使用函数式编程范式开发的系统，该系统需要撤销/重做功能
+
+
+### 具体案例
+
+- 需要撤销/重做功能的编辑器
+
+- 需要保存/载入功能的游戏
+
+如游戏通常都需要保存玩家的当前进度，使得玩家可以在下次进入游戏后载入保存的进度
+
+实现的方案如下：
+整个游戏的数据保存在游戏state中；
+保存时，将游戏state保存到一个Hash Map<当前进度名, 游戏state>中；
+载入某个进度时，从Hash Map中获得该进度名的游戏state，将其替换为当前的游戏state即可；
+对于游戏state中的可变数据，在保存时深拷贝这些数据，然后在载入时还原这些数据
+
+
+
+
 
 
 ## 注意事项
 
+- state中的数据尽量为不可变数据
+- 对于state中的可变数据，在保存state时需要深拷贝它们，在取出保存的state来替换为当前state时需要还原它们
 
-# 扩展
+
+<!-- # 扩展 -->
+
 
 
 # 结合其它模式
 
-## 结合哪些模式？
-## 使用场景是什么？
+<!-- ## 结合哪些模式？ -->
+
+## 结合ECS模式
+
+如果引擎使用了ECS模式，那么各个组件的数据分别保存在自己的ArrayBuffer中，这些都是可变数据
+
+在深拷贝各个组件的ArrayBuffer数据时，由于它很大，所以不应该全部拷贝，而是只拷贝使用到的数据
+
+以Transform组件为例，它有一个buffer数据，存储了position数据
+深拷贝Transform组件数据的相关代码如下：
+```ts
+let _getPositionSize = () => 3
+
+let getPositionOffset = (count) => 0
+
+let getPositionLength = (count) => count * _getPositionSize()
+
+//当前创建了10个transform组件
+let maxIndex = 10
+//总共可容纳1000个transform组件的数据
+let count = 1000
+
+let buffer = new ArrayBuffer(count * Float32Array.BYTES_PER_ELEMENT * _getPositionSize())
+
+let transformComponentState = {
+    maxIndex,
+    buffer,
+    positions: new Float32Array(buffer, getPositionOffset(count), getPositionLength(count))
+}
+
+...
+
+//只拷贝使用到的10个transform组件的数据
+export let deepCopy = (transformComponentState) => {
+    return {
+        ...transformComponentState,
+        positions: transformComponentState.slice(0, transformComponentState.maxIndex * _getPositionSize())
+    }
+}
+```
+
+恢复Transform组件数据的相关代码如下：
+```ts
+//总共可容纳1000个transform组件的数据
+let count = 1000
+
+...
+
+let _setAllTypeArrDataToDefault = ([positions]: Array<Float32Array>, count, [defaultPosition]) => {
+	range(0, count - 1).forEach(index => {
+		OperateTypeArrayUtils.setPosition(index, defaultPosition, positions)
+	})
+
+	return [positions]
+}
+
+...
+
+let _fillFloat32ArrayWithFloat32Array = (
+	[targetTypeArr, targetStartIndex],
+	[sourceTypeArr, sourceStartIndex],
+	endIndex,
+) => {
+	let typeArrIndex = targetStartIndex
+
+	for (let i = sourceStartIndex; i <= endIndex - 1; i++) {
+		targetTypeArr[typeArrIndex] = sourceTypeArr[i]
+		typeArrIndex += 1
+	}
+}
+
+...
+
+let _restoreTypeArrays = (currentTransformComponentState, targetTransformComponentState) => {
+	if (currentTransformComponentState.positions === targetTransformComponentState.positions) {
+		return currentTransformComponentState
+	}
+
+	//将currentTransformComponentState.positions的值都恢复为默认值
+	let _ = _setAllTypeArrDataToDefault([currentTransformComponentState.positions], count, [currentTransformComponentState.defaultPosition])
+
+	//将targetTransformComponentState.positions的值写到currentTransformComponentState.positions
+	_fillFloat32ArrayWithFloat32Array(
+		[currentTransformComponentState.positions, 0],
+		[targetTransformComponentState.positions, 0],
+		targetTransformComponentState.positions.length
+	)
+
+	return currentTransformComponentState
+}
+
+export let restore = (currentTransformComponentState, targetTransformComponentState) => {
+	let newCurrentTransformComponentState = _restoreTypeArrays(currentTransformComponentState, targetTransformComponentState)
+
+	return {
+		...targetTransformComponentState,
+		buffer: newCurrentTransformComponentState.buffer,
+		positions: newCurrentTransformComponentState.positions
+	}
+}
+```
+
+
+
+<!-- ## 使用场景是什么？
 ## UML如何变化？
-## 代码如何变化？
+## 代码如何变化？ -->
 
 
 
@@ -968,9 +1119,40 @@ TODO continue
 
 <!-- ## 结合具体项目实践经验，如何应用模式来改进项目？ -->
 ## 哪些场景不需要使用模式？
-## 哪些场景需要使用模式？
+
+使用面向对象编程范式开发的系统不需要该模式，而是可以使用最开始给出的基于命令模式的解决方案或者备忘录模式来实现撤销/重做功能
+
+
 ## 给出具体的实践案例？
+
+我们之前说过，Engine的EngineState中通常会保存WebGL的对象，我们需要在深拷贝和恢复时对它们进行处理
+
+下面以VBO为例，展示如何进行处理：
+假设EngineState有一个VBO Buffer的Pool，用于保存不再使用的所有VBO Buffer。加入Pool的设计是为了优化，因为可以在创建VBO Buffer时首先从Pool中获得之前创建的VBO Buffer，所以不需要再创建一次，从而提高性能
+
+对Pool的深拷贝和恢复的相关代码如下：
+```ts
+//不需要拷贝Pool
+export let deepCopy = (state) => {
+    return state
+}
+
+//合并两个state的Pool，去掉其中重复的VBO Buffer
+//这样的话能够最大程度地复用VBO Buffer
+export let restore = (currentState, targetState) => {
+	let [vertexBuffer, normalBuffer]: [WebGLBuffer, WebGLBuffer] = currentState.vboBufferPool
+
+	let mergedVBOBufferPool:Array<WebGLBuffer> = mergeVBOBufferPool(currentState.vboBufferPool, targetState.vboBufferPool)
+
+	return {
+		...targetState,
+		vboBufferPool: mergedVBOBufferPool
+	}
+}
+```
 
 
 
 # 更多资料推荐
+
+对于面向对象编程范式而言，可以使用设计模式中的“备忘录模式”以及本文最开始给出的命令模式的案例来实现撤销/重做功能

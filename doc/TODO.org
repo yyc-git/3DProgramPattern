@@ -260,6 +260,15 @@ finish TODO
 
 * TODO finish redoundo pattern article
 
+** TODO update article 1
+
+** TODO update article 2
+
+remove comment
+
+add image
+
+finish TODO
 
 * TODO 重命名“类图”为“领域模型”
 

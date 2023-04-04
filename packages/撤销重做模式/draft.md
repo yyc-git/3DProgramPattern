@@ -171,8 +171,8 @@ data oriented component buffer
 
 
 
-TODO
-reallocate geometry gameobject map
+<!-- TODO
+reallocate geometry gameobject map -->
 
 
     - 使用场景是什么？
