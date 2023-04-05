@@ -26,7 +26,7 @@
 
 ## 给出UML
 
-TODO tu
+![image](https://img2023.cnblogs.com/blog/419321/202304/419321-20230405080601378-226868763.png)
 
 编辑器的子系统包括引擎-Engine、编辑器逻辑-EngineLogic、编辑器UI-EditorUI
 
@@ -337,7 +337,8 @@ EditorUI->data1: 3
 
 
 ## 给出UML？
-TODO tu
+
+![image](https://img2023.cnblogs.com/blog/419321/202304/419321-20230405080603684-774821417.png)
 
 
 EditorState是编辑器的state，保存了编辑器的所有数据，包括了三个子系统模块的state：EngineState、EditorLogicState、EditorUIState
@@ -708,7 +709,7 @@ EditorUI->state: { data1: 3 }
 
 ## 通用UML？
 
-TODO tu
+![image](https://img2023.cnblogs.com/blog/419321/202304/419321-20230405080606251-1168555860.png)
 
 
 ## 分析角色？
