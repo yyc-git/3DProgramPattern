@@ -25,7 +25,7 @@ let _initBufferData = (count, defaultDataTuple): [ArrayBuffer, Array<Float32Arra
 }
 
 export let createState = (flyComponentCount: number): state => {
-    let defaultMaxVelocity = 2.0
+    let defaultMaxVelocity = 10.0
 
     let [buffer, [maxVelocitys]] = _initBufferData(flyComponentCount, [defaultMaxVelocity])
 

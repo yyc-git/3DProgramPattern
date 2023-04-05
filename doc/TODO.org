@@ -270,6 +270,15 @@ add image
 
 finish TODO
 
+
+* TODO finish ecs pattern article
+
+# ** TODO fix code
+
+
+
+
+
 * TODO 重命名“类图”为“领域模型”
 
 * TODO 重命名“客户”为“用户”

@@ -10,7 +10,7 @@ export let fly = (worldState: worldState, positionComponent, velocityComponent, 
 
     let maxVelocity = getMaxVelocity(worldState.flyComponentManagerState, flyComponent)
 
-    velocity = velocity < maxVelocity ? velocity : maxVelocity
+    velocity = velocity < maxVelocity ? (velocity * 2.0) : maxVelocity
 
     let positionComponentManagerState = setPosition(worldState.positionComponentManagerState, positionComponent, [x + velocity, y + velocity, z + velocity])
 

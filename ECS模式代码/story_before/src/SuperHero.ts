@@ -7,7 +7,7 @@ export let create = (): [superHeroState, superHero] => {
     let superHeroState: superHeroState = {
         position: [0, 0, 0],
         velocity: 1.0,
-        maxFlyVelocity: 2.0
+        maxFlyVelocity: 10.0
     }
 
     let id = generateId()
@@ -25,6 +25,7 @@ export let update = (superHeroState: superHeroState): superHeroState => {
 
     //更新position（如更新世界坐标系中的position）...
     let newPosition: [number, number, number] = [x * 2.0, y * 2.0, z * 2.0]
+
 
     return {
         ...superHeroState,
@@ -54,7 +55,7 @@ export let fly = (worldState: worldState, superHero: superHero): worldState => {
 
     let [x, y, z] = position
 
-    velocity = velocity < maxFlyVelocity ? velocity : maxFlyVelocity
+    velocity = velocity < maxFlyVelocity ? (velocity * 2.0) : maxFlyVelocity
 
     return setSuperHeroState(worldState, superHero,
         {

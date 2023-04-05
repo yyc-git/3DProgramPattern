@@ -325,8 +325,8 @@ GameObjectManager?
     - 给出具体的实践案例？
 
 
-reallocate gameObject Maps
-reallocate geometry vertices
+<!-- reallocate gameObject Maps
+reallocate geometry vertices -->
 
 
 # 主问题：推荐更多资料

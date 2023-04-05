@@ -61,7 +61,7 @@ export let loop = (worldState: worldState) => {
     _renderOneByOne(worldState)
     _renderInstances(worldState)
 
-    // console.log(JSON.stringify(worldState))
+    console.log(JSON.stringify(worldState))
 
     requestAnimationFrame(
         (time) => {

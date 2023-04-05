@@ -9,7 +9,7 @@ import { getPosition, setPosition } from "./PositionComponent";
 export let create = (): flyComponentState => {
     let flyComponentState: flyComponentState = {
         gameObject: null,
-        maxVelocity: 2.0
+        maxVelocity: 10.0
     }
 
     return flyComponentState
@@ -36,7 +36,7 @@ export let fly = (worldState: worldState, flyComponentState: flyComponentState):
 
     let velocity = getVelocity(getVelocityComponentExn(gameObjectState))
 
-    velocity = velocity < maxVelocity ? velocity : maxVelocity
+    velocity = velocity < maxVelocity ? (velocity * 2.0) : maxVelocity
 
     let positionComponentState = setPosition(getPositionComponentExn(gameObjectState), [x + velocity, y + velocity, z + velocity])
 
