@@ -23,7 +23,7 @@ export let update = (superHeroState: superHeroState): superHeroState => {
 
     let [x, y, z] = superHeroState.position
 
-    //更新position（如更新世界坐标系中的position）...
+    //更新position
     let newPosition: [number, number, number] = [x * 2.0, y * 2.0, z * 2.0]
 
 

@@ -22,19 +22,19 @@ export let create = (): [gameObjectState, gameObject] => {
     ]
 }
 
-export let getPositionComponentExn = ({ positionComponent }: gameObjectState): positionComponentState | null => {
+export let getPositionComponentExn = ({ positionComponent }: gameObjectState): positionComponentState => {
     return getExnFromStrictNull(positionComponent)
 }
 
-export let getVelocityComponentExn = ({ velocityComponent }: gameObjectState): velocityComponentState | null => {
+export let getVelocityComponentExn = ({ velocityComponent }: gameObjectState): velocityComponentState => {
     return getExnFromStrictNull(velocityComponent)
 }
 
-export let getFlyComponentExn = ({ flyComponent }: gameObjectState): flyComponentState | null => {
+export let getFlyComponentExn = ({ flyComponent }: gameObjectState): flyComponentState => {
     return getExnFromStrictNull(flyComponent)
 }
 
-export let getInstanceComponentExn = ({ instanceComponent }: gameObjectState): instanceComponentState | null => {
+export let getInstanceComponentExn = ({ instanceComponent }: gameObjectState): instanceComponentState => {
     return getExnFromStrictNull(instanceComponent)
 }
 

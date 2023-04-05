@@ -1,6 +1,5 @@
 import { Map } from "immutable"
 import { update as updatePositionComponent } from "../component/PositionComponent";
-// import { getPositionComponentExn, hasInstanceComponent, hasPositionComponent } from "../gameObject/GameObject";
 import { state as worldState } from "./WorldStateType";
 import { create as createPositionComponent, move } from "../component/PositionComponent";
 import { create as createVelocityComponent } from "../component/VelocityComponent";
@@ -22,7 +21,7 @@ export let addGameObject = (worldState: worldState, [gameObjectState, gameObject
     }
 }
 
-let _update = (worldState: worldState): worldState => {
+export let update = (worldState: worldState): worldState => {
     return {
         ...worldState,
         gameObjects: worldState.gameObjects.map(gameObjectState => {
@@ -38,7 +37,7 @@ let _update = (worldState: worldState): worldState => {
     }
 }
 
-let _renderOneByOne = (worldState: worldState): void => {
+export let renderOneByOne = (worldState: worldState): void => {
     let superHeroGameObjects = worldState.gameObjects.filter(gameObjectState => {
         return !hasInstanceComponent(gameObjectState)
     })
@@ -48,38 +47,12 @@ let _renderOneByOne = (worldState: worldState): void => {
     })
 }
 
-let _renderInstances = (worldState: worldState): void => {
+export let renderInstances = (worldState: worldState): void => {
     let normalHeroGameObejcts = worldState.gameObjects.filter(gameObjectState => {
         return hasInstanceComponent(gameObjectState)
     })
 
     console.log("批量Instance渲染 NormalHeros...")
-}
-
-export let init = (worldState: worldState): worldState => {
-    console.log("初始化...")
-
-    return worldState
-}
-
-
-//假实现
-let requestAnimationFrame = (func) => {
-}
-
-
-export let loop = (worldState: worldState) => {
-    worldState = _update(worldState)
-    _renderOneByOne(worldState)
-    _renderInstances(worldState)
-
-    console.log(JSON.stringify(worldState))
-
-    requestAnimationFrame(
-        (time) => {
-            loop(worldState)
-        }
-    )
 }
 
 export let api = {
@@ -111,5 +84,5 @@ export let api = {
     },
     instanceComponent: {
         create: createInstanceComponent
-    },
+    }
 }

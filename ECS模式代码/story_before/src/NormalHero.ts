@@ -22,7 +22,7 @@ export let update = (normalHeroState: normalHeroState): normalHeroState => {
 
     let [x, y, z] = normalHeroState.position
 
-    //更新position（如更新世界坐标系中的position）...
+    //更新position
     let newPosition: [number, number, number] = [x * 2.0, y * 2.0, z * 2.0]
 
     return {

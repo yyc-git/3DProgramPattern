@@ -95,7 +95,7 @@ export let batchUpdate = (state: state) => {
 
         let [x, y, z] = getPosition(state, component)
 
-        //更新position（如更新世界坐标系中的position）...
+        //更新position
         let newPosition: [number, number, number] = [x * 2.0, y * 2.0, z * 2.0]
 
         return setPosition(state, component, newPosition)

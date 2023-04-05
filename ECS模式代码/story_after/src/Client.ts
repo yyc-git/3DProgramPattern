@@ -1,4 +1,5 @@
-import { api, addGameObject, createState, init, loop } from "./world/World";
+import { init, loop } from "ecs_pattern_utils/src/World";
+import { api, addGameObject, createState, update, renderOneByOne, renderInstances } from "./world/World";
 import { state as worldState } from "./world/WorldStateType";
 
 let _createScene = (worldState: worldState): worldState => {
@@ -80,4 +81,4 @@ worldState = _createScene(worldState)
 
 worldState = init(worldState)
 
-loop(worldState)
+loop(worldState, [update, renderOneByOne, renderInstances])
