@@ -862,8 +862,6 @@ gameObjects包括了4个gameObject的数据；
 有一个gameObject的positionComponent的position为[2,2,2]，说明进行了move操作；
 有一个gameObject的positionComponent的position为[6,6,6]，说明进行了fly操作
 
-通过检查打印的值，说明通过了运行测试
-
 ## 提出问题
 
 - 组件的数据分散在各个组件中，性能不好
@@ -899,7 +897,7 @@ Data Oriented组件的数据保存在各自的ArrayBuffer中；
 考虑到为了方便组件直接就近获得自己挂载到的GameObject（获得GameObject的目的是为了获得该GameObject挂载的其它组件），所以我们选中将其分散放在组件的Manager中
 
 
-我们增加System来实现单一的行为逻辑，比如我们加入MoveSystem来实现移动的逻辑
+我们增加System来实现某个行为的逻辑，比如我们加入MoveSystem、FlySystem来分别实现移动、飞行的逻辑
 
 
 值得注意的是一种组件的Manager只对该种组件进行操作，而System可以对多个种类的组件进行操作
@@ -1076,8 +1074,8 @@ export let createState = (positionComponentCount: number): state => {
 }
 ```
 在_initBufferData函数中，首先创建了包含positionComponentCount个组件数据的ArrayBuffer；
-然后创建了ArrayBuffer的视图，即positions视图数据；
-最后将positions赋值为默认值
+然后创建了TypeArray，用来操作ArrayBuffer。这里具体就是创建了positions；
+最后将positions所有的值写为默认值
 
 下面是创建ArrayBuffer和视图相关代码：
 position_componnet/BufferUtils
@@ -1462,9 +1460,6 @@ positionComponentManagerState的maxIndex为4，说明创建了4个positionCompon
 positionComponentManagerState的positions有3个连续的值是2、2、2，并且有另外3个连续的值是6、6、6，说明进行了move和fly操作；
 
 
-通过检查打印的值，说明通过了运行测试
-
-
 <!-- # 设计意图
 
 阐明模式的设计目标 -->
@@ -1473,15 +1468,459 @@ positionComponentManagerState的positions有3个连续的值是2、2、2，并�
 
 ## 一句话定义？
 
-TODO continue
+分离逻辑和数据，集中管理组件数据
+
+
 
 ## 补充说明
+
+System实现一个行为的逻辑
+
+GameObjectManager维护和管理所有的gameObject的数据；
+各种组件的Manager维护和管理该种类所有的组件数据，将其集中连续地保存在ArrayBuffer中
+
+GameObject、组件就只是一个索引
+
 ## 通用UML？
+TODO tu
+
 ## 分析角色？
+
+我们来看看模式的相关角色：
+
+- CreateStateSystem
+该角色属于System，负责创建worldState
+
+- OtherSystem
+该角色是除了CreateStaetSystem以外的System
+
+- GameObjectManager
+该角色维护和管理所有的gameObject的数据
+
+- DataOrientedComponentManager
+该角色是一种Data Oriented组件的Manager，负责维护和管理该种组件的所有组件数据，将其集中连续地保存在ArrayBuffer中
+
+- OtherComponentManager
+该角色是一种其它组件的Manager，负责维护和管理该种组件的所有组件数据，一般将其保存在Map或者Array中
+
+- DataOrientedComponent
+该角色是属于一种Data Oriented组件，该种组件的每个组件都只是一个ArrayBuffer中的索引
+
+- OtherComponent
+该角色是属于一种其它组件，该种组件的每个组件都只是一个id
+
+- GameObject
+该角色是一个gameObject，可以挂载多种组件，它本身只是一个id
+
+
+
+
 ## 角色之间的关系？
+
+- 只有一个CreateStateSystem
+
+- OtherSystem可以有多个，每个System负责处理一个行为
+
+- 只有一个GameObjectManager
+
+- DataOrientedComponentManager可以有多个，与多种Data Oriented组件是一对一的关系
+
+- OtherComponentManager可以有多个，与多种其它组件是一对一的关系
+
+
+
 ## 角色的抽象代码？
+
+下面我们来看看各个角色的抽象代码：
+
+- Client的抽象代码
+```ts
+let _createScene = (worldState: worldState): worldState => {
+    let gameObject1Data = createGameObject(worldState)
+    worldState = gameObject1Data[0]
+    let gameObject1 = gameObject1Data[1]
+
+    let dataOrientedComponent1Data = createDataOrientedComponent1(worldState)
+    worldState = dataOrientedComponent1Data[0]
+    let dataOrientedComponent1 = dataOrientedComponent1Data[1]
+    let otherComponent1Data = createOtherComponent1(worldState)
+    let otherComponent1 = otherComponent1Data[1]
+    worldState = otherComponent1Data[0]
+
+    worldState = setDataOrientedComponent1(worldState, gameObject1, dataOrientedComponent1)
+    worldState = setOtherComponent1(worldState, gameObject1, otherComponent1)
+
+    worldState = action1(worldState, gameObject1, dataOrientedComponent1, otherComponent1)
+
+
+    创建更多的GameObjects...
+
+
+    return worldState
+}
+
+let worldState = createState({ dataOrientedComponent1Count: 10 })
+
+worldState = _createScene(worldState)
+
+worldState = init(worldState)
+
+loop(worldState)
+```
+
+- World的抽象代码
+```ts
+export let createState = CreateStateSystem.createState
+
+export let action1 = OtherSystem1.action
+
+export let init = (worldState: worldState): worldState => {
+    console.log("初始化...")
+
+    return worldState
+}
+
+
+//假实现
+let requestAnimationFrame = (func) => {
+}
+
+
+export let loop = (worldState: worldState) => {
+    调用System来update
+
+    调用System来render
+
+    requestAnimationFrame(
+        (time) => {
+            loop(worldState)
+        }
+    )
+}
+```
+
+- CreateStateSystem的抽象代码
+```ts
+export let createState = ({ dataOrientedComponent1Count }): worldState => {
+    return {
+        gameObjectManagerState: GameObjectManager.createState(),
+        dataOrientedComponent1ManagerState: DataOrientedComponent1Manager.createState(dataOrientedComponent1Count),
+        otherComponent1ManagerState: OtherComponent1Manager.createState()
+    }
+}
+```
+
+- OtherSystem的抽象代码
+```ts
+export let action = (worldState: worldState, gameObject?: gameObject, dataOrientedComponentX?: dataOrientedComponentX, otherComponentX?: otherComponentX) => {
+    console.log("行为的逻辑...")
+
+    return worldState
+}
+```
+
+- GameObjectManager的抽象代码
+gameObject/ManagerStateType
+```ts
+export type state = {
+    maxUID: number
+}
+```
+gameObject/Mmanager
+```ts
+export let createState = (): state => {
+    return {
+        maxUID: 0
+    }
+}
+
+export let createGameObject = (state: state): [state, gameObject] => {
+    let uid = state.maxUID
+
+    let newUID = uid + 1
+
+    state = {
+        ...state,
+        maxUID: newUID
+    }
+
+    return [state, uid]
+}
+
+export let getAllGameObjects = (state: state): Array<gameObject> => {
+    let { maxUID } = state
+
+    return range(0, maxUID - 1)
+}
+```
+
+- DataOrientedComponentManager的抽象代码
+dataoriented_component1/ManagerStateType
+```ts
+export type TypeArrayType = Float32Array | Uint8Array | Uint16Array | Uint32Array
+
+export type state = {
+    maxIndex: number,
+    buffer: ArrayBuffer,
+    value1s: TypeArrayType,
+    value2s: TypeArrayType,
+    更多valueXs...,
+
+    gameObjectMap: Map<component, gameObject>,
+    gameObjectDataOrientedComponent1Map: Map<gameObject, component>,
+}
+```
+dataoriented_component1/Manager
+```ts
+let _setAllTypeArrDataToDefault = ([value1s, value2s]: Array<Float32Array>, count, [defaultValue1, defaultValue2]) => {
+    range(0, count - 1).forEach(index => {
+        OperateTypeArrayUtils.setValue1(index, defaultValue1, value1s)
+        OperateTypeArrayUtils.setValue2(index, defaultValue2, value2s)
+    })
+
+    return [value1s, value2s]
+}
+
+let _initBufferData = (count, defaultDataTuple): [ArrayBuffer, Array<TypeArrayType>] => {
+    let buffer = createBuffer(count)
+
+    let typeArrData = _setAllTypeArrDataToDefault(createTypeArrays(buffer, count), count, defaultDataTuple)
+
+    return [buffer, typeArrData]
+}
+
+export let createState = (dataorientedComponentCount: number): state => {
+    let defaultValue1 = default value1
+    let defaultValue2 = default value2
+
+    let [buffer, [value1s, value2s]] = _initBufferData(dataorientedComponentCount, [defaultValue1, defaultValue2])
+
+    return {
+        maxIndex: 0,
+        buffer,
+        value1s,
+        value2s,
+        gameObjectMap: Map(),
+        gameObjectDataOrientedComponent1Map: Map(),
+    }
+}
+
+export let createComponent = (state: state): [state, component] => {
+    let index = state.maxIndex
+
+    let newIndex = index + 1
+
+    state = {
+        ...state,
+        maxIndex: newIndex
+    }
+
+    return [state, index]
+}
+
+export let getComponentExn = (state: state, gameObject: gameObject): component => {
+    let { gameObjectMap } = state
+
+    return getExnFromStrictNull(gameObjectMap.get(gameObject))
+}
+
+export let setComponent = (state: state, gameObject: gameObject, component: component): state => {
+    let { gameObjectMap, gameObjectDataOrientedComponent1Map } = state
+
+    return {
+        ...state,
+        gameObjectMap: gameObjectMap.set(component, gameObject),
+        gameObjectDataOrientedComponent1Map: gameObjectDataOrientedComponent1Map.set(gameObject, component)
+    }
+}
+
+export let hasComponent = (state: state, gameObject: gameObject): boolean => {
+    let { gameObjectDataOrientedComponent1Map } = state
+
+    return gameObjectDataOrientedComponent1Map.has(gameObject)
+}
+
+export let getAllComponents = (state: state): Array<component> => {
+    let { gameObjectDataOrientedComponent1Map } = state
+
+    return gameObjectDataOrientedComponent1Map.toArray().map(([key, value]) => value)
+}
+
+export let getValue1 = (state: state, component: component) => {
+    return OperateTypeArrayUtils.getValue1(component, state.value1s)
+}
+
+export let setValue1 = (state: state, component: component, position) => {
+    OperateTypeArrayUtils.setValue1(component, position, state.value1s)
+
+    return state
+}
+
+get/set value2...
+
+export let batchOperate = (state: state) => {
+    let allComponents = getAllComponents(state)
+
+    console.log("批量操作")
+
+    return state
+}
+```
+dataoriented_component1/BufferUtils
+```ts
+// 这里只给出了两个value的情况
+// 更多的value也以此类推...
+
+let _getValue1Size = () => value1 size
+
+let _getValue2Size = () => value2 size
+
+export let getValue1Offset = () => 0
+
+export let getValue2Offset = (count) => getValue1Offset() + getValue1Length(count) * TypeArray2.BYTES_PER_ELEMENT
+
+export let getValue1Length = (count) => count * _getValue1Size()
+
+export let getValue2Length = (count) => count * _getValue2Size()
+
+export let getValue1Index = index => index * _getValue1Size()
+
+export let getValue2Index = index => index * _getValue2Size()
+
+let _getTotalByteLength = (count) => {
+    return count * (TypeArray1.BYTES_PER_ELEMENT * (_getValue1Size() + TypeArray2.BYTES_PER_ELEMENT * (_getValue2Size())))
+}
+
+export let createBuffer = (count) => {
+    return new ArrayBuffer(_getTotalByteLength(count))
+}
+```
+dataoriented_component1/CreateTypeArrayUtils
+```ts
+export let createTypeArrays = (buffer, count) => {
+    return [
+        new Float32Array(buffer, getValue1Offset(), getValue1Length(count)),
+        new Float32Array(buffer, getValue2Offset(count), getValue2Length(count)),
+    ]
+}
+```
+
+- OtherComponentManager的抽象代码
+other_component1/ManagerStateType
+```ts
+export type state = {
+    maxUID: number,
+    value1Map: Map<component, value1 type>,
+    更多valueXMap...,
+
+    gameObjectMap: Map<component, gameObject>,
+    gameObjectOtherComponent1Map: Map<gameObject, component>,
+}
+```
+other_component1/Manager
+```ts
+export let createState = (): state => {
+    return {
+        maxUID: 0,
+        value1Map: Map(),
+        gameObjectMap: Map(),
+        gameObjectOtherComponent1Map: Map(),
+    }
+}
+
+export let createComponent = (state: state): [state, component] => {
+    let uid = state.maxUID
+
+    let newUID = uid + 1
+
+    state = {
+        ...state,
+        maxUID: newUID
+    }
+
+    return [state, uid]
+}
+
+export let getComponentExn = (state: state, gameObject: gameObject): component => {
+    let { gameObjectMap } = state
+
+    return getExnFromStrictNull(gameObjectMap.get(gameObject))
+}
+
+export let setComponent = (state: state, gameObject: gameObject, component: component): state => {
+    let { gameObjectMap, gameObjectOtherComponent1Map } = state
+
+    return {
+        ...state,
+        gameObjectMap: gameObjectMap.set(component, gameObject),
+        gameObjectOtherComponent1Map: gameObjectOtherComponent1Map.set(gameObject, component)
+    }
+}
+
+export let hasComponent = (state: state, gameObject: gameObject): boolean => {
+    let { gameObjectOtherComponent1Map } = state
+
+    return gameObjectOtherComponent1Map.has(gameObject)
+}
+
+export let getAllComponents = (state: state): Array<component> => {
+    let { gameObjectOtherComponent1Map } = state
+
+    return gameObjectOtherComponent1Map.toArray().map(([key, value]) => value)
+}
+
+export let getValue1 = (state: state, component: component) => {
+    return getExnFromStrictUndefined(state.value1Map.get(component))
+}
+
+export let setValue1 = (state: state, component: component, value1) => {
+    return {
+        ...state,
+        value1Map: state.value1Map.set(component, value1)
+    }
+}
+
+export let batchOperate = (state: state) => {
+    let allComponents = getAllComponents(state)
+
+    console.log("批量操作")
+
+    return state
+}
+```
+
+- GameObject的抽象代码
+GameObjectType
+```ts
+type id = number
+
+export type gameObject = id
+```
+- DataOrientedComponent的抽象代码
+DataOrientedComponent1Type
+```ts
+export type index = number
+
+...
+
+export type component = index
+```
+- OtherComponent的抽象代码
+OtherComponent1Type
+```ts
+export type id = number
+
+...
+
+export type component = id
+```
+
+
+
+
 ## 遵循的设计原则在UML中的体现？
 
+TODO finish
 
 
 
@@ -1489,42 +1928,110 @@ TODO continue
 
 ## 优点
 
+- 组件的数据集中连续地保存在ArrayBuffer中，增加了缓存命中，提高了读写的性能
+
+- 创建和删除组件的性能也很好，因为在这个过程中不会分配或者销毁内存，从而没有垃圾回收CG的开销
+<!-- 这是因为在创建ArrayBuffer时就预先按照最大组件个数分配了一块连续的内存，所以在运行时创建和删除组件时，只是对这个ArrayBuffer进行操作 -->
+这是因为在创建ArrayBuffer时就预先按照最大组件个数分配了一块连续的内存，所以在创建组件时，只是返回一个当前最大索引maxIndex加1的值而已；
+在删除组件时，只是将该组件对应ArrayBuffer中的数据还原为默认值而已
+
+
+- 职责划分明确，很清楚行为的逻辑应该放在哪里
+如只涉及到操作一种组件的行为逻辑，则将其放在对应的Manager中；涉及到多种组件的行为逻辑则放在对应的System中；
+
+- 增加行为很容易
+因为一个行为对应一个System，所以要增加一个行为，则只需增加一个对应的System即可，而且不会影响Manager
+因为System只有逻辑没有数据，所以增加和维护System很容易
+
+
 ## 缺点
+
+无
 
 ## 使用场景
 
 ### 场景描述
 
-<!-- ### 解决方案 -->
+<!-- 有很多或者很复杂的行为的游戏或者应用 -->
+
+适合于大型的游戏，里面有很多人物，人物的行为很多或者很复杂
+
 
 ### 具体案例
 
-<!-- ## 实现该场景需要修改模式的哪些角色？ -->
-<!-- ## 使用模式有什么好处？ -->
+- 有很多个种类的游戏人物的游戏
+
+将游戏人物改为GameObject+Component的组件化架构，通过挂载不同的组件来实现不同种类的游戏人物
+
+- 游戏人物有很多的行为，而且还经常会增加新的行为
+
+将每个行为对应为一个System
+
+增加新的行为就是增加一个System
+
+不管行为如何变化，只影响System，不会影响Manager和GameObject、Component
+
 
 ## 注意事项
 
+- 因为组件的ArrayBuffer一旦在创建后，它的大小就不会改动，所以最好在创建时指定足够大的最大组件个数
 
-# 扩展
+
+<!-- # 扩展 -->
 
 
 # 结合其它模式
 
-## 结合哪些模式？
+## 结合多线程模式
+
+如果引擎开了多个线程，那么可以将创建组件的ArrayBuffer改为创建SharedArrayBuffer。这样的话就可以将其共享到线程worker中，而不需要拷贝，从而提高了性能
+
+
+
+## 结合管道模式
+
+如果引擎使用了管道模式，那么就会去掉System模块，而使用管道的Job来代替。一个Job就是一个System
+另外，也会去掉WorldState，而使用管道的PipelineState代替
+
+
+<!-- 
 ## 使用场景是什么？
 ## UML如何变化？
-## 代码如何变化？
+## 代码如何变化？ -->
 
 
 
 
 # 最佳实践
 
-<!-- ## 结合具体项目实践经验，如何应用模式来改进项目？ -->
 ## 哪些场景不需要使用模式？
-<!-- ## 哪些场景需要使用模式？ -->
+
+如果游戏的人物种类很少，行为简单，那么就可以使用最开始给出的使用一个人物模块对应一种人物的解决方案
+
+
 ## 给出具体的实践案例？
+
+<!-- 对于GeometryComponent组件，它的ArrayBuffer会保存顶点数据，如顶点、法线之类的数据。
+
+
+实际开发引擎时需要处理GeometryComponent组件，它的ArrayBuffer会保存所有geometry组件的顶点数据
+而一个geometry的顶点数据又包括很多个顶点的数据
+
+所以在创建这个ArrayBuffer时，需要两个最大值：geometry组件最大个数、一个geometry的最大顶点数 
+
+TODO tu
+    explain ArrayBuffer 内存布局
+
+TODO explain reallocate geometry vertices
+-->
+
 
 
 
 # 更多资料推荐
+
+可以在网上搜索更多关于“组件化”、“Data Oriented”、“ECS”的资料
+
+ECS的概念最先由“守望先锋”游戏的开发者提出的，详细资料可以搜索“《守望先锋》架构设计和网络同步”
+
+很多游戏引擎都转为使用ECS的思想来设计架构

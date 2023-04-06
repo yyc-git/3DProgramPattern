@@ -1,5 +1,5 @@
 import { createDataOrientedComponent1, createGameObject, createOtherComponent1, setDataOrientedComponent1, setOtherComponent1 } from "./world/SceneAPI";
-import { createState, init, loop, operateGameObjectAndComponentsFunc1 } from "./world/World";
+import { createState, init, loop, action1 } from "./world/World";
 import { state as worldState } from "./world/WorldStateType";
 
 let _createScene = (worldState: worldState): worldState => {
@@ -17,7 +17,7 @@ let _createScene = (worldState: worldState): worldState => {
     worldState = setDataOrientedComponent1(worldState, gameObject1, dataOrientedComponent1)
     worldState = setOtherComponent1(worldState, gameObject1, otherComponent1)
 
-    worldState = operateGameObjectAndComponentsFunc1(worldState, gameObject1, dataOrientedComponent1, otherComponent1)
+    worldState = action1(worldState, gameObject1, dataOrientedComponent1, otherComponent1)
 
 
     创建更多的GameObjects...
