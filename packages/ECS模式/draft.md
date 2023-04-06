@@ -308,6 +308,7 @@ GameObjectManager?
     - 结合哪些模式？
 结合管道模式
     System use Pipeline
+        each job is a system
 
 
 结合积木模式

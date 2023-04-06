@@ -738,6 +738,37 @@ mat4 mMatrix = u_mMatrix;
 
 它引入了common_define的define片段和common_function的funcDefine片段
 
+我们再来看下定义了所有片段的.glsl是什么样的：
+```ts
+@top
+precision highp float;
+@end
+
+@define
+define B 2;
+@end
+
+@varDeclare
+varying vec2 v_mapCoord2;
+@end
+
+@funcDeclare
+vec3 func2(vec3 lightPos);
+@end
+
+@funcDefine
+vec3 func2(vec3 lightPos){
+    return vec3(0.5);
+}
+@end
+
+@body
+gl_FragColor = vec4(1.0,0.5,1.0,1.0);
+@end
+```
+
+
+
 
 <!-- 这些.glsl文件是进行了抽象处理的，从而能够被正确地组合起来 -->
 

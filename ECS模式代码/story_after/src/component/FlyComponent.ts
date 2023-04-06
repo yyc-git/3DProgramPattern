@@ -32,8 +32,10 @@ export let fly = (worldState: worldState, flyComponentState: flyComponentState):
     let gameObject = getExnFromStrictNull(flyComponentState.gameObject)
     let gameObjectState = getGameObjectStateExn(worldState, gameObject)
 
+    //通过gameObject获得positionComponent，获得它的position
     let [x, y, z] = getPosition(getPositionComponentExn(gameObjectState))
 
+    //通过gameObject获得velocityComponent，获得它的velocity
     let velocity = getVelocity(getVelocityComponentExn(gameObjectState))
 
     velocity = velocity < maxVelocity ? (velocity * 2.0) : maxVelocity

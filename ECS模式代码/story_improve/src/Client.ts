@@ -19,7 +19,7 @@ let _createScene = (worldState: worldState): worldState => {
     worldState = velocityComponent1Data[0]
     let instanceComponent1Data = createInstanceComponent(worldState)
     let instanceComponent1 = instanceComponent1Data[1]
-    worldState = velocityComponent1Data[0]
+    worldState = instanceComponent1Data[0]
 
     worldState = setPositionComponent(worldState, normalHero1, positionComponent1)
     worldState = setVelocityComponent(worldState, normalHero1, velocityComponent1)
@@ -63,7 +63,7 @@ let _createScene = (worldState: worldState): worldState => {
     worldState = velocityComponent3Data[0]
     let flyComponent1Data = createFlyComponent(worldState)
     let flyComponent1 = flyComponent1Data[1]
-    worldState = velocityComponent3Data[0]
+    worldState = flyComponent1Data[0]
 
     worldState = setPositionComponent(worldState, superHero1, positionComponent3)
     worldState = setVelocityComponent(worldState, superHero1, velocityComponent3)

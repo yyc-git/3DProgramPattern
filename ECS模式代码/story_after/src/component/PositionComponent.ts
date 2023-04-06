@@ -11,6 +11,7 @@ export let create = (): positionComponentState => {
         position: [0, 0, 0],
     }
 
+    //直接返回组件state，无需索引
     return positionComponentState
 }
 
@@ -44,6 +45,7 @@ export let move = (worldState: worldState, positionComponentState: positionCompo
 
     let gameObject = getExnFromStrictNull(positionComponentState.gameObject)
 
+    //通过gameObject获得velocityComponent，获得它的velocity
     let velocity = getVelocity(getVelocityComponentExn(getGameObjectStateExn(worldState, gameObject)))
 
     positionComponentState = setPosition(positionComponentState, [x + velocity, y + velocity, z + velocity])

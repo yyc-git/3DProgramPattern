@@ -70,7 +70,7 @@ worldState = init(worldState)
 loop(worldState, [update, renderOneByOne, renderInstances])
 ```
 
-我们首先创建了WorldState，用来保存所有的数据；
+我们首先创建了worldState，用来保存所有的数据；
 然后创建了场景，场景包括两个普通英雄和两个超级英雄，其中第一个普通英雄进行了移动，第一个超级英雄进行了移动和飞行；
 然后进行初始化；
 最后开始主循环
@@ -86,7 +86,7 @@ export let createState = (): worldState => {
 }
 ```
 
-createState函数创建并返回了WorldState，它包含两个分别用来保存所有的NormalHero和所有的SuperHero的容器
+createState函数创建并返回了worldState，它包含两个分别用来保存所有的normalHero和所有的superHero的容器
 
 
 
@@ -133,10 +133,10 @@ export let api = {
 }
 ```
 
+我们将英雄的数据保存在state中，然后用一个索引来与其关联。具体就是：
 normalHero、superHero其实就是一个number类型的id值
 normalHeroState、superHeroState分别保存了一个普通英雄、一个超级英雄的数据（比如position、velocity）
-
-normalHero与normalHeroState一一关联，这个关联体现在前者是WorldState->normalHeros这个Map的Key，后者是Value
+normalHero与normalHeroState一一关联，这个关联体现在前者是worldState->normalHeros这个Map的Key，后者是Value
 同理，superHero与superHeroState关联
 
 World封装了操作Hero的API
@@ -376,7 +376,31 @@ export let renderInstances = (worldState: worldState): void => {
 }
 ```
 
-渲染时，首先调用_renderOneByOne函数来一个一个地渲染每个超级英雄；然后调用_renderInstances来一次性渲染所有的普通英雄
+渲染时，首先调用_renderOneByOne函数来一个一个地渲染每个超级英雄；然后调用_renderInstances来一次性批量渲染所有的普通英雄
+
+
+
+
+下面，我们运行代码，运行结果如下：
+```text
+初始化...
+更新NormalHero
+更新NormalHero
+更新SuperHero
+更新SuperHero
+OneByOne渲染 SuperHero...
+OneByOne渲染 SuperHero...
+批量Instance渲染 NormalHeros...
+{"normalHeros":{"144891":{"position":[0,0,0],"velocity":1},"648575":{"position":[2,2,2],"velocity":1}},"superHeros":{"497069":{"position":[6,6,6],"velocity":1,"maxFlyVelocity":10},"783438":{"position":[0,0,0],"velocity":1,"maxFlyVelocity":10}}}
+```
+
+首先进行了初始化；
+然后更新了所有的人物，包括两个普通英雄和两个超级英雄；
+然后依次渲染了2个超级英雄，以及一次性批量渲染了所有的普通英雄；
+最后打印了worldState
+
+我们看到normalHeros中有一个的position为[2,2,2]，说明进行了move操作；superHeros中有一个的position为[6,6,6]，说明进行了fly操作
+
 
 
 
@@ -408,20 +432,15 @@ export let renderInstances = (worldState: worldState): void => {
 TODO tu
 
 
-现在World由多个GameObject组成
+World由多个GameObject组成
 
-GameObject可以挂载PositionComponent、VelocityComponent、FlyComponent、InstanceComponent这四种组件，每种组件最多挂载一个
+GameObject负责管理挂载的组件，它可以挂载PositionComponent、VelocityComponent、FlyComponent、InstanceComponent这四种组件，每种组件最多挂载一个
 
-<!-- PositionComponent维护position数据，不仅实现了update函数，用来更新自己的position；还实现了move函数，用来实现移动逻辑 -->
-将NormalHero、SuperHero的position数据和move函数移到了PositionComponent中
-
-<!-- VelocityComponent维护velocity数据 -->
-将NormalHero、SuperHero的velocity数据移到了VelocityComponent中
-
-<!-- FlyComponent维护maxVelocity数据，实现了fly函数，用来实现飞行逻辑 -->
-将SuperHero的maxVelocity数据和fly函数移到了FlyComponent中
-
-InstanceComponent跟渲染相关，用来表示挂载该组件的GameObject需要进行一次性批量渲染
+组件负责维护自己的数据，实现自己的逻辑。
+具体来说，将NormalHero、SuperHero的position数据和move函数移到了PositionComponent中；
+将NormalHero、SuperHero的velocity数据移到了VelocityComponent中；
+将SuperHero的maxVelocity数据和fly函数移到了FlyComponent中；
+InstanceComponent没有数据和逻辑，它是一个标记，用来表示挂载该组件的GameObject需要进行一次性批量渲染
 
 
 
@@ -483,10 +502,6 @@ let _createScene = (worldState: worldState): worldState => {
 let worldState = createState()
 
 worldState = _createScene(worldState)
-
-worldState = init(worldState)
-
-loop(worldState)
 ```
 
 这里跟之前不一样的地方在于如何创建场景的人物
@@ -506,7 +521,7 @@ export let createState = (): worldState => {
 }
 ```
 
-createState函数创建并返回了WorldState，它现在改为包含保存所有的GameObject的容器
+createState函数创建并返回了worldState，它现在改为包含保存所有的GameObject的容器
 
 
 
@@ -555,10 +570,10 @@ export let api = {
 }
 ```
 
+这里与之前一样，我们将GameObject的数据保存在state中，然后用一个索引来与其关联。具体就是：
 gameObject其实就是一个number类型的id值，
 gameObjectState保存了一个GameObject的数据
-
-gameObject与gameObjectState一一关联，这个关联体现在前者是WorldState->gameObjects这个Map的Key，后者是Value
+gameObject与gameObjectState一一关联，这个关联体现在前者是worldState->gameObjects这个Map的Key，后者是Value
 
 World封装了操作GameObject和组件的API
 
@@ -621,6 +636,8 @@ has其它组件...
 
 gameObjectState中保存了该gameObject挂载的所有组件的state数据
 
+组件与GameObject一样，我们将它的数据保存在state中，只是不需要索引。所以一个组件就等于一个组件state
+
 
 组件的相关代码如下：
 PositionComponentStateType
@@ -638,6 +655,7 @@ export let create = (): positionComponentState => {
         position: [0, 0, 0],
     }
 
+    //直接返回组件state，无需索引
     return positionComponentState
 }
 
@@ -659,6 +677,7 @@ export let move = (worldState: worldState, positionComponentState: positionCompo
 
     let gameObject = getExnFromStrictNull(positionComponentState.gameObject)
 
+    //通过gameObject获得velocityComponent，获得它的velocity
     let velocity = getVelocity(getVelocityComponentExn(getGameObjectStateExn(worldState, gameObject)))
 
     positionComponentState = setPosition(positionComponentState, [x + velocity, y + velocity, z + velocity])
@@ -723,8 +742,10 @@ export let fly = (worldState: worldState, flyComponentState: flyComponentState):
     let gameObject = getExnFromStrictNull(flyComponentState.gameObject)
     let gameObjectState = getGameObjectStateExn(worldState, gameObject)
 
+    //通过gameObject获得positionComponent，获得它的position
     let [x, y, z] = getPosition(getPositionComponentExn(gameObjectState))
 
+    //通过gameObject获得velocityComponent，获得它的velocity
     let velocity = getVelocity(getVelocityComponentExn(gameObjectState))
 
     velocity = velocity < maxVelocity ? (velocity * 2.0) : maxVelocity
@@ -817,17 +838,43 @@ export let renderInstances = (worldState: worldState): void => {
 现在是判断gameObject是否挂载InstanceComponent组件，如果挂载则进行批量渲染，否则进行一个一个地渲染
 
 
+下面，我们运行代码，运行结果如下：
+```text
+初始化...
+更新PositionComponent
+更新PositionComponent
+更新PositionComponent
+更新PositionComponent
+OneByOne渲染 SuperHero...
+OneByOne渲染 SuperHero...
+批量Instance渲染 NormalHeros...
+{"gameObjects":{"304480":{"positionComponent":{"gameObject":304480,"position":[0,0,0]},"velocityComponent":{"gameObject":304480,"velocity":1},"flyComponent":{"gameObject":304480,"maxVelocity":10},"instanceComponent":null},"666533":{"positionComponent":{"gameObject":666533,"position":[2,2,2]},"velocityComponent":{"gameObject":666533,"velocity":1},"flyComponent":null,"instanceComponent":{"gameObject":666533}},"838392":{"positionComponent":{"gameObject":838392,"position":[0,0,0]},"velocityComponent":{"gameObject":838392,"velocity":1},"flyComponent":null,"instanceComponent":{"gameObject":838392}},"936933":{"positionComponent":{"gameObject":936933,"position":[6,6,6]},"velocityComponent":{"gameObject":936933,"velocity":1},"flyComponent":{"gameObject":936933,"maxVelocity":10},"instanceComponent":null}}}
+```
+
+运行结果的步骤与之前一样
+不同之处在于：
+更新人物变为更新positionComponent；
+打印的worldState的结构不一样了
+
+
+但是worldState包括的内容是一样的，具体为：
+gameObjects包括了4个gameObject的数据；
+有一个gameObject的positionComponent的position为[2,2,2]，说明进行了move操作；
+有一个gameObject的positionComponent的position为[6,6,6]，说明进行了fly操作
+
+通过检查打印的值，说明通过了运行测试
+
 ## 提出问题
-
-
-- 如果超级英雄增加一个“跑”的行为，该行为不仅会更新position，还会修改速度velocity，那么该行为对应的run函数应该放在哪个组件中呢？
-run函数需要同时修改PositionComponent组件和VelocityComponent组件的数据，因此它放在其中的任何一个组件都不合适。那么就需要增加一种新的组件-RunComponent，来实现run函数。
-该函数需要通过RunComponent挂载的gameObject来获得PositionComponent和VelocityComponent组件，然后再修改它们的数据
-
-所以不好处理这种涉及多个组件的操作
 
 - 组件的数据分散在各个组件中，性能不好
 如所有人物的position的数据分散保存在各个PositionComponent组件中，那么如果需要遍历所有的position数据时，就会因为CPU中不容易缓存命中而带来性能损失
+
+
+- 如果超级英雄增加一个“跑”的行为，该行为不仅会更新position，还会修改速度velocity，那么该行为对应的run函数应该放在哪个组件中呢？
+run函数需要同时修改PositionComponent组件和VelocityComponent组件的数据，因此它放在其中的任何一种组件都不合适。那么就需要增加一种新的组件-RunComponent，来实现run函数
+该函数需要通过RunComponent挂载的gameObject来获得PositionComponent和VelocityComponent组件，然后再修改它们的数据
+
+如果有更多的这种涉及多种组件的操作，就需要为每个操作增加一种组件。因为组件比较重，既有数据又有逻辑，所以增加了很多开发成本和维护成本
 
 
 
@@ -835,12 +882,587 @@ run函数需要同时修改PositionComponent组件和VelocityComponent组件的�
 
 ## 概述解决方案
 
-TODO continue
+使用Data Oriented的设计思想进行改进：
+将所有的gameObject和每种组件的数据都集中起来保存在连续的空间中
+其中，gameObject与挂载的组件的对应关系则保存在Hash Map中；
+组件则按照是否有组件数据而分成Data Oriented组件（有组件数据）和其它组件（没有组件数据）。如Instance组件因为没有组件数据，所以属于其它组件；而其它组件则都属于Data Oriented组件；
+Data Oriented组件的数据保存在各自的ArrayBuffer中；
+将GameObject和各个Component扁平化，GameObject是一个number类型的id值，Component是一个number类型的索引
+其中GameObject是Hash Map的Key；Component既是Hash Map的Value，又是ArrayBuffer的索引
+
+
+我们增加Manager来维护和管理GameObject和组件的数据
+其中GameObjectManager负责维护所有的gameObject的数据；各种组件的Manager用来维护自己的ArrayBuffer，操作属于该种类的所有组件
+
+值得注意的是保存gameObject与挂载的组件的对应关系的Hash Map放在哪里？
+它们可以放在GameObjectManager中，也可以分散放在组件的Manager中。
+考虑到为了方便组件直接就近获得自己挂载到的GameObject（获得GameObject的目的是为了获得该GameObject挂载的其它组件），所以我们选中将其分散放在组件的Manager中
+
+
+我们增加System来实现单一的行为逻辑，比如我们加入MoveSystem来实现移动的逻辑
+
+
+值得注意的是一种组件的Manager只对该种组件进行操作，而System可以对多个种类的组件进行操作
 
 ## 给出UML？
+
+TODO tu
+
+
+
+整个UML主要分成三个层级：System、Manager、Component+GameObject，它们的依赖关系为System依赖Manager，Manager依赖Component+GameObject
+
+World只是提供API给Client，本身不管理GameObject，而是将其交给GameObjectManager来管理
+
+有多个System，每个System实现一个行为逻辑
+其中，CreateStateSystem实现创建worldState的逻辑，worldState包括了所有的Manager的state；
+UpdateSystem实现更新所有人物的position的逻辑，具体是更新所有PositionComponent的position；
+MoveSystem实现一个人物的移动的行为，使用了挂载到一个gameObject上的一个positionComponent和一个velocityComponent，更新了该positionComponent的position；
+FlySystem实现现一个人物的飞行的行为，使用了挂载到一个gameObject上的一个positionComponent、一个velocityComponent、一个flyComponent，更新了该positionComponent的position；
+RenderOneByOneSystem实现一个一个渲染所有超级英雄的逻辑；
+RenderInstancesSystem实现批量渲染所有普通英雄的逻辑
+
+PositionComponentManager的batchUpdate函数负责批量更新所有的positionComponent的position
+
+PositionComponentManager维护了gameObjectMap、gameObjectPositionMap这两个Hash Map，前者为positionComponent与gameObject的对应关系，后者为gameObject与positionComponent的对应关系
+
+
+因为VelocityComponentManager、FlyComponentManager与PositionComponentManager类似（只是没有batchUpdate函数），故在图中省略它们的数据和函数
+
+
+因为PositionComponent、VelocityComponent、FlyComponent属于Data Oriented组件，所以它们的值是一个index，也就是各自ArrayBuffer中的索引；
+而因为InstanceComponent属于其它组件，所以它的值是一个id，是InstanceComponentManager维护的gameObjectMap的Key和gameObjectInstanceMap的Value
+
+
 ## 结合UML图，描述如何具体地解决问题？
+
+- 现在组件的数据都集中保存在各自的Manager的ArrayBuffer中，从而在遍历同一种组件的所有组件的数据时增加了缓存命中，提高了性能
+
+- 涉及多种组件的操作放在对应的System中。因为System很轻，没有数据，只有逻辑，所以增加和维护System的成本较低
+
+
+
+
 ## 给出代码？
 
+Client代码:
+```ts
+let _createScene = (worldState: worldState): worldState => {
+    let normalHero1Data = createGameObject(worldState)
+    worldState = normalHero1Data[0]
+    let normalHero1 = normalHero1Data[1]
+
+    let positionComponent1Data = createPositionComponent(worldState)
+    worldState = positionComponent1Data[0]
+    let positionComponent1 = positionComponent1Data[1]
+    let velocityComponent1Data = createVelocityComponent(worldState)
+    let velocityComponent1 = velocityComponent1Data[1]
+    worldState = velocityComponent1Data[0]
+    let instanceComponent1Data = createInstanceComponent(worldState)
+    let instanceComponent1 = instanceComponent1Data[1]
+    worldState = instanceComponent1Data[0]
+
+    worldState = setPositionComponent(worldState, normalHero1, positionComponent1)
+    worldState = setVelocityComponent(worldState, normalHero1, velocityComponent1)
+    worldState = setInstanceComponent(worldState, normalHero1, instanceComponent1)
+
+
+    创建和加入normalHero2...
+
+    worldState = move(worldState, positionComponent1, velocityComponent1)
+
+
+    let superHero1Data = createGameObject(worldState)
+    worldState = superHero1Data[0]
+    let superHero1 = superHero1Data[1]
+
+    let positionComponent3Data = createPositionComponent(worldState)
+    worldState = positionComponent3Data[0]
+    let positionComponent3 = positionComponent3Data[1]
+    let velocityComponent3Data = createVelocityComponent(worldState)
+    let velocityComponent3 = velocityComponent3Data[1]
+    worldState = velocityComponent3Data[0]
+    let flyComponent1Data = createFlyComponent(worldState)
+    let flyComponent1 = flyComponent1Data[1]
+    worldState = flyComponent1Data[0]
+
+    worldState = setPositionComponent(worldState, superHero1, positionComponent3)
+    worldState = setVelocityComponent(worldState, superHero1, velocityComponent3)
+    worldState = setFlyComponent(worldState, superHero1, flyComponent1)
+
+    创建和加入superHero2...
+
+    worldState = move(worldState, positionComponent3, velocityComponent3)
+
+    worldState = fly(worldState, positionComponent3, velocityComponent3, flyComponent1)
+
+
+    return worldState
+}
+
+let worldState = createState({ positionComponentCount: 10, velocityComponentCount: 10, flyComponentCount: 10 })
+
+worldState = _createScene(worldState)
+```
+
+这里通过调用CreateStateSystem的createState函数来创建worldState
+
+这里创建的场景内容跟之前一样，创建的方式也跟之前类似，不同之处主要在于：
+不需要加入GameObject到World中。这是因为现在是通过GameObjectManager来获得场景中的GameObject，而World只负责提供API给Client而已；
+“移动”、“飞行”的操作现在是通过调用MoveSystem和FlySystem的函数操作对应的组件来实现；
+
+
+现在我们首先来看下CreateStateSystem的createState代码：
+```ts
+export let createState = ({ positionComponentCount, velocityComponentCount, flyComponentCount }): worldState => {
+    return {
+        gameObjectManagerState: GameObjectManager.createState(),
+        positionComponentManagerState: PositionComponentManager.createState(positionComponentCount),
+        velocityComponentManagerState: VelocityComponentManager.createState(velocityComponentCount),
+        flyComponentManagerState: FlyComponentManager.createState(flyComponentCount),
+        instanceComponentManagerState: InstanceComponentManager.createState()
+    }
+}
+```
+
+createState函数创建的worldState包括了每种组件的Manager的state
+因为Data Oriented组件的state在创建时要创建包括该种组件的所有组件数据的ArrayBuffer，所以需要知道最大的组件的个数。因此这里的createState函数接收了三种Data Oriented组件的最大个数
+
+我们来看下属于Data Oriented组件的PositionComponentManager的createState相关代码：
+position_component/ManagerStateType
+```ts
+export type state = {
+    maxIndex: number,
+    buffer: ArrayBuffer,
+    positions: Float32Array,
+    gameObjectMap: Map<component, gameObject>,
+    gameObjectPositionMap: Map<gameObject, component>,
+}
+```
+
+state.buffer是ArrayBuffer，用来保存所有的positionComponent的数据
+state.positions是ArrayBuffer的一个视图，通过它可以读写所有的positionComponent的position的数据
+
+position_component/Manager
+```ts
+let _setAllTypeArrDataToDefault = ([positions]: Array<Float32Array>, count, [defaultPosition]) => {
+    range(0, count - 1).forEach(index => {
+        OperateTypeArrayUtils.setPosition(index, defaultPosition, positions)
+    })
+
+    return [positions]
+}
+
+let _initBufferData = (count, defaultDataTuple): [ArrayBuffer, Array<Float32Array>] => {
+    let buffer = createBuffer(count)
+
+    let typeArrData = _setAllTypeArrDataToDefault(createTypeArrays(buffer, count), count, defaultDataTuple)
+
+    return [buffer, typeArrData]
+}
+
+export let createState = (positionComponentCount: number): state => {
+    let defaultPosition = [0, 0, 0]
+
+    let [buffer, [positions]] = _initBufferData(positionComponentCount, [defaultPosition])
+
+    return {
+        maxIndex: 0,
+        buffer,
+        positions,
+        gameObjectMap: Map(),
+        gameObjectPositionMap: Map(),
+    }
+}
+```
+在_initBufferData函数中，首先创建了包含positionComponentCount个组件数据的ArrayBuffer；
+然后创建了ArrayBuffer的视图，即positions视图数据；
+最后将positions赋值为默认值
+
+下面是创建ArrayBuffer和视图相关代码：
+position_componnet/BufferUtils
+```ts
+let _getPositionSize = () => 3
+
+export let getPositionOffset = (count) => 0
+
+export let getPositionLength = (count) => count * _getPositionSize()
+
+export let getPositionIndex = index => index * _getPositionSize()
+
+let _getTotalByteLength = (count) => {
+    return count * Float32Array.BYTES_PER_ELEMENT * _getPositionSize()
+}
+
+export let createBuffer = (count) => {
+    return new ArrayBuffer(_getTotalByteLength(count))
+}
+```
+position_componnet/CreateTypeArrayUtils
+```ts
+export let createTypeArrays = (buffer, count) => {
+    return [
+        new Float32Array(buffer, getPositionOffset(count), getPositionLength(count))
+    ]
+}
+```
+
+其它属于Data Oriented组件的VelocityComponentManager、FlyComponentManager的createState函数的代码跟PositionComponentManager的createState函数基本上一样
+
+
+我们来看下属于其它组件的InstanceComponentManager的createState的相关代码：
+instance_component/ManagerStateType
+```ts
+export type state = {
+    maxUID: number,
+    gameObjectMap: Map<component, gameObject>,
+    gameObjectInstanceMap: Map<gameObject, component>,
+}
+```
+instance_component/Manager
+```ts
+export let createState = (): state => {
+    return {
+        maxUID: 0,
+        gameObjectMap: Map(),
+        gameObjectInstanceMap: Map(),
+    }
+}
+```
+
+这里代码很简单，没有创建ArrayBuffer的代码
+
+
+
+
+
+我们继续来看下创建场景中除了“move”、“fly”逻辑的相关代码：
+SceneAPI
+```ts
+export let createGameObject = (worldState: worldState): [worldState, gameObject] => {
+    let [gameObjectManagerState, gameObject] = GameObjectManager.createGameObject(worldState.gameObjectManagerState)
+
+    return [
+        {
+            ...worldState,
+            gameObjectManagerState
+        },
+        gameObject
+    ]
+}
+
+export let createPositionComponent = (worldState: worldState): [worldState, component] => {
+    let [positionComponentManagerState, component] = PositionComponentManager.createComponent(worldState.positionComponentManagerState)
+
+    return [
+        {
+            ...worldState,
+            positionComponentManagerState
+        },
+        component
+    ]
+}
+
+创建其它组件...
+
+export let setPositionComponent = (worldState: worldState, gameObject: gameObject, component: component): worldState => {
+    return {
+        ...worldState,
+        positionComponentManagerState: PositionComponentManager.setComponent(worldState.positionComponentManagerState, gameObject, component)
+    }
+}
+
+挂载其它组件...
+```
+
+SceneAPI封装了创建场景的API
+
+
+GameObjectManager的相关代码如下：
+gameObject/ManagerState
+```ts
+export type state = {
+    maxUID: number
+}
+```
+gameObject/Manager
+```ts
+export let createState = (): state => {
+    return {
+        maxUID: 0
+    }
+}
+
+export let createGameObject = (state: state): [state, gameObject] => {
+    let uid = state.maxUID
+
+    let newUID = uid + 1
+
+    state = {
+        ...state,
+        maxUID: newUID
+    }
+
+    return [state, uid]
+}
+```
+PositionComponentManager的相关代码如下：
+```ts
+export let createComponent = (state: state): [state, component] => {
+    let index = state.maxIndex
+
+    let newIndex = index + 1
+
+    state = {
+        ...state,
+        maxIndex: newIndex
+    }
+
+    return [state, index]
+}
+
+export let getComponentExn = (state: state, gameObject: gameObject): component => {
+    let { gameObjectMap } = state
+
+    return getExnFromStrictNull(gameObjectMap.get(gameObject))
+}
+
+export let setComponent = (state: state, gameObject: gameObject, component: component): state => {
+    let { gameObjectMap, gameObjectPositionMap } = state
+
+    return {
+        ...state,
+        gameObjectMap: gameObjectMap.set(component, gameObject),
+        gameObjectPositionMap: gameObjectPositionMap.set(gameObject, component)
+    }
+}
+
+export let hasComponent = (state: state, gameObject: gameObject): boolean => {
+    let { gameObjectPositionMap } = state
+
+    return gameObjectPositionMap.has(gameObject)
+}
+```
+VelocityComponentManager、FlyComponentManager以及相关代码跟PositionComponentManager类似
+
+InstanceComponentManager相关代码也跟其类似，除了createComponent函数稍微有点不同，它的代码为：
+instance_component/Manager
+```ts
+export let createComponent = (state: state): [state, component] => {
+    let uid = state.maxUID
+
+    let newUID = uid + 1
+
+    state = {
+        ...state,
+        maxUID: newUID
+    }
+
+    return [state, uid]
+}
+```
+
+
+我们来看下创建场景中与“move”、“fly”逻辑相关的代码：
+MoveSystem
+```ts
+export let move = (worldState: worldState, positionComponent, velocityComponent): worldState => {
+    let [x, y, z] = getPosition(worldState.positionComponentManagerState, positionComponent)
+
+    let velocity = getVelocity(worldState.velocityComponentManagerState, velocityComponent)
+
+    let positionComponentManagerState = setPosition(worldState.positionComponentManagerState, positionComponent, [x + velocity, y + velocity, z + velocity])
+
+    return {
+        ...worldState,
+        positionComponentManagerState: positionComponentManagerState
+    }
+}
+```
+FlySystem
+```ts
+export let fly = (worldState: worldState, positionComponent, velocityComponent, flyComponent): worldState => {
+    let [x, y, z] = getPosition(worldState.positionComponentManagerState, positionComponent)
+
+    let velocity = getVelocity(worldState.velocityComponentManagerState, velocityComponent)
+
+    let maxVelocity = getMaxVelocity(worldState.flyComponentManagerState, flyComponent)
+
+    velocity = velocity < maxVelocity ? (velocity * 2.0) : maxVelocity
+
+    let positionComponentManagerState = setPosition(worldState.positionComponentManagerState, positionComponent, [x + velocity, y + velocity, z + velocity])
+
+    return {
+        ...worldState,
+        positionComponentManagerState: positionComponentManagerState
+    }
+}
+```
+
+这里涉及到读写Data Oriented组件的ArrayBuffer上的数据
+
+我们来看下读写PositionComponentManager的positions数据的相关代码：
+position_component/Manager
+```ts
+export let getPosition = (state: state, component: component) => {
+    return OperateTypeArrayUtils.getPosition(component, state.positions)
+}
+
+export let setPosition = (state: state, component: component, position) => {
+    OperateTypeArrayUtils.setPosition(component, position, state.positions)
+
+    return state
+}
+```
+position_component/OperateTypeArrayUtils
+```ts
+export let getPosition = (index, typeArr) => {
+    return getFloat3Tuple(getPositionIndex(index), typeArr)
+}
+
+export let setPosition = (index, data, typeArr) => {
+    setFloat3(getPositionIndex(index), data, typeArr)
+}
+```
+TypeArrayUtils
+```ts
+export let getFloat3Tuple = (index, typeArray) => {
+    return [
+        typeArray[index],
+        typeArray[index + 1 | 0],
+        typeArray[index + 2 | 0]
+    ]
+}
+
+export let setFloat3 = (index, param, typeArray) => {
+    typeArray[index] = param[0]
+    typeArray[index + 1 | 0] = param[1]
+    typeArray[index + 2 | 0] = param[2]
+}
+```
+
+这里的实现思路是positionComponent为索引，读写positions上的对应数据
+
+
+
+现在回到Client，继续看创建场景之后的逻辑
+Client
+```ts
+worldState = init(worldState)
+
+loop(worldState, [UpdateSystem.update, RenderOneByOneSystem.render, RenderInstancesSystem.render])
+```
+
+这里的步骤跟之前一样，初始化和主循环的逻辑也完全一样
+
+不一样的地方是主循环中的更新、渲染的逻辑是通过对应的System实现的
+
+
+我们看下更新的代码：
+UpdateSystem
+```ts
+export let update = (worldState: worldState): worldState => {
+    let positionComponentManagerState = batchUpdate(worldState.positionComponentManagerState)
+
+    return {
+        ...worldState,
+        positionComponentManagerState: positionComponentManagerState
+    }
+}
+```
+position_component/Manager
+```ts
+export let getAllComponents = (state: state): Array<component> => {
+    let { gameObjectPositionMap } = state
+
+    return gameObjectPositionMap.toArray().map(([key, value]) => value)
+}
+
+export let batchUpdate = (state: state) => {
+    return getAllComponents(state).reduce((state, component) => {
+        console.log("更新PositionComponent: " + String(component))
+
+        let [x, y, z] = getPosition(state, component)
+
+        //更新position
+        let newPosition: [number, number, number] = [x * 2.0, y * 2.0, z * 2.0]
+
+        return setPosition(state, component, newPosition)
+    }, state)
+}
+```
+
+
+UpdateSystem的update函数调用了PositionComponentManager的batchUpdate函数来批量更新
+
+
+
+接下来我们看下渲染的代码：
+RenderOneByOneSystem
+```ts
+export let render = (worldState: worldState): void => {
+    let superHeroGameObjects = getAllGameObjects(worldState.gameObjectManagerState).filter(gameObject => {
+        //hasInstanceComponent是InstanceComponentManager的hasComponent函数
+        return !hasInstanceComponent(worldState.instanceComponentManagerState, gameObject)
+    })
+
+    superHeroGameObjects.forEach(gameObjectState => {
+        console.log("OneByOne渲染 SuperHero...")
+    })
+}
+```
+gameObject/Manager
+```ts
+export let getAllGameObjects = (state: state): Array<gameObject> => {
+    let { maxUID } = state
+
+    return range(0, maxUID - 1)
+}
+```
+
+RenderOneByOneSystem通过GameObjectManager获得所有的gameObject，过滤它们，获得所有的没有挂载InstanceComponent组件的gameObject，它们就是所有的超级英雄；然后一个一个地渲染
+
+RenderInstancesSystem
+```ts
+export let render = (worldState: worldState): void => {
+    let normalHeroGameObejcts = getAllGameObjects(worldState.gameObjectManagerState).filter(gameObject => {
+        return hasInstanceComponent(worldState.instanceComponentManagerState, gameObject)
+    })
+
+    console.log("批量Instance渲染 NormalHeros...")
+}
+```
+
+RenderInstancesSystem则是获得所有挂载InstanceComponent组件的gameObject，它们就是所有的普通英雄；然后一次性批量渲染
+
+
+
+
+下面，我们运行代码，运行结果如下：
+```text
+初始化...
+更新PositionComponent: 0
+更新PositionComponent: 1
+更新PositionComponent: 2
+更新PositionComponent: 3
+OneByOne渲染 SuperHero...
+OneByOne渲染 SuperHero...
+批量Instance渲染 NormalHeros...
+{"gameObjectManagerState":{"maxUID":4},"positionComponentManagerState":{"maxIndex":4,"buffer":{},"positions":{"0":2,"1":2,"2":2,"3":0,"4":0,"5":0,"6":6,"7":6,"8":6,"9":0,"10":0,"11":0,"12":0,"13":0,"14":0,"15":0,"16":0,"17":0,"18":0,"19":0,"20":0,"21":0,"22":0,"23":0,"24":0,"25":0,"26":0,"27":0,"28":0,"29":0},"gameObjectMap":{"0":0,"1":1,"2":2,"3":3},"gameObjectPositionMap":{"0":0,"1":1,"2":2,"3":3}},"velocityComponentManagerState":{"maxIndex":4,"buffer":{},"velocitys":{"0":1,"1":1,"2":1,"3":1,"4":1,"5":1,"6":1,"7":1,"8":1,"9":1},"gameObjectMap":{"0":0,"1":1,"2":2,"3":3},"gameObjectVelocityMap":{"0":0,"1":1,"2":2,"3":3}},"flyComponentManagerState":{"maxIndex":1,"buffer":{},"maxVelocitys":{"0":10,"1":10,"2":10,"3":10,"4":10,"5":10,"6":10,"7":10,"8":10,"9":10},"gameObjectMap":{"0":2,"1":3},"gameObjectFlyMap":{"2":0,"3":1}},"instanceComponentManagerState":{"maxUID":1,"gameObjectMap":{"0":0,"1":1},"gameObjectInstanceMap":{"0":0,"1":1}}}
+```
+
+运行结果的步骤与之前一样
+不同之处在于：
+打印的worldState的结构不一样了
+
+
+但是worldState包括的内容是一样的，具体为：
+gameObjectManagetState的maxUID为4，说明创建了4个gameObject；
+positionComponentManagerState的maxIndex为4，说明创建了4个positionComponent；
+positionComponentManagerState的positions有3个连续的值是2、2、2，并且有另外3个连续的值是6、6、6，说明进行了move和fly操作；
+
+
+通过检查打印的值，说明通过了运行测试
 
 
 <!-- # 设计意图
@@ -850,7 +1472,9 @@ TODO continue
 # 定义
 
 ## 一句话定义？
-<!-- ## 概述抽象的解决方案 -->
+
+TODO continue
+
 ## 补充说明
 ## 通用UML？
 ## 分析角色？

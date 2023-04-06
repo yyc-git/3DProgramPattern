@@ -309,7 +309,7 @@ e.g. most, commonlib
 
 
 
-* TODO 重写“依赖隔离模式”:统一格式; update 使用场景; rename IRenderEngine to RenderEngine
+* TODO 重写“依赖隔离模式”:统一格式; update 使用场景：推广; rename IRenderEngine to RenderEngine
 
 
 * TODO 加入过渡语
