@@ -271,13 +271,13 @@ add image
 finish TODO
 
 
-* TODO finish ecs pattern article
+* DONE finish ecs pattern article
 
 # ** TODO fix code
 
 ** DONE update article 1
 
-** TODO update article 2
+** DONE update article 2
 
 remove comment
 
