@@ -26,7 +26,7 @@ let _createScene = (worldState: worldState): worldState => {
     return worldState
 }
 
-let worldState = createState({ dataOrientedComponent1Count: 10 })
+let worldState = createState({ dataOrientedComponent1Count: xx })
 
 worldState = _createScene(worldState)
 

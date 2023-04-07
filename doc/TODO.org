@@ -275,6 +275,24 @@ finish TODO
 
 # ** TODO fix code
 
+** DONE update article 1
+
+** TODO update article 2
+
+remove comment
+
+add image
+
+finish TODO
+
+
+* TODO finish 第二次记录
+
+
+
+* TODO publish 观察报告
+
+
 
 
 
