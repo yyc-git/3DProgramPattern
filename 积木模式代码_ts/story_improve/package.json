@@ -1,5 +1,5 @@
 {
-  "name": "client",
+  "name": "block_pattern_story_improve",
   "version": "0.0.1",
   "scripts": {
     "watch": "tsc -w -noEmit",

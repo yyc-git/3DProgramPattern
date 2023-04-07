@@ -2,9 +2,6 @@ import { state as engineState } from "./EngineStateType"
 import { multiplyMatrix } from "./Math"
 import { getAllGameObjects } from "./SceneManager"
 
-// type engineState = {
-// }
-
 export let init = (engineState: engineState) => {
     console.log("初始化渲染")
 

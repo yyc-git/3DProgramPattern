@@ -286,13 +286,12 @@ add image
 finish TODO
 
 
-* TODO finish 第二次记录
+* DONE finish 第二次记录
 
 
 
-* TODO publish 观察报告
 
-
+* TODO finish block pattern article
 
 
 
@@ -308,6 +307,30 @@ TODO handle 依赖隔离模式
 * TODO 简化抽象代码
 
 * TODO 简化UML
+
+
+* TODO improve story
+
+一家公司，开发项目
+
+引入角色：
+开发者
+    小李
+    小陈
+经理
+    老刘
+
+* TODO improve 给出UML 的描述
+
+先说“总体上来看，xxx”
+然后再介绍每个部分的具体模块
+
+
+
+使用总-分-总?套路，最后一个总可选
+
+
+
 
 * TODO give where has code, uml and how to run code and run result for each example
 

@@ -7,20 +7,15 @@ export let createState = (): sceneManagerState => {
 }
 
 export let createScene = (state: engineState) => {
-    // console.log("创建场景，包括创建GameObject, Material等")
     console.log("创建场景")
 
-    // let gameObject1: any = 1
-    // let gameObject2: any = 2
-
+    //创建一个假的gameObject
     let sceneGameObject = 1
 
     return {
         ...state,
         scene: {
             ...state.scene,
-            // allGameObjects: [gameObject1, gameObject2]
-
             //通过concat而不是push来加入，保持state的immutable
             allGameObjects: state.scene.allGameObjects.concat([sceneGameObject])
         }
@@ -32,8 +27,6 @@ export let getAllGameObjects = (state: engineState) => {
 }
 
 export let init = (state: engineState) => {
-    // let state = _createState()
-
     console.log("初始化场景")
 
     return state

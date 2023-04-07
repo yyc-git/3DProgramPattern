@@ -1,5 +1,4 @@
 import { state as blockManagerState } from "block_manager/src/BlockManagerType"
-import { state as sceneManagerState } from "sceneManager_block_protocol/src/state/StateType"
 
 type directorAPI = {
 	init: (blockManagerState: blockManagerState) => blockManagerState,
@@ -7,7 +6,6 @@ type directorAPI = {
 }
 
 type sceneAPI = {
-	// createScene: (sceneManagerState) => sceneManagerState,
 	createScene: (blockManagerState) => blockManagerState,
 }
 

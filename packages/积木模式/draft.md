@@ -142,15 +142,15 @@ SceneManager、Render需要进行数学计算，所以需要依赖Math
 
 
 
+    <!-- TODO 结合钩子函数 -->
+    init/update Block
+
+    <!-- TODO 结合单文件模式 -->
+    binary file
 
 
 - 结合其它模式
     - 结合哪些模式？
-    TODO 结合钩子函数
-    init/update Block
-
-    TODO 结合单文件模式
-    binary file
 
     - 使用场景是什么？
     - UML如何变化？
@@ -168,3 +168,7 @@ SceneManager、Render需要进行数学计算，所以需要依赖Math
 # 主问题：推荐更多资料
 
 - 推荐更多资料？
+
+
+TODO rescript 代码版本
+TODO typescript 代码版本
