@@ -1,2 +1,5 @@
-export type state = ...（通常为null）
+//如果为空则为null
+export type state = {
+    ...
+}
 

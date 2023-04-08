@@ -293,6 +293,17 @@ finish TODO
 
 * TODO finish block pattern article
 
+** DONE update article 1
+
+** TODO update article 2
+
+remove comment
+
+add image
+
+finish TODO
+
+
 
 
 
@@ -309,7 +320,7 @@ TODO handle 依赖隔离模式
 * TODO 简化UML
 
 
-* TODO improve story
+* TODO unify story
 
 一家公司，开发项目
 
@@ -320,7 +331,7 @@ TODO handle 依赖隔离模式
 经理
     老刘
 
-* TODO improve 给出UML 的描述
+* TODO unify 给出UML 的描述
 
 先说“总体上来看，xxx”
 然后再介绍每个部分的具体模块
@@ -330,6 +341,7 @@ TODO handle 依赖隔离模式
 使用总-分-总?套路，最后一个总可选
 
 
+* TODO 在给出代码->结束一段代码的分析时，给出承上启下语句：总结上段代码，引出下段代码
 
 
 * TODO give where has code, uml and how to run code and run result for each example

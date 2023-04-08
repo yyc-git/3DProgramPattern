@@ -16,7 +16,7 @@ export let init = (): blockManagerState => {
 
     blockManagerState = registerBlock(
         blockManagerState,
-        "entry_block_abstract_protocol",
+        "entry_block_protocol",
         getEntryBlockService,
         getDependentEntryBlockProtocolNameMap(),
         createEntryBlockState()
@@ -35,7 +35,7 @@ export let init = (): blockManagerState => {
 }
 
 
-export let getEntryBlockProtocolName = () => "entry_block_abstract_protocol"
+export let getEntryBlockProtocolName = () => "entry_block_protocol"
 
 export let getBlockService = <blockService>(blockManagerState: blockManagerState, blockProtocolName: blockProtocolName) => {
     return getBlockServiceExn<blockService>(blockManagerState, blockProtocolName)
