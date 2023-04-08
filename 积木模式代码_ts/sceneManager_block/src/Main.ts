@@ -19,16 +19,6 @@ export let getBlockService: getBlockServiceBlockManager<
 				allGameObjects: sceneManagerState.allGameObjects.concat([sceneGameObject])
 			}
 		},
-		// createScene: (blockManagerState) => {
-		// 	console.log("创建场景")
-
-		// 	let sceneGameObject = 1
-
-		// 	return {
-		// 		...sceneManagerState,
-		// 		allGameObjects: sceneManagerState.allGameObjects.concat([sceneGameObject])
-		// 	}
-		// },
 		getAllGameObjects: (sceneManagerState) => {
 			return sceneManagerState.allGameObjects
 		},
@@ -40,6 +30,7 @@ export let getBlockService: getBlockServiceBlockManager<
 		update: (blockManagerState) => {
 			console.log("更新场景")
 
+			//通过Math Block Protocol接口来调用Math Block的服务的multiplyMatrix函数
 			let { multiplyMatrix } = api.getBlockService<mathService>(blockManagerState, mathBlockProtocolName)
 
 			let _ = multiplyMatrix(1, 2)

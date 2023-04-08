@@ -17,12 +17,14 @@ export let getBlockService: getBlockServiceBlockManager<
 			return blockManagerState
 		},
 		render: (blockManagerState) => {
+			//通过SceneManager Block Protocol接口来调用SceneManager Block的服务的getAllGameObjects函数
 			let { getAllGameObjects } = api.getBlockService<sceneManagerService>(blockManagerState, sceneManagerBlockProtocolName)
 
 			let allGameObjects = getAllGameObjects(api.getBlockState<sceneManagerState>(blockManagerState, sceneManagerBlockProtocolName))
 
 			console.log("处理场景数据")
 
+			//通过Math Block Protocol接口来调用Math Block的服务的multiplyMatrix函数
 			let { multiplyMatrix } = api.getBlockService<mathService>(blockManagerState, mathBlockProtocolName)
 
 			let _ = multiplyMatrix(1, 2)

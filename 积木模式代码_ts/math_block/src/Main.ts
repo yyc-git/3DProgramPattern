@@ -23,6 +23,7 @@ export let createBlockState: createBlockStateBlockManager<
 }
 
 export let getDependentBlockProtocolNameMap: getDependentBlockProtocolNameMapBlockManager = () => {
+	//没有依赖的积木
 	return {
 	}
 }

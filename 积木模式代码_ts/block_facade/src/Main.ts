@@ -68,7 +68,7 @@ export let init = (): blockManagerState => {
     return blockManagerState
 }
 
-
+//获得Engine Block Protocol的协议名
 export let getEntryBlockProtocolName = () => "engine_block_protocol"
 
 export let getBlockService = <blockService>(blockManagerState: blockManagerState, blockProtocolName: blockProtocolName) => {

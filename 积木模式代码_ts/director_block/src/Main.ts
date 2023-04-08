@@ -10,10 +10,12 @@ let requestAnimationFrame = (func) => {
 }
 
 let _loop = (api: api, blockManagerState: blockManagerState, sceneManagerBlockProtocolName: blockProtocolName, renderBlockProtocolName: blockProtocolName) => {
+	//通过SceneManager Block Protocol接口来调用SceneManager Block的服务的update函数
 	let sceneManagerService = api.getBlockService<sceneManagerService>(blockManagerState, sceneManagerBlockProtocolName)
 
 	blockManagerState = sceneManagerService.update(blockManagerState)
 
+	//通过Render Block Protocol接口来调用Render Block的服务的render函数
 	let renderService = api.getBlockService<renderService>(blockManagerState, renderBlockProtocolName)
 
 	blockManagerState = renderService.render(blockManagerState)
@@ -31,10 +33,12 @@ export let getBlockService: getBlockServiceBlockManager<
 > = (api, { sceneManagerBlockProtocolName, renderBlockProtocolName }) => {
 	return {
 		init: (blockManagerState) => {
+			//通过SceneManager Block Protocol接口来调用SceneManager Block的服务的init函数
 			let sceneManagerService = api.getBlockService<sceneManagerService>(blockManagerState, sceneManagerBlockProtocolName)
 
 			blockManagerState = sceneManagerService.init(blockManagerState)
 
+			//通过Render Block Protocol接口来调用Render Block的服务的init函数
 			let renderService = api.getBlockService<renderService>(blockManagerState, renderBlockProtocolName)
 
 			blockManagerState = renderService.init(blockManagerState)
