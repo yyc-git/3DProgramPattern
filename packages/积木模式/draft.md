@@ -138,7 +138,7 @@ SceneManager、Render需要进行数学计算，所以需要依赖Math
 
 
 
-    config
+    <!-- config -->
 
 
 

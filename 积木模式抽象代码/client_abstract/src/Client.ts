@@ -3,6 +3,6 @@ import { service } from "entry_block_abstract_protocol/src/service/ServiceType";
 
 let blockManagerState = init()
 
-let api = getBlockService<service>(blockManagerState, getEntryBlockProtocolName())
+let entryBlockService = getBlockService<service>(blockManagerState, getEntryBlockProtocolName())
 
-调用API...
+调用entryBlockService...

@@ -1532,7 +1532,7 @@ positionComponentManagerState的positions有3个连续的值是2、2、2，说�
 
 我们来看看模式的相关角色：
 
-整个UML主要分成三个层级：System、Manager、Component+GameObject，它们的依赖关系为System依赖Manager，Manager依赖Component+GameObject
+总体来看，分成三个层级：System、Manager、Component+GameObject，它们的依赖关系为System依赖Manager，Manager依赖Component+GameObject
 
 System层负责实现行为的逻辑
 Manager层负责管理场景数据，即GameObject和组件的数据
