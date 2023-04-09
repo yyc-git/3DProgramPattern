@@ -389,8 +389,8 @@ tonemap for WebGL2
 如果不懂代码的策划人员想要自定义三个步骤的执行顺序，那就需要麻烦开发人员来修改代码，而不能够直接通过修改配置数据来自定义
 
 - 多人开发渲染的不同步骤的模块时容易造成冲突
-如果甲负责开发RenderInMobile中的InitWebGL1，乙负责开发RenderInMobile中的另外两个步骤模块，那么当他们把合并代码时容易出现代码冲突和Bug。
-这是因为这三个步骤模块之间相互依赖，即另外两个步骤模块依赖InitWebGL1模块，所以甲负责的InitWebGL1模块如果有修改，会影响到乙负责的模块
+现在甲负责开发RenderInPC和RenderInMobile中的InitWebGL1，乙负责开发RenderInMobile中的另外两个步骤模块，那么当他们合并RenderInMobile的代码时容易出现代码冲突和Bug。
+这是因为RenerInMobile的三个步骤模块之间相互依赖，即另外两个步骤模块依赖InitWebGL1模块，所以如果甲负责的InitWebGL1模块修改了，会影响到乙负责的模块
 
 
 
@@ -401,16 +401,11 @@ tonemap for WebGL2
 
 
 通过下面的改进来实现通过配置来指定渲染的步骤：
-将RenderInPC和RenderInMobile模块改为两个渲染管道
-将其中的三个步骤的模块改为独立的Job，按照JSON配置指定的执行顺序，对应的渲染管道中执行
-<!-- 每个渲染管道有自己的数据，保存在自己的state中 -->
-<!-- Job可以读写所有的渲染管道的数据，不过不是直接 -->
-<!-- 
-
-不过只依赖于管道数据的类型 -->
+将RenderInPC和RenderInMobile模块改为两个管道
+将每个步骤的模块改为独立的Job。它们按照JSON配置指定的执行顺序，在对应的管道中执行
 
 通过下面的改进来解决冲突的问题：
-因为渲染管道中的Job是独立的，相互之间不依赖，所以甲和乙同时开发不同的Job是不会相互影响的
+因为不同的管道相互独立，同一个管道中的Job也是相互独立，它们相互之间不依赖，所以甲和乙同时开发RenderInMobile管道的不同的Job是不会相互影响的
 
 
 
@@ -418,20 +413,64 @@ tonemap for WebGL2
 
 TODO tu
 
+
+
+
+总体来看，分为Render、PipelineManager、三个管道、三个管道state以及对应的state类型、三个管道包括的Job这几个部分
+
+
+Render负责按照运行环境注册对应的管道，然后依次执行管道的Job来实现渲染
+
+PipeManager负责管理管道
+
+三个管道包括甲负责的RenderInPCPipeline、甲负责的JiaRenderInMobilePipeline、乙负责的YiRenderInMobilePipeline
+
+每个管道维护了JSON配置数据，它们用来指定管道中Job的执行顺序
+
+每个管道都包括了自己的数据，保存自己的PipelineState中
+
+每个PipelineState的类型定义在PipelineStateType中
+
+每个管道都包括了一个或多个Job，之前的步骤模块现在都对应地改为Job
+
+每个Job都能读写所有管道的PipelineState
+
+
+## 结合UML图，描述如何具体地解决问题？
+
+- RenderInPCPipeline、JiaRenderInMobilePipeline、YiRenderInMobilePipeline这三个管道都维护了JSON配置数据，不懂开发的策划人员只需要配置它们们而不需要修改其它代码，即可指定渲染的步骤
+
+- 甲和乙开发的是不同的管道，它们之间唯一的依赖是乙开发的管道的PipelineState-YiRenderInMobilePipelineState使用了甲开发的管道的PipelineState-JiaRenderInMobilePipeline，它们的依赖是类型（PipelineStateType）之间的依赖。只要类型JiaRenderInMobilePipelineStateType不变（类型是抽象的，一般都不会改变），则甲、乙之间的开发就不会互相影响
+
+
+
+## 给出代码？
+
+
+Client代码:
+```ts
+//假canvas
+let canvas = {
+    getContext: (_) => 1 as any
+}
+
+//指定运行环境
+globalThis.isPC = true
+
+
+let renderState = createState()
+
+renderState = registerAllPipelines(renderState)
+
+render(renderState, canvas).then(newRenderState => {
+    renderState = newRenderState
+})
+```
+
 TODO continue
 
 
-TODO
-每个渲染管道有自己的数据，保存在自己的state中
-Job可以拿到每个渲染管道的数据，不过只依赖于管道数据的类型
 
-
-
-TODO 现在增加一个开发同学乙，负责实现RenderInMobile管道的前向渲染、Tonemap的Job
-甲负责实现RenderInPC管道的所有Job，以及RenderInMobile管道的初始化WebGL1
-
-## 结合UML图，描述如何具体地解决问题？
-## 给出代码？
 
 
 TODO
@@ -475,6 +514,7 @@ TODO
 
 ## 注意事项
 
+<!-- ////TODO Job最好只写自己所属的管道的PipelineState，不是要写其它管道的PipelineState -->
 
 # 扩展
 

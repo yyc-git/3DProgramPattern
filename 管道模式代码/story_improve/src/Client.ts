@@ -5,8 +5,8 @@ let canvas = {
     getContext: (_) => 1 as any
 }
 
-// globalThis.isPC = true
-globalThis.isPC = false
+//指定运行环境
+globalThis.isPC = true
 
 
 let renderState = createState()
