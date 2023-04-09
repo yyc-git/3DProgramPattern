@@ -12,7 +12,7 @@
 
 ## 实现思路
 
-甲实现了一个Render模块，该模块实现了初始化WebGL、渲染、Tonemap后处理的逻辑
+甲实现了一个Render模块，该模块实现了渲染，包括初始化WebGL、渲染、Tonemap后处理这三个步骤
 
 为了处理运行环境的差异，他的思路如下；
 
@@ -155,25 +155,287 @@ tonemap for WebGL2
 
 ## 概述解决方案？
 
-TODO continue
+分离PC端和移动端的渲染逻辑：
+从Render模块中提出两个模块：RenderInPC, RenderInMobile，分别对应PC端和移动端的渲染；
+
+因为初始化WebGL、渲染、Tonemap后处理这三个步骤相对独立，所以将其拆分成单独的模块
+
 
 ## 给出UML？
+
+TODO tu
+
+Render负责判断运行环境，调用对应的渲染模块来渲染
+
+RenderInPC实现了PC端的渲染
+
+RenderInMobile实现了移动端的渲染
+
+InitWebGL2负责初始化WebGL2
+
+DeferRender实现延迟渲染
+
+TonemapForWebGL2使用WebGL2实现Tonemap后处理
+
+InitWebGL1负责初始化WebGL1
+
+ForwardRender实现前向渲染
+
+TonemapForWebGL1使用WebGL1实现Tonemap后处理
+
+
+
+
+
 ## 结合UML图，描述如何具体地解决问题？
+
+- 现在甲负责RenderInPC和对应的三个模块，乙负责RenderInMobile和对应的另外三个模块，互相不影响
+
+
+
+
 ## 给出代码？
 
 
-<!-- ## 请分析存在的问题?
-## 提出改进方向？ -->
+Client代码:
+```ts
+//假canvas
+let canvas = {
+    getContext: (_) => 1 as any
+}
+
+//指定运行环境
+globalThis.isPC = true
+
+
+let renderState = createState()
+
+renderState = render(renderState, canvas)
+```
+
+Client代码跟之前一样
+
+我们看下Renderd的createState相关代码：
+RenderStateType
+```ts
+export type renderInPCState = {
+    gl: WebGL2RenderingContext | null
+}
+
+export type renderInMobileState = {
+    gl: WebGL2RenderingContext | null
+}
+
+export type state = {
+    renderInPC: renderInPCState,
+    renderInMobile: renderInMobileState,
+}
+```
+Render
+```ts
+export let createState = (): state => {
+    return {
+        renderInPC: {
+            gl: null
+        },
+        renderInMobile: {
+            gl: null
+        }
+    }
+}
+```
+
+state使用两个字段来分别保存两个运行环境的数据，互不干扰
+
+
+我们看下Renderd的Render相关代码：
+```ts
+let _isPC = () => {
+    return globalThis.isPC
+}
+
+export let render = (state: state, canvas) => {
+    console.log(globalThis.isPC ? "is PC" : "is mobile")
+
+    if (_isPC()) {
+        state = renderInPC(state, canvas)
+    }
+    else {
+        state = renderInMobile(state, canvas)
+    }
+
+    return state
+}
+```
+
+render函数判断了运行环境，如果是PC端就调用RenderInPC模块来渲染；否则就调用RenderInMobile模块来渲染
+
+我们看下RenderInPC代码
+```ts
+export let render = (state: state, canvas) => {
+    state = initWebGL2(state, canvas)
+    state = deferRender(state)
+    state = tonemap(state)
+
+    return state
+}
+```
+
+它依次调用三个模块来执行渲染
+
+三个模块的相关代码如下：
+InitWebGL2
+```ts
+export let initWebGL2 = (state: state, canvas) => {
+    console.log("初始化WebGL2")
+
+    return {
+        ...state,
+        renderInPC: {
+            gl: canvas.getContext("webgl2")
+        }
+    }
+}
+```
+DeferRender
+```ts
+export let deferRender = (state: state) => {
+    let gl = getExnFromStrictNull(state.renderInPC.gl)
+
+    console.log("延迟渲染")
+
+    return state
+}
+```
+TonemapForWebGL2
+```ts
+export let tonemap = (state: state) => {
+    let gl = getExnFromStrictNull(state.renderInPC.gl)
+
+    console.log("tonemap for WebGL2")
+
+    return state
+}
+```
+
+
+我们看下RenderInMobile代码
+```ts
+export let render = (state: state, canvas) => {
+    state = initWebGL1(state, canvas)
+    state = forwardRender(state)
+    state = tonemap(state)
+
+    return state
+}
+```
+
+它依次调用另外三个模块来执行渲染
+
+三个模块的相关代码如下：
+InitWebGL1
+```ts
+export let initWebGL1 = (state: state, canvas) => {
+    console.log("初始化WebGL1")
+
+    return {
+        ...state,
+        renderInMobile: {
+            gl: canvas.getContext("webgl1")
+        }
+    }
+}
+```
+ForwardRender
+```ts
+export let forwardRender = (state: state) => {
+    let gl = getExnFromStrictNull(state.renderInMobile.gl)
+
+    console.log("前向渲染")
+
+    return state
+}
+```
+TonemapForWebGL1
+```ts
+export let tonemap = (state: state) => {
+    let gl = getExnFromStrictNull(state.renderInMobile.gl)
+
+    console.log("tonemap for WebGL1")
+
+    return state
+}
+```
+
+
+下面，我们运行代码，运行结果如下：
+```text
+is PC
+初始化WebGL2
+延迟渲染
+tonemap for WebGL2
+```
+
+运行结果跟之前一样
+
+
+
+
 ## 提出问题
+
+
+- 不能通过配置来指定渲染的步骤
+现在是通过函数调用的方式来执行渲染的三个步骤。
+如果不懂代码的策划人员想要自定义三个步骤的执行顺序，那就需要麻烦开发人员来修改代码，而不能够直接通过修改配置数据来自定义
+
+- 多人开发渲染的不同步骤的模块时容易造成冲突
+如果甲负责开发RenderInMobile中的InitWebGL1，乙负责开发RenderInMobile中的另外两个步骤模块，那么当他们把合并代码时容易出现代码冲突和Bug。
+这是因为这三个步骤模块之间相互依赖，即另外两个步骤模块依赖InitWebGL1模块，所以甲负责的InitWebGL1模块如果有修改，会影响到乙负责的模块
+
+
 
 
 # [给出使用模式的改进方案]
 
 ## 概述解决方案
+
+
+通过下面的改进来实现通过配置来指定渲染的步骤：
+将RenderInPC和RenderInMobile模块改为两个渲染管道
+将其中的三个步骤的模块改为独立的Job，按照JSON配置指定的执行顺序，对应的渲染管道中执行
+<!-- 每个渲染管道有自己的数据，保存在自己的state中 -->
+<!-- Job可以读写所有的渲染管道的数据，不过不是直接 -->
+<!-- 
+
+不过只依赖于管道数据的类型 -->
+
+通过下面的改进来解决冲突的问题：
+因为渲染管道中的Job是独立的，相互之间不依赖，所以甲和乙同时开发不同的Job是不会相互影响的
+
+
+
 ## 给出UML？
+
+TODO tu
+
+TODO continue
+
+
+TODO
+每个渲染管道有自己的数据，保存在自己的state中
+Job可以拿到每个渲染管道的数据，不过只依赖于管道数据的类型
+
+
+
+TODO 现在增加一个开发同学乙，负责实现RenderInMobile管道的前向渲染、Tonemap的Job
+甲负责实现RenderInPC管道的所有Job，以及RenderInMobile管道的初始化WebGL1
+
 ## 结合UML图，描述如何具体地解决问题？
 ## 给出代码？
 
+
+TODO
+这里需要实现的是能够合并甲、乙开发的同属于RenderInMobile管道的两个子管道。其中乙实现的两个Job应该在甲实现的Job之后执行，并且乙的Job需要读甲的子管道数据：WebGL1的上下文
 
 
 <!-- # 设计意图

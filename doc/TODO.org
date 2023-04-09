@@ -350,6 +350,12 @@ TODO handle 依赖隔离模式
 
 * TODO “运行代码”要说明运行Client代码 
 
+* TODO 统一“概述解决方案”，与之前提出的问题对应
+
+通过模板：
+通过下面的改进来xxx：
+xxx
+
 
 * TODO give where has code, uml and how to run code and run result for each example
 
