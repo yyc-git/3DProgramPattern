@@ -2,8 +2,6 @@ import { state } from "./RenderStateType"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 
 let _isPC = () => {
-    console.log(globalThis.isPC ? "is PC" : "is mobile")
-
     return globalThis.isPC
 }
 
@@ -11,9 +9,13 @@ let _initWebGL = (state, canvas) => {
     let gl = null
 
     if (_isPC()) {
+        console.log("初始化WebGL2")
+
         gl = canvas.getContext("webgl2")
     }
     else {
+        console.log("初始化WebGL1")
+
         gl = canvas.getContext("webgl1")
     }
 
@@ -42,13 +44,15 @@ let _tonemap = (state) => {
     let gl = null
 
     if (_isPC()) {
+        console.log("tonemap for WebGL2")
+
         gl = getExnFromStrictNull(state.gl) as WebGL2RenderingContext
     }
     else {
+        console.log("tonemap for WebGL1")
+
         gl = getExnFromStrictNull(state.gl) as WebGLRenderingContext
     }
-
-    console.log("tonemap")
 
     return state
 }
@@ -60,6 +64,8 @@ export let createState = (): state => {
 }
 
 export let render = (state: state, canvas) => {
+    console.log(globalThis.isPC ? "is PC" : "is mobile")
+
     state = _initWebGL(state, canvas)
     state = _render(state)
     state = _tonemap(state)

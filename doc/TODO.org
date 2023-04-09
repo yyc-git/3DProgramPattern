@@ -291,18 +291,21 @@ finish TODO
 
 
 
-* TODO finish block pattern article
+* DONE finish block pattern article
 
 ** DONE update article 1
 
-** TODO update article 2
+# ** TODO update article 2
 
-remove comment
+# remove comment
 
-add image
+# add image
 
-finish TODO
+# finish TODO
 
+
+
+* TODO finish pipeline pattern article
 
 
 
@@ -342,6 +345,10 @@ TODO handle 依赖隔离模式
 
 
 * TODO 在给出代码->结束一段代码的分析时，给出承上启下语句：总结上段代码，引出下段代码
+
+
+
+* TODO “运行代码”要说明运行Client代码 
 
 
 * TODO give where has code, uml and how to run code and run result for each example

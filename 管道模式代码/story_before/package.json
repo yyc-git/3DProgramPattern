@@ -2,7 +2,8 @@
   "name": "pipeline_pattern_story_before",
   "version": "0.0.1",
   "scripts": {
-    "watch": "tsc -w -noEmit"
+    "watch": "tsc -w -noEmit",
+    "client": "ts-node src/Client.ts"
   },
   "devDependencies": {
     "typescript": "^4.2.3"
