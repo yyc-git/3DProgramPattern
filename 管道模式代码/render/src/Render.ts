@@ -16,31 +16,31 @@ let _isPC = () => {
 
 export let createState = (): state => {
     return {
-        renderPipelineState: createPipelineManagerState()
+        pipelineManagerState: createPipelineManagerState()
     }
 }
 
 export let registerAllPipelines = (state: state) => {
     if (_isPC()) {
-        let renderPipelineState = registerPipeline(
-            state.renderPipelineState,
+        let pipelineManagerState = registerPipeline(
+            state.pipelineManagerState,
             getRenderInPCPipeline(),
             []
         )
 
         state = {
             ...state,
-            renderPipelineState: renderPipelineState
+            pipelineManagerState: pipelineManagerState
         }
     }
     else {
-        let renderPipelineState = registerPipeline(
-            state.renderPipelineState,
+        let pipelineManagerState = registerPipeline(
+            state.pipelineManagerState,
             getJiaRenderInMobilePipeline(),
             []
         )
-        renderPipelineState = registerPipeline(
-            renderPipelineState,
+        pipelineManagerState = registerPipeline(
+            pipelineManagerState,
             getYiRenderInMobilePipeline(),
             [
                 {
@@ -53,21 +53,23 @@ export let registerAllPipelines = (state: state) => {
 
         state = {
             ...state,
-            renderPipelineState: renderPipelineState
+            pipelineManagerState: pipelineManagerState
         }
     }
 
     return state
 }
 
+//从RenderState中获得PipelineManagerState
 let _unsafeGetPipeManagerState = (state: state) => {
-    return state.renderPipelineState
+    return state.pipelineManagerState
 }
 
-let _setPipeManagerState = (state: state, renderPipelineState: pipelineState) => {
+//保存PipelineManagerState到RenderState中
+let _setPipeManagerState = (state: state, pipelineManagerState: pipelineState) => {
     return {
         ...state,
-        renderPipelineState: renderPipelineState
+        pipelineManagerState: pipelineManagerState
     }
 }
 
@@ -83,6 +85,7 @@ let _runPipeline = (
 
             return renderState
         },
+        //调用PipelineManager的runPipeline函数来运行管道
         runPipeline<state>(renderState, [
             unsafeGetState,
             setState,
@@ -95,9 +98,12 @@ let _runPipeline = (
 }
 
 export let render = (state: state, canvas): Promise<state> => {
+    //调用PipelineManager的init函数来初始化PipelineManager
     state = init(state, [_unsafeGetPipeManagerState, _setPipeManagerState])
 
+    //将canvas保存到全局变量中，从而在初始化WebGL的Job中能够获得canvas
     globalThis.canvas = canvas
 
+    //运行名为render的管道
     return _runPipeline(state, "render")
 }

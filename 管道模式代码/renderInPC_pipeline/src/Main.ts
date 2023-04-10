@@ -40,6 +40,16 @@ export let getPipeline = (): pipeline<renderState, state> => {
 								"type_": "job"
 							},
 							{
+								"name": "second_renderInPC",
+								"type_": "group"
+							},
+						]
+					},
+					{
+						name: "second_renderInPC",
+						link: "concat",
+						elements: [
+							{
 								"name": "defer_render_renderInPC",
 								"type_": "job"
 							},

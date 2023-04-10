@@ -14,32 +14,32 @@ type unsafeGetWorldState<worldState> = () => worldState
 
 type setWorldState<worldState> = (worldState: worldState) => void
 
-type unsafeGetManagerState<worldState> = (worldState: worldState) => state
+type unsafeGetPipelineManagerState<worldState> = (worldState: worldState) => state
 
-type setManagerState<worldState> = (worldState: worldState, state: state) => worldState
+type setPipelineManagerState<worldState> = (worldState: worldState, state: state) => worldState
 
 export function runPipeline<worldState>(
     worldState: worldState,
     [
         unsafeGetWorldState,
         setWorldState,
-        unsafeGetManagerState,
-        setManagerState
+        unsafeGetPipelineManagerState,
+        setPipelineManagerState
     ]: [
             unsafeGetWorldState<worldState>,
             setWorldState<worldState>,
-            unsafeGetManagerState<worldState>,
-            setManagerState<worldState>
+            unsafeGetPipelineManagerState<worldState>,
+            setPipelineManagerState<worldState>
         ],
     pipelineName: pipelineName
 ): stream<worldState>
 
 export function init<worldState>(worldState: worldState,
     [
-        unsafeGetManagerState,
-        setManagerState
+        unsafeGetPipelineManagerState,
+        setPipelineManagerState
     ]: [
-            unsafeGetManagerState<worldState>,
-            setManagerState<worldState>
+            unsafeGetPipelineManagerState<worldState>,
+            setPipelineManagerState<worldState>
         ],
 ): worldState

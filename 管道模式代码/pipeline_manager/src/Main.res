@@ -31,12 +31,12 @@ module ParsePipelineData = {
     (
       unsafeGetWorldState,
       setWorldState,
-      unsafeGetManagerState,
-      setManagerState,
+      unsafeGetPipelineManagerState,
+      setPipelineManagerState,
     ) as stateOperateFuncs,
     worldState: StateType.worldState,
   ) => {
-    let {states}: StateType.state = unsafeGetManagerState(worldState)
+    let {states}: StateType.state = unsafeGetPipelineManagerState(worldState)
 
     states
   }
@@ -45,15 +45,15 @@ module ParsePipelineData = {
     (
       unsafeGetWorldState,
       setWorldState,
-      unsafeGetManagerState,
-      setManagerState,
+      unsafeGetPipelineManagerState,
+      setPipelineManagerState,
     ) as stateOperateFuncs,
     worldState: StateType.worldState,
     states,
   ): StateType.worldState => {
-    let state: StateType.state = unsafeGetManagerState(worldState)
+    let state: StateType.state = unsafeGetPipelineManagerState(worldState)
 
-    setManagerState(
+    setPipelineManagerState(
       worldState,
       {
         ...state,
@@ -66,8 +66,8 @@ module ParsePipelineData = {
     (
       unsafeGetWorldState,
       setWorldState,
-      unsafeGetManagerState,
-      setManagerState,
+      unsafeGetPipelineManagerState,
+      setPipelineManagerState,
     ) as stateOperateFuncs,
     {just, flatMap, map}: Most.ServiceType.service,
     is_set_state,
@@ -181,8 +181,8 @@ module ParsePipelineData = {
     (
       unsafeGetWorldState,
       setWorldState,
-      unsafeGetManagerState,
-      setManagerState,
+      unsafeGetPipelineManagerState,
+      setPipelineManagerState,
     ) as stateOperateFuncs,
     mostService: Most.ServiceType.service,
     getExecs,
@@ -656,7 +656,7 @@ module MergePipelineData = {
 
 let runPipeline = (
   worldState: StateType.worldState,
-  (unsafeGetWorldState, setWorldState, unsafeGetManagerState, setManagerState) as stateOperateFuncs,
+  (unsafeGetWorldState, setWorldState, unsafeGetPipelineManagerState, setPipelineManagerState) as stateOperateFuncs,
   // mostService: Most.ServiceType.service,
   pipelineName: PipelineBasicType.pipelineName,
 ): Most.StreamType.stream<StateType.worldState> => {
@@ -664,7 +664,7 @@ let runPipeline = (
 
   // TODO check is allRegisteredPipelines duplicate
 
-  let {allRegisteredPipelines}: StateType.state = worldState->unsafeGetManagerState
+  let {allRegisteredPipelines}: StateType.state = worldState->unsafeGetPipelineManagerState
 
   allRegisteredPipelines
   ->MergePipelineData.merge(pipelineName)
@@ -676,11 +676,11 @@ let runPipeline = (
 
 let init = (
   worldState: StateType.worldState,
-  (unsafeGetManagerState, setManagerState) as stateOperateFuncs,
+  (unsafeGetPipelineManagerState, setPipelineManagerState) as stateOperateFuncs,
 ): StateType.worldState => {
-  let {allRegisteredPipelines} as state: StateType.state = worldState->unsafeGetManagerState
+  let {allRegisteredPipelines} as state: StateType.state = worldState->unsafeGetPipelineManagerState
 
-  setManagerState(
+  setPipelineManagerState(
     worldState,
     {
       ...state,

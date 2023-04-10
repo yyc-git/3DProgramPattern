@@ -1,5 +1,5 @@
-import { state as pipelineState } from "pipeline_manager/src/type/StateType"
+import { state as pipelineManagerState } from "pipeline_manager/src/type/StateType"
 
 export type state = {
-    renderPipelineState: pipelineState
+    pipelineManagerState: pipelineManagerState
 }
