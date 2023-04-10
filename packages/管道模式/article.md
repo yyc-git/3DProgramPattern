@@ -2,7 +2,7 @@
 
 ## 需求
 
-甲想要实现3D引擎中的渲染，需要同时支持PC端、移动端
+甲想要实现引擎中的渲染，需要同时支持PC端、移动端
 
 两个运行环境的差异如下所示：
 
@@ -50,7 +50,7 @@ renderState = render(renderState, canvas)
 我们首先创建了引擎的RenderState，保存渲染的所有数据；
 最后进行渲染
 
-我们看下Renderd相关代码：
+我们看下Render相关代码：
 RenderStateType
 ```ts
 export type state = {
@@ -215,7 +215,7 @@ renderState = render(renderState, canvas)
 
 Client代码跟之前一样
 
-我们看下Renderd的createState相关代码：
+我们看下Render的createState相关代码：
 RenderStateType
 ```ts
 export type renderInPCState = {
@@ -248,7 +248,7 @@ export let createState = (): state => {
 state使用两个字段来分别保存两个运行环境的数据，互不干扰
 
 
-我们看下Renderd的Render相关代码：
+我们看下Render的render相关代码：
 ```ts
 let _isPC = () => {
     return globalThis.isPC
@@ -421,7 +421,7 @@ TODO tu
 
 Render负责按照运行环境注册对应的管道，然后依次执行管道的Job来实现渲染
 
-PipeManager负责管理管道
+PipeManager负责管理管道，实现了注册管道、合并管道、运行管道（执行管道的Job）的相关逻辑
 
 三个管道包括甲负责的RenderInPCPipeline、甲负责的JiaRenderInMobilePipeline、乙负责的YiRenderInMobilePipeline
 
@@ -433,7 +433,9 @@ PipeManager负责管理管道
 
 每个管道都包括了一个或多个Job，之前的步骤模块现在都对应地改为Job
 
-每个Job都能读写所有管道的PipelineState
+每个Job都能读写所有管道的PipelineState，但它们没有直接与PipelineState依赖，而是依赖它的类型（PipelineStateType）。
+我们在图中可以看到RenderInPCPipeline的三个Job依赖了RenderInPCPipeineStateType，这是因为它们需要读写RenderInPCPipelineState。当然它们也可以通过依赖另外两个管道PipelineStateType来读写另外两个管道的PipelineState，只是目前没有必要
+同理，YiRenderInMobilePipeline的两个Job依赖了YiRenderInMobilePipelineStateType和JiaRenderInMobilePipelineStateType，这是因为它们需要读写这两个管道的PipelineState
 
 
 ## 结合UML图，描述如何具体地解决问题？
@@ -467,14 +469,376 @@ render(renderState, canvas).then(newRenderState => {
 })
 ```
 
-TODO continue
+
+Client代码跟之前基本上一样，只是多出了调用了registerAllPipelines函数来注册管道
+
+
+首先，我们看下Render的createState相关代码：
+RenderStateType
+```ts
+export type state = {
+    renderPipelineState: pipelineState
+}
+```
+Render
+```ts
+export let createState = (): state => {
+    return {
+        renderPipelineState: createPipelineManagerState()
+    }
+}
+```
+
+createState函数创建了RenderState，它调用了PipelineManager的createState函数，创建了管道的数据PipelineState，将其保存在RenderState中
+
+
+
+然后，我们看下Render的registerAllPipelines相关代码：
+```ts
+export let registerAllPipelines = (state: state) => {
+    if (_isPC()) {
+        let renderPipelineState = registerPipeline(
+            state.renderPipelineState,
+            getRenderInPCPipeline(),
+            []
+        )
+
+        state = {
+            ...state,
+            renderPipelineState: renderPipelineState
+        }
+    }
+    else {
+        let renderPipelineState = registerPipeline(
+            state.renderPipelineState,
+            getJiaRenderInMobilePipeline(),
+            []
+        )
+        renderPipelineState = registerPipeline(
+            renderPipelineState,
+            getYiRenderInMobilePipeline(),
+            [
+                {
+                    pipelineName: "render",
+                    insertElementName: "init_webgl1_jia_renderInMobile",
+                    insertAction: "after"
+                }
+            ]
+        )
+
+        state = {
+            ...state,
+            renderPipelineState: renderPipelineState
+        }
+    }
+
+    return state
+}
+```
+
+这里判断运行环境，注册对应的管道
+如果是PC端，就注册RenderInPCPipeline管道；
+如果是移动端，就注册JiaRenderInMobilePipeline管道、YiRenderInMobilePipeline管道
+
+这里调用了PipelineManager的registerPipeline函数来注册管道，它接收三个参数，返回新的PipelineManagerState。
+三个参数分别为PipelineManagerState、管道、JobOrders，其中，JobOrders用来指定如何合并管道，后面会在讨论；管道是通过调用管道模块的getPipeline函数获得的
+
+
+我们来看下移动端的两个管道的相关代码，首先看下JiaRenderInMobilePipeline相关代码：
+JiaRenderInMobilePipelineStateType
+```ts
+export const pipelineName = "JiaRenderInMobile"
+
+export type state = {
+    gl: WebGLRenderingContext | null
+}
+
+export type states = {
+    [pipelineName]: state,
+}
+
+```
+JiaRenderInMobilePipeline
+```ts
+let _getExec = (_pipelineName: string, jobName: string) => {
+	switch (jobName) {
+		case "init_webgl1_jia_renderInMobile":
+            //返回Job的exec函数
+			return execInitWebGL1
+		default:
+			return null
+	}
+}
+
+//获得管道
+export let getPipeline = (): pipeline<renderState, state> => {
+	return {
+        //pipelineName来自JiaRenderInMobilePipelineStateType，这里具体为"JiaRenderInMobile"
+		pipelineName: pipelineName,
+        //创建JiaRenderInMobilePipelineState
+		createState: renderState => {
+			return {
+				gl: null
+			}
+		},
+        //getExec关联了allPipelineData中的job名与管道的Job
+		getExec: _getExec,
+        //allPipelineData是JSON配置数据，用来指定Job的执行顺序
+        //它包括多个管道的配置数据，这里只有一个名为render的管道
+		allPipelineData: [
+			{
+                //管道名
+				name: "render",
+                //groups包括所有的group，这里只有一个group
+				groups: [
+					{
+                        //group名
+						name: "first_jia_renderInMobile",
+                        //link指定了该group包括的所有element之间的链接方式
+                        //有两种链接方式：concat或者merge
+                        //concat是指每个element串行执行
+                        //merge是指每个element并行执行
+						link: "concat",
+                        //elements是该group包含的所有element
+                        //element的类型可以为job或者group
+                        //这里只有一个类型为job的element
+						elements: [
+							{
+								"name": "init_webgl1_jia_renderInMobile",
+								"type_": "job"
+							}
+						]
+					}
+				],
+                //运行该管道时首先执行的group名
+				first_group: "first_jia_renderInMobile"
+			}
+		],
+	}
+}
+```
+
+该管道只有一个Job：InitWebGL1Job
+
+我们看下Job相关代码：
+InitWebGL1Job
+```ts
+export let exec: execType<renderState> = (renderState, { getStatesFunc, setStatesFunc }) => {
+    //从RenderState中获得所有管道的PipelineState
+	let states = getStatesFunc<renderState, states>(renderState)
+
+	let canvas: HTMLCanvasElement = globalThis.canvas
+
+    //调用most.js库，返回了一个流
+	return mostService.callFunc(() => {
+		console.log("初始化WebGL1")
+
+		let gl = canvas.getContext("webgl")
+
+        //将新的states保存到RenderState中，返回新的RenderState
+		return setStatesFunc<renderState, states>(
+			renderState,
+            //将新的JiaRenderInMobilePipelineState保存到states中，返回新的states
+			setState(states, {
+                //获得JiaRenderInMobilePipelineState，拷贝为新的JiaRenderInMobilePipelineState
+				...getState(states),
+                //保存gl到新的JiaRenderInMobilePipelineState
+				gl: gl
+			})
+		)
+	})
+}
+```
+Utils
+```ts
+export function getState(states: states): state {
+    //pipelineName来自JiaRenderInMobilePipelineStateType
+    return states[pipelineName]
+}
+
+export function setState(states: states, state: state): states {
+    return Object.assign({}, states, {
+        //pipelineName来自JiaRenderInMobilePipelineStateType
+        [pipelineName]: state
+    })
+}
+```
+
+
+Job可能需要进行异步操作，而处理异步一般有两种方法：
+1.通过Async、Await，将异步转换为同步
+2.Promise
+
+这里我们使用第三种方法：基于FRP（函数反应型编程），使用流来处理异步操作。
+具体为让每个Job都返回一个流，流的处理函数执行Job的逻辑
+
+这样做的一个好处是能够轻易实现Job的concat或者merge的链接，只需要将每个Job返回的流concat或者merge即可
+另一个好处是能够轻易实现合并管道，因为一个管道就是一个流，合并管道就是合并流，这容易实现
+
+我们这里使用了most.js库来实现流，它是一个FRP库，相比Rxjs库性能要更好
+
+
+我们来看下另一个管道-YiRenderInMobilePipeline相关代码：
+YiRenderInMobilePipelineStateType
+```ts
+export const pipelineName = "YiRenderInMobile"
+
+export type state = {
+}
+
+export type states = {
+    [pipelineName]: state,
+    [jiaRenderInMobilePipelineName]: jiaRenderInMobilePipelineState,
+}
+```
+
+因为YiRenderInMobilePipeline中的Job需要通过states来获得YiRenderInMobilePipelineState和JiaRenderInMobilePipelineState，YiRenderInMobilePipelineStateType的states需要定义自己的YiRenderInMobilePipelineState以及JiaRenderInMobilePipelineState
+
+
+YiRenderInMobilePipeline
+```ts
+let _getExec = (_pipelineName: string, jobName: string) => {
+	switch (jobName) {
+		case "forward_render_yi_renderInMobile":
+			return execForwardRender
+		case "tonemap_yi_renderInMobile":
+			return execTonemap
+		default:
+			return null
+	}
+}
+
+export let getPipeline = (): pipeline<renderState, state> => {
+	return {
+		pipelineName: pipelineName,
+		createState: renderState => {
+			return {
+			}
+		},
+		getExec: _getExec,
+		allPipelineData: [
+			{
+				name: "render",
+				groups: [
+					{
+						name: "first_yi_renderInMobile",
+						link: "concat",
+						elements: [
+							{
+								"name": "forward_render_yi_renderInMobile",
+								"type_": "job"
+							},
+							{
+								"name": "tonemap_yi_renderInMobile",
+								"type_": "job"
+							},
+						]
+					}
+				],
+				first_group: "first_yi_renderInMobile"
+			}
+		],
+	}
+}
+
+```
+
+该管道有两个Job：ForwardRenderJob、TonemapJob
+
+Job相关代码如下：
+ForwardRenderJob
+```ts
+export let exec: execType<renderState> = (renderState, { getStatesFunc, setStatesFunc }) => {
+	let states = getStatesFunc<renderState, states>(renderState)
+
+	return mostService.callFunc(() => {
+		let gl = getGL(states)
+
+		console.log("前向渲染")
+
+		return renderState
+	})
+}
+```
+TonemapJob
+```ts
+export let exec: execType<renderState> = (renderState, { getStatesFunc }) => {
+    let states = getStatesFunc<renderState, states>(renderState)
+
+    return mostService.callFunc(() => {
+        let gl = getGL(states)
+
+        console.log("tonemap for WebGL1")
+
+        return renderState
+    })
+}
+```
+
+
+这两个管道属于同一个在移动端运行的管道，需要合并
+我们回顾下Render的registerAllPipelines中合并这两个管道的相关代码：
+Render
+```ts
+        let renderPipelineState = registerPipeline(
+            state.renderPipelineState,
+            getJiaRenderInMobilePipeline(),
+            []
+        )
+        renderPipelineState = registerPipeline(
+            renderPipelineState,
+            getYiRenderInMobilePipeline(),
+            [
+                {
+                    pipelineName: "render",
+                    insertElementName: "init_webgl1_jia_renderInMobile",
+                    insertAction: "after"
+                }
+            ]
+        )
+```
+
+我们之前提到registerPipeline函数接收的第三个参数-JobOrders用来指定如何合并管道，它的类型定义如下：
+PipelineManager->RegisterPipelineType
+```ts
+export type jobOrder = {
+  //管道名
+  pipelineName: pipelineName,
+  //将该管道的所有Job插入到的element名（element可以为job或者group）
+  insertElementName: elementName,
+  //insertAction的值可以为before或者after，意思是插入到该element之前或者之后
+  insertAction: insertAction,
+}
+
+//因为一个Pipeline可以包括多个管道，所以jobOrders是数组，对应多个管道
+export type jobOrders = Array<jobOrder>
+```
+
+因为需要合并的两个RenderInMobilePipeline中都只有一个管道（名为render），所以jobOrders只包含一个jobOrder
+
+这里具体是将YiRenderInMobilePipeline中的两个Job放到JiaRenderInMobilePipeline中名为init_webgl1_jia_renderInMobile的Job（也就是InitWebGL1Job）之后执行，从而实现了在移动端有一个管道，该管道依次执行InitWebGL1Job、ForwardRenderJob、TonemapJob这三个Job
 
 
 
 
 
+看完了移动端的两个管道的相关代码后，我们看下PC端的RenderInPCPipeline管道相关代码：
+RenderInPCPipelineStateType
+```ts
 TODO
-这里需要实现的是能够合并甲、乙开发的同属于RenderInMobile管道的两个子管道。其中乙实现的两个Job应该在甲实现的Job之后执行，并且乙的Job需要读甲的子管道数据：WebGL1的上下文
+```
+RenderInPCPipeline
+```ts
+
+```
+
+该管道有三个Job：TODO
+
+我们看下Job相关代码：
+TODO
+
+
+
 
 
 <!-- # 设计意图

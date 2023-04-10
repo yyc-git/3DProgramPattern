@@ -20,7 +20,6 @@ export let getPipeline = (): pipeline<renderState, state> => {
 		pipelineName: pipelineName,
 		createState: renderState => {
 			return {
-				gl: null
 			}
 		},
 		getExec: _getExec,
