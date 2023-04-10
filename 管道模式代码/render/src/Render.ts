@@ -104,6 +104,6 @@ export let render = (state: state, canvas): Promise<state> => {
     //将canvas保存到全局变量中，从而在初始化WebGL的Job中能够获得canvas
     globalThis.canvas = canvas
 
-    //运行名为render的管道
+    //运行Render Pipeline管道
     return _runPipeline(state, "render")
 }

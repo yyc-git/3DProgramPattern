@@ -13,7 +13,7 @@ let _getExec = (_pipelineName: string, jobName: string) => {
 	}
 }
 
-//获得管道
+//获得管道模块的数据
 export let getPipeline = (): pipeline<renderState, state> => {
 	return {
         //pipelineName来自JiaRenderInMobilePipelineStateType，这里具体为"JiaRenderInMobile"
@@ -27,7 +27,7 @@ export let getPipeline = (): pipeline<renderState, state> => {
         //getExec关联了allPipelineData中的job名与管道的Job
 		getExec: _getExec,
         //allPipelineData是JSON配置数据，用来指定Job的执行顺序
-        //它包括多个管道的配置数据，这里只有一个名为render的管道
+        //它包括多个管道的配置数据，这里只有一个Render Pipeline管道
 		allPipelineData: [
 			{
                 //管道名

@@ -416,24 +416,36 @@ TODO tu
 
 
 
-总体来看，分为Render、PipelineManager、三个管道、三个管道state以及对应的state类型、三个管道包括的Job这几个部分
+<!-- 总体来看，分为Render、PipelineManager、三个管道、三个管道state以及对应的state类型、三个管道包括的Job这几个部分 -->
+总体来看，分为Render、PipelineManager、三个管道这三个部分
 
 
-Render负责按照运行环境注册对应的管道，然后依次执行管道的Job来实现渲染
+我们看下Render、PipelineManager这两个部分：
 
-PipeManager负责管理管道，实现了注册管道、合并管道、运行管道（执行管道的Job）的相关逻辑
 
-三个管道包括甲负责的RenderInPCPipeline、甲负责的JiaRenderInMobilePipeline、乙负责的YiRenderInMobilePipeline
+Render负责按照运行环境注册对应的管道，以及调用render函数来运行管道，依次执行它的Job来实现渲染
 
-每个管道有JSON配置数据，它们用来指定管道中Job的执行顺序
+PipeManager负责管理管道，实现了注册管道、合并管道、运行管道的相关逻辑
 
-每个管道都有自己的PipelineState，每个PipelineState的类型定义在PipelineStateType中
 
-每个管道都包括了一个或多个Job，之前的步骤模块现在都对应地改为Job
 
-每个Job都能读写所有管道的PipelineState，但它们没有直接与PipelineState依赖，而是依赖它的类型（PipelineStateType）。
-我们在图中可以看到RenderInPCPipeline的三个Job依赖了RenderInPCPipeineStateType，这是因为它们需要读写RenderInPCPipelineState。当然它们也可以通过依赖另外两个管道PipelineStateType来读写另外两个管道的PipelineState，只是目前没有必要
-同理，YiRenderInMobilePipeline的两个Job依赖了YiRenderInMobilePipelineStateType和JiaRenderInMobilePipelineStateType，这是因为它们需要读写这两个管道的PipelineState
+我们看下三个管道这个部分：
+
+这里有三个管道模块，具体为甲负责的RenderInPCPipeline、甲负责的JiaRenderInMobilePipeline、乙负责的YiRenderInMobilePipeline
+
+每个管道模块都有自己的PipelineState，具体为RenderInPCPipelineState、JiaRenderInMobilePipelineState、YiRenderInMobilePipelineState
+
+每个PipelineState的实现了定义在PipelineStateType中的类型，PipelineStateType具体有RenderInPCPipelineStateType、JiaRenderInMobilePipelineStateType、YiRenderInMobilePipelineStateType
+
+每个管道模块包括了多个管道，它们的数据都保存在PipelineState中
+这里每个管道模块只包括了一个管道：Render Pipeline，该管道实现了渲染相关的逻辑
+
+每个管道包括了多个Job
+之前的步骤模块现在都对应地改为Job
+
+每个Job都能读写所有管道模块的PipelineState，但它们没有直接依赖PipelineState，而是依赖它的类型（PipelineStateType）。
+这里可以看到RenderInPCPipeline的Render Pipeline管道的三个Job依赖了RenderInPCPipeineStateType，这是因为它们需要读写RenderInPCPipelineState。当然它们也可以通过依赖另外两个管道模块的PipelineStateType来读写另外两个管道模块的PipelineState，只是目前没有必要
+同理，YiRenderInMobilePipeline的Render Pipeline管道的两个Job依赖了YiRenderInMobilePipelineStateType和JiaRenderInMobilePipelineStateType，这是因为它们需要读写YiRenderInMobilePipeline、JiaRenderInMobilePipeline这两个管道模块的PipelineState
 
 
 
@@ -444,18 +456,18 @@ TODO tu
 
 Render有自己的数据-RenderState，它包括了其它的state
 
-PipeManager有自己的数据-PipeStateManagerState，它包括了各个管道的PipelineState
+PipeManager有自己的数据-PipeStateManagerState，它包括了所有管道模块的PipelineState
 
-三个管道各自有一个PipelineState数据和一个JSON数据
+三个管道模块各自有一个PipelineState数据和一个JSON配置数据，其中PipelineState保存了管道模块中所有管道的运行时数据，JSON配置数据用来指定管道模块中所有管道的Job的执行顺序
 
 
 
 
 ## 结合UML图，描述如何具体地解决问题？
 
-- RenderInPCPipeline、JiaRenderInMobilePipeline、YiRenderInMobilePipeline这三个管道都有JSON配置数据，不懂开发的策划人员只需要配置它们们而不需要修改其它代码，即可指定渲染的步骤
+- RenderInPCPipeline、JiaRenderInMobilePipeline、YiRenderInMobilePipeline这三个管道模块都有JSON配置数据，不懂开发的策划人员只需要配置它们而不需要修改代码，即可指定渲染的步骤
 
-- 甲和乙开发的是不同的管道，它们之间唯一的依赖是乙开发的管道的PipelineState-YiRenderInMobilePipelineState使用了甲开发的管道的PipelineState-JiaRenderInMobilePipeline，它们的依赖是类型（PipelineStateType）之间的依赖。只要类型JiaRenderInMobilePipelineStateType不变（类型是抽象的，一般都不会改变），则甲、乙之间的开发就不会互相影响
+- 甲和乙开发的是不同的管道模块，它们之间唯一的依赖是乙开发的管道模块的PipelineState（YiRenderInMobilePipelineState）使用了甲开发的管道模块的PipelineState（JiaRenderInMobilePipeline）。因为它们的依赖是类型（PipelineStateType）之间的依赖，只要JiaRenderInMobilePipelineStateType不变（类型是抽象的，一般都不会改变），则甲、乙之间的开发就不会互相影响
 
 
 
@@ -495,7 +507,8 @@ export let createState = (): state => {
 }
 ```
 
-createState函数创建了RenderState，它调用了PipelineManager的createState函数，创建了管道的数据PipelineState，将其保存在RenderState中
+createState函数创建了RenderState
+它调用了PipelineManager的createState函数，创建了PipelineManagerState，将其保存在RenderState中
 
 
 
@@ -543,15 +556,19 @@ export let registerAllPipelines = (state: state) => {
 ```
 
 这里判断运行环境，注册对应的管道
-如果是PC端，就注册RenderInPCPipeline管道；
-如果是移动端，就注册JiaRenderInMobilePipeline管道，并将YiRenderInMobilePipeline管道合并到JiaRenderInMobilePipeline管道中
+如果是PC端，就注册RenderInPCPipeline中所有的管道，也就是它的Render Pipeline管道；
+如果是移动端，就注册JiaRenderInMobilePipeline、YiRenderInMobilePipeline中所有的管道，也就是它们的Render Pipeline管道
+
+值得注意的是，移动端的注册是将两个管道模块的Render Pipeline管道进行了合并
+<!-- YiRenderInMobilePipeline管道合并到JiaRenderInMobilePipeline管道中 -->
 
 
-这里调用了PipelineManager的registerPipeline函数来注册管道，它接收三个参数，返回新的PipelineManagerState。
-三个参数分别为PipelineManagerState、管道、JobOrders，其中，JobOrders用来指定如何合并管道，后面会在讨论；管道是通过调用管道模块的getPipeline函数获得的
+这里调用了PipelineManager的registerPipeline函数来注册管道，它接收三个参数，返回新的PipelineManagerState
+三个参数分别为PipelineManagerState、管道模块的数据
+OK、JobOrders，其中，JobOrders用来指定如何合并管道，后面会在讨论；管道模块的数据是通过调用管道模块的getPipeline函数获得的
 
 
-我们来看下移动端的两个管道的相关代码，首先看下JiaRenderInMobilePipeline相关代码：
+我们来看下移动端的两个管道模块的相关代码，首先看下JiaRenderInMobilePipeline相关代码：
 JiaRenderInMobilePipelineStateType
 ```ts
 export const pipelineName = "JiaRenderInMobile"
@@ -577,7 +594,7 @@ let _getExec = (_pipelineName: string, jobName: string) => {
 	}
 }
 
-//获得管道
+//获得管道模块的数据
 export let getPipeline = (): pipeline<renderState, state> => {
 	return {
         //pipelineName来自JiaRenderInMobilePipelineStateType，这里具体为"JiaRenderInMobile"
@@ -591,7 +608,7 @@ export let getPipeline = (): pipeline<renderState, state> => {
         //getExec关联了allPipelineData中的job名与管道的Job
 		getExec: _getExec,
         //allPipelineData是JSON配置数据，用来指定Job的执行顺序
-        //它包括多个管道的配置数据，这里只有一个名为render的管道
+        //它包括多个管道的配置数据，这里只有一个Render Pipeline管道
 		allPipelineData: [
 			{
                 //管道名
@@ -625,7 +642,7 @@ export let getPipeline = (): pipeline<renderState, state> => {
 }
 ```
 
-该管道只有一个Job：InitWebGL1Job
+JiaRenderInMobilePipeline只有一个Render Pipeline管道，它只有一个Job：InitWebGL1Job
 
 我们看下Job相关代码：
 InitWebGL1Job
@@ -672,7 +689,7 @@ export function setState(states: states, state: state): states {
 ```
 
 
-Job可能需要进行异步操作，而处理异步一般有两种方法：
+虽然这个Job只有同步操作，但是Job其实可能会进行异步操作的，而处理异步一般有两种方法：
 1.通过Async、Await，将异步转换为同步
 2.Promise
 
@@ -685,7 +702,7 @@ Job可能需要进行异步操作，而处理异步一般有两种方法：
 我们这里使用了most.js库来实现流，它是一个FRP库，相比Rxjs库性能要更好
 
 
-我们来看下另一个管道-YiRenderInMobilePipeline相关代码：
+我们来看下另一个管道模块-YiRenderInMobilePipeline相关代码：
 YiRenderInMobilePipelineStateType
 ```ts
 export const pipelineName = "YiRenderInMobile"
@@ -750,7 +767,8 @@ export let getPipeline = (): pipeline<renderState, state> => {
 
 ```
 
-该管道有两个Job：ForwardRenderJob、TonemapJob
+YiRenderInMobilePipeline只有一个Render Pipeline管道，它有两个Job：ForwardRenderJob、TonemapJob
+
 
 Job相关代码如下：
 ForwardRenderJob
@@ -802,11 +820,11 @@ export function getGL(states: states) {
 }
 ```
 
-这两个Job通过Utils的getGL函数获得JiaRenderInMobilePipelineState的gl；而getGL函数是首先通过states获得JiaRenderInMobilePipelineState，然后再返回它的gl
+这两个Job通过Utils的getGL函数获得JiaRenderInMobilePipelineState的gl；
+而getGL函数是首先通过states获得JiaRenderInMobilePipelineState，然后再返回它的gl
 
 
-这两个管道属于同一个在移动端运行的管道，需要合并
-我们回顾下Render的registerAllPipelines中合并这两个管道的相关代码：
+这两个管道模块的Render Pipeline管道需要合并，我们回顾下Render的registerAllPipelines中合并这两个管道的相关代码：
 Render
 ```ts
         let pipelineManagerState = registerPipeline(
@@ -839,20 +857,22 @@ export type jobOrder = {
   insertAction: insertAction,
 }
 
-//因为一个Pipeline可以包括多个管道，所以jobOrders是数组，对应多个管道
+//因为一个管道模块可以包括多个管道，所以jobOrders是数组，对应多个管道
 export type jobOrders = Array<jobOrder>
 ```
 
-因为需要合并的两个RenderInMobilePipeline中都只有一个管道（名为render），所以jobOrders只包含一个jobOrder，对应名为render的管道
+<!-- 因为需要合并的两个RenderInMobilePipeline中都只有一个管道（名为render），所以jobOrders只包含一个jobOrder，对应名为render的管道 -->
+因为这两个管道模块中都只有一个管道（Render Pipeline），所以jobOrders只包含一个jobOrder，对应该管道
 
-这里具体是将YiRenderInMobilePipeline中的两个Job放到JiaRenderInMobilePipeline中名为init_webgl1_jia_renderInMobile的Job（也就是InitWebGL1Job）之后执行，从而实现了在移动端只有一个管道，该管道依次执行InitWebGL1Job、ForwardRenderJob、TonemapJob这三个Job
-值得注意的是，合并后PipelineManagerState中仍然有这两个管道的PipelineState-JiaRenderInMobilePipelineState、YiRenderInMobilePipelineState
+这里具体是将YiRenderInMobilePipeline中Render Pipeline的两个Job放到JiaRenderInMobilePipeline中Render Pipeline的名为init_webgl1_jia_renderInMobile的Job（也就是InitWebGL1Job）之后执行，从而实现了在移动端只有一个Render Pipeline管道，该管道依次执行InitWebGL1Job、ForwardRenderJob、TonemapJob这三个Job
+
+值得注意的是，合并后PipelineManagerState中仍然有这两个管道模块的PipelineState-JiaRenderInMobilePipelineState、YiRenderInMobilePipelineState
 
 
 
 
 
-看完了移动端的两个管道的相关代码后，我们看下PC端的RenderInPCPipeline管道相关代码：
+看完了移动端的两个管道模块的相关代码后，我们看下PC端的RenderInPCPipeline管道模块相关代码：
 RenderInPCPipelineStateType
 ```ts
 export const pipelineName = "RenderInPC"
@@ -930,9 +950,7 @@ export let getPipeline = (): pipeline<renderState, state> => {
 }
 ```
 
-该管道中仍然只有一个名为render的管道
-
-该管道有三个Job：InitWebGL2Job、DeferRenderJob、TonemapJob
+该管道中仍然只有一个Render Pipeline管道，它有三个Job：InitWebGL2Job、DeferRenderJob、TonemapJob
 
 我们看下Job相关代码：
 InitWebGL2Job
@@ -1004,7 +1022,7 @@ export function setState(states: states, state: state): states {
 
 
 
-我们介绍完了Render的registerAllPipelines和三个管道的相关代码，现在我们回到Client，看下剩余的代码：
+我们介绍完了Render的registerAllPipelines和三个管道模块的相关代码，现在我们回到Client，看下剩余的代码：
 ```ts
 render(renderState, canvas).then(newRenderState => {
     renderState = newRenderState
@@ -1060,7 +1078,7 @@ export let render = (state: state, canvas): Promise<state> => {
     //将canvas保存到全局变量中，从而在初始化WebGL的Job中能够获得canvas
     globalThis.canvas = canvas
 
-    //运行名为render的管道
+    //运行Render Pipeline管道
     return _runPipeline(state, "render")
 }
 ```
@@ -1105,7 +1123,7 @@ export function init<worldState>(worldState: worldState,
 ): worldState
 ```
 
-因为不管是PC端还是移动端，在注册对应的管道时，都只有一个名为render的管道，所以render函数只需运行这个render管道，即可执行其中的三个Job，从而实现了渲染的逻辑
+因为不管是PC端还是移动端，都只注册一个名为render的Render Pipeline管道，所以render函数只需运行这个管道，即可执行其中的三个Job，从而实现了渲染的逻辑
 
 
 
@@ -1131,14 +1149,108 @@ tonemap for WebGL2
 
 ## 一句话定义？
 
+将有先后执行顺序的逻辑离散化为一个个独立的Job，按照配置数据在管道中依次执行
+
+<!-- ## 补充说明
+ -->
+
+
+## 通用UML？
+
+uml:
+TODO tu
+
+## 分析角色？
+
+
+我们来看看模式的相关角色：
+
+
+总体来看，分为System、PipelineManager、管道三个部分
+
+
+
+我们看下Render、PipelineManager这两个部分：
+
+- System
+该角色是系统的门户，负责注册所有的管道，以及调用多个runPipelineX函数来运行对应的管道，依次执行它的Job
+
+- PipelineManager
+该角色负责管理管道，实现了注册管道、合并管道、运行管道的相关逻辑
+
+
+我们看下管道这个部分：
+
+- Pipeline
+该角色是一个管道模块
+
+<!-- 包括了多个管道，每个管道包括多个Job -->
+
+- PipelineState
+该角色保存了管道模块中所有管道的运行时数据
+
+- PipelineStateType
+该角色是PipelineState的类型
+
+- X Pipeline
+该角色是一个管道
+
+- Job
+该角色是一段独立的逻辑
+
+
+
+## 角色之间的关系？
+
+- System可以注册多个Pipeline
+
+- 一个Pipeline有一个PipelineState和多个X Pipeline
+
+- 一个PipelineState实现了一个PipelineStateType
+
+- 一个X Pipeline有多个Job
+
+- 每个Job都能读写所有的PipelineState，但它们没有直接依赖PipelineState，而是依赖它实现的PipelineStateType
+
+- 如果一个Pipeline中的Job依赖了另一个Pipeline的PipelineState，那么该Pipeline的PipelineStateType就需要在states字段中依赖PipelineState的PipelineStateType
+
+
+## 通用UML？
+
+data_view:
+TODO tu
+
+## 分析角色？
+
+
+<!-- 数据分为运行时数据和配置数据，其中各个State是运行时数据，各个JSON是配置数据 -->
+
+Render有自己的数据-RenderState，它包括了其它的state
+
+PipeManager有自己的数据-PipeStateManagerState，它包括了各个管道模块的PipelineState
+
+三个管道模块各自有一个PipelineState数据和一个JSON配置数据，其中PipelineState保存了管道模块中所有管道的运行时数据，JSON配置数据用来指定管道模块中所有管道的Job的执行顺序
+
+
+
+总体来看，数据分为运行时数据和配置数据，其中各个State是运行时数据，各个JSON是配置数据
+
+
+System有自己的数据-SystemState，它包括了其它的state
+
+PipeManager有自己的数据-PipeStateManagerState，它包括了所有管道模块的PipelineState
+
+Pipeline有一个PipelineState数据和一个JSON配置数据，其中PipelineState保存了管道模块中所有管道的运行时数据，JSON配置数据用来指定管道模块中所有管道的Job的执行顺序
+
+
+<!-- ## 角色之间的关系？ -->
+
+
+## 角色的抽象代码？
+
 TODO continue
 
 
-## 补充说明
-## 通用UML？
-## 分析角色？
-## 角色之间的关系？
-## 角色的抽象代码？
 ## 遵循的设计原则在UML中的体现？
 
 
@@ -1151,6 +1263,8 @@ TODO continue
 ## 缺点
 
 ## 使用场景
+
+TODO 系统的初始化、更新、渲染
 
 ### 场景描述
 

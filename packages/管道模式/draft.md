@@ -191,9 +191,9 @@ is_set_state
 - 应用
     - 优点？
 
-<!-- 规范
+规范
 
-由Client任意定制管线 -->
+由Client任意定制管线
     - 缺点？
     - 使用场景
 系统的初始化、更新、渲染
@@ -218,7 +218,7 @@ is_set_state
     
 
 
-    配置数据
+    extract 配置数据
         pipeline json+job json
 
 

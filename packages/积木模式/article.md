@@ -1077,11 +1077,17 @@ TODO tu
 
 整个系统由Block组成
 
+
+我们看下BlockFacade、BlockManager这两个部分：
+
 - BlockFacade
 该角色封装了管理积木的API，它的init函数负责注册所有使用的积木
 
 - BlockManager
 该角色负责实现管理积木
+
+
+我们看下System Blocks这个部分：
 
 - Entry Block Protocol
 该角色为入口积木的协议
