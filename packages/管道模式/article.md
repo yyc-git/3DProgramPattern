@@ -1075,7 +1075,7 @@ export let render = (state: state, canvas): Promise<state> => {
     //调用PipelineManager的init函数来初始化PipelineManager
     state = init(state, [_unsafeGetPipeManagerState, _setPipeManagerState])
 
-    //将canvas保存到全局变量中，从而在初始化WebGL的Job中能够获得canvas
+    //将canvas保存到全局变量中，从而在初始化WebGL的Job中通过全局变量能够获得canvas
     globalThis.canvas = canvas
 
     //运行Render Pipeline管道
@@ -1149,7 +1149,7 @@ tonemap for WebGL2
 
 ## 一句话定义？
 
-将有先后执行顺序的逻辑离散化为一个个独立的Job，按照配置数据在管道中依次执行
+将有前后执行顺序的逻辑离散化为一个个独立的Job，按照配置数据在管道中依次执行
 
 <!-- ## 补充说明
  -->
@@ -1248,69 +1248,480 @@ Pipeline有一个PipelineState数据和一个JSON配置数据，其中PipelineSt
 
 ## 角色的抽象代码？
 
-TODO continue
+
+下面我们来看看各个角色的抽象代码：
+- Client的抽象代码
+```ts
+let systemState = createState()
+
+systemState = registerAllPipelines(systemState)
+
+runPipeline1(systemState).then(newSystemState => {
+    systemState = newSystemState
+
+    runPipelineX...
+})
+```
+- System的抽象代码
+SystemStateType
+```ts
+export type state = {
+    pipelineManagerState: pipelineManagerState
+}
+```
+System
+```ts
+declare function _isEnvironment1(): boolean
+
+export let createState = (): state => {
+    return {
+        pipelineManagerState: createPipelineManagerState()
+    }
+}
+
+export let registerAllPipelines = (state: state) => {
+    if (_isEnvironment1()) {
+        let pipelineManagerState = registerPipeline(
+            state.pipelineManagerState,
+            getPipeline1(),
+            []
+        )
+
+        if (需要合并某个X Pipeline) {
+            //合并Pipeline2和Pipeline1的X Pipeline管道
+            pipelineManagerState = registerPipeline(
+                pipelineManagerState,
+                getPipeline2(),
+                [
+                    {
+                        pipelineName: 某个X Pipeline名,
+                        insertElementName: 插入的目标Element名,
+                        insertAction: "before" or "after" 
+                    },
+                    指定其它的X Pipeline的合并...
+                ]
+            )
+        }
+
+        注册更多的Pipeline...
+
+        state = {
+            ...state,
+            pipelineManagerState: pipelineManagerState
+        }
+    }
+    else {
+        注册其它Environment的Pipeline...
+    }
+
+    return state
+}
+
+let _unsafeGetPipeManagerState = (state: state) => {
+    return state.pipelineManagerState
+}
+
+let _setPipeManagerState = (state: state, pipelineManagerState: pipelineState) => {
+    return {
+        ...state,
+        pipelineManagerState: pipelineManagerState
+    }
+}
+
+let _runPipeline = (
+    state: state,
+    pipelineName: string
+): Promise<state> => {
+    let tempSystemState: state | null = null
+
+    return mostService.map(
+        (state: state) => {
+            tempSystemState = state
+
+            return state
+        },
+        runPipeline<state>(state, [
+            unsafeGetState,
+            setState,
+            _unsafeGetPipeManagerState,
+            _setPipeManagerState
+        ], pipelineName)
+    ).drain().then((_) => {
+        return getExnFromStrictNull(tempSystemState)
+    })
+}
+
+export let init = (state: state, config) => {
+    state = initPipelineManager(state, [_unsafeGetPipeManagerState, _setPipeManagerState])
+
+    //把配置保存到全局变量中，从而在Job中通过全局变量获得配置
+    globalThis.config = config
+
+    //管道模块通常包含一个Init Pipeline管道，包括了与初始化相关的Job
+    //这里运行Init Pipeline管道
+    return _runPipeline(state, "init")
+}
+
+export let runPipeline1 = (state: state, config) => {
+    //把配置保存到全局变量中，从而在Job中通过全局变量获得配置
+    globalThis.config = config
+
+    return _runPipeline(state, 某个X Pipeline名)
+}
+
+更多的runPipeline函数，运行对应的X Pipeline...
+```
+
+这里增加了init函数来实现System的初始化
+这里假定注册的管道模块（Pipeline）包括了名为“init”的Init Pipeline，因此在init函数中运行该管道
+
+runPipeline函数其实在实际项目中，它的名字应该是update或者render。该函数通过运行Update Pipeline或者Render Pipeline来实现更新或者渲染逻辑
+- PipelineManager的抽象代码
+PipelineManager
+```ts
+// 这里省略了PipelineManager的类型定义，如state的类型定义
+
+export declare function createState(): state
+
+export declare function registerPipeline<worldState, pipelineState>(managerState: state, pipeline: pipeline<worldState, pipelineState>, jobOrers: jobOrders): state
+
+export declare function unregisterPipeline(managerState: state, targetPipelineName: pipelineName): state
+
+type unsafeGetWorldState<worldState> = () => worldState
+
+type setWorldState<worldState> = (worldState: worldState) => void
+
+type unsafeGetPipelineManagerState<worldState> = (worldState: worldState) => state
+
+type setPipelineManagerState<worldState> = (worldState: worldState, state: state) => worldState
+
+export declare function runPipeline<worldState>(
+    worldState: worldState,
+    [
+        unsafeGetWorldState,
+        setWorldState,
+        unsafeGetPipelineManagerState,
+        setPipelineManagerState
+    ]: [
+            unsafeGetWorldState<worldState>,
+            setWorldState<worldState>,
+            unsafeGetPipelineManagerState<worldState>,
+            setPipelineManagerState<worldState>
+        ],
+    pipelineName: pipelineName
+): stream<worldState>
+
+export declare function init<worldState>(worldState: worldState,
+    [
+        unsafeGetPipelineManagerState,
+        setPipelineManagerState
+    ]: [
+            unsafeGetPipelineManagerState<worldState>,
+            setPipelineManagerState<worldState>
+        ],
+): worldState
+```
+
+
+- PipelineStateType的抽象代码
+```ts
+export const pipelineName = X Pipeline名
+
+// PipelineState的类型
+export type state = {
+    ...
+}
+
+//该Pipeline使用的所有PipelineState的类型
+export type states = {
+    [pipelineName]: state,
+
+    [依赖的其它PipelineState的名称]: 依赖的其它PipelineState的类型,
+}
+```
+
+- Pipeline的抽象代码
+```ts
+let _getExec = (_pipelineName: string, jobName: string) => {
+	switch (jobName) {
+		case Job1的JSON名
+			return execJob1
+		case 更多Job的JSON名...
+			return ...
+		default:
+			return null
+	}
+}
+
+export let getPipeline = (): pipeline<state> => {
+	return {
+		pipelineName: pipelineName,
+		createState: systemState => {
+			return 创建PipelineState...
+		},
+		getExec: _getExec,
+		allPipelineData: [
+			{
+				name: 某个X Pipeline名,
+				groups: [
+					{
+						name: "first_xxx",
+						link: "concat" or "merge"
+						elements: [
+							包含的group或者job的配置数据（将会依次按照link的方式执行每个element）
+						]
+					}
+				],
+				first_group: "first_xxx"
+			},
+
+			更多X Pipeline的配置数据...
+		],
+	}
+}
+```
+
+- Job的抽象代码
+Job
+```ts
+export let exec: execType<systemState> = (systemState, { getStatesFunc, setStatesFunc }) => {
+    let states = getStatesFunc<states>(systemState)
+
+    return mostService.callFunc(() => {
+        let xxx = 获得依赖的其它PipelineState的数据(states)
+        //获得自己的PipelineState
+        let pipelineState = getState(states)
+
+        if (需要写数据到PipelilneState) {
+            return setStatesFunc<systemState, states>(
+                systemState,
+                setState(states, {
+                    ...getState(states),
+                    设置数据
+                })
+            )
+        }
+        else {
+            return systemState
+        }
+    })
+}
+```
+Utils
+```ts
+export function getState(states: states): state {
+    return states[pipelineName]
+}
+
+export function setState(states: states, state: state): states {
+    return Object.assign({}, states, {
+        [pipelineName]: state
+    })
+}
+
+export function 获得依赖的其它PipelineState的数据(states: states) {
+    return states[其它PipelineName].xxx
+}
+```
+
 
 
 ## 遵循的设计原则在UML中的体现？
 
-
+TODO finish
 
 
 # 应用
 
 ## 优点
 
+
+
+- 不懂代码的人员可以通过配置来定制管道
+
+- 多个开发者能够同时开发不同的管道，或者同时开发同一个管道中不同的Job，因为它们之间相互独立，所以多人开发不会相互影响
+
+- Job的exec函数、Pipeline的getPipeline函数都通过PipelineManager的类型定义了输入和输出，从而当多人开发Job和Pipeline模块时不会造成输入输出的冲突
+
+
 ## 缺点
+
+无
 
 ## 使用场景
 
-TODO 系统的初始化、更新、渲染
+<!-- TODO 系统的初始化、更新、渲染 -->
 
 ### 场景描述
 
 <!-- ### 解决方案 -->
 
+需要按串行或者并行的顺序连续地执行多个逻辑
+
+<!-- 将有先后执行顺序的逻辑离散化为一个个独立的Job，按照配置数据在管道中依次执行 -->
+
+
+
+
+
+
 ### 具体案例
 
-<!-- ## 实现该场景需要修改模式的哪些角色？ -->
-<!-- ## 使用模式有什么好处？ -->
+- 系统的初始化
+
+初始化时通常需要连续地执行一些逻辑，因此可以注册一个Pipeline管道模块，它包括一个Init Pipeline管道，该管道包括初始化相关的Job
+
+- 引擎主循环中的更新、渲染
+
+更新、渲染时通常需要连续地执行一些逻辑，因此可以注册一个Pipeline管道模块，它包括一个Update Pipeline管道、一个Render Pipeline管道，前者包括更新相关的Job，后者包括渲染相关的Job。
+在每次主循环时，先运行Update Pipeline，然后在返回的Promise回调中运行Render Pipeline
+
+
 
 ## 注意事项
 
-<!-- ////TODO Job最好只写自己所属的管道的PipelineState，不是要写其它管道的PipelineState -->
+- 一般来说，Job可以读所有的PipelineState，但最好只写自己的PipelineState
 
 # 扩展
 
 
-TODO registerPipeline->config:
-refactor Render->render:   //将canvas保存到全局变量中，从而在初始化WebGL的Job中能够获得canvas
+- 在注册管道时传入管道的配置数据，避免使用全局变量
 
-TODO give 参考代码
+我们现在是在运行管道时，把配置保存到了全局变量，参考代码如下：
+Pipeline
+```ts
+export let runPipeline1 = (state: state, config) => {
+    //把配置保存到全局变量中，从而在Job中通过全局变量获得配置
+    globalThis.config = config
+
+    ...
+}
+```
+
+因为全局变量是全局共用的，容易造成相互影响，所以应该在注册管道时传入管道的配置数据，参考代码如下：
+System
+```ts
+export let registerAllPipelines = (state: state, ) => {
+    if (_isEnvironment1()) {
+        let configForPipeline1 = ...
+
+        //注册Pipeline1
+        let pipelineManagerState = registerPipeline(
+            ...
+            configForPipeline1,
+            ...
+        )
+        ...
+}
+```
+
+<!-- 管道Pipeline1的配置数据configForPipeline1应该保存到管道的Pipeline1State中，然后在Pipeline1的getPipline函数返回的createState函数中接收到configForPipeline1，相关代码如下： -->
+在Pipeline1的getPipeline函数返回的createState函数中应该可以接收到configForPipeline1
+将其保存到Pipeline1State后，可在Job中通过Pipeline1State获得configForPipeline1
+参考代码如下：
+Pipeline1
+```ts
+export let getPipeline = (): pipeline<state> => {
+	return {
+		...
+		createState: (systemState, configForPipeline1) => {
+            return {
+                config: configForPipeline1,
+                ...
+            }
+		},
+```
+
+- 管道模块的JSON配置数据可以增加更多的配置字段
+
+目前只有指定Job执行顺序的配置字段，可以增加对Job的配置字段，如在Pipeline的getPipeline函数返回的数据中增加allJobData这个JSON配置数据，对设置WebGL的clearColor的ClearColorJob指定ClearColor的值，对清空WebGL的ClearJob指定清空哪个Buffer
+参考代码如下：
+Pipeline
+```ts
+export let getPipeline = (): pipeline<state> => {
+	return {
+		...
+        allJobData: [
+            {
+                //job名
+                "name": "clear_color",
+                "flags": [
+                    //clearColor值
+                    "#20B2AA"
+                ]
+            },
+            {
+                "name": "clear_buffer",
+                //清空这三个Buffer
+                "flags": [
+                    "COLOR_BUFFER",
+                    "DEPTH_BUFFER",
+                    "STENCIL_BUFFER"
+                ]
+            }
+        ]
+```
+ClearColorJob
+```ts
+//增加flags形参，拿到配置数据中的flags的值: 
+//["#20B2AA"]
+export let exec: execType<systemState> = (systemState, { getStatesFunc, setStatesFunc }, flags) => {
+    ...
+}
+```
+ClearJob
+```ts
+//增加flags形参，拿到配置数据中的flags的值:
+// [
+//     "COLOR_BUFFER",
+//     "DEPTH_BUFFER",
+//     "STENCIL_BUFFER"
+// ]
+export let exec: execType<systemState> = (systemState, { getStatesFunc, setStatesFunc }, flags) => {
+    ...
+}
+```
 
 
 
-
-
-
+<!-- 
 # 结合其它模式
 
 ## 结合哪些模式？
 ## 使用场景是什么？
 ## UML如何变化？
-## 代码如何变化？
+## 代码如何变化？ -->
 
 
 
 
 # 最佳实践
 
-<!-- ## 结合具体项目实践经验，如何应用模式来改进项目？ -->
 ## 哪些场景不需要使用模式？
-<!-- ## 哪些场景需要使用模式？ -->
+
+如果逻辑之间没有明显的先后顺序，则不需要使用管道模式将其管道化
+
 ## 给出具体的实践案例？
+
+引擎通常需要运行在各种运行环境中，如运行在移动端、Nodejs桌面端、浏览器端，那么就可以使用管道模式，针对每个运行环境开发一个管道
+
+每个管道相互独立互不影响，可以由不同的开发者同时开发各个管道，以及同时开发同一个管道的不同的Job
+
+如果要切换运行环境，那么就只是切换运行的管道而已
+
+
+
+如果引擎的用户希望开发自定义管道，那么用户可以开发自己的Pipeline和对应的Job；然后调用PipelineManager的registerPipeline函数来注册Pipeline，注册的时候通过指定JobOrders参数来将其合并到引擎默认的管道中
+
 
 
 
 # 更多资料推荐
 
-TODO most.js doc?
+most.js是一个开源的FRP库，可以在网上搜索“cujojs/most”来找到它的Github Repo
+
+
+stingray（前身是bitsquid）引擎就是用了管道模式
+
+
+Frostbite的FrameGraph和Unity的RenderGraph可以看成是管道模式的扩展

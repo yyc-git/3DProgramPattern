@@ -210,8 +210,8 @@ is_set_state
     registerPipeline
         config
 
-    initPipeline
-        initFunc
+    <!-- initPipeline
+        initFunc -->
 
     job add config json
         e.g. clear color

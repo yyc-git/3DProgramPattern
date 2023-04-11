@@ -1,12 +1,13 @@
-export const pipelineName = 管道名
+export const pipelineName = X Pipeline名
 
+// PipelineState的类型
 export type state = {
-    管道State的类型...
+    ...
 }
 
+//该Pipeline使用的所有PipelineState的类型
 export type states = {
     [pipelineName]: state,
 
-    [依赖的其它管道的名称]: 依赖的其它管道的State的类型,
-    更多依赖的管道...
+    [依赖的其它PipelineState的名称]: 依赖的其它PipelineState的类型,
 }

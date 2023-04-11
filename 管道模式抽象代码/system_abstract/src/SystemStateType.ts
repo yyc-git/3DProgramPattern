@@ -1,7 +1,5 @@
-import { state as pipelineState } from "pipeline_manager_manager/src/type/StateType"
+import { state as pipelineManagerState } from "pipeline_manager_manager/src/type/StateType"
 
 export type state = {
-    pipeline1State: pipelineState,
-
-    更多Pipeline的State: pipelineState...
+    pipelineManagerState: pipelineManagerState
 }

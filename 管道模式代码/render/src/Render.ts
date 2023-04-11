@@ -101,7 +101,7 @@ export let render = (state: state, canvas): Promise<state> => {
     //调用PipelineManager的init函数来初始化PipelineManager
     state = init(state, [_unsafeGetPipeManagerState, _setPipeManagerState])
 
-    //将canvas保存到全局变量中，从而在初始化WebGL的Job中能够获得canvas
+    //将canvas保存到全局变量中，从而在初始化WebGL的Job中通过全局变量能够获得canvas
     globalThis.canvas = canvas
 
     //运行Render Pipeline管道
