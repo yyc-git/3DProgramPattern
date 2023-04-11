@@ -1,5 +1,5 @@
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
-import { Fragment, Vertex } from "../shader/noLight.glsl"
+import { Fragment, Vertex } from "../shader/basic.glsl"
 
 // export let createProgram = (gl: WebGLRenderingContext, vertexShaderSource: string, fragmentShaderSource: string) => {
 export let createProgram = (gl: WebGLRenderingContext) => {

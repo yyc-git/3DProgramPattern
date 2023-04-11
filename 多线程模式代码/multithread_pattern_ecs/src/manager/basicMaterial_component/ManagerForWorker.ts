@@ -8,14 +8,14 @@ let _initBufferData = (count, buffer): Array<Float32Array> => {
     return typeArrData
 }
 
-export let createState = (noLightMaterialComponentCount: number, buffer: SharedArrayBuffer): state => {
-    let [colors] = _initBufferData(noLightMaterialComponentCount, buffer)
+export let createState = (basicMaterialComponentCount: number, buffer: SharedArrayBuffer): state => {
+    let [colors] = _initBufferData(basicMaterialComponentCount, buffer)
 
     return {
         maxIndex: 0,
         buffer,
         colors,
         gameObjectMap: Map(),
-        gameObjectNoLightMaterialMap: Map(),
+        gameObjectBasicMaterialMap: Map(),
     }
 }

@@ -5,7 +5,7 @@ import { exec as execType } from "pipeline_manager/src/type/PipelineType"
 import { states } from "worker_pipeline_state_type/src/main/StateType"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 import { getAllGameObjects } from "multithread_pattern_ecs/src/manager/gameObject/Manager"
-import { getComponentExn as getMaterialExn } from "multithread_pattern_ecs/src/manager/noLightMaterial_component/Manager"
+import { getComponentExn as getMaterialExn } from "multithread_pattern_ecs/src/manager/basicMaterial_component/Manager"
 import { getComponentExn as getTransformExn } from "multithread_pattern_ecs/src/manager/transform_component/Manager"
 
 export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
@@ -22,7 +22,7 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
 		let typeArrayIndex: number = 0;
 
 		allGameObjects.forEach((gameObject) => {
-			let material = getMaterialExn(getExnFromStrictNull(worldState.ecsData.noLightMaterialComponentManagerState), gameObject)
+			let material = getMaterialExn(getExnFromStrictNull(worldState.ecsData.basicMaterialComponentManagerState), gameObject)
 			let transform = getTransformExn(getExnFromStrictNull(worldState.ecsData.transformComponentManagerState), gameObject)
 
 			renderDataBufferTypeArray[typeArrayIndex * 2] = transform

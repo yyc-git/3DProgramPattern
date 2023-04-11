@@ -4,7 +4,7 @@ import { getState } from "../Utils"
 import { exec as execType } from "pipeline_manager/src/type/PipelineType"
 import { states } from "worker_pipeline_state_type/src/main/StateType"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
-import { getAllComponents as getAllNoLightMaterials } from "multithread_pattern_ecs/src/manager/noLightMaterial_component/Manager"
+import { getAllComponents as getAllBasicMaterials } from "multithread_pattern_ecs/src/manager/basicMaterial_component/Manager"
 
 export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 	let states = getStatesFunc<worldState, states>(worldState)
@@ -18,11 +18,11 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 
 		let canvas: HTMLCanvasElement = (globalThis as any).canvas
 		let transformComponentCount = (globalThis as any).transformComponentCount
-		let noLightMaterialComponentCount = (globalThis as any).noLightMaterialComponentCount
+		let basicMaterialComponentCount = (globalThis as any).basicMaterialComponentCount
 
 		let offscreenCanvas: OffscreenCanvas = canvas.transferControlToOffscreen()
 
-		let allMaterialIndices = getAllNoLightMaterials(getExnFromStrictNull(worldState.ecsData.noLightMaterialComponentManagerState))
+		let allMaterialIndices = getAllBasicMaterials(getExnFromStrictNull(worldState.ecsData.basicMaterialComponentManagerState))
 
 		renderWorker.postMessage({
 			operateType: "SEND_INIT_RENDER_DATA",
@@ -30,9 +30,9 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 			renderDataBuffer: getExnFromStrictNull(renderDataBuffer),
 			allMaterialIndices: allMaterialIndices,
 			transformComponentCount,
-			noLightMaterialComponentCount,
+			basicMaterialComponentCount,
 			transformComponentBuffer: getExnFromStrictNull(worldState.ecsData.transformComponentManagerState).buffer,
-			noLightMaterialComponentBuffer: getExnFromStrictNull(worldState.ecsData.noLightMaterialComponentManagerState).buffer
+			basicMaterialComponentBuffer: getExnFromStrictNull(worldState.ecsData.basicMaterialComponentManagerState).buffer
 		}, [offscreenCanvas])
 
 		return worldState

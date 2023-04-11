@@ -1,7 +1,7 @@
 import { state as worldState } from "./WorldStateType"
 import * as GameObjectManager from "multithread_pattern_ecs/src/manager/gameObject/Manager"
 import * as TransformComponentManager from "multithread_pattern_ecs/src/manager/transform_component/Manager"
-import * as NoLightMaterialComponentManager from "multithread_pattern_ecs/src/manager/noLightMaterial_component/Manager"
+import * as BasicMaterialComponentManager from "multithread_pattern_ecs/src/manager/basicMaterial_component/Manager"
 import { gameObject } from "multithread_pattern_ecs/src/gameObject/GameObjectType"
 import { component } from "multithread_pattern_ecs/src/component/ComponentType"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
@@ -36,15 +36,15 @@ export let createTransformComponent = (worldState: worldState): [worldState, com
     ]
 }
 
-export let createNoLightMaterialComponent = (worldState: worldState): [worldState, component] => {
-    let [noLightMaterialComponentManagerState, component] = NoLightMaterialComponentManager.createComponent(getExnFromStrictNull(worldState.ecsData.noLightMaterialComponentManagerState))
+export let createBasicMaterialComponent = (worldState: worldState): [worldState, component] => {
+    let [basicMaterialComponentManagerState, component] = BasicMaterialComponentManager.createComponent(getExnFromStrictNull(worldState.ecsData.basicMaterialComponentManagerState))
 
     return [
         {
             ...worldState,
             ecsData: {
                 ...worldState.ecsData,
-                noLightMaterialComponentManagerState
+                basicMaterialComponentManagerState
             }
         },
         component
@@ -61,12 +61,12 @@ export let setTransformComponent = (worldState: worldState, gameObject: gameObje
     }
 }
 
-export let setNoLightMaterialComponent = (worldState: worldState, gameObject: gameObject, component: component): worldState => {
+export let setBasicMaterialComponent = (worldState: worldState, gameObject: gameObject, component: component): worldState => {
     return {
         ...worldState,
         ecsData: {
             ...worldState.ecsData,
-            noLightMaterialComponentManagerState: NoLightMaterialComponentManager.setComponent(getExnFromStrictNull(worldState.ecsData.noLightMaterialComponentManagerState), gameObject, component)
+            basicMaterialComponentManagerState: BasicMaterialComponentManager.setComponent(getExnFromStrictNull(worldState.ecsData.basicMaterialComponentManagerState), gameObject, component)
         }
     }
 }
@@ -76,7 +76,7 @@ export let setColor = (worldState: worldState, component: component, color: Arra
         ...worldState,
         ecsData: {
             ...worldState.ecsData,
-            noLightMaterialComponentManagerState: NoLightMaterialComponentManager.setColor(getExnFromStrictNull(worldState.ecsData.noLightMaterialComponentManagerState), component, color)
+            basicMaterialComponentManagerState: BasicMaterialComponentManager.setColor(getExnFromStrictNull(worldState.ecsData.basicMaterialComponentManagerState), component, color)
         }
     }
 }

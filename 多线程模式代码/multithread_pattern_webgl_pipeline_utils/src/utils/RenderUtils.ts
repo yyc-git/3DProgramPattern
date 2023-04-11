@@ -1,8 +1,8 @@
 import { component as transform } from "multithread_pattern_ecs/src/component/TransformComponentType"
-import { component as material } from "multithread_pattern_ecs/src/component/NoLightMaterialComponentType"
-import { state as noLightMaterialComponentManagerState } from "multithread_pattern_ecs/src/manager/noLightMaterial_component/ManagerStateType"
+import { component as material } from "multithread_pattern_ecs/src/component/BasicMaterialComponentType"
+import { state as basicMaterialComponentManagerState } from "multithread_pattern_ecs/src/manager/basicMaterial_component/ManagerStateType"
 import { state as transformComponentManagerState } from "multithread_pattern_ecs/src/manager/transform_component/ManagerStateType"
-import { getColor } from "multithread_pattern_ecs/src/manager/noLightMaterial_component/Manager"
+import { getColor } from "multithread_pattern_ecs/src/manager/basicMaterial_component/Manager"
 import { getModelMatrix, getPosition } from "multithread_pattern_ecs/src/manager/transform_component/Manager"
 
 export let clear = (gl: WebGLRenderingContext) => {
@@ -32,7 +32,7 @@ export let render = (gl: WebGLRenderingContext, verticesBuffer: WebGLBuffer, ind
 }
 
 export function getRenderData(material: material, transform: transform, program: WebGLProgram,
-    noLightMaterialComponentManagerState: noLightMaterialComponentManagerState,
+    basicMaterialComponentManagerState: basicMaterialComponentManagerState,
     transformComponentManagerState: transformComponentManagerState
 ): [
         number,
@@ -42,7 +42,7 @@ export function getRenderData(material: material, transform: transform, program:
     ] {
     let count = 3
 
-    let color = getColor(noLightMaterialComponentManagerState, material)
+    let color = getColor(basicMaterialComponentManagerState, material)
 
     let modelMatrix: Float32Array = getModelMatrix(transformComponentManagerState, transform)
 

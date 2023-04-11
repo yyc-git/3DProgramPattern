@@ -11,8 +11,8 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
     let offscreenCanvas: OffscreenCanvas
     let renderDataBuffer: SharedArrayBuffer
     let allMaterialIndices: Array<number>
-    let transformComponentCount: number, noLightMaterialComponentCount: number
-    let transformComponentBuffer: SharedArrayBuffer, noLightMaterialComponentBuffer: SharedArrayBuffer
+    let transformComponentCount: number, basicMaterialComponentCount: number
+    let transformComponentBuffer: SharedArrayBuffer, basicMaterialComponentBuffer: SharedArrayBuffer
 
     return createGetMainWorkerDataStream(
         mostService,
@@ -21,9 +21,9 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
             renderDataBuffer = event.data.renderDataBuffer
             allMaterialIndices = event.data.allMaterialIndices
             transformComponentCount = event.data.transformComponentCount
-            noLightMaterialComponentCount = event.data.noLightMaterialComponentCount
+            basicMaterialComponentCount = event.data.basicMaterialComponentCount
             transformComponentBuffer = event.data.transformComponentBuffer
-            noLightMaterialComponentBuffer = event.data.noLightMaterialComponentBuffer
+            basicMaterialComponentBuffer = event.data.basicMaterialComponentBuffer
         },
         "SEND_INIT_RENDER_DATA",
         self as any as Worker
@@ -38,9 +38,9 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
                 renderDataBuffer: renderDataBuffer,
                 allMaterialIndices: allMaterialIndices,
                 transformComponentCount: transformComponentCount,
-                noLightMaterialComponentCount: noLightMaterialComponentCount,
+                basicMaterialComponentCount: basicMaterialComponentCount,
                 transformComponentBuffer: transformComponentBuffer,
-                noLightMaterialComponentBuffer: noLightMaterialComponentBuffer
+                basicMaterialComponentBuffer: basicMaterialComponentBuffer
             })
         )
     })

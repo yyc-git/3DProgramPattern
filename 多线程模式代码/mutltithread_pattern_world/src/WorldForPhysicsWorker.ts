@@ -9,7 +9,7 @@ export let createStateForWorker = (): state => {
         {
             gameObjectManagerState: null,
             transformComponentManagerState: null,
-            noLightMaterialComponentManagerState: null
+            basicMaterialComponentManagerState: null
         },
         pipelineState: createPipelineManagerState(),
     }

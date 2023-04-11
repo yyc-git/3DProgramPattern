@@ -1,4 +1,4 @@
-import { component as material } from "multithread_pattern_ecs/src/component/NoLightMaterialComponentType"
+import { component as material } from "multithread_pattern_ecs/src/component/BasicMaterialComponentType"
 
 export const pipelineName = "Worker_Render"
 
@@ -19,9 +19,9 @@ export type state = {
     canvas: OffscreenCanvas | null,
     allMaterialIndices: Array<material> | null,
     transformComponentCount: number | null,
-    noLightMaterialComponentCount: number | null,
+    basicMaterialComponentCount: number | null,
     transformComponentBuffer: SharedArrayBuffer | null,
-    noLightMaterialComponentBuffer: SharedArrayBuffer | null,
+    basicMaterialComponentBuffer: SharedArrayBuffer | null,
 }
 
 export type states = {

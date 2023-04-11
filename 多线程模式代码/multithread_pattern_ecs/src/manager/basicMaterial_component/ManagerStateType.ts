@@ -1,5 +1,5 @@
 import { Map } from "immutable";
-import { component } from "../../component/NoLightMaterialComponentType";
+import { component } from "../../component/BasicMaterialComponentType";
 import { gameObject } from "../../gameObject/GameObjectType";
 
 export type state = {
@@ -7,5 +7,5 @@ export type state = {
     buffer: ArrayBuffer,
     colors: Float32Array,
     gameObjectMap: Map<component, gameObject>,
-    gameObjectNoLightMaterialMap: Map<gameObject, component>,
+    gameObjectBasicMaterialMap: Map<gameObject, component>,
 }

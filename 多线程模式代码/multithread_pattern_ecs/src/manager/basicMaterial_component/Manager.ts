@@ -3,7 +3,7 @@ import { createTypeArrays } from "./CreateTypeArrayUtils"
 import { range } from "commonlib-ts/src/ArrayUtils"
 import { state } from "./ManagerStateType"
 import { Map } from "immutable"
-import { component } from "../../component/NoLightMaterialComponentType"
+import { component } from "../../component/BasicMaterialComponentType"
 import * as OperateTypeArrayUtils from "./OperateTypeArrayUtils"
 import { gameObject } from "../../gameObject/GameObjectType"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
@@ -24,17 +24,17 @@ let _initBufferData = (count, defaultDataTuple): [ArrayBuffer, Array<Float32Arra
     return [buffer, typeArrData]
 }
 
-export let createState = (noLightMaterialComponentCount: number): state => {
+export let createState = (basicMaterialComponentCount: number): state => {
     let defaultColor = [1.0, 1.0, 1.0]
 
-    let [buffer, [colors]] = _initBufferData(noLightMaterialComponentCount, [defaultColor])
+    let [buffer, [colors]] = _initBufferData(basicMaterialComponentCount, [defaultColor])
 
     return {
         maxIndex: 0,
         buffer,
         colors,
         gameObjectMap: Map(),
-        gameObjectNoLightMaterialMap: Map(),
+        gameObjectBasicMaterialMap: Map(),
     }
 }
 
@@ -58,25 +58,25 @@ export let getComponentExn = (state: state, gameObject: gameObject): component =
 }
 
 export let setComponent = (state: state, gameObject: gameObject, component: component): state => {
-    let { gameObjectMap, gameObjectNoLightMaterialMap } = state
+    let { gameObjectMap, gameObjectBasicMaterialMap } = state
 
     return {
         ...state,
         gameObjectMap: gameObjectMap.set(component, gameObject),
-        gameObjectNoLightMaterialMap: gameObjectNoLightMaterialMap.set(gameObject, component)
+        gameObjectBasicMaterialMap: gameObjectBasicMaterialMap.set(gameObject, component)
     }
 }
 
 export let hasComponent = (state: state, gameObject: gameObject): boolean => {
-    let { gameObjectNoLightMaterialMap } = state
+    let { gameObjectBasicMaterialMap } = state
 
-    return gameObjectNoLightMaterialMap.has(gameObject)
+    return gameObjectBasicMaterialMap.has(gameObject)
 }
 
 export let getAllComponents = (state: state): Array<component> => {
-    let { gameObjectNoLightMaterialMap } = state
+    let { gameObjectBasicMaterialMap } = state
 
-    return gameObjectNoLightMaterialMap.toArray().map(([key, value]) => value)
+    return gameObjectBasicMaterialMap.toArray().map(([key, value]) => value)
 }
 
 export let getColor = (state: state, component: component) => {

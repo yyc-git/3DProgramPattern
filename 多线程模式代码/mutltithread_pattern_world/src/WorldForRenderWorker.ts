@@ -2,7 +2,7 @@ import { state } from "./WorldStateType"
 import { createState as createPipelineManagerState, init as initPipelineManager } from "pipeline_manager"
 import { runPipeline, setPipeManagerState, unsafeGetPipeManagerState } from "./World"
 import { createState as createTransformManagerState } from "multithread_pattern_ecs/src/manager/transform_component/ManagetForWorker"
-import { createState as createNoLightMateiralManagerState } from "multithread_pattern_ecs/src/manager/noLightMaterial_component/ManagerForWorker"
+import { createState as createNoLightMateiralManagerState } from "multithread_pattern_ecs/src/manager/basicMaterial_component/ManagerForWorker"
 
 export let createStateForWorker = (): state => {
     return {
@@ -10,7 +10,7 @@ export let createStateForWorker = (): state => {
         {
             gameObjectManagerState: null,
             transformComponentManagerState: null,
-            noLightMaterialComponentManagerState: null
+            basicMaterialComponentManagerState: null
         },
         pipelineState: createPipelineManagerState(),
     }
@@ -18,7 +18,7 @@ export let createStateForWorker = (): state => {
 
 export let createDataOrientedComponentStates = (
     state: state,
-    transformComponentCount, noLightMaterialComponentCount, transformComponentBuffer, noLightMaterialComponentBuffer
+    transformComponentCount, basicMaterialComponentCount, transformComponentBuffer, basicMaterialComponentBuffer
 ): state => {
     return {
         ...state,
@@ -26,7 +26,7 @@ export let createDataOrientedComponentStates = (
         {
             ...state.ecsData,
             transformComponentManagerState: createTransformManagerState(transformComponentCount, transformComponentBuffer),
-            noLightMaterialComponentManagerState: createNoLightMateiralManagerState(noLightMaterialComponentCount, noLightMaterialComponentBuffer)
+            basicMaterialComponentManagerState: createNoLightMateiralManagerState(basicMaterialComponentCount, basicMaterialComponentBuffer)
         }
     }
 }

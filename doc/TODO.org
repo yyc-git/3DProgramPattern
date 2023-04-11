@@ -310,6 +310,9 @@ finish TODO
 ** DONE update article 1
 
 
+* TODO finish multithread pattern article
+
+
 
 * TODO 重命名“类图”为“领域模型”
 

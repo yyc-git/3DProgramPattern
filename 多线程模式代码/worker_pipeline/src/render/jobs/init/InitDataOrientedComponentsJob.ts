@@ -8,11 +8,11 @@ import { createDataOrientedComponentStates } from "../../../../../mutltithread_p
 export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
     let states = getStatesFunc<worldState, states>(worldState)
 
-    let { transformComponentCount, noLightMaterialComponentCount, transformComponentBuffer, noLightMaterialComponentBuffer } = getState(states)
+    let { transformComponentCount, basicMaterialComponentCount, transformComponentBuffer, basicMaterialComponentBuffer } = getState(states)
 
     return mostService.callFunc(() => {
         console.log("init data oriented components job exec on render worker");
 
-        return createDataOrientedComponentStates(worldState, transformComponentCount, noLightMaterialComponentCount, transformComponentBuffer, noLightMaterialComponentBuffer)
+        return createDataOrientedComponentStates(worldState, transformComponentCount, basicMaterialComponentCount, transformComponentBuffer, basicMaterialComponentBuffer)
     })
 }
