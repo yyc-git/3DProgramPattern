@@ -32,24 +32,24 @@ function _findGroup(groupName, groups) {
   }
 }
 
-function _getStates(stateOperateFuncs, worldState) {
-  return Curry._1(stateOperateFuncs[2], worldState).states;
+function _getStates(stateOperateFuncs, systemState) {
+  return Curry._1(stateOperateFuncs[2], systemState).states;
 }
 
-function _setStates(stateOperateFuncs, worldState, states) {
-  var state = Curry._1(stateOperateFuncs[2], worldState);
-  return Curry._2(stateOperateFuncs[3], worldState, {
+function _setStates(stateOperateFuncs, systemState, states) {
+  var state = Curry._1(stateOperateFuncs[2], systemState);
+  return Curry._2(stateOperateFuncs[3], systemState, {
               allRegisteredPipelines: state.allRegisteredPipelines,
               states: states
             });
 }
 
 function _buildJobStream(stateOperateFuncs, param, is_set_state, exec) {
-  var setWorldState = stateOperateFuncs[1];
-  var unsafeGetWorldState = stateOperateFuncs[0];
+  var setSystemState = stateOperateFuncs[1];
+  var unsafeGetSystemState = stateOperateFuncs[0];
   var __x = Curry._1(param.just, exec);
   var __x$1 = Curry._2(param.flatMap, (function (func) {
-          return Curry._2(func, Curry._1(unsafeGetWorldState, undefined), {
+          return Curry._2(func, Curry._1(unsafeGetSystemState, undefined), {
                       getStatesFunc: (function (param) {
                           return _getStates(stateOperateFuncs, param);
                         }),
@@ -58,9 +58,9 @@ function _buildJobStream(stateOperateFuncs, param, is_set_state, exec) {
                         })
                     });
         }), __x);
-  return Curry._2(param.map, (function (worldState) {
+  return Curry._2(param.map, (function (systemState) {
                 if (NullableSt$Commonlib.getWithDefault(is_set_state, true)) {
-                  return Curry._1(setWorldState, worldState);
+                  return Curry._1(setSystemState, systemState);
                 }
                 
               }), __x$1);
@@ -119,14 +119,14 @@ function _buildPipelineStream(stateOperateFuncs, mostService, getExecs, pipeline
   return Curry._1(param.link === "merge" ? mostService.mergeArray : mostService.concatArray, ListSt$Commonlib.toArray(streams));
 }
 
-function parse(worldState, stateOperateFuncs, mostService, getExecs, param) {
+function parse(systemState, stateOperateFuncs, mostService, getExecs, param) {
   var groups = param.groups;
-  var unsafeGetWorldState = stateOperateFuncs[0];
+  var unsafeGetSystemState = stateOperateFuncs[0];
   var group = _findGroup(param.first_group, groups);
-  Curry._1(stateOperateFuncs[1], worldState);
+  Curry._1(stateOperateFuncs[1], systemState);
   var __x = _buildPipelineStream(stateOperateFuncs, mostService, getExecs, param.name, group, groups);
   return Curry._2(mostService.map, (function (param) {
-                return Curry._1(unsafeGetWorldState, undefined);
+                return Curry._1(unsafeGetSystemState, undefined);
               }), __x);
 }
 
@@ -535,20 +535,20 @@ var MergePipelineData = {
   merge: merge
 };
 
-function runPipeline(worldState, stateOperateFuncs, pipelineName) {
-  var match = Curry._1(stateOperateFuncs[2], worldState);
+function runPipeline(systemState, stateOperateFuncs, pipelineName) {
+  var match = Curry._1(stateOperateFuncs[2], systemState);
   return Result$Commonlib.handleFail(Result$Commonlib.mapSuccess(merge(match.allRegisteredPipelines, pipelineName), (function (param) {
-                    return parse(worldState, stateOperateFuncs, MostService$Most.service, param[0], param[1]);
+                    return parse(systemState, stateOperateFuncs, MostService$Most.service, param[0], param[1]);
                   })), Exception$Commonlib.throwErr);
 }
 
-function init(worldState, stateOperateFuncs) {
-  var state = Curry._1(stateOperateFuncs[0], worldState);
-  return Curry._2(stateOperateFuncs[1], worldState, {
+function init(systemState, stateOperateFuncs) {
+  var state = Curry._1(stateOperateFuncs[0], systemState);
+  return Curry._2(stateOperateFuncs[1], systemState, {
               allRegisteredPipelines: state.allRegisteredPipelines,
               states: ListSt$Commonlib.reduce(state.allRegisteredPipelines, ImmutableHashMap$Commonlib.createEmpty(undefined, undefined), (function (states, param) {
                       var match = param[0];
-                      return ImmutableHashMap$Commonlib.set(states, match.pipelineName, Curry._1(match.createState, worldState));
+                      return ImmutableHashMap$Commonlib.set(states, match.pipelineName, Curry._1(match.createState, systemState));
                     }))
             });
 }

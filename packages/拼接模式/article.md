@@ -1531,4 +1531,4 @@ slang相当于着色器语言中的Typescript，在原始的着色器语言之�
 
 # 更多资料推荐
 
-Unity、taichi实现了Shader编译，提出了自己的Shader语言
+Unity实现了Shader编译，提出了自己的Shader语言

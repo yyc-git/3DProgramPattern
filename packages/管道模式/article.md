@@ -2,7 +2,7 @@
 
 ## 需求
 
-甲想要实现引擎中的渲染，需要同时支持PC端、移动端
+甲想要实现引擎的渲染，并能够同时运行在PC端和移动端
 
 两个运行环境的差异如下所示：
 
@@ -12,13 +12,13 @@
 
 ## 实现思路
 
-甲实现了一个Render模块，该模块实现了渲染，包括初始化WebGL、渲染、Tonemap后处理这三个步骤
+渲染可分解为初始化WebGL、渲染、Tonemap后处理这三个步骤
 
-为了处理运行环境的差异，他的思路如下；
+处理运行环境的差异的思路如下；
 
-- 在“初始化WebGL”中判断运行环境，如果是PC端就获得WebGL2的上下文，如果是移动端就获得WebGL1的上下文
-- 在“渲染”中判断运行环境，如果是PC端就使用延迟渲染算法，如果是移动端就使用前向渲染算法
-- 在“Tonemap”中判断运行环境，如果是PC端就使用WebGL2的上下文，如果是移动端就使用WebGL1的上下文
+- 在“初始化WebGL”中判断运行环境，如果是PC端就获得WebGL2的上下文，否则就获得WebGL1的上下文
+- 在“渲染”中判断运行环境，如果是PC端就使用延迟渲染算法，否则就使用前向渲染算法
+- 在“Tonemap”中判断运行环境，如果是PC端就使用WebGL2的上下文，否则就使用WebGL1的上下文
 
 
 
@@ -26,7 +26,7 @@
 
 TODO tu
 
-Render实现了渲染
+Render负责渲染
 
 
 ## 给出代码
@@ -38,7 +38,7 @@ let canvas = {
     getContext: (_) => 1 as any
 }
 
-//指定运行环境
+//指定运行环境为PC端
 globalThis.isPC = true
 
 
@@ -47,10 +47,10 @@ let renderState = createState()
 renderState = render(renderState, canvas)
 ```
 
-我们首先创建了引擎的RenderState，保存渲染的所有数据；
+我们首先创建了引擎的RenderState，它保存了渲染的所有数据；
 最后进行渲染
 
-我们看下Render相关代码：
+我们看下相关代码：
 RenderStateType
 ```ts
 export type state = {
@@ -60,8 +60,6 @@ export type state = {
 Render
 ```ts
 let _isPC = () => {
-    console.log(globalThis.isPC ? "is PC" : "is mobile")
-
     return globalThis.isPC
 }
 
@@ -118,6 +116,8 @@ export let createState = (): state => {
 }
 
 export let render = (state: state, canvas) => {
+    console.log(globalThis.isPC ? "is PC" : "is mobile")
+
     state = _initWebGL(state, canvas)
     state = _render(state)
     state = _tonemap(state)
@@ -126,7 +126,7 @@ export let render = (state: state, canvas) => {
 }
 ```
 
-在渲染的时候判断了运行环境，执行对应的逻辑
+渲染的三个步骤分别对应_initWebGL、_render、_tonemap这三个函数，它们都判断了运行环境，执行对应的逻辑
 
 
 下面，我们运行代码，运行结果如下：
@@ -144,7 +144,7 @@ tonemap for WebGL2
 
 ## 提出问题
 
-为了加快开发进度，甲找到了开发者乙一起开发，其中甲负责PC端的渲染实现，乙负责移动端的渲染实现
+为了加快开发进度，甲找到了开发者乙来一起开发，其中甲负责PC端的渲染实现和移动端的渲染实现中的“初始化WebGL”步骤，乙负责移动端的渲染实现中的另外两个步骤
 
 - 由于两个运行环境的逻辑混杂在一起，导致两个开发者开发时互相影响，容易出现代码冲突，最终导致开发进度逐渐变慢
 
@@ -155,32 +155,43 @@ tonemap for WebGL2
 
 ## 概述解决方案？
 
-分离PC端和移动端的渲染逻辑：
-从Render模块中提出两个模块：RenderInPC, RenderInMobile，分别对应PC端和移动端的渲染；
+分离PC端和移动端的逻辑：
+从Render中提出两个模块：RenderInPC、RenderInMobile，它们分别实现PC端和移动端的渲染；
+在Render中判断运行环境，调用对应的模块来渲染
 
-因为初始化WebGL、渲染、Tonemap后处理这三个步骤相对独立，所以将其拆分成单独的模块
+提出步骤模块：
+将渲染的三个步骤提出成单独的模块，这样可减少步骤之间的耦合，便于维护
 
 
 ## 给出UML？
 
 TODO tu
 
-Render负责判断运行环境，调用对应的渲染模块来渲染
 
-RenderInPC实现了PC端的渲染
+总体来看，分为Render、针对每个运行环境的渲染、渲染的步骤这三个部分
 
-RenderInMobile实现了移动端的渲染
 
+我们看下Render这个部分：
+
+Render负责判断运行环境，调用对应的模块来渲染
+
+
+我们看下针对每个运行环境的渲染这个部分：
+
+RenderInPC负责PC端的渲染
+
+RenderInMobile负责移动端的渲染
+
+我们看下渲染的步骤这个部分：
+
+这是RenderInPC的三个步骤模块：
 InitWebGL2负责初始化WebGL2
-
 DeferRender实现延迟渲染
-
 TonemapForWebGL2使用WebGL2实现Tonemap后处理
 
+这是RenderInMobile的三个步骤模块：
 InitWebGL1负责初始化WebGL1
-
 ForwardRender实现前向渲染
-
 TonemapForWebGL1使用WebGL1实现Tonemap后处理
 
 
@@ -189,7 +200,7 @@ TonemapForWebGL1使用WebGL1实现Tonemap后处理
 
 ## 结合UML图，描述如何具体地解决问题？
 
-- 现在甲负责RenderInPC和对应的三个模块，乙负责RenderInMobile和对应的另外三个模块，互相不影响
+- 现在甲负责RenderInPC和对应的三个模块、以及RenderInMobile和InitWebGL1模块，乙负责ForwardRender、TonemapForWebGL1模块，互相不影响
 
 
 
@@ -204,7 +215,7 @@ let canvas = {
     getContext: (_) => 1 as any
 }
 
-//指定运行环境
+//指定运行环境为PC端
 globalThis.isPC = true
 
 
@@ -245,7 +256,7 @@ export let createState = (): state => {
 }
 ```
 
-state使用两个字段来分别保存两个运行环境的数据，互不干扰
+createState函数创建的RenderState使用两个字段来分别保存两个运行环境的数据，互不干扰
 
 
 我们看下Render的render相关代码：
@@ -386,11 +397,11 @@ tonemap for WebGL2
 
 - 不能通过配置来指定渲染的步骤
 现在是通过函数调用的方式来执行渲染的三个步骤。
-如果不懂代码的策划人员想要自定义三个步骤的执行顺序，那就需要麻烦开发人员来修改代码，而不能够直接通过修改配置数据来自定义
+如果不懂代码的策划人员想要自定义三个步骤的执行顺序，那就需要麻烦开发人员修改代码来实现，而不能够直接通过修改配置数据来实现
 
-- 多人开发渲染的不同步骤的模块时容易造成冲突
-现在甲负责开发RenderInPC和RenderInMobile中的InitWebGL1，乙负责开发RenderInMobile中的另外两个步骤模块，那么当他们合并RenderInMobile的代码时容易出现代码冲突和Bug。
-这是因为RenerInMobile的三个步骤模块之间相互依赖，即另外两个步骤模块依赖InitWebGL1模块，所以如果甲负责的InitWebGL1模块修改了，会影响到乙负责的模块
+<!-- - 多人同时开发不同的步骤模块时容易造成冲突
+现在让甲负责开发RenderInPC和RenderInMobile中的InitWebGL1，乙负责开发RenderInMobile中的另外两个步骤模块，那么当他们合并RenderInMobile的代码时容易出现代码冲突和Bug。
+这是因为RenerInMobile的三个步骤模块之间相互依赖，即另外两个步骤模块依赖InitWebGL1模块，所以如果甲负责的InitWebGL1模块修改了，会影响到乙负责的模块 -->
 
 
 
@@ -400,14 +411,17 @@ tonemap for WebGL2
 ## 概述解决方案
 
 
-通过下面的改进来实现通过配置来指定渲染的步骤：
-将RenderInPC和RenderInMobile模块改为两个管道
-将每个步骤的模块改为独立的Job。它们按照JSON配置指定的执行顺序，在对应的管道中执行
+通过下面的改进来实现“通过配置来指定渲染的步骤”：
+将RenderInPC和RenderInMobile模块改为三个管道模块，分别为：RenderInPCPipeline、JiaRenderInMobilePipeline、YiRenderInMobilePipeline，前两个由甲负责，最后一个由乙负责
+将每个步骤模块改为一个Job
+每个管道模块都有一个渲染管道，它包括了对应的Job
+每个管道模块都定义了自己的JSON配置，其中的Job按照它指定的执行顺序依次执行
 
-通过下面的改进来解决冲突的问题：
-因为不同的管道相互独立，同一个管道中的Job也是相互独立，它们相互之间不依赖，所以甲和乙同时开发RenderInMobile管道的不同的Job是不会相互影响的
+<!-- 通过这样的改进， -->
 
 
+<!-- 通过下面的改进来解决冲突的问题：
+因为不同的管道相互独立，同一个管道中的Job也是相互独立，它们相互之间不依赖，所以甲和乙同时开发RenderInMobile管道的不同的Job是不会相互影响的 -->
 
 ## 给出UML？
 
@@ -423,25 +437,25 @@ TODO tu
 我们看下Render、PipelineManager这两个部分：
 
 
-Render负责按照运行环境注册对应的管道，以及调用render函数来运行管道，依次执行它的Job来实现渲染
+Render是门户，它的registerAllPipelines函数实现了按照运行环境注册对应的管道模块中的Render Pipeline管道；它的rende函数通过运行Render Pipeline管道，依次执行它的所有Job来实现渲染
 
-PipeManager负责管理管道，实现了注册管道、合并管道、运行管道的相关逻辑
+PipeManager负责管理管道，实现了注册管道、合并管道、运行管道的实现逻辑
 
 
 
 我们看下三个管道这个部分：
 
-这里有三个管道模块，具体为甲负责的RenderInPCPipeline、甲负责的JiaRenderInMobilePipeline、乙负责的YiRenderInMobilePipeline
+这里有三个管道模块，具体是甲负责的RenderInPCPipeline、JiaRenderInMobilePipeline和乙负责的YiRenderInMobilePipeline
 
-每个管道模块都有自己的PipelineState，具体为RenderInPCPipelineState、JiaRenderInMobilePipelineState、YiRenderInMobilePipelineState
+每个管道模块都有自己的PipelineState，这里具体有RenderInPCPipelineState、JiaRenderInMobilePipelineState、YiRenderInMobilePipelineState
 
-每个PipelineState的实现了定义在PipelineStateType中的类型，PipelineStateType具体有RenderInPCPipelineStateType、JiaRenderInMobilePipelineStateType、YiRenderInMobilePipelineStateType
+每个PipelineState实现了定义在对应的PipelineStateType中的类型
+这里具体有RenderInPCPipelineStateType、JiaRenderInMobilePipelineStateType、YiRenderInMobilePipelineStateType
 
-每个管道模块包括了多个管道，它们的数据都保存在PipelineState中
-这里每个管道模块只包括了一个管道：Render Pipeline，该管道实现了渲染相关的逻辑
+每个管道模块可以包括多个管道，它们的数据都保存在PipelineState中
+之前的步骤模块现在都对应地改为Job，每个管道可以包括多个Job
 
-每个管道包括了多个Job
-之前的步骤模块现在都对应地改为Job
+这里每个管道模块只包括了一个管道：Render Pipeline，它包括了对应的Job
 
 每个Job都能读写所有管道模块的PipelineState，但它们没有直接依赖PipelineState，而是依赖它的类型（PipelineStateType）。
 这里可以看到RenderInPCPipeline的Render Pipeline管道的三个Job依赖了RenderInPCPipeineStateType，这是因为它们需要读写RenderInPCPipelineState。当然它们也可以通过依赖另外两个管道模块的PipelineStateType来读写另外两个管道模块的PipelineState，只是目前没有必要
@@ -452,7 +466,7 @@ PipeManager负责管理管道，实现了注册管道、合并管道、运行管
 下图是数据视图：
 TODO tu
 
-数据分为运行时数据和配置数据，其中各个State是运行时数据，各个JSON是配置数据
+总体来看，数据分为运行时数据和配置数据，其中各个State是运行时数据，各个JSON是配置数据
 
 Render有自己的数据-RenderState，它包括了其它的state
 
@@ -462,12 +476,12 @@ PipeManager有自己的数据-PipeStateManagerState，它包括了所有管道�
 
 
 
-
 ## 结合UML图，描述如何具体地解决问题？
 
 - RenderInPCPipeline、JiaRenderInMobilePipeline、YiRenderInMobilePipeline这三个管道模块都有JSON配置数据，不懂开发的策划人员只需要配置它们而不需要修改代码，即可指定渲染的步骤
 
-- 甲和乙开发的是不同的管道模块，它们之间唯一的依赖是乙开发的管道模块的PipelineState（YiRenderInMobilePipelineState）使用了甲开发的管道模块的PipelineState（JiaRenderInMobilePipeline）。因为它们的依赖是类型（PipelineStateType）之间的依赖，只要JiaRenderInMobilePipelineStateType不变（类型是抽象的，一般都不会改变），则甲、乙之间的开发就不会互相影响
+- 现在甲、乙之间仍然互不干扰
+甲和乙开发的是不同的管道模块，它们之间唯一的依赖是乙开发的管道模块（YiRenderInMobilePipeline）的PipelineState（YiRenderInMobilePipelineState）使用了甲开发的管道模块的PipelineState（JiaRenderInMobilePipelineState）。因为它们的依赖是类型（PipelineStateType）之间的依赖，所以只要JiaRenderInMobilePipelineStateType不变（类型是抽象的，一般都不会改变），则甲、乙之间的开发就不会互相影响
 
 
 
@@ -481,7 +495,7 @@ let canvas = {
     getContext: (_) => 1 as any
 }
 
-//指定运行环境
+//指定运行环境为PC端
 globalThis.isPC = true
 
 
@@ -507,8 +521,7 @@ export let createState = (): state => {
 }
 ```
 
-createState函数创建了RenderState
-它调用了PipelineManager的createState函数，创建了PipelineManagerState，将其保存在RenderState中
+createState函数创建的RenderState保存了PipelineManagerState
 
 
 
@@ -555,17 +568,15 @@ export let registerAllPipelines = (state: state) => {
 }
 ```
 
-这里判断运行环境，注册对应的管道
-如果是PC端，就注册RenderInPCPipeline中所有的管道，也就是它的Render Pipeline管道；
-如果是移动端，就注册JiaRenderInMobilePipeline、YiRenderInMobilePipeline中所有的管道，也就是它们的Render Pipeline管道
+这里判断运行环境，注册对应的管道模块的所有管道，具体如下：
+如果是PC端，就注册RenderInPCPipeline中所有的管道，这里只有Render Pipeline管道；
+如果是移动端，就注册JiaRenderInMobilePipeline、YiRenderInMobilePipeline中所有的管道，这里也只有Render Pipeline管道
 
-值得注意的是，移动端的注册是将两个管道模块的Render Pipeline管道进行了合并
-<!-- YiRenderInMobilePipeline管道合并到JiaRenderInMobilePipeline管道中 -->
+值得注意的是，移动端的注册会将两个管道模块的Render Pipeline管道进行了合并
 
 
-这里调用了PipelineManager的registerPipeline函数来注册管道，它接收三个参数，返回新的PipelineManagerState
-三个参数分别为PipelineManagerState、管道模块的数据
-OK、JobOrders，其中，JobOrders用来指定如何合并管道，后面会在讨论；管道模块的数据是通过调用管道模块的getPipeline函数获得的
+这里调用了PipelineManager的registerPipeline函数来注册，它接收三个参数，返回新的PipelineManagerState
+三个参数分别为PipelineManagerState、管道模块的模块数据、JobOrders，其中，JobOrders用来指定如何合并管道，后面会讨论；管道模块的模块数据是通过调用管道模块的getPipeline函数获得的
 
 
 我们来看下移动端的两个管道模块的相关代码，首先看下JiaRenderInMobilePipeline相关代码：
@@ -594,10 +605,10 @@ let _getExec = (_pipelineName: string, jobName: string) => {
 	}
 }
 
-//获得管道模块的数据
+//获得管道模块的模块数据
 export let getPipeline = (): pipeline<renderState, state> => {
 	return {
-        //pipelineName来自JiaRenderInMobilePipelineStateType，这里具体为"JiaRenderInMobile"
+        //pipelineName来自JiaRenderInMobilePipelineStateType，值为"JiaRenderInMobile"
 		pipelineName: pipelineName,
         //创建JiaRenderInMobilePipelineState
 		createState: renderState => {
@@ -608,7 +619,7 @@ export let getPipeline = (): pipeline<renderState, state> => {
         //getExec关联了allPipelineData中的job名与管道的Job
 		getExec: _getExec,
         //allPipelineData是JSON配置数据，用来指定Job的执行顺序
-        //它包括多个管道的配置数据，这里只有一个Render Pipeline管道
+        //它可以包括多个管道的配置数据，但这里只有Render Pipeline管道的配置数据
 		allPipelineData: [
 			{
                 //管道名
@@ -642,13 +653,13 @@ export let getPipeline = (): pipeline<renderState, state> => {
 }
 ```
 
-JiaRenderInMobilePipeline只有一个Render Pipeline管道，它只有一个Job：InitWebGL1Job
+JiaRenderInMobilePipeline只有Render Pipeline管道，它只有一个Job：InitWebGL1Job
 
 我们看下Job相关代码：
 InitWebGL1Job
 ```ts
 export let exec: execType<renderState> = (renderState, { getStatesFunc, setStatesFunc }) => {
-    //从RenderState中获得所有管道的PipelineState
+    //从RenderState中获得所有的PipelineState
 	let states = getStatesFunc<renderState, states>(renderState)
 
 	let canvas: HTMLCanvasElement = globalThis.canvas
@@ -666,7 +677,7 @@ export let exec: execType<renderState> = (renderState, { getStatesFunc, setState
 			setState(states, {
                 //获得JiaRenderInMobilePipelineState，拷贝为新的JiaRenderInMobilePipelineState
 				...getState(states),
-                //保存gl到新的JiaRenderInMobilePipelineState
+                //保存gl到新的JiaRenderInMobilePipelineState中
 				gl: gl
 			})
 		)
@@ -691,15 +702,15 @@ export function setState(states: states, state: state): states {
 
 虽然这个Job只有同步操作，但是Job其实可能会进行异步操作的，而处理异步一般有两种方法：
 1.通过Async、Await，将异步转换为同步
-2.Promise
+2.使用Promise
 
 这里我们使用第三种方法：基于FRP（函数反应型编程），使用流来处理异步操作。
-具体为让每个Job都返回一个流，流的处理函数执行Job的逻辑
+具体是让每个Job都返回一个流，在流的处理函数（这里是callFunc函数）中执行Job的逻辑
 
-这样做的一个好处是能够轻易实现Job的concat或者merge的链接，只需要将每个Job返回的流concat或者merge即可
-另一个好处是能够轻易实现合并管道，因为一个管道就是一个流，合并管道就是合并流，这容易实现
+这样做的一个好处是能够轻易实现Job的concat或者merge的链接，这只需要将每个Job返回的流concat或者merge即可
+另一个好处是能够轻易实现合并管道，因为一个管道就是一个流，合并管道就是合并流，容易实现
 
-我们这里使用了most.js库来实现流，它是一个FRP库，相比Rxjs库性能要更好
+我们这里使用了most.js库来实现流，它是一个开源的FRP库，相比Rxjs库性能要更好
 
 
 我们来看下另一个管道模块-YiRenderInMobilePipeline相关代码：
@@ -716,7 +727,7 @@ export type states = {
 }
 ```
 
-因为YiRenderInMobilePipeline中的Job需要通过states来获得YiRenderInMobilePipelineState和JiaRenderInMobilePipelineState，YiRenderInMobilePipelineStateType的states需要定义自己的YiRenderInMobilePipelineState以及JiaRenderInMobilePipelineState
+因为YiRenderInMobilePipeline中的Job需要通过这里的states类型来获得YiRenderInMobilePipelineState和JiaRenderInMobilePipelineState，所以这里的states需要定义自己的YiRenderInMobilePipelineState以及JiaRenderInMobilePipelineState
 
 
 YiRenderInMobilePipeline
@@ -767,7 +778,7 @@ export let getPipeline = (): pipeline<renderState, state> => {
 
 ```
 
-YiRenderInMobilePipeline只有一个Render Pipeline管道，它有两个Job：ForwardRenderJob、TonemapJob
+YiRenderInMobilePipeline只有Render Pipeline管道，它有两个Job：ForwardRenderJob、TonemapJob
 
 
 Job相关代码如下：
@@ -848,12 +859,14 @@ Render
 我们之前提到registerPipeline函数接收的第三个参数-JobOrders用来指定如何合并管道，它的类型定义如下：
 PipelineManager->RegisterPipelineType
 ```ts
+export type insertAction = "before" | "after"
+
 export type jobOrder = {
   //管道名
   pipelineName: pipelineName,
-  //将该管道的所有Job插入到的element名（element可以为job或者group）
+  //将该管道的所有Job插入到的element的名称（element可以为job或者group）
   insertElementName: elementName,
-  //insertAction的值可以为before或者after，意思是插入到该element之前或者之后
+  //值可以为before或者after，意思是插入到该element之前或者之后
   insertAction: insertAction,
 }
 
@@ -861,12 +874,11 @@ export type jobOrder = {
 export type jobOrders = Array<jobOrder>
 ```
 
-<!-- 因为需要合并的两个RenderInMobilePipeline中都只有一个管道（名为render），所以jobOrders只包含一个jobOrder，对应名为render的管道 -->
-因为这两个管道模块中都只有一个管道（Render Pipeline），所以jobOrders只包含一个jobOrder，对应该管道
+因为这两个管道模块中都只有一个管道-Render Pipeline，所以jobOrders只包含一个jobOrder，对应这一个管道
 
-这里具体是将YiRenderInMobilePipeline中Render Pipeline的两个Job放到JiaRenderInMobilePipeline中Render Pipeline的名为init_webgl1_jia_renderInMobile的Job（也就是InitWebGL1Job）之后执行，从而实现了在移动端只有一个Render Pipeline管道，该管道依次执行InitWebGL1Job、ForwardRenderJob、TonemapJob这三个Job
+这里具体是将YiRenderInMobilePipeline中Render Pipeline的两个Job插入到JiaRenderInMobilePipeline中Render Pipeline的名为init_webgl1_jia_renderInMobile的Job（也就是InitWebGL1Job）之后执行，从而实现了在移动端只有Render Pipeline管道，该管道依次执行InitWebGL1Job、ForwardRenderJob、TonemapJob这三个Job
 
-值得注意的是，合并后PipelineManagerState中仍然有这两个管道模块的PipelineState-JiaRenderInMobilePipelineState、YiRenderInMobilePipelineState
+值得注意的是，合并后的PipelineManagerState中仍然有这两个管道模块的PipelineState-JiaRenderInMobilePipelineState、YiRenderInMobilePipelineState，而不是只有JiaRenderInMobilePipelineState
 
 
 
@@ -950,7 +962,7 @@ export let getPipeline = (): pipeline<renderState, state> => {
 }
 ```
 
-该管道中仍然只有一个Render Pipeline管道，它有三个Job：InitWebGL2Job、DeferRenderJob、TonemapJob
+该管道中仍然只有Render Pipeline管道，它有三个Job：InitWebGL2Job、DeferRenderJob、TonemapJob
 
 我们看下Job相关代码：
 InitWebGL2Job
@@ -1022,7 +1034,7 @@ export function setState(states: states, state: state): states {
 
 
 
-我们介绍完了Render的registerAllPipelines和三个管道模块的相关代码，现在我们回到Client，看下剩余的代码：
+现在我们介绍完了Render的registerAllPipelines和三个管道模块的相关代码，让我们回到Client，看下剩余的代码：
 ```ts
 render(renderState, canvas).then(newRenderState => {
     renderState = newRenderState
@@ -1075,7 +1087,7 @@ export let render = (state: state, canvas): Promise<state> => {
     //调用PipelineManager的init函数来初始化PipelineManager
     state = init(state, [_unsafeGetPipeManagerState, _setPipeManagerState])
 
-    //将canvas保存到全局变量中，从而在初始化WebGL的Job中通过全局变量能够获得canvas
+    //将canvas保存到全局变量中，从而在Job中通过全局变量能够获得canvas
     globalThis.canvas = canvas
 
     //运行Render Pipeline管道
@@ -1086,44 +1098,44 @@ PipelineManager
 ```ts
 //PipelineManager是用Rescript实现的
 //这里只给出PipelineManager相关函数的类型，没有给出具体实现代码
-//这里的worldState具体就是指RenderState，而state是PipelineManagerState
+//这里的systemState具体就是RenderState，而state是PipelineManagerState
 
-type unsafeGetWorldState<worldState> = () => worldState
+type unsafeGetSystemState<systemState> = () => systemState
 
-type setWorldState<worldState> = (worldState: worldState) => void
+type setSystemState<systemState> = (systemState: systemState) => void
 
-type unsafeGetPipelineManagerState<worldState> = (worldState: worldState) => state
+type unsafeGetPipelineManagerState<systemState> = (systemState: systemState) => state
 
-type setPipelineManagerState<worldState> = (worldState: worldState, state: state) => worldState
+type setPipelineManagerState<systemState> = (systemState: systemState, state: state) => systemState
 
-export function runPipeline<worldState>(
-    worldState: worldState,
+export function runPipeline<systemState>(
+    systemState: systemState,
     [
-        unsafeGetWorldState,
-        setWorldState,
+        unsafeGetSystemState,
+        setSystemState,
         unsafeGetPipelineManagerState,
         setPipelineManagerState
     ]: [
-            unsafeGetWorldState<worldState>,
-            setWorldState<worldState>,
-            unsafeGetPipelineManagerState<worldState>,
-            setPipelineManagerState<worldState>
+            unsafeGetSystemState<systemState>,
+            setSystemState<systemState>,
+            unsafeGetPipelineManagerState<systemState>,
+            setPipelineManagerState<systemState>
         ],
     pipelineName: pipelineName
-): stream<worldState>
+): stream<systemState>
 
-export function init<worldState>(worldState: worldState,
+export function init<systemState>(systemState: systemState,
     [
         unsafeGetPipelineManagerState,
         setPipelineManagerState
     ]: [
-            unsafeGetPipelineManagerState<worldState>,
-            setPipelineManagerState<worldState>
+            unsafeGetPipelineManagerState<systemState>,
+            setPipelineManagerState<systemState>
         ],
-): worldState
+): systemState
 ```
 
-因为不管是PC端还是移动端，都只注册一个名为render的Render Pipeline管道，所以render函数只需运行这个管道，即可执行其中的三个Job，从而实现了渲染的逻辑
+因为不管是PC端还是移动端，都只注册了一个名为render的Render Pipeline管道，所以render函数只需运行这个管道，即可执行其中的三个Job，从而实现了渲染的逻辑
 
 
 
@@ -1149,7 +1161,7 @@ tonemap for WebGL2
 
 ## 一句话定义？
 
-将有前后执行顺序的逻辑离散化为一个个独立的Job，按照配置数据在管道中依次执行
+将连续的、有一定执行顺序的逻辑离散化为一个个独立的Job，按照配置数据在管道中依次执行
 
 <!-- ## 补充说明
  -->
@@ -1173,10 +1185,10 @@ TODO tu
 我们看下Render、PipelineManager这两个部分：
 
 - System
-该角色是系统的门户，负责注册所有的管道，以及调用多个runPipelineX函数来运行对应的管道，依次执行它的Job
+该角色是门户，负责注册所有的管道，以及调用多个runPipelineX函数来运行对应的管道，依次执行它的Job
 
 - PipelineManager
-该角色负责管理管道，实现了注册管道、合并管道、运行管道的相关逻辑
+该角色负责管理管道，实现了注册管道、合并管道、运行管道的实现逻辑
 
 
 我们看下管道这个部分：
@@ -1190,7 +1202,7 @@ TODO tu
 该角色保存了管道模块中所有管道的运行时数据
 
 - PipelineStateType
-该角色是PipelineState的类型
+该角色是PipelineState的类型定义
 
 - X Pipeline
 该角色是一个管道
@@ -1206,13 +1218,13 @@ TODO tu
 
 - 一个Pipeline有一个PipelineState和多个X Pipeline
 
-- 一个PipelineState实现了一个PipelineStateType
+- 一个PipelineState实现了对应的PipelineStateType
 
 - 一个X Pipeline有多个Job
 
 - 每个Job都能读写所有的PipelineState，但它们没有直接依赖PipelineState，而是依赖它实现的PipelineStateType
 
-- 如果一个Pipeline中的Job依赖了另一个Pipeline的PipelineState，那么该Pipeline的PipelineStateType就需要在states字段中依赖PipelineState的PipelineStateType
+- 如果一个Pipeline中的Job依赖了另一个Pipeline的PipelineState，那么该Pipeline的PipelineStateType就需要在states字段中依赖PipelineState的PipelineStateType，这在图中表现为PipelineStateType依赖自己
 
 
 ## 通用UML？
@@ -1221,16 +1233,6 @@ data_view:
 TODO tu
 
 ## 分析角色？
-
-
-<!-- 数据分为运行时数据和配置数据，其中各个State是运行时数据，各个JSON是配置数据 -->
-
-Render有自己的数据-RenderState，它包括了其它的state
-
-PipeManager有自己的数据-PipeStateManagerState，它包括了各个管道模块的PipelineState
-
-三个管道模块各自有一个PipelineState数据和一个JSON配置数据，其中PipelineState保存了管道模块中所有管道的运行时数据，JSON配置数据用来指定管道模块中所有管道的Job的执行顺序
-
 
 
 总体来看，数据分为运行时数据和配置数据，其中各个State是运行时数据，各个JSON是配置数据
@@ -1256,11 +1258,16 @@ let systemState = createState()
 
 systemState = registerAllPipelines(systemState)
 
-runPipeline1(systemState).then(newSystemState => {
+init(systemState, configForInit).then(newSystemState => {
     systemState = newSystemState
 
-    runPipelineX...
+    runPipeline1(systemState, configForPipeline1).then(newSystemState => {
+        systemState = newSystemState
+
+        runPipelineX...
+    })
 })
+
 ```
 - System的抽象代码
 SystemStateType
@@ -1295,7 +1302,7 @@ export let registerAllPipelines = (state: state) => {
                 [
                     {
                         pipelineName: 某个X Pipeline名,
-                        insertElementName: 插入的目标Element名,
+                        insertElementName: 插入到的Element名,
                         insertAction: "before" or "after" 
                     },
                     指定其它的X Pipeline的合并...
@@ -1372,10 +1379,10 @@ export let runPipeline1 = (state: state, config) => {
 更多的runPipeline函数，运行对应的X Pipeline...
 ```
 
-这里增加了init函数来实现System的初始化
-这里假定注册的管道模块（Pipeline）包括了名为“init”的Init Pipeline，因此在init函数中运行该管道
+因为一般System都需要进行初始化，所以这里增加了init函数来实现System的初始化
+这里假定注册的管道模块包括了名为“init”的Init Pipeline，因此在init函数中运行该管道
 
-runPipeline函数其实在实际项目中，它的名字应该是update或者render。该函数通过运行Update Pipeline或者Render Pipeline来实现更新或者渲染逻辑
+runPipeline1函数其实在实际项目中，它的名字可能是update或者render。该函数通过运行Update Pipeline或者Render Pipeline来实现更新或者渲染逻辑
 - PipelineManager的抽象代码
 PipelineManager
 ```ts
@@ -1383,43 +1390,43 @@ PipelineManager
 
 export declare function createState(): state
 
-export declare function registerPipeline<worldState, pipelineState>(managerState: state, pipeline: pipeline<worldState, pipelineState>, jobOrers: jobOrders): state
+export declare function registerPipeline<systemState, pipelineState>(pipelineManagerState: state, pipeline: pipeline<systemState, pipelineState>, jobOrers: jobOrders): state
 
-export declare function unregisterPipeline(managerState: state, targetPipelineName: pipelineName): state
+export declare function unregisterPipeline(pipelineManagerState: state, targetPipelineName: pipelineName): state
 
-type unsafeGetWorldState<worldState> = () => worldState
+type unsafeGetSystemState<systemState> = () => systemState
 
-type setWorldState<worldState> = (worldState: worldState) => void
+type setSystemState<systemState> = (systemState: systemState) => void
 
-type unsafeGetPipelineManagerState<worldState> = (worldState: worldState) => state
+type unsafeGetPipelineManagerState<systemState> = (systemState: systemState) => state
 
-type setPipelineManagerState<worldState> = (worldState: worldState, state: state) => worldState
+type setPipelineManagerState<systemState> = (systemState: systemState, state: state) => systemState
 
-export declare function runPipeline<worldState>(
-    worldState: worldState,
+export declare function runPipeline<systemState>(
+    systemState: systemState,
     [
-        unsafeGetWorldState,
-        setWorldState,
+        unsafeGetSystemState,
+        setSystemState,
         unsafeGetPipelineManagerState,
         setPipelineManagerState
     ]: [
-            unsafeGetWorldState<worldState>,
-            setWorldState<worldState>,
-            unsafeGetPipelineManagerState<worldState>,
-            setPipelineManagerState<worldState>
+            unsafeGetSystemState<systemState>,
+            setSystemState<systemState>,
+            unsafeGetPipelineManagerState<systemState>,
+            setPipelineManagerState<systemState>
         ],
     pipelineName: pipelineName
-): stream<worldState>
+): stream<systemState>
 
-export declare function init<worldState>(worldState: worldState,
+export declare function init<systemState>(systemState: systemState,
     [
         unsafeGetPipelineManagerState,
         setPipelineManagerState
     ]: [
-            unsafeGetPipelineManagerState<worldState>,
-            setPipelineManagerState<worldState>
+            unsafeGetPipelineManagerState<systemState>,
+            setPipelineManagerState<systemState>
         ],
-): worldState
+): systemState
 ```
 
 
@@ -1492,12 +1499,12 @@ export let exec: execType<systemState> = (systemState, { getStatesFunc, setState
         //获得自己的PipelineState
         let pipelineState = getState(states)
 
-        if (需要写数据到PipelilneState) {
+        if (需要写数据到自己的PipelineState) {
             return setStatesFunc<systemState, states>(
                 systemState,
                 setState(states, {
                     ...getState(states),
-                    设置数据
+                    写数据
                 })
             )
         }
@@ -1537,9 +1544,10 @@ TODO finish
 
 
 
-- 不懂代码的人员可以通过配置来定制管道
+- 不懂代码的同学可以通过配置来定制管道
 
-- 多个开发者能够同时开发不同的管道，或者同时开发同一个管道中不同的Job，因为它们之间相互独立，所以多人开发不会相互影响
+- 多个开发者能够同时开发不同的管道，或者同时开发同一个管道中不同的Job
+因为它们之间相互独立，所以多人开发时不会相互影响
 
 - Job的exec函数、Pipeline的getPipeline函数都通过PipelineManager的类型定义了输入和输出，从而当多人开发Job和Pipeline模块时不会造成输入输出的冲突
 
@@ -1573,7 +1581,7 @@ TODO finish
 
 - 引擎主循环中的更新、渲染
 
-更新、渲染时通常需要连续地执行一些逻辑，因此可以注册一个Pipeline管道模块，它包括一个Update Pipeline管道、一个Render Pipeline管道，前者包括更新相关的Job，后者包括渲染相关的Job。
+更新、渲染时通常需要连续地执行一些逻辑，因此可以注册一个Pipeline管道模块，它包括Update Pipeline管道、Render Pipeline管道，前者包括更新相关的Job，后者包括渲染相关的Job。
 在每次主循环时，先运行Update Pipeline，然后在返回的Promise回调中运行Render Pipeline
 
 
@@ -1587,24 +1595,21 @@ TODO finish
 
 - 在注册管道时传入管道的配置数据，避免使用全局变量
 
-我们现在是在运行管道时，把配置保存到了全局变量，参考代码如下：
+我们现在是在运行管道时，把配置数据保存到全局变量，从而在Job中通过全局变量获得配置数据，参考代码如下：
 Pipeline
 ```ts
 export let runPipeline1 = (state: state, config) => {
-    //把配置保存到全局变量中，从而在Job中通过全局变量获得配置
     globalThis.config = config
 
     ...
 }
 ```
 
-因为全局变量是全局共用的，容易造成相互影响，所以应该在注册管道时传入管道的配置数据，参考代码如下：
+因为全局变量是全局共用的，容易造成相互影响，所以应该改为在注册管道时传入管道的配置数据，参考代码如下：
 System
 ```ts
-export let registerAllPipelines = (state: state, ) => {
+export let registerAllPipelines = (state: state) => {
     if (_isEnvironment1()) {
-        let configForPipeline1 = ...
-
         //注册Pipeline1
         let pipelineManagerState = registerPipeline(
             ...
@@ -1615,9 +1620,8 @@ export let registerAllPipelines = (state: state, ) => {
 }
 ```
 
-<!-- 管道Pipeline1的配置数据configForPipeline1应该保存到管道的Pipeline1State中，然后在Pipeline1的getPipline函数返回的createState函数中接收到configForPipeline1，相关代码如下： -->
-在Pipeline1的getPipeline函数返回的createState函数中应该可以接收到configForPipeline1
-将其保存到Pipeline1State后，可在Job中通过Pipeline1State获得configForPipeline1
+在Pipeline1的getPipeline函数返回的createState函数中应该可以接收到configForPipeline1；
+然后将其保存到Pipeline1State后，可在Job中通过Pipeline1State获得configForPipeline1
 参考代码如下：
 Pipeline1
 ```ts
@@ -1631,10 +1635,19 @@ export let getPipeline = (): pipeline<state> => {
             }
 		},
 ```
+Job
+```ts
+export let exec: execType<systemState> = (systemState, { getStatesFunc, setStatesFunc }) => {
+    ...
+    let pipeline1State = getState(states)
 
-- 管道模块的JSON配置数据可以增加更多的配置字段
+    let config = pipeline1State.config
+```
 
-目前只有指定Job执行顺序的配置字段，可以增加对Job的配置字段，如在Pipeline的getPipeline函数返回的数据中增加allJobData这个JSON配置数据，对设置WebGL的clearColor的ClearColorJob指定ClearColor的值，对清空WebGL的ClearJob指定清空哪个Buffer
+- 可以增强管道模块的JSON配置数据
+
+目前只有指定Job执行顺序的配置数据，除此之外，可以增加对Job的配置数据，如在Pipeline的getPipeline函数返回的数据中增加allJobData这个JSON配置数据，对Job指定一些配置数据
+举例来说，可以对设置WebGL的clearColor的ClearColorJob指定ClearColor的值，对清空WebGL的ClearJob指定清空哪个Buffer
 参考代码如下：
 Pipeline
 ```ts
@@ -1699,19 +1712,19 @@ export let exec: execType<systemState> = (systemState, { getStatesFunc, setState
 
 ## 哪些场景不需要使用模式？
 
-如果逻辑之间没有明显的先后顺序，则不需要使用管道模式将其管道化
+如果不是连续的逻辑，或者逻辑之间没有明显的执行顺序，则不需要使用管道模式将其管道化
 
 ## 给出具体的实践案例？
 
-引擎通常需要运行在各种运行环境中，如运行在移动端、Nodejs桌面端、浏览器端，那么就可以使用管道模式，针对每个运行环境开发一个管道
+引擎通常需要运行在各种运行环境中，如运行在移动端、Nodejs桌面端、浏览器端，那么就可以使用管道模式，由引擎针对每个运行环境准备一个管道
 
-每个管道相互独立互不影响，可以由不同的开发者同时开发各个管道，以及同时开发同一个管道的不同的Job
+每个管道相互独立互不影响，可以由不同的引擎开发者同时开发各个管道，以及同时开发同一个管道的不同的Job
 
 如果要切换运行环境，那么就只是切换运行的管道而已
 
 
 
-如果引擎的用户希望开发自定义管道，那么用户可以开发自己的Pipeline和对应的Job；然后调用PipelineManager的registerPipeline函数来注册Pipeline，注册的时候通过指定JobOrders参数来将其合并到引擎默认的管道中
+如果引擎的用户希望开发自定义的管道，而不是只能使用引擎提供的管道，那么用户可以开发自己的Pipeline和对应的Job；然后调用PipelineManager的registerPipeline函数来注册Pipeline，注册的时候通过指定JobOrders参数来将其合并到引擎默认的管道中
 
 
 
@@ -1721,7 +1734,7 @@ export let exec: execType<systemState> = (systemState, { getStatesFunc, setState
 most.js是一个开源的FRP库，可以在网上搜索“cujojs/most”来找到它的Github Repo
 
 
-stingray（前身是bitsquid）引擎就是用了管道模式
+stingray游戏引擎（前身是bitsquid）使用了管道模式
 
 
-Frostbite的FrameGraph和Unity的RenderGraph可以看成是管道模式的扩展
+Frostbite的FrameGraph和Unity的RenderGraph可以看成对管道模式的扩展

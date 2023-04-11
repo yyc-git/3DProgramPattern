@@ -5,7 +5,7 @@ import { getState, setState } from "../Utils"
 import { states } from "jia_renderInMobile_pipeline_state_type/src/StateType"
 
 export let exec: execType<renderState> = (renderState, { getStatesFunc, setStatesFunc }) => {
-    //从RenderState中获得所有管道的PipelineState
+    //从RenderState中获得所有的PipelineState
 	let states = getStatesFunc<renderState, states>(renderState)
 
 	let canvas: HTMLCanvasElement = globalThis.canvas
@@ -23,7 +23,7 @@ export let exec: execType<renderState> = (renderState, { getStatesFunc, setState
 			setState(states, {
                 //获得JiaRenderInMobilePipelineState，拷贝为新的JiaRenderInMobilePipelineState
 				...getState(states),
-                //保存gl到新的JiaRenderInMobilePipelineState
+                //保存gl到新的JiaRenderInMobilePipelineState中
 				gl: gl
 			})
 		)

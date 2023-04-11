@@ -30,7 +30,7 @@ export let registerAllPipelines = (state: state) => {
                 [
                     {
                         pipelineName: 某个X Pipeline名,
-                        insertElementName: 插入的目标Element名,
+                        insertElementName: 插入到的Element名,
                         insertAction: "before" or "after" 
                     },
                     指定其它的X Pipeline的合并...

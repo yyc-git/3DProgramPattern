@@ -4,8 +4,12 @@ let systemState = createState()
 
 systemState = registerAllPipelines(systemState)
 
-runPipeline1(systemState).then(newSystemState => {
+init(systemState, configForInit).then(newSystemState => {
     systemState = newSystemState
 
-    runPipelineX...
+    runPipeline1(systemState, configForPipeline1).then(newSystemState => {
+        systemState = newSystemState
+
+        runPipelineX...
+    })
 })

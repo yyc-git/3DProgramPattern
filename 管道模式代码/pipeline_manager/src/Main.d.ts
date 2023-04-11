@@ -6,40 +6,40 @@ import { pipeline } from "./type/PipelineType";
 
 export function createState(): state
 
-export function registerPipeline<worldState, pipelineState>(managerState: state, pipeline: pipeline<worldState, pipelineState>, jobOrers: jobOrders): state
+export function registerPipeline<systemState, pipelineState>(pipelineManagerState: state, pipeline: pipeline<systemState, pipelineState>, jobOrers: jobOrders): state
 
-export function unregisterPipeline(managerState: state, targetPipelineName: pipelineName): state
+export function unregisterPipeline(pipelineManagerState: state, targetPipelineName: pipelineName): state
 
-type unsafeGetWorldState<worldState> = () => worldState
+type unsafeGetSystemState<systemState> = () => systemState
 
-type setWorldState<worldState> = (worldState: worldState) => void
+type setSystemState<systemState> = (systemState: systemState) => void
 
-type unsafeGetPipelineManagerState<worldState> = (worldState: worldState) => state
+type unsafeGetPipelineManagerState<systemState> = (systemState: systemState) => state
 
-type setPipelineManagerState<worldState> = (worldState: worldState, state: state) => worldState
+type setPipelineManagerState<systemState> = (systemState: systemState, state: state) => systemState
 
-export function runPipeline<worldState>(
-    worldState: worldState,
+export function runPipeline<systemState>(
+    systemState: systemState,
     [
-        unsafeGetWorldState,
-        setWorldState,
+        unsafeGetSystemState,
+        setSystemState,
         unsafeGetPipelineManagerState,
         setPipelineManagerState
     ]: [
-            unsafeGetWorldState<worldState>,
-            setWorldState<worldState>,
-            unsafeGetPipelineManagerState<worldState>,
-            setPipelineManagerState<worldState>
+            unsafeGetSystemState<systemState>,
+            setSystemState<systemState>,
+            unsafeGetPipelineManagerState<systemState>,
+            setPipelineManagerState<systemState>
         ],
     pipelineName: pipelineName
-): stream<worldState>
+): stream<systemState>
 
-export function init<worldState>(worldState: worldState,
+export function init<systemState>(systemState: systemState,
     [
         unsafeGetPipelineManagerState,
         setPipelineManagerState
     ]: [
-            unsafeGetPipelineManagerState<worldState>,
-            setPipelineManagerState<worldState>
+            unsafeGetPipelineManagerState<systemState>,
+            setPipelineManagerState<systemState>
         ],
-): worldState
+): systemState

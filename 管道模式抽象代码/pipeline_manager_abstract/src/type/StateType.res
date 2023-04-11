@@ -1,4 +1,4 @@
-type worldState
+type systemState
 
 type jobName = string
 
@@ -11,11 +11,11 @@ type rec state = {
   states: RegisterPipelineType.states,
 }
 and operateStatesFuncs = {
-  getStatesFunc: worldState => RegisterPipelineType.states,
-  setStatesFunc: (worldState, RegisterPipelineType.states) => worldState,
+  getStatesFunc: systemState => RegisterPipelineType.states,
+  setStatesFunc: (systemState, RegisterPipelineType.states) => systemState,
 }
-and createState<'pipelineState> = worldState => 'pipelineState
-and exec = (worldState, operateStatesFuncs) => stream<worldState>
+and createState<'pipelineState> = systemState => 'pipelineState
+and exec = (systemState, operateStatesFuncs) => stream<systemState>
 
 and getExec = (PipelineBasicType.pipelineName, jobName) => Js.Nullable.t<exec>
 

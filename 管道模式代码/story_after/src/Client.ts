@@ -5,7 +5,7 @@ let canvas = {
     getContext: (_) => 1 as any
 }
 
-//指定运行环境
+//指定运行环境为PC端
 globalThis.isPC = true
 
 

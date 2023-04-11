@@ -1,6 +1,6 @@
 export abstract class state { protected opaque!: any } /* simulate opaque types */
 
 export type operateStatesFuncs = {
-	getStatesFunc: <worldState, states> (_1: worldState) => states,
-	setStatesFunc: <worldState, states> (_1: worldState, _2: states) => worldState,
+	getStatesFunc: <systemState, states> (_1: systemState) => states,
+	setStatesFunc: <systemState, states> (_1: systemState, _2: states) => systemState,
 }

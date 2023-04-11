@@ -12,12 +12,12 @@ export let exec: execType<systemState> = (systemState, { getStatesFunc, setState
         //获得自己的PipelineState
         let pipelineState = getState(states)
 
-        if (需要写数据到PipelilneState) {
+        if (需要写数据到自己的PipelineState) {
             return setStatesFunc<systemState, states>(
                 systemState,
                 setState(states, {
                     ...getState(states),
-                    设置数据
+                    写数据
                 })
             )
         }

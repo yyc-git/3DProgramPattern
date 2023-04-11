@@ -305,9 +305,9 @@ finish TODO
 
 
 
-* TODO finish pipeline pattern article
+* DONE finish pipeline pattern article
 
-** TODO update article 1
+** DONE update article 1
 
 
 
