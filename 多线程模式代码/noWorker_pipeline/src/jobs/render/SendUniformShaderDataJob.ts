@@ -18,6 +18,7 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 
 		let program = getExnFromStrictNull(state.program)
 
+		//假的相机数据
 		let viewMatrix = new Float32Array([1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0])
 		let pMatrix = new Float32Array([1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0])
 

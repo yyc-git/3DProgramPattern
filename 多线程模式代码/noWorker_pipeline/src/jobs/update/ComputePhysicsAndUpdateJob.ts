@@ -27,6 +27,7 @@ export let exec: execType<worldState> = (worldState, _) => {
     return mostService.callFunc(() => {
         console.log("compute physics job")
 
+        //计算多个平均值，用它们更新所有TransformComponent组件的位置
         worldState = _updateAllTransformPositions(worldState, computeAveragePositions(worldState, getAllTransformComponents(getExnFromStrictNull(worldState.ecsData.transformComponentManagerState))))
 
         return worldState

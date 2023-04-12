@@ -6,7 +6,7 @@ import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 import { unsafeGetState, setState } from "./WorldStateContainer"
 import { createState as createGameObjectManagerState } from "multithread_pattern_ecs/src/manager/gameObject/Manager"
 import { createState as createTransformManagerState } from "multithread_pattern_ecs/src/manager/transform_component/Manager"
-import { createState as createNoLightMateiralManagerState } from "multithread_pattern_ecs/src/manager/basicMaterial_component/Manager"
+import { createState as createBasicMateiralManagerState } from "multithread_pattern_ecs/src/manager/basicMaterial_component/Manager"
 
 export let createState = ({ transformComponentCount, basicMaterialComponentCount }): state => {
     return {
@@ -14,7 +14,7 @@ export let createState = ({ transformComponentCount, basicMaterialComponentCount
         {
             gameObjectManagerState: createGameObjectManagerState(),
             transformComponentManagerState: createTransformManagerState(transformComponentCount),
-            basicMaterialComponentManagerState: createNoLightMateiralManagerState(basicMaterialComponentCount)
+            basicMaterialComponentManagerState: createBasicMateiralManagerState(basicMaterialComponentCount)
         },
         pipelineState: createPipelineManagerState(),
     }

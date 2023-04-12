@@ -3,6 +3,7 @@ import { Fragment, Vertex } from "../shader/basic.glsl"
 
 // export let createProgram = (gl: WebGLRenderingContext, vertexShaderSource: string, fragmentShaderSource: string) => {
 export let createProgram = (gl: WebGLRenderingContext) => {
+	//glsl
 	let vertexShaderSource = Vertex
 	let fragmentShaderSource = Fragment
 

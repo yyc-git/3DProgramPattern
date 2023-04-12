@@ -521,7 +521,7 @@ export let createState = (): state => {
 }
 ```
 
-createState函数创建的RenderState保存了PipelineManagerState
+createState函数创建的RenderState保存了创建的PipelineManagerState
 
 
 

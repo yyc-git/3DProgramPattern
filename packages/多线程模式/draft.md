@@ -25,7 +25,7 @@ fps
 timeline
 
 
-Transform+NoLightMaterial Component
+Transform+BasicMaterial Component
 
 
 remove Camera related, Geometry Components

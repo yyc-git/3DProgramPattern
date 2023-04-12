@@ -102,10 +102,6 @@ export let setPosition = (state: state, component: component, position) => {
     return state
 }
 
-// let _fakeCompute = (position:Array<number>) => {
-//     for(let )
-// }
-
 export let batchUpdate = (state: state) => {
     return getAllComponents(state).reduce((state, component) => {
         let position = getPosition(state, component)

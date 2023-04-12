@@ -8,6 +8,7 @@ export let exec: execType<worldState> = (worldState, _) => {
     return mostService.callFunc(() => {
         console.log("update transform job")
 
+        //更新所有TransformComponent组件的模型矩阵
         let transformComponentManagerState = batchUpdate(getExnFromStrictNull(worldState.ecsData.transformComponentManagerState))
 
         return {

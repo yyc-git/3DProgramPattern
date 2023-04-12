@@ -40,11 +40,7 @@ worldState = _createScene(worldState, 8000)
 
 worldState = registerAllPipelines(worldState)
 
-
-
 let canvas = document.querySelector("#canvas")
-
-
 
 let _loop = (worldState: worldState) => {
     update(worldState).then(worldState => {
