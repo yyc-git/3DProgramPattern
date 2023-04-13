@@ -19,11 +19,11 @@
 
 TODO tu
 
-WorldForNoWorker是引擎的门户，封装了引擎的API
+WorldForNoWorker是门户，封装了API
 
 PipeManager负责管理管道
 
-NoWorkerPipeline是引擎注册的管道模块
+NoWorkerPipeline是注册的管道模块
 
 Init Pipeline是初始化管道，包括初始化相关的Job，用来实现初始化的逻辑
 
@@ -63,8 +63,8 @@ TODO tu
 
 
 主循环的一帧中，首先运行了Update Pipeline管道，执行下面的Job逻辑：
-首先进行物理计算，更新位置；
-最后更新模型矩阵
+首先进行物理计算，更新所有TransformComponent组件的位置；
+最后更新所有TransformComponent组件的模型矩阵
 
 然后运行了Render Pipeline管道，执行下面的Job逻辑：
 首先发送相机数据；
@@ -498,20 +498,106 @@ export let render = (state: state): Promise<state> => {
 TODO tu
 
 
-TODO 总体来看，分为Render、针对每个运行环境的渲染、渲染的步骤这三个部分
+总体来看，分为Main Worker、Physics Worker、Render Worker这三个部分
+
+Main Worker包括了运行在主线程的模块，Physics Worker包括了运行在物理线程的模块，Render Worker包括了运行在渲染线程的模块
+
+这三个部分的模块结构跟之前一样，都是有一个用户模块，它调用了一个门户模块；
+门户模块调用一个PipelineManager模块来管理管道；
+门户模块调用了Manager+Component+GameObject来创建场景；
+门户模块包括一个管道模块；
+管道模块包括几个管道，每个管道包括多个Job；
+Job调用了Manager+Component+GameObject来获得场景数据
 
 
 
 
-TODO 延迟一帧
+我们看下这三个部分对应的三个线程之间的数据传送：
+主要有两种方式来实现数据传送：
+- 拷贝
+- 共享SharedArrayBuffer
 
-TODO 同步
+这里介绍下共享SharedArrayBuffer：
+两种组件的两个Buffer是SharedArrayBuffer，由主线程创建，并将其共享给渲染线程和物理线程，使他们能够从中读场景数据；
+主线程创建了RenderWorkderData的Buffer，用来保存了场景中所有的transformComponent和basicMaterialComponent。主线程将其共享给渲染线程，使渲染线程能够获得它们，从而通过它们获得场景数据（如位置）；
+主线程创建了PhysicsWorkderData的Buffer，用来保存了场景中所有的transformComponent的位置。主线程将其共享给物理线程，使物理线程能够将计算后的位置写进去
+
+
+为什么物理线程不直接将计算后的位置写到共享的TransformComponent组件的Buffer中呢？
+这就涉及到同步的问题，我们等下再来讨论
+
+
+
+
+
+
+
+我们来看下流程图
+<!-- ，图中的虚线是指线程之间在时间上的对应关系 -->
+
+首先是初始化流程图：
+TODO tu
+
+
+
+这里并行运行了三个线程的Init Pipeline
+具体的运行顺序如下；
+1.主线程创建了渲染线程和物理线程的worker。创建后，这两个线程的Init Pipeline开始运行，等待主线程发送数据；
+2.主线程开始三条并行的Job线：一条创建了RenderWorkderData的Buffer和PhysicsWorkerData的Buffer，发送了渲染数据和物理数据；另外两条等待渲染线程和物理线程发送结束初始化的标志
+3.渲染线程在获得主线程发送的渲染数据后，开始初始化渲染，依次执行这些Job逻辑：初始化TransformComponent和BasicMaterialComponent、创建RenderWorkerData的Buffer的视图、创建WebGL上下文、初始化材质、发送结束初始化的标志
+4.物理线程在获得主线程发送的物理数据后，开始初始化物理，依次执行这些Job逻辑：初始化TransformComponent和BasicMaterialComponent、创建PhysicsWorkerData的Buffer的视图、发送结束初始化的标志
+
+
+
+
+
+
+
+
+然后来看下主循环的一帧流程图：
+TODO tu
+
+<!-- 图中的虚线是指线程之间在时间上的对应关系 -->
+
+
+这里首先并行运行了主线程的Update Pipeline、渲染线程的Render Pipeline、物理线程的Update Pipeline；
+然后运行了主线程的Sync Pipeline
+
+具体的运行顺序如下；
+
+1.主线程运行Update Pipeline，因为场景可能有变化，所以更新了RenderWorkderData的Buffer中的组件数据；
+2.主线程发送开始主循环的标志，此时渲染线程和物理线程接收到了该标志，开始分别运行Render Pipeline和Update Pipeline。
+其中物理线程在Update Pipeline中依次执行这些Job逻辑：物理计算、发送结束标志；
+渲染线程在Render Pipeline中依次执行这些Job逻辑：获得主线程发送的渲染数据、发送相机数据、渲染、发送结束标志
+3.主线程在发送开始主循环的标志后就结束了Update Pipeline，并运行Sync Pipeline，等待另外两个线程发送结束标志
+4.主线程获得两个线程发送结束标志后，依次执行这些Job逻辑：使用物理线程中经过物理计算得到的值来更新所有TransformComponent组件的位置、更新所有TransformComponent组件的模型矩阵
+
+
+
+
+这里回答之前提到的“同步”的问题：
+因为主线程和物理线程的Update Pipeline是在同一时间并行运行的，如果物理线程在管道的物理计算的Job中将计算后的位置写到TransformComponent组件的Buffer，那么此后主线程从中读取位置时可能就获得修改后的值而不是原始值，从而造成冲突
+所以首先物理线程的物理计算的Job将计算后的位置写到PhysicsWorkderData的Buffer中，然后在主线程的Sync Pipeline管道中再将其写到TransformComponent组件的Buffer中
+
+
+
+
+值得注意的是，渲染线程和物理线程相比主线程是延迟了一帧的。
+这是因为在主线程的Sync Pipeline中的“Update Transform”Job中会更新模型矩阵，而这更新后的值只能由下一帧的渲染线程和物理线程使用
 
 
 
 ## 结合UML图，描述如何具体地解决问题？
+
+- 因为把渲染和物理计算的逻辑分别移到两个线程中，与主线程并行运行，从而提高了FPS
+
+
+
 ## 给出代码？
 
+
+Client代码:
+TODO continue
 
 
 <!-- # 设计意图
