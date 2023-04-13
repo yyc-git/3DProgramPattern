@@ -33,6 +33,8 @@ init(worldState).then(worldState => {
 	tempWorldState = worldState
 })
 
+//主循环
+//基于most.js库，使用FRP处理异步
 mostService.drain(
 	mostService.tap(
 		(_) => {

@@ -270,7 +270,7 @@ loop(worldState, [update, renderOneByOne, renderInstances])
 
 
 我们来看下主循环相关代码：
-ecs_pattern_utils->World
+utils->World
 ```ts
 export let loop = (worldState, [update, renderOneByOne, renderInstances]) => {
     worldState = update(worldState)
@@ -347,7 +347,7 @@ export let update = (superHeroState: superHeroState): superHeroState => {
 
 
 我们回到主循环代码，来看下更新之后的渲染相关的代码：
-ecs_pattern_utils->World
+utils->World
 ```ts
 export let loop = (worldState, [update, renderOneByOne, renderInstances]) => {
     worldState = update(worldState)
