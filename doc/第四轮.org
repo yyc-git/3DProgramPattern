@@ -1,0 +1,18 @@
+* TODO 修改结构，改成正式成书的结构
+
+
+* TODO 更新代码库，给出索引、how to run
+
+** TODO give where has code, uml and how to run code and run result for each example
+
+    TODO give how to run rescript code(pipeline pattern should mention it!)
+
+
+
+** TODO 整理每个package代码，给出运行代码的script；并在README中说明如何运行，怎样运行
+
+
+
+** TODO 代码示例
+
+https://github.com/nivance/DPModel

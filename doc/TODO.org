@@ -314,72 +314,7 @@ finish TODO
 
 
 
-* TODO 重命名“类图”为“领域模型”
 
-* TODO 重命名“客户”为“用户”
-
-TODO handle 依赖隔离模式
-
-* TODO 抽象代码都用Typescript
-
-* TODO 简化抽象代码
-
-* TODO 简化文中的示例代码
-
-* TODO 简化UML
-
-
-* TODO unify story
-
-一家公司，开发项目
-
-引入角色：
-开发者
-    小李
-    小陈
-经理
-    老刘
-
-* TODO unify 给出UML 的描述
-
-先说“总体上来看，xxx”
-然后再介绍每个部分的具体模块
-
-
-
-使用总-分-总?套路，最后一个总可选
-
-
-* TODO 在给出代码->结束一段代码的分析时，给出承上启下语句：总结上段代码，引出下段代码
-
-
-# * TODO 统一给出代码：首先，我们看下xxx；然后，我们看下xxx；。。。
-* TODO 给出代码
-
-refer to 多线程模式：
-使用总-分结构：
-    总：
-    首先，我们看下xxx代码；。。。
-    分：
-    ### [步骤1]
-    首先，我们看下xxx代码；。。。
-    ### [步骤2]
-    首先，我们看下xxx代码；。。。
-
-
-
-* TODO “运行代码”要说明运行Client代码 
-
-* TODO 统一“概述解决方案”，与之前提出的问题对应
-
-通过模板：
-通过下面的改进来xxx：
-xxx
-
-
-* TODO give where has code, uml and how to run code and run result for each example
-
-    TODO give how to run rescript code(pipeline pattern should mention it!)
 
 
 
@@ -387,22 +322,10 @@ xxx
 
 
 
-* TODO package.json supply dependencies, devDependencies
-e.g. most, commonlib
-
-
-* TODO 移除"import"相关代码
-
 
 
 * TODO 重写“依赖隔离模式”:统一格式; update 使用场景：推广; rename IRenderEngine to RenderEngine； replace Onion architecture image
 
-
-* TODO 加入过渡语
-
-书还需要更完备些，比如介绍一个东西，经典逻辑三问，我是谁，我从哪里来，到哪里去
-
-而且前后需要承上启下，背景介绍清楚些，写作从容些
 
 
 
@@ -425,17 +348,5 @@ e.g. most, commonlib
 
 
 
-* TODO 改错
-
-ECS:heros ->heroes
-
-
-* TODO 整理每个package代码，给出运行代码的script；并在README中说明如何运行，怎样运行
-
 
 * TODO 书给出网站（包含代码）二维码
-
-
-** TODO 代码示例
-
-https://github.com/nivance/DPModel
