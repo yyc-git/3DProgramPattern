@@ -1,9 +1,9 @@
-export const pipelineName = "Worker_WorkerX"
+export const pipelineName = "Worker_XWorker"
 
 export type TypeArrayType = Float32Array | Uint8Array | Uint16Array | Uint32Array
 
 export type state = {
-    workerXDataBuffer: SharedArrayBuffer | null,
+    xWorkerDataBuffer: SharedArrayBuffer | null,
     typeArray: TypeArrayType | null,
     allDataOrientedComponent1Indices: Array<number> | null,
     dataOrientedComponent1Count: number | null,

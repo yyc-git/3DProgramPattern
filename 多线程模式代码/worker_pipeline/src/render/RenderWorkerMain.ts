@@ -45,7 +45,7 @@ mostService.drain(
 		mostService.filter(
 			(event) => {
 				console.log(event);
-				return event.data.operateType === "SEND_BEGIN_LOOP";
+				return event.data.command === "SEND_BEGIN_LOOP";
 			},
 			mostService.fromEvent<MessageEvent, Window & typeof globalThis>("message", self, false)
 		)

@@ -7,7 +7,7 @@ export let exec: execType<worldState> = (worldState, _) => {
         console.log("send finish init render data job exec on render worker")
 
         postMessage({
-            operateType: "FINISH_SEND_INIT_RENDER_DATA"
+            command: "FINISH_SEND_INIT_RENDER_DATA"
         })
 
         return worldState

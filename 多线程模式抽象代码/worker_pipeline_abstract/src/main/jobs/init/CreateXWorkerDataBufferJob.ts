@@ -16,14 +16,14 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
 			_getMaxXxxCount() * _getStride()
 		)
 
-		let workerXDataBufferTypeArray = new Float32Array | Uint8Array | Uint16Array | Uint32Array(buffer)
+		let xWorkerDataBufferTypeArray = new Float32Array | Uint8Array | Uint16Array | Uint32Array(buffer)
 
 		return setStatesFunc<worldState, states>(
 			worldState,
 			setState(states, {
 				...getState(states),
-				workerXDataBuffer: buffer,
-				workerXDataBufferTypeArray: workerXDataBufferTypeArray
+				xWorkerDataBuffer: buffer,
+				xWorkerDataBufferTypeArray: xWorkerDataBufferTypeArray
 			})
 		)
 	})

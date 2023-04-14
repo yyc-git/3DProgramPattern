@@ -10,13 +10,13 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
 	let state = getState(states)
 
 	return mostService.callFunc(() => {
-		console.log("update workerXDataBufferTypeArray")
+		console.log("update xWorkerDataBufferTypeArray")
 
 		return setStatesFunc<worldState, states>(
 			worldState,
 			setState(states, {
 				...state,
-				workerXDataBufferTypeArray
+				xWorkerDataBufferTypeArray
 			})
 		)
 	})

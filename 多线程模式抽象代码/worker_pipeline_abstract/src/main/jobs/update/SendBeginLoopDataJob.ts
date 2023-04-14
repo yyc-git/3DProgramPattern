@@ -8,13 +8,13 @@ import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 	let states = getStatesFunc<worldState, states>(worldState)
 
-	let { workerXWorker } = getState(states)
+	let { xWorkerWorker } = getState(states)
 
 	return mostService.callFunc(() => {
-		workerXWorker = getExnFromStrictNull(workerXWorker)
+		xWorkerWorker = getExnFromStrictNull(xWorkerWorker)
 
-		workerXWorker.postMessage({
-			operateType: "SEND_BEGIN_LOOP"
+		xWorkerWorker.postMessage({
+			command: "SEND_BEGIN_LOOP"
 		})
 
 		return worldState

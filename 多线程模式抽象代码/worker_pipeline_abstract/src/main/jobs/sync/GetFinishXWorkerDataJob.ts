@@ -9,11 +9,11 @@ import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 	let states = getStatesFunc<worldState, states>(worldState)
 
-	let { workerXWorker } = getState(states)
+	let { xWorkerWorker } = getState(states)
 
-	workerXWorker = getExnFromStrictNull(workerXWorker)
+	xWorkerWorker = getExnFromStrictNull(xWorkerWorker)
 
-	return createGetOtherWorkerDataStream(mostService, "FINISH_SEND_WORKERX_DATA", workerXWorker).map(() => {
+	return createGetOtherWorkerDataStream(mostService, "FINISH_SEND_WORKERX_DATA", xWorkerWorker).map(() => {
 		return worldState
 	})
 }

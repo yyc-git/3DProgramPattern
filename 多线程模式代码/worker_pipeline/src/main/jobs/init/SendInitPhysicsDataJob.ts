@@ -21,7 +21,7 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 		let allTransformIndices = getAllTransforms(getExnFromStrictNull(worldState.ecsData.transformComponentManagerState))
 
 		physicsWorker.postMessage({
-			operateType: "SEND_INIT_PHYSICS_DATA",
+			command: "SEND_INIT_PHYSICS_DATA",
 			physicsDataBuffer: getExnFromStrictNull(physicsDataBuffer),
 			allTransformIndices: allTransformIndices,
 			transformComponentCount,

@@ -20,8 +20,10 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
         let renderDataBufferTypeArray = getExnFromStrictNull(state.typeArray);
         let renderGameObjectCount = getExnFromStrictNull(state.renderGameObjectsCount)
 
+        //清空画布
         clear(gl)
 
+        //渲染所有的gameObject
         range(0, renderGameObjectCount - 1).forEach(renderGameObjectIndex => {
             let transform = renderDataBufferTypeArray[renderGameObjectIndex * 2];
             let material = renderDataBufferTypeArray[renderGameObjectIndex * 2 + 1];

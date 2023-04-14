@@ -7,7 +7,7 @@ export let exec: execType<worldState> = (worldState, _) => {
 		console.log("send finish physics data job exec on physics worker")
 
 		postMessage({
-			operateType: "FINISH_SEND_PHYSICS_DATA"
+			command: "FINISH_SEND_PHYSICS_DATA"
 		})
 
 		return worldState

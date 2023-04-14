@@ -1,4 +1,4 @@
-import { state, states, pipelineName } from "worker_pipeline_state_type_abstract/src/worker_x/StateType"
+import { state, states, pipelineName } from "worker_pipeline_state_type_abstract/src/x_worker/StateType"
 
 export function getState(states: states): state {
     return states[pipelineName]

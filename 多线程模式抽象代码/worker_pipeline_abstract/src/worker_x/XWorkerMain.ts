@@ -1,9 +1,9 @@
 import { service as mostService } from "most/src/MostService"
-import { createStateForWorker, init, pipelineWhenLoop } from "mutltithread_pattern_world_abstract/src/WorldForWorkerX"
+import { createStateForWorker, init, pipelineWhenLoop } from "mutltithread_pattern_world_abstract/src/WorldForXWorker"
 import { state as worldState } from "mutltithread_pattern_world_abstract/src/WorldStateType"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 import { registerPipeline } from "pipeline_manager"
-import { getPipeline as getWorkerXPipeline } from "./Main"
+import { getPipeline as getXWorkerPipeline } from "./Main"
 import { setPipeManagerState, unsafeGetPipeManagerState } from "mutltithread_pattern_world_abstract/src/World"
 
 let _frame = (worldState: worldState) => {
@@ -13,7 +13,7 @@ let _frame = (worldState: worldState) => {
 let _registerAllPipelines = (worldState: worldState): worldState => {
 	let pipelineManagerState = registerPipeline(
 		unsafeGetPipeManagerState(worldState),
-		getWorkerXPipeline(),
+		getXWorkerPipeline(),
 		[]
 	)
 
@@ -40,7 +40,7 @@ mostService.drain(
 		},
 		mostService.filter(
 			(event) => {
-				return event.data.operateType === "SEND_BEGIN_LOOP";
+				return event.data.command === "SEND_BEGIN_LOOP";
 			},
 			mostService.fromEvent<MessageEvent, Window & typeof globalThis>("message", self, false)
 		)

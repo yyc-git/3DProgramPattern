@@ -2,36 +2,36 @@ import { state as worldState } from "mutltithread_pattern_world_abstract/src/Wor
 import { pipeline } from "pipeline_manager/src/type/PipelineType"
 import { pipelineName, state } from "worker_pipeline_state_type_abstract/src/main/StateType"
 import { exec as execCreateWorkerInstance } from "./jobs/init/CreateWorkerInstanceJob"
-import { exec as execCreateWorkerXDataBuffer } from "./jobs/init/CreateWorkerXDataBufferJob"
-import { exec as execSendInitWorkerXData } from "./jobs/init/SendInitWorkerXDataJob"
-import { exec as execGetFinishSendInitWorkerXData } from "./jobs/init/GetFinishSendInitWorkerXDataJob"
+import { exec as execCreateXWorkerDataBuffer } from "./jobs/init/CreateXWorkerDataBufferJob"
+import { exec as execSendInitXWorkerData } from "./jobs/init/SendInitXWorkerDataJob"
+import { exec as execGetFinishSendInitXWorkerData } from "./jobs/init/GetFinishSendInitXWorkerDataJob"
 import { exec as execDoSomething } from "./jobs/update/DoSomethingJob"
-import { exec as execUpdateWorkerXDataBuffer } from "./jobs/update/UpdateWorkerXDataBufferJob"
-import { exec as execSendWorkerXData } from "./jobs/update/SendWorkerXDataJob"
+import { exec as execUpdateXWorkerDataBuffer } from "./jobs/update/UpdateXWorkerDataBufferJob"
+import { exec as execSendXWorkerData } from "./jobs/update/SendXWorkerDataJob"
 import { exec as execSendBeginLoopData } from "./jobs/update/SendBeginLoopDataJob"
-import { exec as execGetFinishWorkerXData } from "./jobs/sync/GetFinishWorkerXDataJob"
+import { exec as execGetFinishXWorkerData } from "./jobs/sync/GetFinishXWorkerDataJob"
 import { exec as execUpdateSharedData } from "./jobs/sync/UpdateSharedDataJob"
 
 let _getExec = (_pipelineName: string, jobName: string) => {
 	switch (jobName) {
 		case "create_worker_instance_main_worker":
 			return execCreateWorkerInstance
-		case "create_workerX_data_buffer_main_worker":
-			return execCreateWorkerXDataBuffer
-		case "send_init_workerX_data_main_worker":
-			return execSendInitWorkerXData
-		case "get_finish_send_init_workerX_data_main_worker":
-			return execGetFinishSendInitWorkerXData
+		case "create_xWorker_data_buffer_main_worker":
+			return execCreateXWorkerDataBuffer
+		case "send_init_xWorker_data_main_worker":
+			return execSendInitXWorkerData
+		case "get_finish_send_init_xWorker_data_main_worker":
+			return execGetFinishSendInitXWorkerData
 		case "dosomething_main_worker":
 			return execDoSomething
-		case "update_workerX_data_buffer_main_worker":
-			return execUpdateWorkerXDataBuffer
-		case "send_workerX_data_main_worker":
-			return execSendWorkerXData
+		case "update_xWorker_data_buffer_main_worker":
+			return execUpdateXWorkerDataBuffer
+		case "send_xWorker_data_main_worker":
+			return execSendXWorkerData
 		case "send_begin_loop_data_main_worker":
 			return execSendBeginLoopData
-		case "get_finish_workerX_data_main_worker":
-			return execGetFinishWorkerXData
+		case "get_finish_xWorker_data_main_worker":
+			return execGetFinishXWorkerData
 		case "update_shared_data_main_worker":
 			return execUpdateSharedData
 		default:
@@ -45,10 +45,10 @@ export let getPipeline = (): pipeline<worldState, state> => {
 		pipelineName: pipelineName,
 		createState: worldState => {
 			return {
-				workerXWorker: null,
-				workerXDataBuffer: null,
-				workerXDataBufferTypeArray: null,
-				workerXOtherData: null
+				xWorkerWorker: null,
+				xWorkerDataBuffer: null,
+				xWorkerDataBufferTypeArray: null,
+				xWorkerOtherData: null
 			}
 		},
 		getExec: _getExec,
@@ -88,11 +88,11 @@ export let getPipeline = (): pipeline<worldState, state> => {
 					link: "concat",
 					elements: [
 						{
-							"name": "create_workerX_data_buffer_main_worker",
+							"name": "create_xWorker_data_buffer_main_worker",
 							"type_": "job"
 						},
 						{
-							"name": "send_init_workerX_data_main_worker",
+							"name": "send_init_xWorker_data_main_worker",
 							"type_": "job"
 						}
 					]
@@ -102,7 +102,7 @@ export let getPipeline = (): pipeline<worldState, state> => {
 					link: "merge",
 					elements: [
 						{
-							"name": "get_finish_send_init_workerX_data_main_worker",
+							"name": "get_finish_send_init_xWorker_data_main_worker",
 							"type_": "job",
 							is_set_state: false
 						}
@@ -129,7 +129,7 @@ export let getPipeline = (): pipeline<worldState, state> => {
 					link: "concat",
 					elements: [
 						{
-							"name": "update_workerX_data_buffer_main_worker",
+							"name": "update_xWorker_data_buffer_main_worker",
 							"type_": "job"
 						},
 						{
@@ -137,7 +137,7 @@ export let getPipeline = (): pipeline<worldState, state> => {
 							"type_": "job"
 						},
 						{
-							"name": "send_workerX_data_main_worker",
+							"name": "send_xWorker_data_main_worker",
 							"type_": "job"
 						},
 						{
@@ -181,7 +181,7 @@ export let getPipeline = (): pipeline<worldState, state> => {
 					link: "merge",
 					elements: [
 						{
-							"name": "get_finish_workerX_data_main_worker",
+							"name": "get_finish_xWorker_data_main_worker",
 							"type_": "job",
 							is_set_state: false
 						}

@@ -25,7 +25,7 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 		let allMaterialIndices = getAllBasicMaterials(getExnFromStrictNull(worldState.ecsData.basicMaterialComponentManagerState))
 
 		renderWorker.postMessage({
-			operateType: "SEND_INIT_RENDER_DATA",
+			command: "SEND_INIT_RENDER_DATA",
 			canvas: offscreenCanvas,
 			renderDataBuffer: getExnFromStrictNull(renderDataBuffer),
 			allMaterialIndices: allMaterialIndices,

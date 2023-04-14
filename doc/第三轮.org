@@ -66,6 +66,14 @@ xxx
 
 ** TODO 简化文中的示例代码
 
+如多线程模式->简化GetXxxData:
+从event.data中获得主线程传送来的数据...
+
+保存到state...
+
+
+** TODO 文中的示例代码加入更多的注释
+
 
 
 ** TODO package.json supply dependencies, devDependencies?

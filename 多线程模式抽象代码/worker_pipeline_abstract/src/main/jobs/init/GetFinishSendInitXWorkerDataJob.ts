@@ -2,22 +2,18 @@ import { state as worldState } from "mutltithread_pattern_world_abstract/src/Wor
 import { service as mostService } from "most/src/MostService"
 import { getState } from "../Utils"
 import { exec as execType } from "pipeline_manager/src/type/PipelineType"
-import { states } from "worker_pipeline_state_type_abstract/src/Main/StateType"
+import { states } from "worker_pipeline_state_type_abstract/src/main/StateType"
+import { createGetOtherWorkerDataStream } from "../../../CreateWorkerDataStreamUtils"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 
 export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 	let states = getStatesFunc<worldState, states>(worldState)
 
-	let { workerXWorker } = getState(states)
+	let { xWorkerWorker } = getState(states)
 
-	return mostService.callFunc(() => {
-		workerXWorker = getExnFromStrictNull(workerXWorker)
+	xWorkerWorker = getExnFromStrictNull(xWorkerWorker)
 
-		workerXWorker.postMessage({
-			operateType: "SEND_WORKERX_DATA",
-			someData:xxx
-		})
-
+	return createGetOtherWorkerDataStream(mostService, "FINISH_SEND_INIT_WORKERX_DATA", xWorkerWorker).map(() => {
 		return worldState
 	})
 }

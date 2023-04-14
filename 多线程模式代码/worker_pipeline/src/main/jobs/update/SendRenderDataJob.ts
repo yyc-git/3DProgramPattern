@@ -16,11 +16,12 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 		renderWorker = getExnFromStrictNull(renderWorker)
 		renderGameObjectsCount = getExnFromStrictNull(renderGameObjectsCount)
 
+		//假的相机数据
 		let viewMatrix = new Float32Array([1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0])
 		let pMatrix = new Float32Array([1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0])
 
 		renderWorker.postMessage({
-			operateType: "SEND_RENDER_DATA",
+			command: "SEND_RENDER_DATA",
 			camera: {
 				viewMatrix,
 				pMatrix

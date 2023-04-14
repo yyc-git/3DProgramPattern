@@ -5,7 +5,7 @@ import { exec as execType } from "pipeline_manager/src/type/PipelineType"
 export let exec: execType<worldState> = (worldState, _) => {
     return mostService.callFunc(() => {
         postMessage({
-            operateType: "FINISH_SEND_INIT_WORKERX_DATA"
+            command: "FINISH_SEND_INIT_WORKERX_DATA"
         })
 
         return worldState

@@ -17,10 +17,10 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 		physicsWorker = getExnFromStrictNull(physicsWorker)
 
 		renderWorker.postMessage({
-			operateType: "SEND_BEGIN_LOOP"
+			command: "SEND_BEGIN_LOOP"
 		})
 		physicsWorker.postMessage({
-			operateType: "SEND_BEGIN_LOOP"
+			command: "SEND_BEGIN_LOOP"
 		})
 
 		return worldState
