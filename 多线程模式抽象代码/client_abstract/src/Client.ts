@@ -25,7 +25,7 @@ if (isUseWorker) {
     worldState = registerWorkerAllPipelines(worldState)
 }
 else {
-    console.log("WorldForMainWorker.registerNoWorkerAllPipelines")
+    console.log("registerNoWorkerAllPipelines...")
 }
 
 

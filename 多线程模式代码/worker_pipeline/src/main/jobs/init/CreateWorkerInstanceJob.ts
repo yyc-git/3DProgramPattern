@@ -11,9 +11,7 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
         console.log("create worker instance job exec on main worker")
 
         // reference https://webpack.docschina.org/guides/web-workers/#root
-        //会执行RenderWorkerMain的代码
         let renderWorker = new Worker(new URL("../../../render/RenderWorkerMain", import.meta.url))
-        //会执行PhysicsWorkerMain的代码
         let physicsWorker = new Worker(new URL("../../../physics/PhysicsWorkerMain", import.meta.url))
 
         return setStatesFunc<worldState, states>(

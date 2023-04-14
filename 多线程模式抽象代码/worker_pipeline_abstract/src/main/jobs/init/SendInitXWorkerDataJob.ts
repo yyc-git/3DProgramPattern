@@ -19,7 +19,7 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 		let allDataOrientedComponent1Indices = getAllDataOrientedComponent1s(getExnFromStrictNull(worldState.ecsData.dataOrientedComponent1ManagerState))
 
 		xWorkerWorker.postMessage({
-			command: "SEND_INIT_WORKERX_DATA",
+			command: "SEND_INIT_XWORKER_DATA",
 			xWorkerDataBuffer: getExnFromStrictNull(xWorkerDataBuffer),
 			allDataOrientedComponent1Indices: allDataOrientedComponent1Indices,
 			dataOrientedComponent1Count,

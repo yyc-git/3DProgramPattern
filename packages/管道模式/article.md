@@ -1716,6 +1716,8 @@ export let exec: execType<systemState> = (systemState, { getStatesFunc, setState
 
 ## 给出具体的实践案例？
 
+- 切换管道
+
 引擎通常需要运行在各种运行环境中，如运行在移动端、Nodejs桌面端、浏览器端，那么就可以使用管道模式，由引擎针对每个运行环境准备一个管道
 
 每个管道相互独立互不影响，可以由不同的引擎开发者同时开发各个管道，以及同时开发同一个管道的不同的Job
@@ -1723,6 +1725,7 @@ export let exec: execType<systemState> = (systemState, { getStatesFunc, setState
 如果要切换运行环境，那么就只是切换运行的管道而已
 
 
+- 自定义管道
 
 如果引擎的用户希望开发自定义的管道，而不是只能使用引擎提供的管道，那么用户可以开发自己的Pipeline和对应的Job；然后调用PipelineManager的registerPipeline函数来注册Pipeline，注册的时候通过指定JobOrders参数来将其合并到引擎默认的管道中
 

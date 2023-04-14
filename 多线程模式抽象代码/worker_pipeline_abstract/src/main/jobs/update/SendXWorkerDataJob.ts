@@ -14,7 +14,7 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 		xWorkerWorker = getExnFromStrictNull(xWorkerWorker)
 
 		xWorkerWorker.postMessage({
-			command: "SEND_WORKERX_DATA",
+			command: "SEND_XWORKER_DATA",
 			someData:xxx
 		})
 

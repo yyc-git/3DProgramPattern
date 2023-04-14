@@ -13,7 +13,7 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 
 	xWorkerWorker = getExnFromStrictNull(xWorkerWorker)
 
-	return createGetOtherWorkerDataStream(mostService, "FINISH_SEND_INIT_WORKERX_DATA", xWorkerWorker).map(() => {
+	return createGetOtherWorkerDataStream(mostService, "FINISH_SEND_INIT_XWORKER_DATA", xWorkerWorker).map(() => {
 		return worldState
 	})
 }

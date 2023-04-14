@@ -1131,6 +1131,8 @@ export let restore = (currentTransformComponentState, targetTransformComponentSt
 
 ## 给出具体的实践案例？
 
+- 处理WebGL对象
+
 我们之前说过，Engine的EngineState中通常会保存WebGL的对象，我们需要在深拷贝和恢复时对它们进行处理
 
 下面以WebGL的VBO为例，展示如何进行处理：

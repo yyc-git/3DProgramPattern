@@ -692,9 +692,7 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
     return mostService.callFunc(() => {
         console.log("create worker instance job exec on main worker")
 
-        //会执行RenderWorkerMain的代码
         let renderWorker = new Worker(new URL("../../../render/RenderWorkerMain", import.meta.url))
-        //会执行PhysicsWorkerMain的代码
         let physicsWorker = new Worker(new URL("../../../physics/PhysicsWorkerMain", import.meta.url))
 
         return setStatesFunc<worldState, states>(
@@ -1760,13 +1758,13 @@ Main Worker包括了运行在主线程的Init Pipeline的Job，X Worker包括了
 <!-- ，运行了所有其它线程的Init Pipeline -->
 
 - Create XWorker Data Buffer
-该Job创建了XWorkderData的Buffer（SharedArrayBuffer），用来保存主线程和X Worker之间需要共享的数据
+该Job创建了XWorkderData的Buffer（SharedArrayBuffer），用来保存主线程和X Worker线程之间需要共享的数据
 
-- Send XWorker Data
-这是多个Job，每个Job向对应的X Worker创建了XWorkderData的Buffer（SharedArrayBuffer），用来保存主线程和X Worker之间共享的数据
+- Send Init XWorker Data
+这是多个Job，每个Job向对应的X Worker线程发送初始化数据
 
 - Get Finish Send Init XWorker Data
-这是多个Job，每个Job为一条并行的Job线，分别等待对应的X Worker发送过来的结束初始化的指令
+这是多个Job，每个Job都并行执行，分别等待对应的X Worker线程发送过来的结束初始化的指令
 
 
 我们看下X Worker这个部分：
@@ -1782,8 +1780,8 @@ Main Worker包括了运行在主线程的Init Pipeline的Job，X Worker包括了
 
 
 - Do Something
-这是多个Job，每个Job实现一些逻辑，更新该线程的数据
-值得注意的是：不应该更新主线程的数据
+这是多个Job，每个Job实现一些逻辑，只应该更新该X Worker线程的数据
+<!-- 值得注意的是：不应该更新主线程或者其它X Worker的数据 -->
 
 - Send Finish Init XWorker Data
 该Job向主线程发送结束初始化的指定
@@ -1794,13 +1792,15 @@ Main Worker包括了运行在主线程的Init Pipeline的Job，X Worker包括了
 
 ## 角色之间的关系？
 
-- 因为可能有一个或多个其它线程，所以对应的有一个或多个X Worker
+- Main Worker对应主线程
+
+- 一个X Worker对应一个其它线程
 
 - 主线程的“Create Worker Instance” Job运行了所有其它线程的Init Pipeline
 
-- 主线程的“Send Init XWorker Data” Job将数据发送到其它线程；其它线程的“Get Init XWorker Data” Job获得该数据
+- 主线程的每个“Send Init XWorker Data” Job将数据发送到对应的一个其它线程，该其它线程的“Get Init XWorker Data” Job获得该数据
 
-- 其它线程的“Send Finish Init XWorker Data” Job将结束指定发送到主线程；主线程的对应的“Get Finish Send Init XWorker Data” Job等待接收该指定
+- 所有其它线程的“Send Finish Init XWorker Data” Job将结束指定发送到主线程；主线程的对应的“Get Finish Send Init XWorker Data” Job等待接收该指定
 
 
 
@@ -1811,74 +1811,626 @@ TODO tu
 
 总体来看，分为Main Worker、X Worker这两个部分
 
-TODO continue
+Main Worker包括了运行在主线程的Update Pipeline和Sync Pipeline的Job，X Worker包括了运行在其它线程的某个X Pipeline的Job
 
-TODO Do something去掉(Update Self Data)
+
+我们看下Main Worker这个部分：
+
+Main Worker首先运行了主线程的Update Pipeline，我们看下相关的Job：
+
+- Update XWorker Data Buffer
+该Job更新了XWorkderData的Buffer中的数据
+
+- Send Begin Loop Data
+该Job向所有的其它线程发送开始主循环的指令
+
+- Send XWorker Data
+这是多个Job，每个Job向对应的X Worker线程发送数据
+
+- Do Something
+这是多个Job，每个Job实现一些逻辑，只应该更新主线程的数据
+
+
+
+Main Worker接着运行了主线程的Sync Pipeline，我们看下相关的Job：
+
+- Get Finish XWorker Data
+这是多个Job，每个Job都并行执行，分别等待对应的X Worker线程发送过来的结束指令
+
+- Update Shared Data
+这是多个Job，每个Job都更新在线程之间共享的数据
+
+ 
+我们看下X Worker这个部分：
+
+- Get XWorker Data
+该Job获得主线程发送的数据
+
+- Do Something
+这是多个Job，每个Job实现一些逻辑，只应该更新该X Worker线程的数据
+
+- Send Finish XWorker Data
+该Job向主线程发送结束的指定
 
 
 ## 角色之间的关系？
 
+- Main Worker对应主线程
+
+- 一个X Worker对应一个其它线程
+
+
+- 其它线程接收到主线程的“Send Begin Loop Data” Job发送的开始主循环的指令后，开始运行自己的X Pipeline
+
+- 主线程的每个“Send XWorker Data” Job将数据发送到对应的一个其它线程，该其它线程的“Get XWorker Data” Job获得该数据
+
+- 所有其它线程的“Send Finish XWorker Data” Job将结束指定发送到主线程；主线程的对应的“Get Finish Send XWorker Data” Job等待接收该指定
+
+
+
 
 ## 角色的抽象代码？
+
+下面我们来看看各个角色的抽象代码：
+
+
+首先，我们看下主线程中用户模块的代码；
+然后，我们看下主线程在初始化阶段运行的Init Pipeline的Job的代码；
+然后，我们看下X Worker线程中用户模块的代码；
+然后，我们看下X Worker线程在初始化阶段运行的Init Pipeline的Job的代码；
+
+在看完了初始化阶段后，我们就会看下主循环阶段的相关代码，具体步骤如下：
+首先，我们看下主线程的Update Pipeline的Job的代码；
+然后，我们看下X Worker线程的X Pipeline的Job的代码；
+最后，我们看下主线程的Sync Pipeline的Job的代码；
+
+
+
+
+
+- 主线程中用户模块的代码
+Client
+```ts
+let isUseWorker = true
+
+let dataOrientedComponent1Count = xxx
+
+globalThis.dataOrientedComponent1Count = dataOrientedComponent1Count
+
+globalThis.maxRenderGameObjectCount = xxx
+
+
+let worldState = createState({ dataOrientedComponent1Count })
+
+worldState = _createScene(worldState)
+
+if (isUseWorker) {
+    worldState = registerWorkerAllPipelines(worldState)
+}
+else {
+    console.log("registerNoWorkerAllPipelines...")
+}
+
+let canvas = document.querySelector("#canvas")
+
+
+
+let _loop = (worldState: worldState) => {
+    update(worldState).then(worldState => {
+        let handlePromise
+
+        if (isUseWorker) {
+            handlePromise = sync(worldState)
+        }
+        else {
+            handlePromise = render(worldState)
+        }
+
+        handlePromise.then(worldState => {
+            console.log("after sync")
+
+            requestAnimationFrame(
+                (time) => {
+                    _loop(worldState)
+                }
+            )
+        })
+    })
+}
+
+init(worldState, canvas).then(worldState => {
+    _loop(worldState)
+})
+```
+
+- 主线程在初始化阶段运行的Init Pipeline的Job的代码
+CreateWorkerInstanceJob
+```ts
+export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
+    let states = getStatesFunc<worldState, states>(worldState)
+
+    return mostService.callFunc(() => {
+        let xWorkerWorker = new Worker(new URL("../../../x_worker/XWorkerMain", import.meta.url))
+
+        return setStatesFunc<worldState, states>(
+            worldState,
+            setState(states, {
+                ...getState(states),
+                xWorkerWorker
+            })
+        )
+    })
+}
+```
+CreateXWorkerDataBufferJob
+```ts
+let _getMaxXxxCount = () => (globalThis as any).xxx
+
+let _getStride = () => xxx
+
+export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
+	let states = getStatesFunc<worldState, states>(worldState)
+
+	return mostService.callFunc(() => {
+		let buffer = new SharedArrayBuffer(
+			_getMaxXxxCount() * _getStride()
+		)
+
+		let xWorkerDataBufferTypeArray = new Float32Array | Uint8Array | Uint16Array | Uint32Array(buffer)
+
+		return setStatesFunc<worldState, states>(
+			worldState,
+			setState(states, {
+				...getState(states),
+				xWorkerDataBuffer: buffer,
+				xWorkerDataBufferTypeArray: xWorkerDataBufferTypeArray
+			})
+		)
+	})
+}
+```
+SendInitXWorkerDataJob
+```ts
+export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
+	let states = getStatesFunc<worldState, states>(worldState)
+
+	let { xWorkerWorker, xWorkerDataBuffer } = getState(states)
+
+	return mostService.callFunc(() => {
+		xWorkerWorker = getExnFromStrictNull(xWorkerWorker)
+
+		let dataOrientedComponent1Count = (globalThis as any).dataOrientedComponent1Count
+
+		let allDataOrientedComponent1Indices = getAllDataOrientedComponent1s(getExnFromStrictNull(worldState.ecsData.dataOrientedComponent1ManagerState))
+
+		xWorkerWorker.postMessage({
+			command: "SEND_INIT_XWORKER_DATA",
+			xWorkerDataBuffer: getExnFromStrictNull(xWorkerDataBuffer),
+			allDataOrientedComponent1Indices: allDataOrientedComponent1Indices,
+			dataOrientedComponent1Count,
+			dataorientedComponent1Buffer: getExnFromStrictNull(worldState.ecsData.dataOrientedComponent1ManagerState).buffer,
+			otherData: xxx
+		})
+
+		return worldState
+	})
+}
+```
+GetFinishSendInitXWorkerDataJob
+```ts
+export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
+	let states = getStatesFunc<worldState, states>(worldState)
+
+	let { xWorkerWorker } = getState(states)
+
+	xWorkerWorker = getExnFromStrictNull(xWorkerWorker)
+
+	return createGetOtherWorkerDataStream(mostService, "FINISH_SEND_INIT_XWORKER_DATA", xWorkerWorker).map(() => {
+		return worldState
+	})
+}
+```
+
+### X Worker线程中用户模块的代码
+
+XWorkerMain
+```ts
+let _frame = (worldState: worldState) => {
+	return pipelineWhenLoop(worldState)
+}
+
+let _registerAllPipelines = (worldState: worldState): worldState => {
+	let pipelineManagerState = registerPipeline(
+		unsafeGetPipeManagerState(worldState),
+		getXWorkerPipeline(),
+		[]
+	)
+
+	return setPipeManagerState(worldState, pipelineManagerState)
+}
+
+let worldState = createStateForWorker()
+
+worldState = _registerAllPipelines(worldState)
+
+
+let tempWorldState: worldState | null = null
+
+init(worldState).then(worldState => {
+	tempWorldState = worldState
+})
+
+mostService.drain(
+	mostService.tap(
+		(_) => {
+			_frame(getExnFromStrictNull(tempWorldState)).then((worldState) => {
+				tempWorldState = worldState
+			})
+		},
+		mostService.filter(
+			(event) => {
+				return event.data.command === "SEND_BEGIN_LOOP";
+			},
+			mostService.fromEvent<MessageEvent, Window & typeof globalThis>("message", self, false)
+		)
+	)
+)
+```
+
+
+### X Worker线程在初始化阶段运行的Init Pipeline的Job的代码
+
+GetInitXWorkerDataJob
+```ts
+export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
+    let states = getStatesFunc<worldState, states>(worldState)
+
+    let xWorkerDataBuffer: SharedArrayBuffer
+    let allDataOrientedComponent1Indices: Array<number>
+    let dataOrientedComponent1Count: number
+    let dataOrientedComponent1Buffer: SharedArrayBuffer
+    let otherData
+
+    return createGetMainWorkerDataStream(
+        mostService,
+        (event: MessageEvent) => {
+            xWorkerDataBuffer = event.data.xWorkerDataBuffer
+            allDataOrientedComponent1Indices = event.data.allDataOrientedComponent1Indices
+            dataOrientedComponent1Count = event.data.dataOrientedComponent1Count
+            dataOrientedComponent1Buffer = event.data.dataOrientedComponent1Buffer
+            otherData = event.data.otherData
+        },
+        "SEND_INIT_XWORKER_DATA",
+        self as any as Worker
+    ).map(() => {
+        return setStatesFunc<worldState, states>(
+            worldState,
+            setState(states, {
+                ...getState(states),
+                xWorkerDataBuffer: xWorkerDataBuffer,
+                allDataOrientedComponent1Indices: allDataOrientedComponent1Indices,
+                dataOrientedComponent1Count: dataOrientedComponent1Count,
+                dataOrientedComponent1Buffer: dataOrientedComponent1Buffer,
+                otherData: otherData
+            })
+        )
+    })
+}
+```
+InitDataOrientedComponentsJob
+```ts
+export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
+    let states = getStatesFunc<worldState, states>(worldState)
+
+    let { dataOrientedComponent1Count, dataOrientedComponent1Buffer } = getState(states)
+
+    return mostService.callFunc(() => {
+        return createDataOrientedComponentStates(worldState, dataOrientedComponent1Count, dataOrientedComponent1Buffer)
+    })
+}
+```
+CreateXWorkerDataBufferTypeArrayJob
+```ts
+export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
+    let states = getStatesFunc<worldState, states>(worldState)
+
+    let state = getState(states)
+
+    return mostService.callFunc(() => {
+        let xWorkerDataBufferTypeArray = new Float32Array | Uint8Array | Uint16Array | Uint32Array(getExnFromStrictNull(state.xWorkerDataBuffer))
+
+        return setStatesFunc<worldState, states>(
+            worldState,
+            setState(states, {
+                ...state,
+                typeArray: xWorkerDataBufferTypeArray
+            })
+        )
+    })
+}
+```
+DoSomethingJob
+```ts
+export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
+    let states = getStatesFunc<worldState, states>(worldState)
+
+    return mostService.callFunc(() => {
+        console.log("do something")
+
+        // update self data
+        return setStatesFunc<worldState, states>(
+            worldState,
+            setState(states, {
+                ...getState(states),
+                xxx: xxx
+            })
+        )
+    })
+}
+```
+SendFinishInitXWorkerDataJob
+```ts
+export let exec: execType<worldState> = (worldState, _) => {
+    return mostService.callFunc(() => {
+        postMessage({
+            command: "FINISH_SEND_INIT_XWORKER_DATA"
+        })
+
+        return worldState
+    })
+}
+```
+
+### 主线程的Update Pipeline的Job的代码
+
+UpdateXWorkerDataBufferJob
+```ts
+export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
+	let states = getStatesFunc<worldState, states>(worldState)
+
+	let state = getState(states)
+
+	return mostService.callFunc(() => {
+		console.log("update xWorkerDataBufferTypeArray")
+
+		return setStatesFunc<worldState, states>(
+			worldState,
+			setState(states, {
+				...state,
+				xWorkerDataBufferTypeArray
+			})
+		)
+	})
+}
+```
+SendBeginLoopDataJob
+```ts
+export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
+	let states = getStatesFunc<worldState, states>(worldState)
+
+	let { xWorkerWorker } = getState(states)
+
+	return mostService.callFunc(() => {
+		xWorkerWorker = getExnFromStrictNull(xWorkerWorker)
+
+		xWorkerWorker.postMessage({
+			command: "SEND_BEGIN_LOOP"
+		})
+
+		return worldState
+	})
+}
+```
+SendXWorkerDataJob
+```ts
+export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
+	let states = getStatesFunc<worldState, states>(worldState)
+
+	let { xWorkerWorker } = getState(states)
+
+	return mostService.callFunc(() => {
+		xWorkerWorker = getExnFromStrictNull(xWorkerWorker)
+
+		xWorkerWorker.postMessage({
+			command: "SEND_XWORKER_DATA",
+			someData:xxx
+		})
+
+		return worldState
+	})
+}
+```
+DoSomethingJob
+```ts
+export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
+    let states = getStatesFunc<worldState, states>(worldState)
+
+    return mostService.callFunc(() => {
+        console.log("do something")
+
+        // update self data
+        return setStatesFunc<worldState, states>(
+            worldState,
+            setState(states, {
+                ...getState(states),
+                xxx: xxx
+            })
+        )
+    })
+}
+```
+
+
+### X Worker线程的X Pipeline的Job的代码
+
+
+GetXWorkerDataJob
+```ts
+export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
+    let states = getStatesFunc<worldState, states>(worldState)
+
+    let someData
+
+    return createGetMainWorkerDataStream(
+        mostService,
+        (event: MessageEvent) => {
+            someData = event.data.someData
+        },
+        "SEND_XWORKER_DATA",
+        self as any as Worker
+    ).map(() => {
+        return setStatesFunc<worldState, states>(
+            worldState,
+            setState(states, {
+                ...getState(states),
+                someData
+            })
+        )
+    })
+}
+```
+DoSomethingJob
+```ts
+export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
+    let states = getStatesFunc<worldState, states>(worldState)
+
+    return mostService.callFunc(() => {
+        console.log("do something")
+
+        // update self data
+        return setStatesFunc<worldState, states>(
+            worldState,
+            setState(states, {
+                ...getState(states),
+                xxx: xxx
+            })
+        )
+    })
+}
+```
+SendFinishXWorkerDataJob
+```ts
+export let exec: execType<worldState> = (worldState, _) => {
+	return mostService.callFunc(() => {
+		postMessage({
+			command: "FINISH_SEND_XWORKER_DATA"
+		})
+
+		return worldState
+	})
+}
+```
+
+
+### 主线程的Sync Pipeline的Job的代码
+
+GetFinishXWorkerDataJob
+```ts
+export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
+	let states = getStatesFunc<worldState, states>(worldState)
+
+	let { xWorkerWorker } = getState(states)
+
+	xWorkerWorker = getExnFromStrictNull(xWorkerWorker)
+
+	return createGetOtherWorkerDataStream(mostService, "FINISH_SEND_XWORKER_DATA", xWorkerWorker).map(() => {
+		return worldState
+	})
+}
+```
+UpdateSharedDataJob
+```ts
+export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
+    let states = getStatesFunc<worldState, states>(worldState)
+
+    let state = getState(states)
+
+    return mostService.callFunc(() => {
+        console.log("update shared data between workers: e.g. data oriented component1's typeArrays")
+
+        return worldState
+    })
+}
+```
+
+
+
+
+
+
 ## 遵循的设计原则在UML中的体现？
 
 
+TODO finish
 
 
 # 应用
 
 ## 优点
 
+- 提高了性能
+
+
 ## 缺点
+
+- 需要同时维护单线程和多线程的管道代码
+
+- 需要考虑考虑线程之间的同步
+
+
 
 ## 使用场景
 
 ### 场景描述
 
-<!-- ### 解决方案 -->
+需要渲染大型场景或者有并行逻辑的系统
 
 ### 具体案例
 
-<!-- ## 实现该场景需要修改模式的哪些角色？ -->
-<!-- ## 使用模式有什么好处？ -->
+- 需要渲染大型场景
+
+可以将渲染的逻辑从主线程移到一个渲染线程来并行地执行
+
+- 开多个线程来并行地执行一些逻辑，如加载超大模型、进行复杂计算等逻辑
+可以开一个线程去加载超大模型，开一个线程去进行复杂计算；
+每帧的最后在主线程进行同步
+
+
+
 
 ## 注意事项
+
+- 如果有其它线程需要写主线程的数据，则需要在主线程进行同步
 
 
 # 扩展
 
-more disscuss:
+- 如果材质有纹理，则需要将图片从主线程传到渲染线程，这可以通过浏览器的transferFromImageBitmap API来传送该图片
 
-defer init material?
-    shader index
-
-defer dispose?
-
-
-handle texture:
-send image by transferFromImageBitmap
-
-
-
-
-
-加载模型线程:
-    ecs buffer->set copied gameObject, components data in load worker?
-
-
+- 如果是现代图形API，如DX12/Vulkan/Metal/WebGPU，则支持开多个而不是一个渲染线程来渲染
 
 
 # 结合其它模式
 
 ## 结合哪些模式？
-结合管道模式
+
+## 结合ECS模式
+
+使用ECS模式中的Manager层和Component+GameObject层来实现场景
+<!-- 这样做的好处是将场景数据保存在组件的Buffer中，Buffer如果是SharedArrayBuffer的话，可以直接在线程之间共享而无需拷贝，提高了多线程的性能 -->
 
 
 
-结合ECS模式
-## 使用场景是什么？
+
+## 结合管道模式
+
+在单线程、多线程运行环境下分别注册不同的管道来实现对应的逻辑
+
+
+
+<!-- ## 使用场景是什么？
 ## UML如何变化？
-## 代码如何变化？
+## 代码如何变化？ -->
 
 
 
@@ -1887,20 +2439,29 @@ send image by transferFromImageBitmap
 
 <!-- ## 结合具体项目实践经验，如何应用模式来改进项目？ -->
 ## 哪些场景不需要使用模式？
+
+
+如果场景较小，或者没有并行逻辑，则不需要使用多线程模式来开多个线程，而只使用主线程即可
+
 <!-- ## 哪些场景需要使用模式？ -->
 ## 给出具体的实践案例？
 
 
+- 延迟删除
 
-切换no worker, worker pipeline
+删除场景数据（如删除一个组件或者gameObject）会影响主线程的场景数据，应该这样处理：
+删除场景数据的API并没有真正地删除，而只是将要删除的数据标记为删除；
+然后等到同步阶段（运行主线程的Sync Pipeline时）再真正地将其删除
+
+
+- 通过切换管道，来同时支持单线程和多线程的运行环境
 
 
 
 # 更多资料推荐
 
 
-游戏引擎一般都支持多线程
+因为游戏的场景一般都比较大，所以游戏引擎一般都支持多线程
 
 
-[JavaScript in parallel](https://50linesofco.de/post/2017-02-06-javascript-in-parallel-web-workers-transferables-and-sharedarraybuffer)
-[WebGL Off the Main Thread](https://hacks.mozilla.org/2016/01/webgl-off-the-main-thread/)
+顽皮狗在GDC上提出了Fiber架构，支持多线程。它也使用了管道模式，具体可在网上搜索“Parallelizing the Naughty Dog Engine using Fibers”

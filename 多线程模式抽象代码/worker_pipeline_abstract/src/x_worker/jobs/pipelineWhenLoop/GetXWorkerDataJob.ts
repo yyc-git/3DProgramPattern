@@ -15,7 +15,7 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
         (event: MessageEvent) => {
             someData = event.data.someData
         },
-        "SEND_WORKERX_DATA",
+        "SEND_XWORKER_DATA",
         self as any as Worker
     ).map(() => {
         return setStatesFunc<worldState, states>(

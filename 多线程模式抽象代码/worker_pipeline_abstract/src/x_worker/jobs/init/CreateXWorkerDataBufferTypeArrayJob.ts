@@ -11,7 +11,7 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
     let state = getState(states)
 
     return mostService.callFunc(() => {
-        let xWorkerDataBufferTypeArray = new Uint32Array(getExnFromStrictNull(state.xWorkerDataBuffer))
+        let xWorkerDataBufferTypeArray = new Float32Array | Uint8Array | Uint16Array | Uint32Array(getExnFromStrictNull(state.xWorkerDataBuffer))
 
         return setStatesFunc<worldState, states>(
             worldState,

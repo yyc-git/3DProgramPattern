@@ -23,7 +23,7 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
             dataOrientedComponent1Buffer = event.data.dataOrientedComponent1Buffer
             otherData = event.data.otherData
         },
-        "SEND_INIT_WORKERX_DATA",
+        "SEND_INIT_XWORKER_DATA",
         self as any as Worker
     ).map(() => {
         return setStatesFunc<worldState, states>(
