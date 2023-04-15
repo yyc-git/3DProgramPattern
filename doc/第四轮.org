@@ -1,4 +1,4 @@
-* TODO 修改结构，改成正式成书的结构
+* TODO 修改结构，改成正式成书的结构(use markdown)
 
 
 * TODO 更新代码库，给出索引、how to run

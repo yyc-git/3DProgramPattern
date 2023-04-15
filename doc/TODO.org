@@ -310,10 +310,12 @@ finish TODO
 ** DONE update article 1
 
 
-* TODO finish multithread pattern article
+* DONE finish multithread pattern article
 
 
-** TODO update article 1
+** DONE update article 1
+
+去掉重复代码
 
 
 # * TODO 修改接口为type，《type》

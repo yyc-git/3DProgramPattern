@@ -63,7 +63,7 @@ let worldState = createState()
 worldState = _createScene(worldState)
 ```
 
-我们首先创建了worldState，用来保存所有的数据；
+我们首先创建了WorldState，用来保存所有的数据；
 然后创建了场景，包括两个普通英雄和两个超级英雄，其中第一个普通英雄进行了移动，第一个超级英雄进行了移动和飞行
 
 
@@ -77,7 +77,7 @@ export let createState = (): worldState => {
 }
 ```
 
-createState函数创建并返回了worldState，它包括两个分别用来保存所有的normalHero和所有的superHero的容器-Hash Map
+createState函数创建并返回了WorldState，它包括两个分别用来保存所有的normalHero和所有的superHero的容器-Hash Map
 
 
 
@@ -127,7 +127,7 @@ export let api = {
 我们将一个英雄的数据保存在一个state中，然后用一个索引与其关联。具体就是：
 normalHero、superHero其实就是一个number类型的id值
 normalHeroState、superHeroState分别保存了一个普通英雄、一个超级英雄的数据（比如position、velocity）
-normalHero与normalHeroState一一关联，这个关联体现在前者是worldState->normalHeros这个Hash Map的Key，后者是它的Value
+normalHero与normalHeroState一一关联，这个关联体现在前者是WorldState->normalHeros这个Hash Map的Key，后者是它的Value
 同理，superHero与superHeroState关联
 
 World封装了操作Hero的API
@@ -392,7 +392,7 @@ OneByOne渲染 SuperHero...
 首先进行了初始化；
 然后更新了所有的人物，包括两个普通英雄和两个超级英雄；
 然后依次渲染了2个超级英雄，以及一次性批量渲染了所有的普通英雄；
-最后打印了worldState
+最后打印了WorldState
 
 我们看到normalHeros中有一个的position为[2,2,2]，说明该普通英雄进行了move操作；superHeros中有一个的position为[6,6,6]，说明该超级英雄进行了move和fly操作
 normalHeros和superHeros中的Key因为是随机生成的id值，所以每次打印时值都不一样
@@ -525,7 +525,7 @@ export let createState = (): worldState => {
 }
 ```
 
-createState函数创建并返回了worldState，它现在是包括所有的GameObject的容器Hash Map
+createState函数创建并返回了WorldState，它现在是包括所有的GameObject的容器Hash Map
 
 
 
@@ -577,7 +577,7 @@ export let api = {
 这里与之前一样，我们将一个GameObject的数据保存在一个state中，然后用一个索引与其关联。具体就是：
 gameObject其实就是一个number类型的id值，
 gameObjectState保存了一个GameObject的数据
-gameObject与gameObjectState一一关联，这个关联体现在前者是worldState->gameObjects这个Hash Map的Key，后者是它的Value
+gameObject与gameObjectState一一关联，这个关联体现在前者是WorldState->gameObjects这个Hash Map的Key，后者是它的Value
 
 World封装了操作GameObject和组件的API
 
@@ -865,10 +865,10 @@ OneByOne渲染 SuperHero...
 运行结果的步骤与之前一样
 不同之处在于：
 更新人物变为更新positionComponent；
-打印的worldState不一样
+打印的WorldState不一样
 
 
-我们看下打印的worldState：
+我们看下打印的WorldState：
 gameObjects包括了4个gameObject的数据；
 有一个gameObject的positionComponent的position为[2,2,2]，说明该gameObject进行了move操作；
 有一个gameObject的positionComponent的position为[6,6,6]，说明该gameObject进行了move和fly操作
@@ -931,7 +931,7 @@ World不再管理所有的gameObject，但是仍然实现了初始化和主循�
 
 我们看下System这一层：
 有多个System，每个System实现一个行为逻辑
-其中，CreateStateSystem实现创建worldState的逻辑，worldState包括了所有的Manager的state；
+其中，CreateStateSystem实现创建WorldState的逻辑，WorldState包括了所有的Manager的state；
 UpdateSystem实现更新所有人物的position的逻辑，具体是更新所有PositionComponent的position；
 MoveSystem实现一个人物的移动，具体是使用了挂载到该人物对应的 gameObject上的一个positionComponent和一个velocityComponent，更新了该positionComponent的position；
 FlySystem实现一个人物的飞行，具体是使用了挂载到该人物对应的gameObject上的一个positionComponent、一个velocityComponent、一个flyComponent，更新了该positionComponent的position；
@@ -976,7 +976,7 @@ Client代码:
 let worldState = createState({ positionComponentCount: 10, velocityComponentCount: 10, flyComponentCount: 10 })
 ```
 
-这里通过调用CreateStateSystem的createState函数来创建worldState
+这里通过调用CreateStateSystem的createState函数来创建WorldState
 
 现在我们来看下CreateStateSystem的createState代码：
 ```ts
@@ -991,7 +991,7 @@ export let createState = ({ positionComponentCount, velocityComponentCount, flyC
 }
 ```
 
-createState函数创建的worldState包括了各个Manager的state
+createState函数创建的WorldState包括了各个Manager的state
 
 因为Data Oriented组件的state在创建时要创建包括该种组件的所有组件数据的ArrayBuffer，所以需要知道组件的最大个数，因此这里的createState函数接收了三种Data Oriented组件的最大个数
 
@@ -1489,10 +1489,10 @@ OneByOne渲染 SuperHero...
 
 运行结果的步骤与之前一样
 不同之处在于：
-打印的worldState不一样
+打印的WorldState不一样
 
 
-我们看下打印的worldState：
+我们看下打印的WorldState：
 gameObjectManagetState的maxUID为4，说明创建了4个gameObject；
 positionComponentManagerState的maxIndex为4，说明创建了4个positionComponent；
 positionComponentManagerState的positions有3个连续的值是2、2、2，说明进行了一次move操作；有另外3个连续的值是6、6、6，说明进行了一次move操作和一次fly操作；
@@ -1542,7 +1542,7 @@ Component+GameObject层为组件和GameObject，它们现在只是有一个numbe
 下面的角色属于System层：
 
 - CreateStateSystem
-该角色负责创建worldState
+该角色负责创建WorldState
 
 - OtherSystem
 该角色代表除了CreateStateSystem以外的System
