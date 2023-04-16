@@ -321,11 +321,11 @@ finish TODO
 # * TODO 修改接口为type，《type》
 
 
-* TODO finish dependent pattern article
+* DONE finish dependent pattern article
 
-** TODO draft
+** DONE draft
 
-** TODO edit:统一格式; update 使用场景：推广; rename IRenderEngine to RenderEngine； replace Onion architecture image
+** DONE edit:统一格式; update 使用场景：推广; rename IRenderEngine to RenderEngine； replace Onion architecture image
 
 
 
