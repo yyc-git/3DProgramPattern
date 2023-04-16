@@ -1,5 +1,5 @@
 import { createScene, injectDependencies } from "./Editor";
-import { implement } from "./ThreeImplement";
+import { implement } from "./BabylonImplement";
 
 injectDependencies(implement())
 

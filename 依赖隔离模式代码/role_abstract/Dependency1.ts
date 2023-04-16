@@ -1,7 +1,7 @@
 type abstractType1 = any;
 ...
 
-export interface IDependency1 {
+export interface Dependency1 {
     abstractAPI1(): abstractType1,
     ...
 }

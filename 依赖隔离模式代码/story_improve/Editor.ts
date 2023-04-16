@@ -1,8 +1,8 @@
 import { getRenderEngine, setRenderEngine } from "./DependencyContainer";
-import { IRenderEngine } from "./IRenderEngine";
+import { RenderEngine } from "./RenderEngine";
 
-export let injectDependencies = function (threeImplement: IRenderEngine) {
-	setRenderEngine(threeImplement);
+export let injectDependencies = function (implement: RenderEngine) {
+	setRenderEngine(implement);
 };
 
 export let createScene = function () {

@@ -1,10 +1,10 @@
-import { IDependency1 } from "./IDependency1";
+import { Dependency1 } from "./Dependency1";
 import {
 	api1,
 ...
 } from "dependencylibrary1";
 
-export let implement = (): IDependency1 => {
+export let implement = (): Dependency1 => {
 	return {
 		abstractAPI1: () => {
 			...
