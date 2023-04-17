@@ -30,33 +30,33 @@ Client代码:
 
 ```ts
 let _createScene = (worldState: worldState): worldState => {
-    let normalHero1Data = api.normalHero.create()
-    let normalHero1 = normalHero1Data[1]
+    let normalHero1Data = api.normalHero.create();
+    let normalHero1 = normalHero1Data[1];
 
-    worldState = addNormalHero(worldState, normalHero1Data)
+    worldState = addNormalHero(worldState, normalHero1Data);
 
     //创建和加入normalHero2...
-    worldState = api.normalHero.move(worldState, normalHero1)
+    worldState = api.normalHero.move(worldState, normalHero1);
 
 
-    let superHero1Data = api.superHero.create()
-    let superHero1 = superHero1Data[1]
+    let superHero1Data = api.superHero.create();
+    let superHero1 = superHero1Data[1];
 
-    worldState = addSuperHero(worldState, superHero1Data)
+    worldState = addSuperHero(worldState, superHero1Data);
 
     //创建和加入superHero2...
 
 
-    worldState = api.superHero.move(worldState, superHero1)
-    worldState = api.superHero.fly(worldState, superHero1)
+    worldState = api.superHero.move(worldState, superHero1);
+    worldState = api.superHero.fly(worldState, superHero1);
 
 
-    return worldState
+    return worldState;
 }
 
-let worldState = createState()
+let worldState = createState();
 
-worldState = _createScene(worldState)
+worldState = _createScene(worldState);
 ```
 
 我们首先创建了WorldState，用来保存所有的数据；
@@ -69,8 +69,8 @@ export let createState = (): worldState => {
     return {
         normalHeroes: Map(),
         superHeroes: Map()
-    }
-}
+    };
+};
 ```
 
 createState函数创建并返回了WorldState，它包括两个分别用来保存所有的normalHero
@@ -89,8 +89,8 @@ export let setNormalHeroState = (
     return {
         ...worldState,
         normalHeroes: worldState.normalHeroes.set(normalHero, normalHeroState)
-    }
-}
+    };
+};
 
 export let setSuperHeroState = (
     worldState: worldState,
@@ -100,8 +100,8 @@ export let setSuperHeroState = (
     return {
         ...worldState,
         superHeroes: worldState.superHeroes.set(superHero, superHeroState)
-    }
-}
+    };
+};
 ```
 
 World
@@ -111,15 +111,15 @@ export let addNormalHero = (
     worldState: worldState,
     [normalHeroState, normalHero]
 ): worldState => {
-    return setNormalHeroState(worldState, normalHero, normalHeroState)
-}
+    return setNormalHeroState(worldState, normalHero, normalHeroState);
+};
 
 export let addSuperHero = (
     worldState: worldState,
     [superHeroState, superHero]
 ): worldState => {
-    return setSuperHeroState(worldState, superHero, superHeroState)
-}
+    return setSuperHeroState(worldState, superHero, superHeroState);
+};
 
 //...
 
@@ -133,7 +133,7 @@ export let api = {
         move: SuperHero.move,
         fly: SuperHero.fly
     }
-}
+};
 ```
 
 我们将一个英雄的数据保存在一个state中，然后用一个索引与其关联。具体就是：
@@ -152,7 +152,7 @@ WorldUtils
 ```ts
 export let getNormalHeroState = (worldState: worldState, normalHero: normalHero): normalHeroState => {
     return worldState.normalHeroes.get(normalHero)
-}
+};
 
 export let setNormalHeroState = (
     worldState: worldState,
@@ -162,8 +162,8 @@ export let setNormalHeroState = (
     return {
         ...worldState,
         normalHeroes: worldState.normalHeroes.set(normalHero, normalHeroState)
-    }
-}
+    };
+};
 ```
 
 NormalHero
@@ -173,32 +173,32 @@ export let create = (): [normalHeroState, normalHero] => {
     let normalHeroState: normalHeroState = {
         position: [0, 0, 0],
         velocity: 1.0
-    }
+    };
 
-    let id = generateId()
+    let id = generateId();
 
     return [
         normalHeroState,
         id
-    ]
-}
+    ];
+};
 
 //...
 
 export let move = (worldState: worldState, normalHero: normalHero): worldState => {
-    let normalHeroState = getNormalHeroState(worldState, normalHero)
+    let normalHeroState = getNormalHeroState(worldState, normalHero);
 
-    let {position, velocity} = normalHeroState
+    let {position, velocity} = normalHeroState;
 
-    let [x, y, z] = position
+    let [x, y, z] = position;
 
     return setNormalHeroState(worldState, normalHero,
         {
             ...normalHeroState,
             position: [x + velocity, y + velocity, z + velocity]
         }
-    )
-}
+    );
+};
 ```
 
 move函数实现了移动的逻辑，更新了normalHero的position
@@ -208,16 +208,16 @@ WorldUtils
 
 ```ts
 export let getSuperHeroState = (worldState: worldState, superHero: superHero): superHeroState => {
-    return worldState.superHeroes.get(superHero)
-}
+    return worldState.superHeroes.get(superHero);
+};
 
 
 export let setSuperHeroState = (worldState: worldState, superHero: superHero, superHeroState: superHeroState) => {
     return {
         ...worldState,
         superHeroes: worldState.superHeroes.set(superHero, superHeroState)
-    }
-}
+    };
+};
 ```
 
 SuperHero
@@ -228,47 +228,47 @@ export let create = (): [superHeroState, superHero] => {
         position: [0, 0, 0],
         velocity: 1.0,
         maxFlyVelocity: 10.0
-    }
+    };
 
-    let id = generateId()
+    let id = generateId();
 
     return [
         superHeroState,
         id
-    ]
-}
+    ];
+};
 
 export let move = (worldState: worldState, superHero: superHero): worldState => {
-    let superHeroState = getSuperHeroState(worldState, superHero)
+    let superHeroState = getSuperHeroState(worldState, superHero);
 
-    let {position, velocity} = superHeroState
+    let {position, velocity} = superHeroState;
 
-    let [x, y, z] = position
+    let [x, y, z] = position;
 
     return setSuperHeroState(worldState, superHero,
         {
             ...superHeroState,
             position: [x + velocity, y + velocity, z + velocity]
         }
-    )
-}
+    );
+};
 
 export let fly = (worldState: worldState, superHero: superHero): worldState => {
-    let superHeroState = getSuperHeroState(worldState, superHero)
+    let superHeroState = getSuperHeroState(worldState, superHero);
 
-    let {position, velocity, maxFlyVelocity} = superHeroState
+    let {position, velocity, maxFlyVelocity} = superHeroState;
 
-    let [x, y, z] = position
+    let [x, y, z] = position;
 
-    velocity = velocity < maxFlyVelocity ? (velocity * 2.0) : maxFlyVelocity
+    velocity = velocity < maxFlyVelocity ? (velocity * 2.0) : maxFlyVelocity;
 
     return setSuperHeroState(worldState, superHero,
         {
             ...superHeroState,
             position: [x + velocity, y + velocity, z + velocity]
         }
-    )
-}
+    );
+};
 ```
 
 superHero的move的逻辑跟normalHero的move的逻辑一样
@@ -279,9 +279,9 @@ fly函数实现了飞行的逻辑，它跟move函数一样，也是更新了supe
 Client
 
 ```ts
-worldState = init(worldState)
+worldState = init(worldState);
 
-loop(worldState, [update, renderOneByOne, renderInstances])
+loop(worldState, [update, renderOneByOne, renderInstances]);
 ```
 
 这里进行了初始化；
@@ -294,15 +294,14 @@ utils->World
 
 ```ts
 export let loop = (worldState, [update, renderOneByOne, renderInstances]) => {
-    worldState = update(worldState)
-...
-
+    worldState = update(worldState);
+//...
     requestAnimationFrame(
         (time) => {
             loop(worldState, [update, renderOneByOne, renderInstances])
         }
-    )
-}
+    );
+};
 ```
 
 在每次主循环中，进行了更新
@@ -314,13 +313,13 @@ World
 export let update = (worldState: worldState): worldState => {
     return {
         normalHeroes: worldState.normalHeroes.map(normalHeroState => {
-            return NormalHero.update(normalHeroState)
+            return NormalHero.update(normalHeroState);
         }),
         superHeroes: worldState.superHeroes.map(superHeroState => {
-            return SuperHero.update(superHeroState)
+            return SuperHero.update(superHeroState);
         })
-    }
-}
+    };
+};
 ```
 
 更新update函数会遍历所有的normalHero和superHero，调用它们的update函数来更新自己
@@ -329,18 +328,18 @@ export let update = (worldState: worldState): worldState => {
 
 ```ts
 export let update = (normalHeroState: normalHeroState): normalHeroState => {
-    console.log("更新NormalHero")
+    console.log("更新NormalHero");
 
-    let [x, y, z] = normalHeroState.position
+    let [x, y, z] = normalHeroState.position;
 
     //更新position
-    let newPosition: [number, number, number] = [x * 2.0, y * 2.0, z * 2.0]
+    let newPosition: [number, number, number] = [x * 2.0, y * 2.0, z * 2.0];
 
     return {
         ...normalHeroState,
         position: newPosition
-    }
-}
+    };
+};
 ```
 
 它更新了自己的position
@@ -350,19 +349,19 @@ export let update = (normalHeroState: normalHeroState): normalHeroState => {
 
 ```ts
 export let update = (superHeroState: superHeroState): superHeroState => {
-    console.log("更新SuperHero")
+    console.log("更新SuperHero");
 
-    let [x, y, z] = superHeroState.position
+    let [x, y, z] = superHeroState.position;
 
     //更新position
-    let newPosition: [number, number, number] = [x * 2.0, y * 2.0, z * 2.0]
+    let newPosition: [number, number, number] = [x * 2.0, y * 2.0, z * 2.0];
 
 
     return {
         ...superHeroState,
         position: newPosition
-    }
-}
+    };
+};
 ```
 
 它的逻辑跟NormalHero的update是一样的，这是因为两者都使用同样的算法来更新自己的position
@@ -372,11 +371,11 @@ utils->World
 
 ```ts
 export let loop = (worldState, [update, renderOneByOne, renderInstances]) => {
-    worldState = update(worldState)
-    renderOneByOne(worldState)
-    renderInstances(worldState)
-...
-}
+    worldState = update(worldState);
+    renderOneByOne(worldState);
+    renderInstances(worldState);
+//...
+};
 ```
 
 World
@@ -384,15 +383,15 @@ World
 ```ts
 export let renderOneByOne = (worldState: worldState): void => {
     worldState.superHeroes.forEach(superHeroState => {
-        console.log("OneByOne渲染 SuperHero...")
-    })
-}
+        console.log("OneByOne渲染 SuperHero...");
+    });
+};
 
 export let renderInstances = (worldState: worldState): void => {
-    let normalHeroStates = worldState.normalHeroes
+    let normalHeroStates = worldState.normalHeroes;
 
-    console.log("批量Instance渲染 NormalHeroes...")
-}
+    console.log("批量Instance渲染 NormalHeroes...");
+};
 ```
 
 渲染时，首先通过renderOneByOne函数来一个一个地渲染每个超级英雄；然后通过renderInstances函数来一次性批量渲染所有的普通英雄
@@ -482,7 +481,7 @@ let _createScene = (worldState: worldState): worldState => {
     worldState = addGameObject(worldState, [normalHero1State, normalHero1])
 
     创建和加入normalHero2
-...
+//...
 
     worldState = api.positionComponent.move(worldState, normalHero1)
 
