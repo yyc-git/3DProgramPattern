@@ -52,7 +52,7 @@ export let renderInstances = (worldState: worldState): void => {
         return hasInstanceComponent(gameObjectState)
     })
 
-    console.log("批量Instance渲染 NormalHeros...")
+    console.log("批量Instance渲染 NormalHeroes...")
 }
 
 export let api = {

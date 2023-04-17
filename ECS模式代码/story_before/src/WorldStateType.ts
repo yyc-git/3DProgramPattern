@@ -3,6 +3,6 @@ import { state as normalHeroState, hero as normalHero } from "./NormalHeroStateT
 import { state as superHeroState, hero as superHero } from "./SuperHeroStateType"
 
 export type state = {
-    normalHeros: Map<normalHero, normalHeroState>,
-    superHeros: Map<superHero, superHeroState>
+    normalHeroes: Map<normalHero, normalHeroState>,
+    superHeroes: Map<superHero, superHeroState>
 }
