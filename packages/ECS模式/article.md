@@ -71,8 +71,8 @@ worldState = _createScene(worldState)
 ```ts
 export let createState = (): worldState => {
     return {
-        normalHeros: Map(),
-        superHeros: Map()
+        normalHeroes: Map(),
+        superHeroes: Map()
     }
 }
 ```
@@ -87,14 +87,14 @@ WorldUtils
 export let setNormalHeroState = (worldState: worldState, normalHero: normalHero, normalHeroState: normalHeroState) => {
     return {
         ...worldState,
-        normalHeros: worldState.normalHeros.set(normalHero, normalHeroState)
+        normalHeroes: worldState.normalHeroes.set(normalHero, normalHeroState)
     }
 }
 
 export let setSuperHeroState = (worldState: worldState, superHero: superHero, superHeroState: superHeroState) => {
     return {
         ...worldState,
-        superHeros: worldState.superHeros.set(superHero, superHeroState)
+        superHeroes: worldState.superHeroes.set(superHero, superHeroState)
     }
 }
 ```
@@ -127,7 +127,7 @@ export let api = {
 我们将一个英雄的数据保存在一个state中，然后用一个索引与其关联。具体就是：
 normalHero、superHero其实就是一个number类型的id值
 normalHeroState、superHeroState分别保存了一个普通英雄、一个超级英雄的数据（比如position、velocity）
-normalHero与normalHeroState一一关联，这个关联体现在前者是WorldState->normalHeros这个Hash Map的Key，后者是它的Value
+normalHero与normalHeroState一一关联，这个关联体现在前者是WorldState->normalHeroes这个Hash Map的Key，后者是它的Value
 同理，superHero与superHeroState关联
 
 World封装了操作Hero的API
@@ -137,13 +137,13 @@ NormalHero的相关代码如下：
 WorldUtils
 ```ts
 export let getNormalHeroState = (worldState: worldState, normalHero: normalHero): normalHeroState => {
-    return worldState.normalHeros.get(normalHero)
+    return worldState.normalHeroes.get(normalHero)
 }
 
 export let setNormalHeroState = (worldState: worldState, normalHero: normalHero, normalHeroState: normalHeroState) => {
     return {
         ...worldState,
-        normalHeros: worldState.normalHeros.set(normalHero, normalHeroState)
+        normalHeroes: worldState.normalHeroes.set(normalHero, normalHeroState)
     }
 }
 ```
@@ -188,14 +188,14 @@ SuperHero的相关代码如下：
 WorldUtils
 ```ts
 export let getSuperHeroState = (worldState: worldState, superHero: superHero): superHeroState => {
-    return worldState.superHeros.get(superHero)
+    return worldState.superHeroes.get(superHero)
 }
 
 
 export let setSuperHeroState = (worldState: worldState, superHero: superHero, superHeroState: superHeroState) => {
     return {
         ...worldState,
-        superHeros: worldState.superHeros.set(superHero, superHeroState)
+        superHeroes: worldState.superHeroes.set(superHero, superHeroState)
     }
 }
 ```
@@ -291,10 +291,10 @@ World
 ```ts
 export let update = (worldState: worldState): worldState => {
     return {
-        normalHeros: worldState.normalHeros.map(normalHeroState => {
+        normalHeroes: worldState.normalHeroes.map(normalHeroState => {
             return NormalHero.update(normalHeroState)
         }),
-        superHeros: worldState.superHeros.map(superHeroState => {
+        superHeroes: worldState.superHeroes.map(superHeroState => {
             return SuperHero.update(superHeroState)
         })
     }
@@ -359,15 +359,15 @@ export let loop = (worldState, [update, renderOneByOne, renderInstances]) => {
 World
 ```ts
 export let renderOneByOne = (worldState: worldState): void => {
-    worldState.superHeros.forEach(superHeroState => {
+    worldState.superHeroes.forEach(superHeroState => {
         console.log("OneByOne渲染 SuperHero...")
     })
 }
 
 export let renderInstances = (worldState: worldState): void => {
-    let normalHeroStates = worldState.normalHeros
+    let normalHeroStates = worldState.normalHeroes
 
-    console.log("批量Instance渲染 NormalHeros...")
+    console.log("批量Instance渲染 NormalHeroes...")
 }
 ```
 
@@ -385,8 +385,8 @@ export let renderInstances = (worldState: worldState): void => {
 更新SuperHero
 OneByOne渲染 SuperHero...
 OneByOne渲染 SuperHero...
-批量Instance渲染 NormalHeros...
-{"normalHeros":{"144891":{"position":[0,0,0],"velocity":1},"648575":{"position":[2,2,2],"velocity":1}},"superHeros":{"497069":{"position":[6,6,6],"velocity":1,"maxFlyVelocity":10},"783438":{"position":[0,0,0],"velocity":1,"maxFlyVelocity":10}}}
+批量Instance渲染 NormalHeroes...
+{"normalHeroes":{"144891":{"position":[0,0,0],"velocity":1},"648575":{"position":[2,2,2],"velocity":1}},"superHeroes":{"497069":{"position":[6,6,6],"velocity":1,"maxFlyVelocity":10},"783438":{"position":[0,0,0],"velocity":1,"maxFlyVelocity":10}}}
 ```
 
 首先进行了初始化；
@@ -394,8 +394,8 @@ OneByOne渲染 SuperHero...
 然后依次渲染了2个超级英雄，以及一次性批量渲染了所有的普通英雄；
 最后打印了WorldState
 
-我们看到normalHeros中有一个的position为[2,2,2]，说明该普通英雄进行了move操作；superHeros中有一个的position为[6,6,6]，说明该超级英雄进行了move和fly操作
-normalHeros和superHeros中的Key因为是随机生成的id值，所以每次打印时值都不一样
+我们看到normalHeroes中有一个的position为[2,2,2]，说明该普通英雄进行了move操作；superHeroes中有一个的position为[6,6,6]，说明该超级英雄进行了move和fly操作
+normalHeroes和superHeroes中的Key因为是随机生成的id值，所以每次打印时值都不一样
 
 
 
@@ -841,7 +841,7 @@ export let renderInstances = (worldState: worldState): void => {
         return hasInstanceComponent(gameObjectState)
     })
 
-    console.log("批量Instance渲染 NormalHeros...")
+    console.log("批量Instance渲染 NormalHeroes...")
 }
 ```
 
@@ -858,7 +858,7 @@ export let renderInstances = (worldState: worldState): void => {
 更新PositionComponent
 OneByOne渲染 SuperHero...
 OneByOne渲染 SuperHero...
-批量Instance渲染 NormalHeros...
+批量Instance渲染 NormalHeroes...
 {"gameObjects":{"304480":{"positionComponent":{"gameObject":304480,"position":[0,0,0]},"velocityComponent":{"gameObject":304480,"velocity":1},"flyComponent":{"gameObject":304480,"maxVelocity":10},"instanceComponent":null},"666533":{"positionComponent":{"gameObject":666533,"position":[2,2,2]},"velocityComponent":{"gameObject":666533,"velocity":1},"flyComponent":null,"instanceComponent":{"gameObject":666533}},"838392":{"positionComponent":{"gameObject":838392,"position":[0,0,0]},"velocityComponent":{"gameObject":838392,"velocity":1},"flyComponent":null,"instanceComponent":{"gameObject":838392}},"936933":{"positionComponent":{"gameObject":936933,"position":[6,6,6]},"velocityComponent":{"gameObject":936933,"velocity":1},"flyComponent":{"gameObject":936933,"maxVelocity":10},"instanceComponent":null}}}
 ```
 
@@ -1465,7 +1465,7 @@ export let render = (worldState: worldState): void => {
         return hasInstanceComponent(worldState.instanceComponentManagerState, gameObject)
     })
 
-    console.log("批量Instance渲染 NormalHeros...")
+    console.log("批量Instance渲染 NormalHeroes...")
 }
 ```
 
@@ -1483,7 +1483,7 @@ RenderInstancesSystem则是获得所有挂载InstanceComponent组件的gameObjec
 更新PositionComponent: 3
 OneByOne渲染 SuperHero...
 OneByOne渲染 SuperHero...
-批量Instance渲染 NormalHeros...
+批量Instance渲染 NormalHeroes...
 {"gameObjectManagerState":{"maxUID":4},"positionComponentManagerState":{"maxIndex":4,"buffer":{},"positions":{"0":2,"1":2,"2":2,"3":0,"4":0,"5":0,"6":6,"7":6,"8":6,"9":0,"10":0,"11":0,"12":0,"13":0,"14":0,"15":0,"16":0,"17":0,"18":0,"19":0,"20":0,"21":0,"22":0,"23":0,"24":0,"25":0,"26":0,"27":0,"28":0,"29":0},"gameObjectMap":{"0":0,"1":1,"2":2,"3":3},"gameObjectPositionMap":{"0":0,"1":1,"2":2,"3":3}},"velocityComponentManagerState":{"maxIndex":4,"buffer":{},"velocitys":{"0":1,"1":1,"2":1,"3":1,"4":1,"5":1,"6":1,"7":1,"8":1,"9":1},"gameObjectMap":{"0":0,"1":1,"2":2,"3":3},"gameObjectVelocityMap":{"0":0,"1":1,"2":2,"3":3}},"flyComponentManagerState":{"maxIndex":1,"buffer":{},"maxVelocitys":{"0":10,"1":10,"2":10,"3":10,"4":10,"5":10,"6":10,"7":10,"8":10,"9":10},"gameObjectMap":{"0":2,"1":3},"gameObjectFlyMap":{"2":0,"3":1}},"instanceComponentManagerState":{"maxUID":1,"gameObjectMap":{"0":0,"1":1},"gameObjectInstanceMap":{"0":0,"1":1}}}
 ```
 
