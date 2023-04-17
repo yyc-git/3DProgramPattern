@@ -6,8 +6,8 @@ import { setNormalHeroState, setSuperHeroState } from "./WorldUtils";
 
 export let createState = (): worldState => {
     return {
-        normalHeros: Map(),
-        superHeros: Map()
+        normalHeroes: Map(),
+        superHeroes: Map()
     }
 }
 
@@ -21,25 +21,25 @@ export let addSuperHero = (worldState: worldState, [superHeroState, superHero]):
 
 export let update = (worldState: worldState): worldState => {
     return {
-        normalHeros: worldState.normalHeros.map(normalHeroState => {
+        normalHeroes: worldState.normalHeroes.map(normalHeroState => {
             return NormalHero.update(normalHeroState)
         }),
-        superHeros: worldState.superHeros.map(superHeroState => {
+        superHeroes: worldState.superHeroes.map(superHeroState => {
             return SuperHero.update(superHeroState)
         })
     }
 }
 
 export let renderOneByOne = (worldState: worldState): void => {
-    worldState.superHeros.forEach(superHeroState => {
+    worldState.superHeroes.forEach(superHeroState => {
         console.log("OneByOne渲染 SuperHero...")
     })
 }
 
 export let renderInstances = (worldState: worldState): void => {
-    let normalHeroStates = worldState.normalHeros
+    let normalHeroStates = worldState.normalHeroes
 
-    console.log("批量Instance渲染 NormalHeros...")
+    console.log("批量Instance渲染 NormalHeroes...")
 }
 
 export let api = {

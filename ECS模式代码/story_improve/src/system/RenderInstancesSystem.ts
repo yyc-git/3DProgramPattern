@@ -7,5 +7,5 @@ export let render = (worldState: worldState): void => {
         return hasInstanceComponent(worldState.instanceComponentManagerState, gameObject)
     })
 
-    console.log("批量Instance渲染 NormalHeros...")
+    console.log("批量Instance渲染 NormalHeroes...")
 }
