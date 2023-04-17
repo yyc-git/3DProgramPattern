@@ -107,6 +107,7 @@ e.g. most, commonlib
 ** TODO 简化UML
 
 
+* TODO 完成遵循的设计原则
 
 
 * TODO 改错
