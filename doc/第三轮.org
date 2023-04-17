@@ -97,9 +97,19 @@ console.log用于要在运行结果中打印信息
 ** TODO 文中的示例代码加入更多的注释
 
 
+** TODO 使用第三方库的代码时，说明
+如：使用Map作为Hash Map时，说明来自immutable
+ECS模式
+
+
+
+
 
 ** TODO package.json supply dependencies, devDependencies?
 e.g. most, commonlib
+
+
+
 
 
 
