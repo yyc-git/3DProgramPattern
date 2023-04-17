@@ -79,7 +79,8 @@ xxx
 保存到state...
 
 
-如拼接模式->_sendAttributeData中调用WebGL代码可用伪代码表示
+把WebGL代码尽量用伪代码替代，如：
+拼接模式->_sendAttributeData中调用WebGL代码可用伪代码表示
 
 
 
