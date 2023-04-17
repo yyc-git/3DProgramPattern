@@ -27,7 +27,6 @@ World负责管理所有的英雄，并且实现了初始化和主循环的逻辑
 ## 给出代码
 
 Client代码:
-
 ```ts
 let _createScene = (worldState: worldState): worldState => {
     let normalHero1Data = api.normalHero.create();
@@ -79,7 +78,6 @@ createState函数创建并返回了WorldState，它包括两个分别用来保�
 然后我们来看下创建场景相关的部分代码：
 
 WorldUtils
-
 ```ts
 export let setNormalHeroState = (
     worldState: worldState,
@@ -105,7 +103,6 @@ export let setSuperHeroState = (
 ```
 
 World
-
 ```ts
 export let addNormalHero = (
     worldState: worldState,
@@ -148,7 +145,6 @@ World封装了操作Hero的API
 NormalHero的相关代码如下：
 
 WorldUtils
-
 ```ts
 export let getNormalHeroState = (worldState: worldState, normalHero: normalHero): normalHeroState => {
     return worldState.normalHeroes.get(normalHero)
@@ -167,7 +163,6 @@ export let setNormalHeroState = (
 ```
 
 NormalHero
-
 ```ts
 export let create = (): [normalHeroState, normalHero] => {
     let normalHeroState: normalHeroState = {
@@ -204,8 +199,8 @@ export let move = (worldState: worldState, normalHero: normalHero): worldState =
 move函数实现了移动的逻辑，更新了normalHero的position
 
 SuperHero的相关代码如下：
-WorldUtils
 
+WorldUtils
 ```ts
 export let getSuperHeroState = (worldState: worldState, superHero: superHero): superHeroState => {
     return worldState.superHeroes.get(superHero);
@@ -221,7 +216,6 @@ export let setSuperHeroState = (worldState: worldState, superHero: superHero, su
 ```
 
 SuperHero
-
 ```ts
 export let create = (): [superHeroState, superHero] => {
     let superHeroState: superHeroState = {
@@ -276,8 +270,8 @@ superHero的move的逻辑跟normalHero的move的逻辑一样
 fly函数实现了飞行的逻辑，它跟move函数一样，也是更新了superHero的position。只是因为两者在计算时使用的速度不一样，所以更新的幅度不同
 
 现在回到Client，继续看创建场景之后的逻辑
-Client
 
+Client
 ```ts
 worldState = init(worldState);
 
@@ -290,8 +284,8 @@ loop(worldState, [update, renderOneByOne, renderInstances]);
 这里的初始化init函数中没有任何逻辑，只是进行了打印，所以跳过不看它的代码
 
 我们来看下主循环相关代码：
-utils->World
 
+utils->World
 ```ts
 export let loop = (worldState, [update, renderOneByOne, renderInstances]) => {
     worldState = update(worldState);
@@ -307,8 +301,8 @@ export let loop = (worldState, [update, renderOneByOne, renderInstances]) => {
 在每次主循环中，进行了更新
 
 我们看下更新的相关代码：
-World
 
+World
 ```ts
 export let update = (worldState: worldState): worldState => {
     return {
@@ -325,7 +319,6 @@ export let update = (worldState: worldState): worldState => {
 更新update函数会遍历所有的normalHero和superHero，调用它们的update函数来更新自己
 
 我们看下NormalHero的update代码：
-
 ```ts
 export let update = (normalHeroState: normalHeroState): normalHeroState => {
     console.log("更新NormalHero");
@@ -346,7 +339,6 @@ export let update = (normalHeroState: normalHeroState): normalHeroState => {
 这里只是给出了伪代码用于演示而已，实际的update函数应该会根据该普通英雄的层级关系和本地坐标来更新他的模型矩阵
 
 我们看下SuperHero的update代码：
-
 ```ts
 export let update = (superHeroState: superHeroState): superHeroState => {
     console.log("更新SuperHero");
@@ -367,8 +359,8 @@ export let update = (superHeroState: superHeroState): superHeroState => {
 它的逻辑跟NormalHero的update是一样的，这是因为两者都使用同样的算法来更新自己的position
 
 我们回到主循环代码，来看下更新之后的渲染相关的代码：
-utils->World
 
+utils->World
 ```ts
 export let loop = (worldState, [update, renderOneByOne, renderInstances]) => {
     worldState = update(worldState);
@@ -379,7 +371,6 @@ export let loop = (worldState, [update, renderOneByOne, renderInstances]) => {
 ```
 
 World
-
 ```ts
 export let renderOneByOne = (worldState: worldState): void => {
     worldState.superHeroes.forEach(superHeroState => {
@@ -410,14 +401,14 @@ OneByOne渲染 SuperHero...
 {"normalHeroes":{"144891":{"position":[0,0,0],"velocity":1},"648575":{"position":[2,2,2],"velocity":1}},"superHeroes":{"497069":{"position":[6,6,6],"velocity":1,"maxFlyVelocity":10},"783438":{"position":[0,0,0],"velocity":1,"maxFlyVelocity":10}}}
 ```
 
-首先进行了初始化；
-然后更新了所有的人物，包括两个普通英雄和两个超级英雄；
-然后依次渲染了2个超级英雄，以及一次性批量渲染了所有的普通英雄；
-最后打印了WorldState
+首先进行了初始化;
+然后更新了所有的人物，包括两个普通英雄和两个超级英雄;
+然后依次渲染了2个超级英雄，以及一次性批量渲染了所有的普通英雄;
+最后打印了WorldState;
 
-我们看到normalHeroes中有一个的position为[2,2,2]，说明该普通英雄进行了move操作；superHeroes中有一个的position为[6,6,6]
-，说明该超级英雄进行了move和fly操作
-normalHeroes和superHeroes中的Key因为是随机生成的id值，所以每次打印时值都不一样
+我们看到normalHeroes中有一个的position为[2,2,2]，说明该普通英雄进行了move操作;
+superHeroes中有一个的position为[6,6,6],说明该超级英雄进行了move和fly操作;
+normalHeroes和superHeroes中的Key因为是随机生成的id值，所以每次打印时值都不一样;
 
 ## 提出问题
 
