@@ -104,6 +104,8 @@ export let getPipeline = (): pipeline<worldState, state> => {
 						{
 							"name": "get_finish_send_init_xWorker_data_main_worker",
 							"type_": "job",
+							//is_set_state为false的意思是该Job不更新state
+							//这通常用在merge的job，该job没有操作state
 							is_set_state: false
 						}
 					]

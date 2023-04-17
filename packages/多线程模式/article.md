@@ -1690,6 +1690,8 @@ export let exec: execType<worldState> = (worldState, _) => {
 
 运行截图跟之前一样
 
+可以通打印的Job信息以及查看Chrome控制台的Performance的时间线，来验证确实是并行地运行了线程
+
 
 值得注意的是：
 因为使用了浏览器的SharedArrayBuffer API，所以需要启用浏览器的“跨域隔离”，打开Cross Origin
