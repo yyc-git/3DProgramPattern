@@ -14,6 +14,9 @@
 ** TODO 整理每个package代码，给出运行代码的script；并在README中说明如何运行，怎样运行
 
 
+** TODO 对用Rescript写的package，说明如何编译，以及package.json->main对应哪个src/的.res文件
+
+
 
 ** TODO 代码示例
 

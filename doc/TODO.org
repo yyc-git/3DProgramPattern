@@ -333,7 +333,7 @@ finish TODO
 每个设计原则给两个函数式编程的案例
 
 
-** TODO draft
+** DONE draft
 
 
 ** TODO update
