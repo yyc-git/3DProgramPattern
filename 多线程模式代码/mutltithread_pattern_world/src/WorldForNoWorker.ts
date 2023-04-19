@@ -5,9 +5,9 @@ import * as World from "./World"
 
 export let createState = World.createState
 
-export let unsafeGetPipeManagerState = World.unsafeGetPipeManagerState
+export let unsafeGetPipelineManagerState = World.unsafeGetPipelineManagerState
 
-export let setPipeManagerState = World.setPipeManagerState
+export let setPipelineManagerState = World.setPipelineManagerState
 
 export let init = World.init
 
@@ -17,12 +17,12 @@ export let render = World.render
 
 export let registerAllPipelines = (state: state) => {
     let pipelineManagerState = registerPipeline(
-        unsafeGetPipeManagerState(state),
+        unsafeGetPipelineManagerState(state),
         getNoWorkerPipeline(),
         []
     )
 
-    state = setPipeManagerState(state, pipelineManagerState)
+    state = setPipelineManagerState(state, pipelineManagerState)
 
     return state
 }

@@ -4,7 +4,7 @@ import { state as worldState } from "mutltithread_pattern_world_abstract/src/Wor
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 import { registerPipeline } from "pipeline_manager"
 import { getPipeline as getXWorkerPipeline } from "./Main"
-import { setPipeManagerState, unsafeGetPipeManagerState } from "mutltithread_pattern_world_abstract/src/World"
+import { setPipelineManagerState, unsafeGetPipelineManagerState } from "mutltithread_pattern_world_abstract/src/World"
 
 let _frame = (worldState: worldState) => {
 	return pipelineWhenLoop(worldState)
@@ -12,12 +12,12 @@ let _frame = (worldState: worldState) => {
 
 let _registerAllPipelines = (worldState: worldState): worldState => {
 	let pipelineManagerState = registerPipeline(
-		unsafeGetPipeManagerState(worldState),
+		unsafeGetPipelineManagerState(worldState),
 		getXWorkerPipeline(),
 		[]
 	)
 
-	return setPipeManagerState(worldState, pipelineManagerState)
+	return setPipelineManagerState(worldState, pipelineManagerState)
 }
 
 let worldState = createStateForWorker()

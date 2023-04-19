@@ -12,9 +12,9 @@ export let createState = ({ dataOrientedComponent1Count }): worldState => {
     }
 }
 
-export let unsafeGetPipeManagerState = World.unsafeGetPipeManagerState
+export let unsafeGetPipelineManagerState = World.unsafeGetPipelineManagerState
 
-export let setPipeManagerState = World.setPipeManagerState
+export let setPipelineManagerState = World.setPipelineManagerState
 
 export let init = World.init
 
@@ -28,12 +28,12 @@ export let sync = (state: state): Promise<state> => {
 
 export let registerWorkerAllPipelines = (state: state) => {
     let pipelineManagerState = registerPipeline(
-        unsafeGetPipeManagerState(state),
+        unsafeGetPipelineManagerState(state),
         getMainWorkerPipeline(),
         []
     )
 
-    state = setPipeManagerState(state, pipelineManagerState)
+    state = setPipelineManagerState(state, pipelineManagerState)
 
     return state
 }

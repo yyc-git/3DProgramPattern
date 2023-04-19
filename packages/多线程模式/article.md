@@ -1,27 +1,42 @@
+# 前置要求
+
+请先阅读“ECS模式”、“管道模式”
+
+
 # [引入故事，提出问题]
+
+
 
 ## 需求
 
-开发引擎，实现下面的功能：
-渲染包括8000个三角形的大型场景
-每帧进行物理计算，更新每个三角形的位置
+我们开发一个引擎，需要实现下面的功能：
+- 渲染包括8000个三角形的大型场景
+- 每帧进行物理计算，计算并更新每个三角形的位置
 
 
 
 ## 实现思路
 
-使用ECS模式中的Manager层和Component+GameObject层来创建和管理场景
-这样做的好处是：
-将场景数据保存在组件的Buffer中，它如果是SharedArrayBuffer的话，可以直接在线程之间被共享而无需被拷贝，这样可以提高多线程的性能
+为了简单、快速地实现，我们先用单线程的运行环境来实现，也就是让引擎只运行在主线程中
+<!-- 如果发现性能不行，再改为多线程来实现 -->
 
-因为引擎需要进行初始化、更新和渲染，它们都是连续的逻辑，所以使用管道模式，注册一个Pipeline管道模块。它包括Init Pipeline、Update Pipeline、Render Pipeline这三个管道，它们分别有初始化、更新和渲染相关的Job
+我们使用ECS模式中的Manager层和Component+GameObject层来创建和管理场景，将场景数据保存在组件的Buffer中
+<!-- 这样做的好处是： -->
+<!-- 将场景数据保存在组件的Buffer中，它如果是SharedArrayBuffer的话，可以直接在线程之间被共享而无需被拷贝，这样可以提高多线程的性能 -->
+<!-- 后面在用多线程的运行环境时，这些组件的Buffer可以直接在线程之间被共享而无需被拷贝，从而提高多线程的性能 -->
+
+我们使用管道模式的管道来实现引擎的初始化、更新和渲染的逻辑，具体来说就是注册一个Pipeline管道模块。它包括Init Pipeline、Update Pipeline、Render Pipeline这三个管道，它们分别有初始化、更新和渲染相关的Job
+
+
+<!-- 因为引擎需要进行初始化、更新和渲染，它们都是连续的逻辑，所以使用管道模式，注册一个Pipeline管道模块。它包括Init Pipeline、Update Pipeline、Render Pipeline这三个管道，它们分别有初始化、更新和渲染相关的Job
 这样做的好处是：
 1.可以通过管道的并行Job实现多线程的并行逻辑
-2.可以通过切换管道，来同时支持单线程和多线程的运行环境
+2.可以通过切换管道，来同时支持单线程和多线程的运行环境 -->
 
 
 ## 给出UML
 
+**领域模型**
 TODO tu
 
 
@@ -32,12 +47,12 @@ TODO tu
 
 Client是用户
 
-WorldForNoWorker是门户，封装了API
+WorldForNoWorker是门户，封装了引擎的API
 
 
 我们来看下管道这个部分：
 
-PipeManager负责管理管道
+PipelineManager负责管理管道
 
 NoWorkerPipeline是注册的管道模块
 
@@ -56,40 +71,55 @@ Manager+Component+GameObject是ECS模式中的Manager层和Component+GameObject�
 场景中的一个三角形就是一个GameObject
 
 一共有两种组件：TransformComponent、BasicMaterialComponent
-前者负责三角形的位置、模型矩阵
-后者负责三角形的材质数据，如颜色
+前者负责三角形的位移数据，包括位置、模型矩阵
+后者负责三角形的材质数据，包括颜色
 
 GameObjectManager负责维护所有的gameObject的数据
 TransformComponentManager负责维护和管理所有的TransformComponent组件的数据
 BasicMaterialComponentManager负责维护和管理所有的BasicMaterialComponent组件的数据
 
 
+
+我们来看下依赖关系：
+
 Job调用了Manager+Component+GameObject来读写场景数据
+
 WorldForNoWorker调用了Manager+Component+GameObject来创建场景
 
 
 
 
 
-下图是流程图：
+**初始化流程图**
 TODO tu
 
-这里给出了初始化和主循环的一帧的流程，它们都运行在主线程中
+Main Worker包括了运行在主线程的Init Pipeline的Job
+
+初始化运行了主线程的Init Pipeline管道
+
+我们看下主线程的Init Pipeline的流程：
+1.在“Create GL”中创建了WebGL上下文；
+2.在“Init VBO”中初始化VBO；
+3.在“Init Material”中初始化材质
 
 
-初始化运行了Init Pipeline管道，执行下面的Job逻辑：
-首先在“Create GL”中创建了WebGL上下文；
-然后在“Init VBO”中初始化VBO；
-最后在“Init Material”中初始化材质
+
+**主循环的一帧流程图**
+TODO tu
+
+Main Worker包括了运行在主线程的Update Pipeline和Render Pipeline的Job
+
+主循环的一帧首先并行运行了主线程的Update Pipeline；
+然后运行了主线程的Render Pipeline
 
 
-主循环的一帧首先运行了Update Pipeline管道，执行下面的Job逻辑：
-首先在“Compute Physics And Update”中进行物理计算，并更新所有TransformComponent组件的位置；
-最后在“Update Transform”中更新所有TransformComponent组件的模型矩阵
+首先，我们看下主线程的Update Pipeline的流程：
+1.在“Compute Physics And Update”中进行物理计算，计算并更新所有TransformComponent组件的位置；
+2.在“Update Transform”中更新所有TransformComponent组件的模型矩阵
 
-主循环的一帧接着运行了Render Pipeline管道，执行下面的Job逻辑：
-首先在“Send Uniform Shader Data”中发送相机数据到GPU；
-最后在“Render”中渲染
+然后，我们看下主线程的Render Pipeline的流程：
+1.在“Send Uniform Shader Data”中发送相机数据到GPU；
+2.在“Render”中渲染
 
 
 
@@ -99,7 +129,7 @@ TODO tu
 
 ## 给出代码
 
-首先，我们看下用户的代码；
+首先，我们看下用户Client的代码；
 然后，我们看下创建WorldState的相关代码；
 然后，我们看下创建场景的相关代码；
 然后，我们看下各个管道的Job的代码；
@@ -108,8 +138,7 @@ TODO tu
 最后，我们运行代码
 
 
-### 用户的代码
-
+### 用户Client的代码
 
 Client
 ```ts
@@ -126,7 +155,7 @@ init(worldState, canvas).then(worldState => {
 })
 ```
 
-我们首先调用createState函数并传入最大的组件个数，创建了WorldState，用来保存所有的数据；
+我们首先调用createState函数并传入最大的组件个数，创建了WorldState，用来保存引擎所有的数据；
 然后创建场景；
 然后注册了所有的管道；
 然后初始化；
@@ -151,7 +180,7 @@ export let createState = ({ transformComponentCount, basicMaterialComponentCount
 }
 ```
 
-createState函数创建的WorldState包括了场景数据和管道数据，其中场景数据保存在各个Manager的state中，管道数据保存在PipelineManagerState
+createState函数创建的WorldState包括了场景数据和管道数据，其中场景数据保存在各个Manager的state中，管道数据保存在PipelineManagerState中
 
 
 ### 创建场景的相关代码
@@ -163,33 +192,18 @@ worldState = createScene(worldState, 8000)
 utils->Client
 ```ts
 let _createTriangle = (worldState: worldState, color: Array<number>, position: Array<number>): worldState => {
-    let triangleGameObjectData = createGameObject(worldState)
-    worldState = triangleGameObjectData[0]
-    let triangleGameObject = triangleGameObjectData[1]
-
-    let transformComponentData = createTransformComponent(worldState)
-    worldState = transformComponentData[0]
-    let transformComponent = transformComponentData[1]
-    let basicMateiralComponentData = createBasicMaterialComponent(worldState)
-    let basicMaterialComponent = basicMateiralComponentData[1]
-    worldState = basicMateiralComponentData[0]
-
-    worldState = setTransformComponent(worldState, triangleGameObject, transformComponent)
-    worldState = setBasicMaterialComponent(worldState, triangleGameObject, basicMaterialComponent)
-
-    worldState = setPosition(worldState, transformComponent, position)
-    worldState = setColor(worldState, basicMaterialComponent, color)
+    创建一个triangleGameObject、一个transformComponent、一个basicMaterialComponent
+    挂载这两个组件到该triangleGameObject
+    设置该transformComponent的position为position
+    设置该basicMaterialComponent的color为color
 
     return worldState
 }
 
 export let createScene = (worldState: worldState, count: number): worldState => {
+    //执行count次，创建count个三角形
     return range(0, count - 1).reduce(worldState => {
-        return _createTriangle(worldState, [
-            Math.random(), Math.random(), Math.random()
-        ], [
-            Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1
-        ])
+        return _createTriangle(worldState, 创建随机的color, 创建随机的color)
     }, worldState)
 }
 ```
@@ -198,13 +212,13 @@ export let createScene = (worldState: worldState, count: number): worldState => 
 每个三角形都是一个GameObject，它挂载了两个组件：TransformComponent、BasicMaterialComponent
 每个三角形的位置、颜色都为随机值
 
-因为这里使用了ECS模式，所以创建场景的实现代码跟ECS模式章节中的案例代码是一样的，故这里省略相关代码
+<!-- 因为这里使用了ECS模式，所以创建场景的实现代码跟ECS模式章节中的案例代码是一样的，故这里省略相关代码 -->
 
-值得注意的是：
-这里组件的Buffer是ArrayBuffer而不是SharedArrayBuffer
+<!-- 值得注意的是：
+TransformComponent、BasicMaterialComponent这两个组件的Buffer是ArrayBuffer而不是SharedArrayBuffer
 这是因为：
 目前只是单线程，不需要在线程之间共享Buffer；
-ArrayBuffer的兼容性更好
+ArrayBuffer的兼容性更好 -->
 
 
 
@@ -213,27 +227,11 @@ ArrayBuffer的兼容性更好
 
 Client在注册所有的管道时，注册了NoWorkerPipeline，它包括Init Pipeline、Update Pipeline、Render Pipeline这三个管道
 
-我们看下Init Pipeline管道的各个Job代码：
+首先，我们看下Init Pipeline管道的各个Job代码：
 CreateGLJob
 ```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
-	let states = getStatesFunc<worldState, states>(worldState)
-
-	let canvas: HTMLCanvasElement = globalThis.canvas
-
-	return mostService.callFunc(() => {
-		console.log("create gl job")
-
-		let gl = canvas.getContext("webgl")
-
-		return setStatesFunc<worldState, states>(
-			worldState,
-			setState(states, {
-				...getState(states),
-				gl: gl
-			})
-		)
-	})
+    从canvas中获得WebGL上下文，并保存到worldState中
 }
 ```
 
@@ -242,31 +240,7 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
 InitVBOJob
 ```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
-	let states = getStatesFunc<worldState, states>(worldState)
-
-	let state = getState(states)
-
-	return mostService.callFunc(() => {
-		console.log("init vbo job")
-
-		let gl = getExnFromStrictNull(state.gl)
-
-		let {
-			verticesBuffer,
-			indicesBuffer
-		} = createVBOs(gl)
-
-		return setStatesFunc<worldState, states>(
-			worldState,
-			setState(states, {
-				...getState(states),
-				vbo: {
-					verticesVBO: verticesBuffer,
-					indicesVBO: indicesBuffer
-				}
-			})
-		)
-	})
+    创建并初始化VBO，并保存到worldState中
 }
 ```
 
@@ -275,25 +249,7 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
 InitMaterialJob
 ```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
-    let states = getStatesFunc<worldState, states>(worldState)
-
-    let state = getState(states)
-
-    return mostService.callFunc(() => {
-        console.log("init material job");
-
-        let gl = getExnFromStrictNull(state.gl)
-
-        let program = createProgram(gl)
-
-        return setStatesFunc<worldState, states>(
-            worldState,
-            setState(states, {
-                ...state,
-                program: program
-            })
-        )
-    })
+    创建并初始化Program，并保存到worldState中
 }
 ```
 
@@ -301,68 +257,33 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
 因为只有一种材质（BasicMaterialComponent），该材质只对应一个Shader，所以这里只创建了一个Program
 
 
-我们看下Update Pipeline管道的各个Job代码：
+然后，我们看下Update Pipeline管道的各个Job代码：
 ComputePhysicsAndUpdateJob
 ```ts
 export let exec: execType<worldState> = (worldState, _) => {
-    return mostService.callFunc(() => {
-        console.log("compute physics job")
-
-        //计算多个平均值，用它们更新所有TransformComponent组件的位置
-        worldState = _updateAllTransformPositions(worldState, computeAveragePositions(worldState, getAllTransformComponents(getExnFromStrictNull(worldState.ecsData.transformComponentManagerState))))
-
-        return worldState
-    })
+    进行一些物理计算
+    用计算结果更新所有TransformComponent组件的位置
 }
 ```
-该Job进行物理计算，并更新了所有TransformComponent组件的位置
+该Job进行物理计算，计算并更新了所有TransformComponent组件的位置
 
 UpdateTransformJob
 ```ts
 export let exec: execType<worldState> = (worldState, _) => {
-    return mostService.callFunc(() => {
-        console.log("update transform job")
-
-        //更新所有TransformComponent组件的模型矩阵
-        let transformComponentManagerState = batchUpdate(getExnFromStrictNull(worldState.ecsData.transformComponentManagerState))
-
-        return {
-            ...worldState,
-            ecsData: {
-                ...worldState.ecsData,
-                transformComponentManagerState
-            }
-        }
-    })
+    更新所有TransformComponent组件的模型矩阵
 }
 ```
 
 该Job更新所有TransformComponent组件的模型矩阵
 
 
-我们看下Render Pipeline管道的各个Job代码：
+最后，我们看下Render Pipeline管道的各个Job代码：
 SendUniformShaderDataJob
 ```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
-	let states = getStatesFunc<worldState, states>(worldState)
-
-	let state = getState(states)
-
-	return mostService.callFunc(() => {
-		console.log("send uniform shader data job");
-
-		let gl = getExnFromStrictNull(state.gl)
-
-		let program = getExnFromStrictNull(state.program)
-
-		//假的相机数据
-		let viewMatrix = new Float32Array([1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0])
-		let pMatrix = new Float32Array([1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0])
-
-		sendCameraData(gl, viewMatrix, pMatrix, [program])
-
-		return worldState;
-	})
+    构造假的相机数据
+    遍历每个Program：
+        发送相机数据
 }
 ```
 
@@ -371,32 +292,10 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 RenderJob
 ```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
-    let states = getStatesFunc<worldState, states>(worldState)
-
-    let state = getState(states)
-
-    return mostService.callFunc(() => {
-        console.log("render job")
-
-        let gl = getExnFromStrictNull(state.gl)
-
-        clear(gl)
-
-        //遍历场景中所有的gameObject
-        getAllGameObjects(getExnFromStrictNull(worldState.ecsData.gameObjectManagerState)).forEach(gameObject => {
-            //获得组件
-            let material = getMaterialExn(getExnFromStrictNull(worldState.ecsData.basicMaterialComponentManagerState), gameObject)
-            let transform = getTransformExn(getExnFromStrictNull(worldState.ecsData.transformComponentManagerState), gameObject)
-
-            //获得渲染的相关数据
-            let [count, program, color, modelMatrix] = getRenderData(material, transform, getExnFromStrictNull(state.program), getExnFromStrictNull(worldState.ecsData.basicMaterialComponentManagerState), getExnFromStrictNull(worldState.ecsData.transformComponentManagerState))
-
-            //渲染该gameObject
-            render(gl, getExnFromStrictNull(state.vbo.verticesVBO), getExnFromStrictNull(state.vbo.indicesVBO), program, modelMatrix, color, count)
-        })
-
-        return worldState
-    })
+    遍历场景中所有的gameObject：
+        获得gameObject挂载的组件
+        获得渲染的相关数据
+        渲染该gameObject
 }
 ```
 
@@ -409,19 +308,15 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 WorldForNoWorker
 ```ts
 export let init = (state: state, canvas): Promise<state> => {
-    state = initPipelineManager(state, [
-        unsafeGetPipeManagerState, setPipeManagerState
-    ])
-
-    globalThis.canvas = canvas
-
-    return runPipeline(state, "init")
+    初始化PipelineManager
+    ...
+    运行了Init Pipeline管道，执行其中的Job
 }
 ```
-
+<!-- 
 这里首先初始化PipelineManager；
 然后保存canvas到全局变量中，从而在CreateGLJob中获得它；
-最后运行了Init Pipeline管道，执行其中的Job
+最后运行了Init Pipeline管道，执行其中的Job -->
 
 
 ### 主循环的相关代码
@@ -431,8 +326,7 @@ Client
 let _loop = (worldState: worldState) => {
     update(worldState).then(worldState => {
         render(worldState).then(worldState => {
-            console.log("after render")
-
+            ...
             requestAnimationFrame(
                 (time) => {
                     _loop(worldState)
@@ -459,7 +353,7 @@ export let render = (state: state): Promise<state> => {
 }
 ```
 
-它们分别运行了对应的Update Pipeline和Render Pipeline管道，执行其中的Job
+它们分别运行了Update Pipeline和Render Pipeline管道，执行其中的Job
 
 
 
@@ -487,16 +381,16 @@ TODO tu
 
 ## 概述解决方案
 
+通过下面的改进来提高性能：
 目前所有的逻辑都运行在主线程
+因为现代CPU都是多核的，每个核可以运行一个线程，所以现代CPU都支持多个线程并行运行
+因此，可以开一个渲染线程和一个物理线程，其中前者负责渲染，后者负责物理计算
+让它们和主线程并行运行，从而可以提高FPS
 
-因为现代CPU都是多核的，每个核对应一个线程，所以支持多个线程并行运行
+值得注意的是：
+渲染线程只读主线程的数据，物理线程既读又写主线程的数据
 
-因此，可以开一个渲染线程和一个物理线程。前者负责渲染，后者负责物理计算
-让它们和主线程并行运行，从而提高FPS
-
-其中，渲染线程只读主线程的数据，物理线程读写主线程的数据
-
-为了避免冲突，首先对物理线程写的主线程数据进行备份；然后让物理线程去写备份数据；最后在主线程的同步阶段读取备份数据，更新主线程的数据
+为了避免物理线程写主线程的数据造成的冲突，首先备份物理线程需要写的主线程数据；然后让物理线程将要写的数据写到备份数据中；最后在主线程的同步阶段读取备份数据，将其更新到主线程的数据
 
 
 
@@ -504,6 +398,7 @@ TODO tu
 
 ## 给出UML？
 
+**领域模型**
 TODO tu
 
 
@@ -513,39 +408,29 @@ Main Worker对应主线程，包括了运行在主线程的模块；
 Render Worker对应渲染线程，包括了运行在渲染线程的模块；
 Physics Worker对应物理线程，包括了运行在物理线程的模块
 
-<!-- 这三个部分的模块结构跟之前一样，都是有一个用户，它调用了一个门户；
-门户调用一个PipelineManager模块来管理管道；
-门户调用了Manager+Component+GameObject来创建场景；
-门户包括一个管道模块；
-管道模块包括几个管道，每个管道包括多个Job；
-Job调用了Manager+Component+GameObject来读写场景数据 -->
-
-这三个部分的模块结构跟之前一样，只是用户、门户、管道模块、管道不一样
+这三个部分的模块结构跟之前单线程的Main Worker的模块结构一样，只是具体的用户、门户、管道模块、管道的模块各不一样
 具体不一样的地方如下：
 这三个部分的用户分别为Client、RenderWorkerMain、PhysicsWorkerMain
 这三个部分的门户分别为WorldForMainWorker、WorldForRenderWorker、WorldForPhysicsWorker
-这三个部分的管道模块分别包括下面的管道：
+这三个部分的管道模块分别为MainWorkerPipeline、RenderWorkerPipeline、PhysicsWorkerPipeline
+这三个部分的管道分别为：
 - Init Pipeline、Update Pipeline、Sync Pipeline
 - Init Pipeline、Render Pipeline
 - Init Pipeline、Update Pipeline
 
 
-
-
-我们看下这三个部分对应的三个线程之间的数据传送：
-主要有两种方式来实现线程之间的数据传送：
-- 拷贝
-- 共享
-
-这里介绍下共享：
+数据传送一般有两种方式：拷贝或者共享
+领域模型中，三个部分之间只标明了共享这种方式，这里说下具体共享了什么数据：
 主线程将canvas通过OffscreenCavnas API共享到渲染线程，渲染线程可从中获得WebGL上下文；
-我们设置两种组件的两个Buffer为SharedArrayBuffer，它们由主线程创建，被共享到渲染线程和物理线程，使他们能够从中读写场景数据；
-主线程创建了RenderWorkderData的Buffer，也是SharedArrayBuffer，用来保存场景中所有的transformComponent和basicMaterialComponent。主线程将其共享给渲染线程，使渲染线程能够通过它们获得场景数据（如位置）；
-主线程创建了PhysicsWorkderData的Buffer，也是SharedArrayBuffer，用来保存场景中所有的transformComponent的位置。主线程将其共享给物理线程，使物理线程能够将计算出的位置写进去
+我们设置两种组件的两个Buffer为SharedArrayBuffer，在主线程创建它们，将它们从主线程共享到渲染线程和物理线程，从而这两个线程能够从中直接读写组件中的场景数据；
+主线程创建了RenderWorkderData的Buffer，它也是SharedArrayBuffer，用来保存场景中所有的transformComponent和basicMaterialComponent组件。主线程将其共享给渲染线程，使渲染线程能够使用它们来从组件的Buffer中读取到场景数据；
+<!-- 主线程创建了PhysicsWorkderData的Buffer，它也是SharedArrayBuffer，用来保存场景中所有的transformComponent的位置。主线程将其共享给物理线程，使物理线程能够将计算出的位置写进去 -->
+主线程创建了PhysicsWorkderData的Buffer，它也是SharedArrayBuffer，用来保存物理线程通过物理计算计算的结果。主线程将其共享给物理线程，使物理线程能够将计算结果写进去
 
 
-为什么物理线程不直接将计算出的位置写到共享的TransformComponent组件的Buffer中呢？
-因为这就是之前提到的为了解决冲突而进行备份的具体实现，我们等下再来讨论
+为什么物理线程不直接将计算结果写到主线程共享的TransformComponent组件的Buffer中呢？
+<!-- 因为这就是之前提到的为了解决冲突而进行备份的具体实现，我们等下再来讨论 -->
+因为这会造成冲突，我们后面再详细讨论
 
 
 
@@ -553,9 +438,7 @@ Job调用了Manager+Component+GameObject来读写场景数据 -->
 
 
 
-我们来看下流程图
-
-首先是初始化流程图：
+**初始化流程图**
 TODO tu
 
 
@@ -563,18 +446,15 @@ TODO tu
 
 Main Worker包括了运行在主线程的Init Pipeline的Job，Render Worker包括了运行在渲染线程的Init Pipeline的Job，Physics Worker包括了运行在物理线程的Init Pipeline的Job 
 
-<!-- 这里并行运行了三个线程的Init Pipeline -->
-这些Init Pipeline是并行运行的
+初始化并行运行了主线程、渲染线程、物理线程的Init Pipeline
 
 
-我们看下Main Worker这个部分：
-<!-- 具体的运行顺序如下； -->
-<!-- 首先，我们看下主线程的初始化流程： -->
-1.主线程在“Create Worker Instance”中创建了渲染线程和物理线程的worker，这会执行它们的用户（RenderWorkerMain、PhysicsWorkerMain）的代码，从而运行它们的Init Pipeline
-<!-- ，等待主线程发送数据； -->
+首先，我们看下主线程的Init Pipeline的流程：
+1.主线程在“Create Worker Instance”中创建了渲染线程和物理线程的worker
+这会执行它们的用户（RenderWorkerMain、PhysicsWorkerMain）的代码，从而运行它们的Init Pipeline
 2.主线程会执行三条并行的Job线
 第一条Job线依次执行这些Job逻辑：
-在“Create Render Data Buffer”中创建了RenderWorkderData的Buffer、在“Create Physics Data Buffer”中创建PhysicsWorkerData的Buffer、在“Send Init Render Data”中向渲染线程发送了初始化数据、在“Send Init Physics Data”中向物理线程发送了初始化数据；
+在“Create Render Data Buffer”中创建RenderWorkderData的Buffer、在“Create Physics Data Buffer”中创建PhysicsWorkerData的Buffer、在“Send Init Render Data”中向渲染线程发送初始化数据、在“Send Init Physics Data”中向物理线程发送初始化数据；
 
 第二条Job线依次执行这些Job逻辑：
 在“Get Finish Send Init Render Data”中等待渲染线程发送结束初始化的指令
@@ -582,88 +462,89 @@ Main Worker包括了运行在主线程的Init Pipeline的Job，Render Worker包�
 在“Get Finish Send Init Physics Data”中等待物理线程发送结束初始化的指令
 
 
-<!-- 然后，我们看下渲染线程的初始化流程： -->
-我们看下Render Worker这个部分：
-1.渲染线程在“Get Init Render Data”中获得主线程发送的渲染数据后，开始初始化渲染，依次执行这些Job逻辑：
-在“Init Data Oriented Components”中初始化TransformComponent和BasicMaterialComponent、在“Create Render Data Buffer TypeArray”中创建RenderWorkerData的Buffer的视图、在“Create GL”中创建WebGL上下文、在“Init Material”中初始化材质、在“Send Finish Init Render Data”中向主线程发送结束初始化的指令
+然后，我们看下渲染线程的Init Pipeline的流程：
+1.在“Get Init Render Data”中等待，直到获得主线程发送的渲染数据
+2.在“Init Data Oriented Components”中初始化共享的TransformComponent和BasicMaterialComponent
+3.在“Create Render Data Buffer TypeArray”中创建RenderWorkerData的Buffer的视图
+4.在“Create GL”中创建WebGL上下文
+5.在“Init Material”中初始化材质
+6.在“Send Finish Init Render Data”中向主线程发送结束初始化的指令
 
 
-<!-- 最后，我们看下渲染线程的初始化流程： -->
-我们看下Physics Worker这个部分：
-1.物理线程在“Get Init Physics Data”中获得主线程发送的物理数据后，开始初始化物理，依次执行这些Job逻辑：
-在“Init Data Oriented Components”中初始化TransformComponent和BasicMaterialComponent、在“Create Physics Data Buffer TypeArray”中创建PhysicsWorkerData的Buffer的视图、在“Send Finish Init Physics Data”中向主线程发送结束初始化的指令
+最后，我们看下物理线程的Init Pipeline的流程：
+1.在“Get Init Physics Data”中等待，直到获得主线程发送的物理数据
+2.在“Init Data Oriented Components”中初始化共享的TransformComponent和BasicMaterialComponent
+3.在“Create Physics Data Buffer TypeArray”中创建PhysicsWorkerData的Buffer的视图
+4.在“Send Finish Init Physics Data”中向主线程发送结束初始化的指令
 
 
 
 
+**主循环的一帧流程图**
 
-
-
-
-然后来看下主循环的一帧流程图：
 TODO tu
-
-<!-- 图中的虚线是指线程之间在时间上的对应关系 -->
-
 
 总体来看，分为Main Worker、Render Worker、Physics Worker这三个部分
 
 Main Worker包括了运行在主线程的Update Pipeline和Sync Pipeline的Job，Render Worker包括了运行在渲染线程的Render Pipeline的Job，Physics Worker包括了运行在物理线程的Update Pipeline的Job 
 
-<!-- 
-主线程的Update Pipeline和渲染线程的Render Pipeline、物理线程的Update Pipeline是并行运行的；
-主线程的Sync Pipeline是单独运行的
- -->
-这里首先并行运行了主线程的Update Pipeline、渲染线程的Render Pipeline、物理线程的Update Pipeline；
+主循环的一帧首先并行运行了主线程的Update Pipeline、渲染线程的Render Pipeline、物理线程的Update Pipeline；
 然后运行了主线程的Sync Pipeline
 
 
-我们看下Main Worker这个部分：
-
-<!-- 具体的运行顺序如下； -->
 首先，我们看下主线程的Update Pipeline的流程：
 
-1.因为每一帧场景可能都有变化，所以在“Update Render Data Buffer”中g更新了RenderWorkderData的Buffer中的组件数据；
-2.主线程向渲染线程和物理线程发送开始主循环的指令。当这两个线程接收到该指令后，会分别运行Render Pipeline和Update Pipeline
-<!-- 3.主线程在发送开始主循环的指令后，向渲染线程发送了渲染数据，然后结束了Update Pipeline，开始运行Sync Pipeline，等待另外两个线程发送结束指令 -->
-3.主线程向渲染线程发送了渲染数据
+1.因为组件可能发生了变化，所以在“Update Render Data Buffer”中更新了RenderWorkderData的Buffer中的组件数据；
+2.在“Send Begin Loop”中，向渲染线程和物理线程发送开始主循环的指令。当这两个线程接收到该指令后，会分别运行Render Pipeline和Update Pipeline
+3.在“Send Render Data”中向渲染线程发送渲染数据
 
 
 然后，我们看下渲染线程的Render Pipeline的流程：
-1.依次执行这些Job逻辑：在“Get Render Data”中获得主线程发送的渲染数据、在“Send Uniform Shader Data”中发送相机数据到GPU、在“Render”中渲染、在“Send Finish Render Data”中向主线程发送结束指令
+1.在“Get Render Data”中等待，直到获得主线程发送的渲染数据
+2.在“Send Uniform Shader Data”中发送相机数据到GPU
+3.在“Render”中渲染
+4.在“Send Finish Render Data”中向主线程发送结束指令
 
 
 然后，我们看下物理线程的Update Pipeline的流程：
-1.依次执行这些Job逻辑：在“Compute Physics”中物理计算、在“Send Finish Physics Data”中向主线程发送结束指令
+1.在“Compute Physics”中进行物理计算，将计算结果写到共享的PhysicsWorkerData的Buffer中
+2.在“Send Finish Physics Data”中向主线程发送结束指令
 
 
 最后，我们看下主线程的Sync Pipeline的流程：
-1.主线程在“Get Finish Render Data”和“Get Finish Physics Data”中分别获得两个线程发送来的结束指令后，依次执行这些Job逻辑：在“Update All Transform Positions”中从备份数据中获得物理线程中经过物理计算得到的值，来更新所有TransformComponent组件的位置；
-在“Update Transform”中更新所有TransformComponent组件的模型矩阵
+1.在“Get Finish Render Data”和“Get Finish Physics Data”中等待，直到分别获得渲染线程、物理线程发送来的结束指令
+2.在“Update All Transform Positions”中从PhysicsWorkerData的Buffer中获得物理线程中经过物理计算得到的计算结果，用来更新所有TransformComponent组件的位置；
+3.在“Update Transform”中更新所有TransformComponent组件的模型矩阵
 
 
 
 
+**回答如何解决冲突**
 
 
-这里回答之前的“为什么物理线程不直接将计算出的位置写到共享的TransformComponent组件的Buffer中呢？”问题：
-主线程和物理线程的Update Pipeline是在同一时间并行运行的，如果物理线程将计算出的位置写到TransformComponent组件的Buffer中，那么此后主线程从中读取位置时可能获得修改后的值而不是原始值，从而造成冲突
-因此为了避免冲突，首先物理线程将计算出的位置写到PhysicsWorkderData的Buffer中；然后在主线程的Sync Pipeline管道中再将其写到TransformComponent组件的Buffer中
+这里回答之前的“为什么物理线程不直接将计算结果写到主线程共享的TransformComponent组件的Buffer中呢？”问题：
+因为主线程的Update Pipeline和物理线程的Update Pipeline是在同一时间并行运行的，所以如果物理线程将计算结果写到TransformComponent组件的Buffer中，那么此后主线程从中读取数据时可能获得被物理线程修改后的值而不是原始值，从而造成冲突
+
+因此为了避免冲突，首先让物理线程将计算结果写到PhysicsWorkderData的Buffer中；
+然后在主线程的Sync Pipeline管道中再读取PhysicsWorkderData的Buffer，将其写到TransformComponent组件的Buffer中
 
 
 
+**解释延迟一帧**
 
 值得注意的是，渲染线程和物理线程相比主线程是延迟了一帧的。
-这是因为在主线程的Sync Pipeline的“Update Transform” Job会更新模型矩阵，这更新后的值只能在下一帧被渲染线程和物理线程使用
+这是因为主线程的Sync Pipeline中的“Update Transform” Job会更新模型矩阵，这更新后的值只能在下一帧被渲染线程和物理线程使用，所以这一帧的渲染线程渲染出来的场景使用的是上一帧的模型矩阵
 
 
 ## 结合UML图，描述如何具体地解决问题？
 
-- 因为把渲染和物理计算的逻辑从主线程分别移到了两个线程中，从而与主线程并行运行，所以提高了FPS
+- 因为把渲染和物理计算的逻辑从主线程分别移到了两个线程中，它们与主线程并行运行，所以提高了FPS
 
 
 
 ## 给出代码？
+
+TODO continue
 
 首先，我们看下主线程中用户的代码；
 然后，我们看下主线程在初始化阶段运行的Init Pipeline的Job的代码；
@@ -970,12 +851,12 @@ let _frame = (worldState: worldState) => {
 
 let _registerAllPipelines = (worldState: worldState): worldState => {
 	let pipelineManagerState = registerPipeline(
-		unsafeGetPipeManagerState(worldState),
+		unsafeGetPipelineManagerState(worldState),
 		getRenderWorkerPipeline(),
 		[]
 	)
 
-	return setPipeManagerState(worldState, pipelineManagerState)
+	return setPipelineManagerState(worldState, pipelineManagerState)
 }
 
 let worldState = createStateForWorker()
@@ -1758,7 +1639,7 @@ X Worker对应某个其它线程，包括了运行在该线程的模块
 该角色是用户
 
 - WorldForMainWorker
-该角色是门户，封装了API
+该角色是门户，封装了引擎API
 
 - PipelineManager
 该角色负责管理管道
@@ -2108,12 +1989,12 @@ let _frame = (worldState: worldState) => {
 
 let _registerAllPipelines = (worldState: worldState): worldState => {
 	let pipelineManagerState = registerPipeline(
-		unsafeGetPipeManagerState(worldState),
+		unsafeGetPipelineManagerState(worldState),
 		getXWorkerPipeline(),
 		[]
 	)
 
-	return setPipeManagerState(worldState, pipelineManagerState)
+	return setPipelineManagerState(worldState, pipelineManagerState)
 }
 
 let worldState = createStateForWorker()
@@ -2490,15 +2371,17 @@ TODO finish
 
 ## 结合ECS模式
 
-使用ECS模式中的Manager层和Component+GameObject层来创建和管理场景
-
-
+使用ECS模式中的Manager层和Component+GameObject层来创建和管理场景，将场景数据保存在组件的Buffer中，其中Buffer是SharedArrayBuffer
+这样做的好处是：
+组件的Buffer可以直接在线程之间被共享而无需被拷贝，从而提高多线程的性能
 
 
 ## 结合管道模式
 
 在单线程、多线程运行环境下分别注册不同的管道来实现对应的逻辑
-
+这样做的好处是：
+1.可以通过切换管道，来同时支持单线程和多线程的运行环境
+2.可以通过管道的并行Job实现多线程的并行逻辑
 
 
 <!-- ## 使用场景是什么？

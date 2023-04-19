@@ -1,6 +1,6 @@
 import { state } from "./WorldStateType"
 import { createState as createPipelineManagerState, init as initPipelineManager } from "pipeline_manager"
-import { runPipeline, setPipeManagerState, unsafeGetPipeManagerState } from "./World"
+import { runPipeline, setPipelineManagerState, unsafeGetPipelineManagerState } from "./World"
 import { createState as createDataOrientedComponent1ManagerState } from "multithread_pattern_ecs_abstract/src/dataOriented_component1/Manager"
 
 export let createStateForWorker = (): state => {
@@ -30,7 +30,7 @@ export let createDataOrientedComponentStates = (
 
 export let init = (state: state): Promise<state> => {
     state = initPipelineManager(state, [
-        unsafeGetPipeManagerState, setPipeManagerState
+        unsafeGetPipelineManagerState, setPipelineManagerState
     ])
 
     return runPipeline(state, "init")

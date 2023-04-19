@@ -5,11 +5,11 @@ import { service as mostService } from "most/src/MostService"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 import { unsafeGetState, setState } from "./WorldStateContainer"
 
-export let unsafeGetPipeManagerState = (state: state) => {
+export let unsafeGetPipelineManagerState = (state: state) => {
     return state.pipelineState
 }
 
-export let setPipeManagerState = (state: state, pipelineState: pipelineState) => {
+export let setPipelineManagerState = (state: state, pipelineState: pipelineState) => {
     return {
         ...state,
         pipelineState: pipelineState
@@ -31,8 +31,8 @@ export let runPipeline = (
         runPipelineManager<state>(renderState, [
             unsafeGetState,
             setState,
-            unsafeGetPipeManagerState,
-            setPipeManagerState
+            unsafeGetPipelineManagerState,
+            setPipelineManagerState
         ], pipelineName)
     ).drain().then((_) => {
         return getExnFromStrictNull(tempWorldState)
@@ -41,7 +41,7 @@ export let runPipeline = (
 
 export let init = (state: state, canvas): Promise<state> => {
     state = initPipelineManager(state, [
-        unsafeGetPipeManagerState, setPipeManagerState
+        unsafeGetPipelineManagerState, setPipelineManagerState
     ])
 
     globalThis.canvas = canvas

@@ -52,11 +52,11 @@ export let registerAllPipelines = (state: state) => {
     return state
 }
 
-let _unsafeGetPipeManagerState = (state: state) => {
+let _unsafeGetPipelineManagerState = (state: state) => {
     return state.pipelineManagerState
 }
 
-let _setPipeManagerState = (state: state, pipelineManagerState: pipelineState) => {
+let _setPipelineManagerState = (state: state, pipelineManagerState: pipelineState) => {
     return {
         ...state,
         pipelineManagerState: pipelineManagerState
@@ -78,8 +78,8 @@ let _runPipeline = (
         runPipeline<state>(state, [
             unsafeGetState,
             setState,
-            _unsafeGetPipeManagerState,
-            _setPipeManagerState
+            _unsafeGetPipelineManagerState,
+            _setPipelineManagerState
         ], pipelineName)
     ).drain().then((_) => {
         return getExnFromStrictNull(tempSystemState)
@@ -87,7 +87,7 @@ let _runPipeline = (
 }
 
 export let init = (state: state, config) => {
-    state = initPipelineManager(state, [_unsafeGetPipeManagerState, _setPipeManagerState])
+    state = initPipelineManager(state, [_unsafeGetPipelineManagerState, _setPipelineManagerState])
 
     //把配置保存到全局变量中，从而在Job中通过全局变量获得配置
     globalThis.config = config

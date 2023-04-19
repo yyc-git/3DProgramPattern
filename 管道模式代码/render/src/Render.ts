@@ -61,12 +61,12 @@ export let registerAllPipelines = (state: state) => {
 }
 
 //从RenderState中获得PipelineManagerState
-let _unsafeGetPipeManagerState = (state: state) => {
+let _unsafeGetPipelineManagerState = (state: state) => {
     return state.pipelineManagerState
 }
 
 //保存PipelineManagerState到RenderState中
-let _setPipeManagerState = (state: state, pipelineManagerState: pipelineState) => {
+let _setPipelineManagerState = (state: state, pipelineManagerState: pipelineState) => {
     return {
         ...state,
         pipelineManagerState: pipelineManagerState
@@ -89,8 +89,8 @@ let _runPipeline = (
         runPipeline<state>(renderState, [
             unsafeGetState,
             setState,
-            _unsafeGetPipeManagerState,
-            _setPipeManagerState
+            _unsafeGetPipelineManagerState,
+            _setPipelineManagerState
         ], pipelineName)
     ).drain().then((_) => {
         return getExnFromStrictNull(tempRenderState)
@@ -99,7 +99,7 @@ let _runPipeline = (
 
 export let render = (state: state, canvas): Promise<state> => {
     //调用PipelineManager的init函数来初始化PipelineManager
-    state = init(state, [_unsafeGetPipeManagerState, _setPipeManagerState])
+    state = init(state, [_unsafeGetPipelineManagerState, _setPipelineManagerState])
 
     //将canvas保存到全局变量中，从而在Job中通过全局变量能够获得canvas
     globalThis.canvas = canvas

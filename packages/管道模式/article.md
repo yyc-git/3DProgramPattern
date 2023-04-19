@@ -439,7 +439,7 @@ TODO tu
 
 Render是门户，它的registerAllPipelines函数实现了按照运行环境注册对应的管道模块中的Render Pipeline管道；它的rende函数通过运行Render Pipeline管道，依次执行它的所有Job来实现渲染
 
-PipeManager负责管理管道，实现了注册管道、合并管道、运行管道的实现逻辑
+PipelineManager负责管理管道，实现了注册管道、合并管道、运行管道的实现逻辑
 
 
 
@@ -470,7 +470,7 @@ TODO tu
 
 Render有自己的数据-RenderState，它包括了其它的state
 
-PipeManager有自己的数据-PipeStateManagerState，它包括了所有管道模块的PipelineState
+PipelineManager有自己的数据-PipeStateManagerState，它包括了所有管道模块的PipelineState
 
 三个管道模块各自有一个PipelineState数据和一个JSON配置数据，其中PipelineState保存了管道模块中所有管道的运行时数据，JSON配置数据用来指定管道模块中所有管道的Job的执行顺序
 
@@ -1047,12 +1047,12 @@ render(renderState, canvas).then(newRenderState => {
 Render
 ```ts
 //从RenderState中获得PipelineManagerState
-let _unsafeGetPipeManagerState = (state: state) => {
+let _unsafeGetPipelineManagerState = (state: state) => {
     return state.pipelineManagerState
 }
 
 //保存PipelineManagerState到RenderState中
-let _setPipeManagerState = (state: state, pipelineManagerState: pipelineState) => {
+let _setPipelineManagerState = (state: state, pipelineManagerState: pipelineState) => {
     return {
         ...state,
         pipelineManagerState: pipelineManagerState
@@ -1075,8 +1075,8 @@ let _runPipeline = (
         runPipeline<state>(renderState, [
             unsafeGetState,
             setState,
-            _unsafeGetPipeManagerState,
-            _setPipeManagerState
+            _unsafeGetPipelineManagerState,
+            _setPipelineManagerState
         ], pipelineName)
     ).drain().then((_) => {
         return getExnFromStrictNull(tempRenderState)
@@ -1085,7 +1085,7 @@ let _runPipeline = (
 
 export let render = (state: state, canvas): Promise<state> => {
     //调用PipelineManager的init函数来初始化PipelineManager
-    state = init(state, [_unsafeGetPipeManagerState, _setPipeManagerState])
+    state = init(state, [_unsafeGetPipelineManagerState, _setPipelineManagerState])
 
     //将canvas保存到全局变量中，从而在Job中通过全局变量能够获得canvas
     globalThis.canvas = canvas
@@ -1240,7 +1240,7 @@ TODO tu
 
 System有自己的数据-SystemState，它包括了其它的state
 
-PipeManager有自己的数据-PipeStateManagerState，它包括了所有管道模块的PipelineState
+PipelineManager有自己的数据-PipeStateManagerState，它包括了所有管道模块的PipelineState
 
 Pipeline有一个PipelineState数据和一个JSON配置数据，其中PipelineState保存了管道模块中所有管道的运行时数据，JSON配置数据用来指定管道模块中所有管道的Job的执行顺序
 
@@ -1324,11 +1324,11 @@ export let registerAllPipelines = (state: state) => {
     return state
 }
 
-let _unsafeGetPipeManagerState = (state: state) => {
+let _unsafeGetPipelineManagerState = (state: state) => {
     return state.pipelineManagerState
 }
 
-let _setPipeManagerState = (state: state, pipelineManagerState: pipelineState) => {
+let _setPipelineManagerState = (state: state, pipelineManagerState: pipelineState) => {
     return {
         ...state,
         pipelineManagerState: pipelineManagerState
@@ -1350,8 +1350,8 @@ let _runPipeline = (
         runPipeline<state>(state, [
             unsafeGetState,
             setState,
-            _unsafeGetPipeManagerState,
-            _setPipeManagerState
+            _unsafeGetPipelineManagerState,
+            _setPipelineManagerState
         ], pipelineName)
     ).drain().then((_) => {
         return getExnFromStrictNull(tempSystemState)
@@ -1359,7 +1359,7 @@ let _runPipeline = (
 }
 
 export let init = (state: state, config) => {
-    state = initPipelineManager(state, [_unsafeGetPipeManagerState, _setPipeManagerState])
+    state = initPipelineManager(state, [_unsafeGetPipelineManagerState, _setPipelineManagerState])
 
     //把配置保存到全局变量中，从而在Job中通过全局变量获得配置
     globalThis.config = config
