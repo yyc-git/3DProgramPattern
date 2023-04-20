@@ -9,16 +9,16 @@ import { getAllComponents as getAllDataOrientedComponent1s } from "multithread_p
 export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 	let states = getStatesFunc<worldState, states>(worldState)
 
-	let { xWorkerWorker, xWorkerDataBuffer } = getState(states)
+	let { xWorker, xWorkerDataBuffer } = getState(states)
 
 	return mostService.callFunc(() => {
-		xWorkerWorker = getExnFromStrictNull(xWorkerWorker)
+		xWorker = getExnFromStrictNull(xWorker)
 
 		let dataOrientedComponent1Count = (globalThis as any).dataOrientedComponent1Count
 
 		let allDataOrientedComponent1Indices = getAllDataOrientedComponent1s(getExnFromStrictNull(worldState.ecsData.dataOrientedComponent1ManagerState))
 
-		xWorkerWorker.postMessage({
+		xWorker.postMessage({
 			command: "SEND_INIT_XWORKER_DATA",
 			xWorkerDataBuffer: getExnFromStrictNull(xWorkerDataBuffer),
 			allDataOrientedComponent1Indices: allDataOrientedComponent1Indices,

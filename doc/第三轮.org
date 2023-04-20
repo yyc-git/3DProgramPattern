@@ -151,6 +151,7 @@ e.g. most, commonlib
 
 TODO handle 依赖隔离模式
 
+** TODO 重命名“通用UML”为“领域模型”
 
 ** TODO 改错
 

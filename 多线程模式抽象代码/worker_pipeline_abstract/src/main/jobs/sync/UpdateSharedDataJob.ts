@@ -10,7 +10,7 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
     let state = getState(states)
 
     return mostService.callFunc(() => {
-        console.log("update shared data between workers: e.g. data oriented component1's typeArrays")
+        console.log("update shared data between workers: e.g. update data oriented component1's typeArrays")
 
         return worldState
     })

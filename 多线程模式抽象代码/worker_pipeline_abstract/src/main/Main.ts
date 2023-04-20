@@ -45,7 +45,7 @@ export let getPipeline = (): pipeline<worldState, state> => {
 		pipelineName: pipelineName,
 		createState: worldState => {
 			return {
-				xWorkerWorker: null,
+				xWorker: null,
 				xWorkerDataBuffer: null,
 				xWorkerDataBufferTypeArray: null,
 				xWorkerOtherData: null

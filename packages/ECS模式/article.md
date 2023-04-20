@@ -2087,8 +2087,8 @@ TODO explain reallocate geometry vertices
 
 # 更多资料推荐
 
-可以在网上搜索更多关于“组件化”、“Data Oriented”、“ECS”的资料
-
 ECS的概念最先由“守望先锋”游戏的开发者提出的，详细资料可以搜索“《守望先锋》架构设计和网络同步”
 
-很多游戏引擎都转为使用ECS的思想来设计架构
+ECS模式是在“组件化”、“Data Oriented”基础上发展而来，可以在网上搜索更多关于“组件化”、“Data Oriented”、“ECS”的资料
+
+<!-- 很多游戏引擎都开始使用ECS的思想来设计架构 -->

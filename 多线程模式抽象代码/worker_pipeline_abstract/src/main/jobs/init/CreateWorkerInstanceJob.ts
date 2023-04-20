@@ -9,13 +9,13 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
 
     return mostService.callFunc(() => {
         // reference https://webpack.docschina.org/guides/web-workers/#root
-        let xWorkerWorker = new Worker(new URL("../../../x_worker/XWorkerMain", import.meta.url))
+        let xWorker = new Worker(new URL("../../../x_worker/XWorkerMain", import.meta.url))
 
         return setStatesFunc<worldState, states>(
             worldState,
             setState(states, {
                 ...getState(states),
-                xWorkerWorker
+                xWorker
             })
         )
     })

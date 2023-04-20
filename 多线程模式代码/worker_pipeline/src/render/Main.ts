@@ -59,7 +59,6 @@ export let getPipeline = (): pipeline<worldState, state> => {
                 renderDataBuffer: null,
                 typeArray: null,
                 renderGameObjectsCount: 0,
-                allMaterialIndices: null,
                 transformComponentCount: null,
                 basicMaterialComponentCount: null,
                 transformComponentBuffer: null,

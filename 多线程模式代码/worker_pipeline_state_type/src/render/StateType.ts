@@ -17,7 +17,6 @@ export type state = {
     typeArray: Uint32Array | null,
     renderGameObjectsCount: number | null
     canvas: OffscreenCanvas | null,
-    allMaterialIndices: Array<material> | null,
     transformComponentCount: number | null,
     basicMaterialComponentCount: number | null,
     transformComponentBuffer: SharedArrayBuffer | null,

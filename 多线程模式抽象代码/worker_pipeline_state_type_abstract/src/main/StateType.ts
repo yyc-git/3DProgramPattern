@@ -1,7 +1,7 @@
 export const pipelineName = "Worker_Main"
 
 export type state = {
-    xWorkerWorker: Worker | null,
+    xWorker: Worker | null,
     xWorkerDataBuffer: SharedArrayBuffer | null,
     xWorkerDataBufferTypeArray: null | Uint32Array,
     xWorkerOtherData: any | null

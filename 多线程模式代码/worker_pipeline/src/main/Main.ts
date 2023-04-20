@@ -10,6 +10,7 @@ import { exec as execGetFinishSendInitRenderData } from "./jobs/init/GetFinishSe
 import { exec as execGetFinishSendInitPhysicsData } from "./jobs/init/GetFinishSendInitPhysicsDataJob"
 import { exec as execUpdateTransform } from "./jobs/sync/UpdateTransformJob"
 import { exec as execUpdateRenderDataBuffer } from "./jobs/update/UpdateRenderDataBufferJob"
+import { exec as execSendPhysicsDataJob } from "./jobs/update/SendPhysicsDataJob"
 import { exec as execSendRenderData } from "./jobs/update/SendRenderDataJob"
 import { exec as execSendBeginLoopData } from "./jobs/update/SendBeginLoopDataJob"
 import { exec as execGetFinishRenderData } from "./jobs/sync/GetFinishRenderDataJob"
@@ -38,6 +39,8 @@ let _getExec = (_pipelineName: string, jobName: string) => {
 			return execUpdateRenderDataBuffer
 		case "send_render_data_main_worker":
 			return execSendRenderData
+		case "send_physics_data_main_worker":
+			return execSendPhysicsDataJob
 		case "send_begin_loop_data_main_worker":
 			return execSendBeginLoopData
 		case "get_finish_render_data_main_worker":
@@ -166,6 +169,10 @@ export let getPipeline = (): pipeline<worldState, state> => {
 						},
 						{
 							"name": "send_render_data_main_worker",
+							"type_": "job"
+						},
+						{
+							"name": "send_physics_data_main_worker",
 							"type_": "job"
 						}
 					]

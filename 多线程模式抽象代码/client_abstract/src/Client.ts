@@ -8,7 +8,7 @@ let _createScene = (worldState: worldState): worldState => {
     return worldState
 }
 
-let isUseWorker = true
+let isUseWorker = true or false
 
 let dataOrientedComponent1Count = xxx
 
@@ -30,9 +30,7 @@ else {
 
 
 
-let canvas = document.querySelector("#canvas")
-
-
+let canvas = 获得canvas Dom
 
 let _loop = (worldState: worldState) => {
     update(worldState).then(worldState => {
@@ -46,8 +44,6 @@ let _loop = (worldState: worldState) => {
         }
 
         handlePromise.then(worldState => {
-            console.log("after sync")
-
             requestAnimationFrame(
                 (time) => {
                     _loop(worldState)

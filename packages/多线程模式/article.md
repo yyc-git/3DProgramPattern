@@ -129,7 +129,7 @@ Main Worker包括了运行在主线程的Update Pipeline和Render Pipeline的Job
 
 ## 给出代码
 
-首先，我们看下用户Client的代码；
+首先，我们看下用户的代码；
 然后，我们看下创建WorldState的相关代码；
 然后，我们看下创建场景的相关代码；
 然后，我们看下各个管道的Job的代码；
@@ -138,7 +138,7 @@ Main Worker包括了运行在主线程的Update Pipeline和Render Pipeline的Job
 最后，我们运行代码
 
 
-### 用户Client的代码
+### 用户的代码
 
 Client
 ```ts
@@ -146,7 +146,7 @@ let worldState = createState({ transformComponentCount: 8000, basicMaterialCompo
 
 worldState = createScene(worldState, 8000)
 
-worldState = registerAllPipelines(worldState)
+注册NoWorkerPipeline
 
 let canvas = document.querySelector("#canvas")
 
@@ -157,7 +157,7 @@ init(worldState, canvas).then(worldState => {
 
 我们首先调用createState函数并传入最大的组件个数，创建了WorldState，用来保存引擎所有的数据；
 然后创建场景；
-然后注册了所有的管道；
+然后注册了NoWorkerPipeline；
 然后初始化；
 最后主循环
 
@@ -225,7 +225,7 @@ ArrayBuffer的兼容性更好 -->
 
 ### 各个管道的Job的代码
 
-Client在注册所有的管道时，注册了NoWorkerPipeline，它包括Init Pipeline、Update Pipeline、Render Pipeline这三个管道
+Client注册的NoWorkerPipeline包括Init Pipeline、Update Pipeline、Render Pipeline这三个管道
 
 首先，我们看下Init Pipeline管道的各个Job代码：
 CreateGLJob
@@ -274,7 +274,7 @@ export let exec: execType<worldState> = (worldState, _) => {
 }
 ```
 
-该Job更新所有TransformComponent组件的模型矩阵
+<!-- 该Job更新所有TransformComponent组件的模型矩阵 -->
 
 
 最后，我们看下Render Pipeline管道的各个Job代码：
@@ -408,7 +408,7 @@ Main Worker对应主线程，包括了运行在主线程的模块；
 Render Worker对应渲染线程，包括了运行在渲染线程的模块；
 Physics Worker对应物理线程，包括了运行在物理线程的模块
 
-这三个部分的模块结构跟之前单线程的Main Worker的模块结构一样，只是具体的用户、门户、管道模块、管道的模块各不一样
+这三个部分的模块结构跟之前只支持单线程的领域模型的Main Worker的模块结构一样，只是具体的用户、门户、管道模块、管道的模块各不一样
 具体不一样的地方如下：
 这三个部分的用户分别为Client、RenderWorkerMain、PhysicsWorkerMain
 这三个部分的门户分别为WorldForMainWorker、WorldForRenderWorker、WorldForPhysicsWorker
@@ -425,7 +425,7 @@ Physics Worker对应物理线程，包括了运行在物理线程的模块
 我们设置两种组件的两个Buffer为SharedArrayBuffer，在主线程创建它们，将它们从主线程共享到渲染线程和物理线程，从而这两个线程能够从中直接读写组件中的场景数据；
 主线程创建了RenderWorkderData的Buffer，它也是SharedArrayBuffer，用来保存场景中所有的transformComponent和basicMaterialComponent组件。主线程将其共享给渲染线程，使渲染线程能够使用它们来从组件的Buffer中读取到场景数据；
 <!-- 主线程创建了PhysicsWorkderData的Buffer，它也是SharedArrayBuffer，用来保存场景中所有的transformComponent的位置。主线程将其共享给物理线程，使物理线程能够将计算出的位置写进去 -->
-主线程创建了PhysicsWorkderData的Buffer，它也是SharedArrayBuffer，用来保存物理线程通过物理计算计算的结果。主线程将其共享给物理线程，使物理线程能够将计算结果写进去
+主线程创建了PhysicsWorkderData的Buffer，它也是SharedArrayBuffer，属于备份数据，用来保存物理线程通过物理计算计算的结果。主线程将其共享给物理线程，使物理线程能够将计算结果写进去
 
 
 为什么物理线程不直接将计算结果写到主线程共享的TransformComponent组件的Buffer中呢？
@@ -457,9 +457,9 @@ Main Worker包括了运行在主线程的Init Pipeline的Job，Render Worker包�
 在“Create Render Data Buffer”中创建RenderWorkderData的Buffer、在“Create Physics Data Buffer”中创建PhysicsWorkerData的Buffer、在“Send Init Render Data”中向渲染线程发送初始化数据、在“Send Init Physics Data”中向物理线程发送初始化数据；
 
 第二条Job线依次执行这些Job逻辑：
-在“Get Finish Send Init Render Data”中等待渲染线程发送结束初始化的指令
+在“Get Finish Send Init Render Data”中等待渲染线程发送过来的结束指令
 第三条Job线依次执行这些Job逻辑：
-在“Get Finish Send Init Physics Data”中等待物理线程发送结束初始化的指令
+在“Get Finish Send Init Physics Data”中等待物理线程发送过来的结束指令
 
 
 然后，我们看下渲染线程的Init Pipeline的流程：
@@ -468,14 +468,14 @@ Main Worker包括了运行在主线程的Init Pipeline的Job，Render Worker包�
 3.在“Create Render Data Buffer TypeArray”中创建RenderWorkerData的Buffer的视图
 4.在“Create GL”中创建WebGL上下文
 5.在“Init Material”中初始化材质
-6.在“Send Finish Init Render Data”中向主线程发送结束初始化的指令
+6.在“Send Finish Init Render Data”中向主线程发送结束指令
 
 
 最后，我们看下物理线程的Init Pipeline的流程：
 1.在“Get Init Physics Data”中等待，直到获得主线程发送的物理数据
 2.在“Init Data Oriented Components”中初始化共享的TransformComponent和BasicMaterialComponent
 3.在“Create Physics Data Buffer TypeArray”中创建PhysicsWorkerData的Buffer的视图
-4.在“Send Finish Init Physics Data”中向主线程发送结束初始化的指令
+4.在“Send Finish Init Physics Data”中向主线程发送结束的指令
 
 
 
@@ -497,6 +497,7 @@ Main Worker包括了运行在主线程的Update Pipeline和Sync Pipeline的Job�
 1.因为组件可能发生了变化，所以在“Update Render Data Buffer”中更新了RenderWorkderData的Buffer中的组件数据；
 2.在“Send Begin Loop”中，向渲染线程和物理线程发送开始主循环的指令。当这两个线程接收到该指令后，会分别运行Render Pipeline和Update Pipeline
 3.在“Send Render Data”中向渲染线程发送渲染数据
+4.在“Send Physics Data”中向物理线程发送物理数据
 
 
 然后，我们看下渲染线程的Render Pipeline的流程：
@@ -507,8 +508,9 @@ Main Worker包括了运行在主线程的Update Pipeline和Sync Pipeline的Job�
 
 
 然后，我们看下物理线程的Update Pipeline的流程：
-1.在“Compute Physics”中进行物理计算，将计算结果写到共享的PhysicsWorkerData的Buffer中
-2.在“Send Finish Physics Data”中向主线程发送结束指令
+1.在“Get Physics Data”中等待，直到获得主线程发送的物理数据
+2.在“Compute Physics”中进行物理计算，将计算结果写到共享的PhysicsWorkerData的Buffer中
+3.在“Send Finish Physics Data”中向主线程发送结束指令
 
 
 最后，我们看下主线程的Sync Pipeline的流程：
@@ -544,8 +546,6 @@ Main Worker包括了运行在主线程的Update Pipeline和Sync Pipeline的Job�
 
 ## 给出代码？
 
-TODO continue
-
 首先，我们看下主线程中用户的代码；
 然后，我们看下主线程在初始化阶段运行的Init Pipeline的Job的代码；
 然后，我们看下渲染线程中用户的代码；
@@ -567,26 +567,24 @@ TODO continue
 
 Client
 ```ts
+//此处设置运行环境为多线程
+//也可以通过设置为false来设置运行环境为单线程
 let isUseWorker = true
 
 let transformComponentCount = 8000
 let basicMaterialComponentCount = 8000
 
-globalThis.transformComponentCount = transformComponentCount
-globalThis.basicMaterialComponentCount = basicMaterialComponentCount
-
-globalThis.maxRenderGameObjectCount = 8000
-
+...
 
 let worldState = createState({ transformComponentCount, basicMaterialComponentCount })
 
 worldState = createScene(worldState, 8000)
 
 if (isUseWorker) {
-    worldState = registerWorkerAllPipelines(worldState)
+    注册MainWorkerPipeline
 }
 else {
-    worldState = registerNoWorkerAllPipelines(worldState)
+    注册NoWorkerPipeline
 }
 
 let canvas = document.querySelector("#canvas")
@@ -603,7 +601,7 @@ let _loop = (worldState: worldState) => {
         }
 
         handlePromise.then(worldState => {
-            console.log("after sync")
+            ...
 
             requestAnimationFrame(
                 (time) => {
@@ -619,38 +617,27 @@ init(worldState, canvas).then(worldState => {
 })
 ```
 
-这里跟之前不一样的地方是：
+这里跟之前只支持单线程的案例不一样的地方是：
 
-- 创建场景时，组件的Buffer是SharedArrayBuffer，不是ArrayBuffer
-- 通过注册不同的管道，同时支持了多线程和单线程的运行环境。其中，对于多线程的运行环境，注册了MainWorkerPipeline，它包括Init Pipeline、Sync Pipeline这两个管道；对于单线程的运行环境，注册的管道模块跟之前一样
+<!-- - 创建场景时，组件的Buffer是SharedArrayBuffer，不是ArrayBuffer -->
+- 通过注册不同的管道，支持了多线程或者单线程的运行环境。其中，对于多线程的运行环境，注册了MainWorkerPipeline，它包括Init Pipeline、Sync Pipeline这两个管道；对于单线程的运行环境，注册的管道模块跟之前只支持单线程的案例注册的管道模块一样
 - 主循环增加了处理多线程的运行环境的情况，该情况的处理是依次运行Update Pipeline和Sync Pipeline
 
 
 
 ### 主线程在初始化阶段运行的Init Pipeline的Job的代码
 
-我们看下Init Pipeline管道的各个Job代码：
+<!-- 我们看下Init Pipeline管道的各个Job代码： -->
 
 CreateWorkerInstanceJob
 ```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
-    let states = getStatesFunc<worldState, states>(worldState)
+    ...
 
-    return mostService.callFunc(() => {
-        console.log("create worker instance job exec on main worker")
+    let renderWorker = new Worker(new URL("../../../render/RenderWorkerMain", import.meta.url))
+    let physicsWorker = new Worker(new URL("../../../physics/PhysicsWorkerMain", import.meta.url))
 
-        let renderWorker = new Worker(new URL("../../../render/RenderWorkerMain", import.meta.url))
-        let physicsWorker = new Worker(new URL("../../../physics/PhysicsWorkerMain", import.meta.url))
-
-        return setStatesFunc<worldState, states>(
-            worldState,
-            setState(states, {
-                ...getState(states),
-                renderWorker,
-                physicsWorker
-            })
-        )
-    })
+    保存renderWorker、physicsWorker到worldState中
 }
 ```
 
@@ -659,138 +646,56 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
 
 CreateRenderDataBufferJob
 ```ts
-let _getMaxRenderGameObjectCount = () => (globalThis as any).maxRenderGameObjectCount
-
-let _getStride = () => 2 * 4
-
 export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
-	let states = getStatesFunc<worldState, states>(worldState)
+    ...
 
-	return mostService.callFunc(() => {
-		console.log("create render data buffer job exec on main worker")
+    let buffer = new SharedArrayBuffer(
+        _getMaxRenderGameObjectCount() * _getStride()
+    )
 
-		let buffer = new SharedArrayBuffer(
-			_getMaxRenderGameObjectCount() * _getStride()
-		)
+    let renderDataBufferTypeArray = new Uint32Array(buffer)
 
-		let renderDataBufferTypeArray = new Uint32Array(buffer)
-
-		return setStatesFunc<worldState, states>(
-			worldState,
-			setState(states, {
-				...getState(states),
-				renderDataBuffer: buffer,
-				renderDataBufferTypeArray: renderDataBufferTypeArray
-			})
-		)
-	})
+    保存buffer、renderDataBufferTypeArray到worldState中
 }
 ```
 
-该Job创建RenderWorkderData的Buffer，用来保存场景中所有的transformComponent和basicMaterialComponent
+该Job创建RenderWorkderData的Buffer，用来保存场景中所有的transformComponent和basicMaterialComponent；并创建它的视图，用来操作Buffer
 
 CreatePhysicsDataBufferJob
 ```ts
-let _getMaxTransformComponentCount = () => (globalThis as any).transformComponentCount
-
-let _getStride = () => 3 * 4
-
 export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
-	let states = getStatesFunc<worldState, states>(worldState)
+    ...
 
-	return mostService.callFunc(() => {
-		console.log("create physics data buffer job exec on main worker")
+    let buffer = new SharedArrayBuffer(
+        _getMaxTransformComponentCount() * _getStride()
+    )
 
-		let buffer = new SharedArrayBuffer(
-			_getMaxTransformComponentCount() * _getStride()
-		)
+    let physicsDataBufferTypeArray = new Float32Array(buffer)
 
-		let physicsDataBufferTypeArray = new Float32Array(buffer)
-
-		return setStatesFunc<worldState, states>(
-			worldState,
-			setState(states, {
-				...getState(states),
-				physicsDataBuffer: buffer,
-				physicsDataBufferTypeArray: physicsDataBufferTypeArray
-			})
-		)
-	})
+    保存buffer、physicsDataBufferTypeArray到worldState中
 }
 ```
 
-该Job创建PhysicsWorkderData的Buffer，用来保存场景中所有的transformComponent的位置
+该Job创建PhysicsWorkderData的Buffer，用来保存场景中所有的transformComponent的位置；并创建它的视图，用来操作Buffer
 
 
 SendInitRenderDataJob
 ```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
-	let states = getStatesFunc<worldState, states>(worldState)
-
-	let { renderWorker, renderDataBuffer } = getState(states)
-
-	return mostService.callFunc(() => {
-		console.log("send init render data job exec on main worker")
-
-		renderWorker = getExnFromStrictNull(renderWorker)
-
-		let canvas: HTMLCanvasElement = (globalThis as any).canvas
-		let transformComponentCount = (globalThis as any).transformComponentCount
-		let basicMaterialComponentCount = (globalThis as any).basicMaterialComponentCount
-
-		let offscreenCanvas: OffscreenCanvas = canvas.transferControlToOffscreen()
-
-		let allMaterialIndices = getAllBasicMaterials(getExnFromStrictNull(worldState.ecsData.basicMaterialComponentManagerState))
-
-		renderWorker.postMessage({
-			command: "SEND_INIT_RENDER_DATA",
-			canvas: offscreenCanvas,
-			renderDataBuffer: getExnFromStrictNull(renderDataBuffer),
-			allMaterialIndices: allMaterialIndices,
-			transformComponentCount,
-			basicMaterialComponentCount,
-			transformComponentBuffer: getExnFromStrictNull(worldState.ecsData.transformComponentManagerState).buffer,
-			basicMaterialComponentBuffer: getExnFromStrictNull(worldState.ecsData.basicMaterialComponentManagerState).buffer
-		}, [offscreenCanvas])
-
-		return worldState
-	})
+    向渲染线程发送canvas、RenderWorkderData的Buffer、两种组件的最大个数、两种组件的Buffer
 }
 ```
 该Job向渲染线程发送初始化数据
-其中，组件的Buffer和RenderWorkerData的Buffer是通过SharedArrayBuffer共享过去的；canvas是通过OffscreenCavnas API共享过去的；其它数据是拷贝过去的
+其中，两种组件的Buffer和RenderWorkerData的Buffer是通过SharedArrayBuffer共享过去的；canvas是通过OffscreenCavnas API共享过去的；其它数据是拷贝过去的
 
 
 
 SendInitPhysicsDataJob
 ```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
-	let states = getStatesFunc<worldState, states>(worldState)
-
-	let { physicsWorker, physicsDataBuffer } = getState(states)
-
-	return mostService.callFunc(() => {
-		console.log("send init physics data job exec on main worker")
-
-		physicsWorker = getExnFromStrictNull(physicsWorker)
-
-		let transformComponentCount = (globalThis as any).transformComponentCount
-
-		let allTransformIndices = getAllTransforms(getExnFromStrictNull(worldState.ecsData.transformComponentManagerState))
-
-		physicsWorker.postMessage({
-			command: "SEND_INIT_PHYSICS_DATA",
-			physicsDataBuffer: getExnFromStrictNull(physicsDataBuffer),
-			allTransformIndices: allTransformIndices,
-			transformComponentCount,
-			transformComponentBuffer: getExnFromStrictNull(worldState.ecsData.transformComponentManagerState).buffer,
-		})
-
-		return worldState
-	})
+    向物理线程发送PhysicsWorkderData的Buffer、TransformComponent组件的最大个数、TransformComponent组件的Buffer
 }
 ```
-
 
 
 该Job向物理线程发送初始化数据
@@ -800,42 +705,22 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 GetFinishSendInitRenderDataJob
 ```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
-	let states = getStatesFunc<worldState, states>(worldState)
-
-	let { renderWorker } = getState(states)
-
-	renderWorker = getExnFromStrictNull(renderWorker)
-
-	return createGetOtherWorkerDataStream(mostService, "FINISH_SEND_INIT_RENDER_DATA", renderWorker).map(() => {
-		console.log("get finish send init render data job exec on main worker")
-
-		return worldState
-	})
+    等待渲染线程发送过来的结束指令...
 }
 ```
 
-该Job等待渲染线程发送结束初始化的指令
+<!-- 该Job等待渲染线程发送过来的结束指令 -->
 
 
 
 GetFinishSendInitPhysicsDataJob
 ```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
-	let states = getStatesFunc<worldState, states>(worldState)
-
-	let { physicsWorker } = getState(states)
-
-	physicsWorker = getExnFromStrictNull(physicsWorker)
-
-	return createGetOtherWorkerDataStream(mostService, "FINISH_SEND_INIT_PHYSICS_DATA", physicsWorker).map(() => {
-		console.log("get finish send init physics data job exec on main worker")
-
-		return worldState
-	})
+    等待物理线程发送过来的结束指令...
 }
 ```
 
-该Job等待物理线程发送结束初始化的指令
+<!-- 该Job等待物理线程发送过来的结束指令 -->
 
 
 
@@ -845,71 +730,30 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 
 RenderWorkerMain
 ```ts
-let _frame = (worldState: worldState) => {
-	return render(worldState)
-}
-
-let _registerAllPipelines = (worldState: worldState): worldState => {
-	let pipelineManagerState = registerPipeline(
-		unsafeGetPipelineManagerState(worldState),
-		getRenderWorkerPipeline(),
-		[]
-	)
-
-	return setPipelineManagerState(worldState, pipelineManagerState)
-}
-
 let worldState = createStateForWorker()
 
-worldState = _registerAllPipelines(worldState)
-
-
-let tempWorldState: worldState | null = null
+注册RenderWorkerPipeline
 
 init(worldState).then(worldState => {
-	console.log("finish init on render worker");
-
-	tempWorldState = worldState
+    ...
 })
 
-//主循环
-//基于most.js库，使用FRP处理异步
-mostService.drain(
-	mostService.tap(
-		(_) => {
-			_frame(getExnFromStrictNull(tempWorldState)).then((worldState) => {
-				tempWorldState = worldState
-			})
-		},
-		mostService.filter(
-			(event) => {
-				console.log(event);
-				return event.data.command === "SEND_BEGIN_LOOP";
-			},
-			mostService.fromEvent<MessageEvent, Window & typeof globalThis>("message", self, false)
-		)
-	)
-)
+等待主线程的Update Pipeline的"Send Begin Loop Data" Job发送开始主循环的指令...
+    获得指令后，运行一次RenderWorkerPipeline的Render Pipeline
 ```
 
 该模块在主线程的CreateWorkerInstanceJob创建render worker后执行
 
 该模块首先创建了WorldState，用来保存渲染线程所有的数据；
 然后注册了RenderWorkerPipeline的Init Pipeline、Render Pipeline；
-然后初始化，运行Init Pipeline；
+然后初始化，初始化了PipelineManager，并运行了RenderWorkerPipeline的Init Pipeline管道
 最后主循环
 
-值得说明的是，这里的主循环跟之前的主线程的主循环不一样，它的实现原理如下：
-在主循环的一帧中，等待主线程的Update Pipeline的"Send Begin Loop Data" Job发送开始主循环的指令-"SEND_BEGIN_LOOP"；
-获得指定后，执行一次_frame函数，运行渲染线程的Render Pipeline进行渲染
+值得说明的是，这里的主循环跟之前的主线程的主循环不一样，它并没在初始化之后开始，而是等待主循环的调度
 
 
 ### 物理线程中用户的代码
-PhysicsWorkerMain的代码跟RenderWorkerMain的代码基本上是一样的，故省略了它的代码
-
-它们的不同之处是：
-注册了不一样的管道，具体是注册了PhysicsWorkerPipeline的Init Pipeline、Update Pipeline
-
+PhysicsWorkerMain的代码跟RenderWorkerMain的代码是一样的，只是注册了不一样的管道，具体是注册了PhysicsWorkerPipeline的Init Pipeline、Update Pipeline
 
 该模块在主线程的CreateWorkerInstanceJob创建physics worker后执行
 
@@ -922,61 +766,17 @@ PhysicsWorkerMain的代码跟RenderWorkerMain的代码基本上是一样的，�
 GetInitRenderDataJob
 ```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
-    let states = getStatesFunc<worldState, states>(worldState)
-
-    let offscreenCanvas: OffscreenCanvas
-    let renderDataBuffer: SharedArrayBuffer
-    let allMaterialIndices: Array<number>
-    let transformComponentCount: number, basicMaterialComponentCount: number
-    let transformComponentBuffer: SharedArrayBuffer, basicMaterialComponentBuffer: SharedArrayBuffer
-
-    return createGetMainWorkerDataStream(
-        mostService,
-        (event: MessageEvent) => {
-            offscreenCanvas = event.data.canvas
-            renderDataBuffer = event.data.renderDataBuffer
-            allMaterialIndices = event.data.allMaterialIndices
-            transformComponentCount = event.data.transformComponentCount
-            basicMaterialComponentCount = event.data.basicMaterialComponentCount
-            transformComponentBuffer = event.data.transformComponentBuffer
-            basicMaterialComponentBuffer = event.data.basicMaterialComponentBuffer
-        },
-        "SEND_INIT_RENDER_DATA",
-        self as any as Worker
-    ).map(() => {
-        console.log("get init render data job exec on render worker")
-
-        return setStatesFunc<worldState, states>(
-            worldState,
-            setState(states, {
-                ...getState(states),
-                canvas: offscreenCanvas,
-                renderDataBuffer: renderDataBuffer,
-                allMaterialIndices: allMaterialIndices,
-                transformComponentCount: transformComponentCount,
-                basicMaterialComponentCount: basicMaterialComponentCount,
-                transformComponentBuffer: transformComponentBuffer,
-                basicMaterialComponentBuffer: basicMaterialComponentBuffer
-            })
-        )
-    })
+    获得主线程发送过来的初始化数据，保存到worldState中
 }
 ```
 
-该Job获得主线程发送的渲染数据
+<!-- 该Job获得主线程发送的初始化数据 -->
 
 InitDataOrientedComponentsJob
 ```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
-    let states = getStatesFunc<worldState, states>(worldState)
-
-    let { transformComponentCount, basicMaterialComponentCount, transformComponentBuffer, basicMaterialComponentBuffer } = getState(states)
-
-    return mostService.callFunc(() => {
-        console.log("init data oriented components job exec on render worker");
-
-        return createDataOrientedComponentStates(worldState, transformComponentCount, basicMaterialComponentCount, transformComponentBuffer, basicMaterialComponentBuffer)
-    })
+    从worldState获得主线程发送过来的两种组件的最大个数、两种组件的Buffer
+    初始化它们
 }
 ```
 
@@ -987,23 +787,8 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
 CreateRenderDataBufferTypeArrayJob
 ```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
-    let states = getStatesFunc<worldState, states>(worldState)
-
-    let state = getState(states)
-
-    return mostService.callFunc(() => {
-        console.log("create render data buffer type array job exec on render worker");
-
-        let renderDataBufferTypeArray = new Uint32Array(getExnFromStrictNull(state.renderDataBuffer))
-
-        return setStatesFunc<worldState, states>(
-            worldState,
-            setState(states, {
-                ...state,
-                typeArray: renderDataBufferTypeArray
-            })
-        )
-    })
+    从worldState获得主线程发送过来的RenderWorkerData的Buffer
+    创建它的视图，保存到worldState中
 }
 ```
 
@@ -1011,73 +796,31 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
 
 
 CreateGLJob
-<!-- ```ts
+```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
-	let states = getStatesFunc<worldState, states>(worldState)
-
-	let { canvas } = getState(states)
-
-	return mostService.callFunc(() => {
-		console.log("create gl job exec on render worker");
-
-		let gl = canvas.getContext("webgl") as any as WebGLRenderingContext
-
-		return setStatesFunc<worldState, states>(
-			worldState,
-			setState(states, {
-				...getState(states),
-				gl: gl
-			})
-		)
-	})
+    从worldState获得主线程发送过来的canvas
+    ...
 }
-``` -->
-该Job代码除了是从主线程传来的渲染数据获得canvas以外，其它都跟之前一样
+```
+该Job代码除了是从主线程发送过来的渲染数据中获得canvas以外，其它都跟之前只支持单线程的CreateGLJob代码一样
 
 
 InitMaterialJob
-<!-- ```ts
+```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
-    let states = getStatesFunc<worldState, states>(worldState)
-
-    let state = getState(states)
-
-    return mostService.callFunc(() => {
-        console.log("init material job exec on render worker");
-
-        let gl = getExnFromStrictNull(state.gl)
-
-        let program = createProgram(gl)
-
-        return setStatesFunc<worldState, states>(
-            worldState,
-            setState(states, {
-                ...state,
-                program: program
-            })
-        )
-    })
+    ...
 }
-``` -->
-
-该Job代码跟之前一样
+```
+该Job代码跟之前只支持单线程的InitMaterialJob代码一样
 
 SendFinishInitRenderDataJob
 ```ts
 export let exec: execType<worldState> = (worldState, _) => {
-    return mostService.callFunc(() => {
-        console.log("send finish init render data job exec on render worker")
-
-        postMessage({
-            command: "FINISH_SEND_INIT_RENDER_DATA"
-        })
-
-        return worldState
-    })
+    向主线程发送结束指令
 }
 ```
 
-该Job向主线程发送结束初始化的指令
+<!-- 该Job向主线程发送结束指令 -->
 
 
 
@@ -1087,78 +830,18 @@ export let exec: execType<worldState> = (worldState, _) => {
 GetInitPhysicsDataJob
 ```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
-    let states = getStatesFunc<worldState, states>(worldState)
-
-    let allTransformIndices: Array<number>
-    let physicsDataBuffer: SharedArrayBuffer
-    let transformComponentCount: number
-    let transformComponentBuffer: SharedArrayBuffer
-
-    return createGetMainWorkerDataStream(
-        mostService,
-        (event: MessageEvent) => {
-            allTransformIndices = event.data.allTransformIndices
-            physicsDataBuffer = event.data.physicsDataBuffer
-            transformComponentCount = event.data.transformComponentCount
-            transformComponentBuffer = event.data.transformComponentBuffer
-        },
-        "SEND_INIT_PHYSICS_DATA",
-        self as any as Worker
-    ).map(() => {
-        console.log("get init physics data job exec on physics worker");
-
-        return setStatesFunc<worldState, states>(
-            worldState,
-            setState(states, {
-                ...getState(states),
-                allTransformIndices,
-                physicsDataBuffer,
-                transformComponentCount,
-                transformComponentBuffer,
-            })
-        )
-    })
+    获得主线程发送过来的初始化数据，保存到worldState中
 }
 ```
 
-
-该Job获得主线程发送的物理数据
+<!-- 该Job获得主线程发送的初始化数据 -->
 
 
 InitDataOrientedComponentsJob
 ```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
-    let states = getStatesFunc<worldState, states>(worldState)
-
-    let allTransformIndices: Array<number>
-    let physicsDataBuffer: SharedArrayBuffer
-    let transformComponentCount: number
-    let transformComponentBuffer: SharedArrayBuffer
-
-    return createGetMainWorkerDataStream(
-        mostService,
-        (event: MessageEvent) => {
-            allTransformIndices = event.data.allTransformIndices
-            physicsDataBuffer = event.data.physicsDataBuffer
-            transformComponentCount = event.data.transformComponentCount
-            transformComponentBuffer = event.data.transformComponentBuffer
-        },
-        "SEND_INIT_PHYSICS_DATA",
-        self as any as Worker
-    ).map(() => {
-        console.log("get init physics data job exec on physics worker");
-
-        return setStatesFunc<worldState, states>(
-            worldState,
-            setState(states, {
-                ...getState(states),
-                allTransformIndices,
-                physicsDataBuffer,
-                transformComponentCount,
-                transformComponentBuffer,
-            })
-        )
-    })
+    从worldState获得主线程发送过来的TransformComponent组件的最大个数、TransformComponent组件的Buffer
+    初始化它
 }
 ```
 
@@ -1170,23 +853,8 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
 CreatePhysicsDataBufferTypeArrayJob
 ```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
-    let states = getStatesFunc<worldState, states>(worldState)
-
-    let state = getState(states)
-
-    return mostService.callFunc(() => {
-        console.log("create physics data buffer type array job exec on physics worker");
-
-        let positions = new Float32Array(getExnFromStrictNull(state.physicsDataBuffer))
-
-        return setStatesFunc<worldState, states>(
-            worldState,
-            setState(states, {
-                ...state,
-                positions: positions
-            })
-        )
-    })
+    从worldState获得主线程发送过来的PhysicsWorkerData的Buffer
+    创建它的视图，保存到worldState中
 }
 ```
 
@@ -1195,19 +863,11 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
 SendFinishInitPhysicsDataJob
 ```ts
 export let exec: execType<worldState> = (worldState, _) => {
-    return mostService.callFunc(() => {
-        console.log("send finish init physics data job exec on physics worker")
-
-        postMessage({
-            command: "FINISH_SEND_INIT_PHYSICS_DATA"
-        })
-
-        return worldState
-    })
+    向主线程发送结束指令
 }
 ```
 
-该Job向主线程发送结束初始化的指令
+<!-- 该Job向主线程发送结束指令 -->
 
 
 
@@ -1216,66 +876,17 @@ export let exec: execType<worldState> = (worldState, _) => {
 UpdateRenderDataBufferJob
 ```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
-	let states = getStatesFunc<worldState, states>(worldState)
-
-	let state = getState(states)
-
-	return mostService.callFunc(() => {
-		console.log("update render data buffer job exec on main worker");
-
-		let allGameObjects = getAllGameObjects(getExnFromStrictNull(worldState.ecsData.gameObjectManagerState));
-		let renderDataBufferTypeArray = getExnFromStrictNull(state.renderDataBufferTypeArray)
-		let renderGameObjectsCount = 0;
-		let typeArrayIndex: number = 0;
-
-		allGameObjects.forEach((gameObject) => {
-			let material = getMaterialExn(getExnFromStrictNull(worldState.ecsData.basicMaterialComponentManagerState), gameObject)
-			let transform = getTransformExn(getExnFromStrictNull(worldState.ecsData.transformComponentManagerState), gameObject)
-
-			renderDataBufferTypeArray[typeArrayIndex * 2] = transform
-			renderDataBufferTypeArray[typeArrayIndex * 2 + 1] = material
-
-			renderGameObjectsCount++;
-			typeArrayIndex++;
-		})
-
-		return setStatesFunc<worldState, states>(
-			worldState,
-			setState(states, {
-				...state,
-				renderDataBufferTypeArray,
-				renderGameObjectsCount
-			})
-		)
-	})
+    更新RenderWorkderData的Buffer的组件数据
 }
 ```
 
-该Job更新了RenderWorkderData的Buffer的组件数据
+<!-- 该Job更新RenderWorkderData的Buffer的组件数据 -->
 
 
 SendBeginLoopDataJob
 ```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
-	let states = getStatesFunc<worldState, states>(worldState)
-
-	let { renderWorker, physicsWorker } = getState(states)
-
-	return mostService.callFunc(() => {
-		console.log("send begin loop data job exec on main worker")
-
-		renderWorker = getExnFromStrictNull(renderWorker)
-		physicsWorker = getExnFromStrictNull(physicsWorker)
-
-		renderWorker.postMessage({
-			command: "SEND_BEGIN_LOOP"
-		})
-		physicsWorker.postMessage({
-			command: "SEND_BEGIN_LOOP"
-		})
-
-		return worldState
-	})
+    向渲染线程、物理线程发送开始主循环指令
 }
 ```
 
@@ -1286,37 +897,21 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 SendRenderDataJob
 ```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
-	let states = getStatesFunc<worldState, states>(worldState)
-
-	let { renderWorker, renderGameObjectsCount } = getState(states)
-
-	return mostService.callFunc(() => {
-		console.log("send render data job exec on main worker")
-
-		renderWorker = getExnFromStrictNull(renderWorker)
-		renderGameObjectsCount = getExnFromStrictNull(renderGameObjectsCount)
-
-		//假的相机数据
-		let viewMatrix = new Float32Array([1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0])
-		let pMatrix = new Float32Array([1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0])
-
-		renderWorker.postMessage({
-			command: "SEND_RENDER_DATA",
-			camera: {
-				viewMatrix,
-				pMatrix
-			},
-			renderDataBuffer: {
-				renderGameObjectCount: renderGameObjectsCount
-			}
-		})
-
-		return worldState
-	})
+    向渲染线程发送假的相机数据等渲染数据
 }
 ```
 
-该Job向渲染线程发送渲染数据，包括相机数据、需要渲染的gameObject的个数
+<!-- 该Job向渲染线程发送渲染数据 -->
+
+SendPhysicsDataJob
+```ts
+export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
+    向物理线程发送所有的TransformComponent组件等物理数据
+}
+```
+
+<!-- 该Job向物理线程发送物理数据 -->
+
 
 
 ### 渲染线程的Render Pipeline的Job的代码
@@ -1324,109 +919,41 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 GetRenderDataJob
 ```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
-    let states = getStatesFunc<worldState, states>(worldState)
-
-    let viewMatrix: Float32Array
-    let pMatrix: Float32Array
-    let renderGameObjectsCount: number
-
-    return createGetMainWorkerDataStream(
-        mostService,
-        (event: MessageEvent) => {
-            viewMatrix = event.data.camera.viewMatrix
-            pMatrix = event.data.camera.pMatrix
-            renderGameObjectsCount = event.data.renderDataBuffer.renderGameObjectCount
-        },
-        "SEND_RENDER_DATA",
-        self as any as Worker
-    ).map(() => {
-        console.log("get render data job exec on render worker")
-
-        return setStatesFunc<worldState, states>(
-            worldState,
-            setState(states, {
-                ...getState(states),
-                viewMatrix: viewMatrix,
-                pMatrix: pMatrix,
-                renderGameObjectsCount: renderGameObjectsCount
-            })
-        )
-    })
+    获得主线程发送过来的渲染数据，保存到worldState中
 }
 ```
 
-该Job获得主线程发送的渲染数据
+<!-- 该Job获得主线程发送的渲染数据 -->
 
 
 SendUniformShaderDataJob
-<!-- ```ts
+```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
-	let states = getStatesFunc<worldState, states>(worldState)
-
-	let state = getState(states)
-
-	return mostService.callFunc(() => {
-		console.log("send uniform shader data job exec on render worker");
-
-		let gl = getExnFromStrictNull(state.gl)
-
-		let program = getExnFromStrictNull(state.program)
-
-		sendCameraData(gl, getExnFromStrictNull(state.viewMatrix), getExnFromStrictNull(state.pMatrix), [program]);
-
-		return worldState;
-	})
+    从worldState获得主线程发送过来的假的相机数据
+    ...
 }
-``` -->
+```
 
-该Job代码除了是从主线程传来的渲染数据获得假的相机数据以外，其它都跟之前一样
+该Job代码除了是从主线程发送过来的渲染数据中获得假的相机数据而非自己构造以外，其它都跟之前只支持单线程的SendUniformShaderDataJob代码一样
 
 RenderJob
 ```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
-    let states = getStatesFunc<worldState, states>(worldState)
-
-    let state = getState(states)
-
-    return mostService.callFunc(() => {
-        console.log("render job exec on render worker")
-
-        let gl = getExnFromStrictNull(state.gl)
-
-        let renderDataBufferTypeArray = getExnFromStrictNull(state.typeArray);
-        let renderGameObjectCount = getExnFromStrictNull(state.renderGameObjectsCount)
-
-        //清空画布
-        clear(gl)
-
-        //渲染所有的gameObject
-        range(0, renderGameObjectCount - 1).forEach(renderGameObjectIndex => {
-            跟之前一样，渲染每个gameObject...
-        })
-
-        return worldState
-    })
+    从worldState获得主线程发送过来的渲染数据，构造场景中所有的gameObject
+    ...
 }
 ```
 
-该Job代码除了是根据主线程传来的渲染数据构造场景中所有的gameObject以外，其它都跟之前一样
+该Job代码除了是根据主线程发送过来的渲染数据构造场景中所有的gameObject以外，其它都跟之前只支持单线程的RenderJob代码一样
 
 SendFinishRenderDataJob
 ```ts
 export let exec: execType<worldState> = (worldState, _) => {
-	return mostService.callFunc(() => {
-		console.log("send finish render data job exec on render worker")
-
-		postMessage({
-			command: "FINISH_SEND_RENDER_DATA"
-		})
-
-		return worldState
-	})
+    向主线程发送结束指令
 }
 ```
 
-该Job向主线程发送结束指令
+<!-- 该Job向主线程发送结束指令 -->
 
 
 
@@ -1435,50 +962,21 @@ export let exec: execType<worldState> = (worldState, _) => {
 ComputePhysicsJob
 ```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
-    let states = getStatesFunc<worldState, states>(worldState)
-
-    let state = getState(states)
-
-    return mostService.callFunc(() => {
-        console.log("compute physics job exec on physics worker")
-
-        let positions = getExnFromStrictNull(state.positions)
-
-        computeAveragePositions(worldState, getExnFromStrictNull(state.allTransformIndices)).forEach(([transform, newPosition]) => {
-            positions[transform * 3] = newPosition[0]
-            positions[transform * 3 + 1] = newPosition[1]
-            positions[transform * 3 + 2] = newPosition[2]
-        })
-
-        return setStatesFunc<worldState, states>(
-            worldState,
-            setState(states, {
-                ...state,
-                positions
-            })
-        )
-    })
+    进行一些物理计算
+    将计算结果写到PhysicsWorkderData的Buffer中
 }
 ```
 
-该Job进行物理计算，将计算出的位置写到PhysicsWorkderData的Buffer中
+该Job跟之前只支持单线程的ComputePhysicsAndUpdateJob不一样的地方是现在将计算结果是写到备份中
 
 SendFinishPhysicsDataJob
 ```ts
 export let exec: execType<worldState> = (worldState, _) => {
-	return mostService.callFunc(() => {
-		console.log("send finish physics data job exec on physics worker")
-
-		postMessage({
-			command: "FINISH_SEND_PHYSICS_DATA"
-		})
-
-		return worldState
-	})
+    向主线程发送结束指令
 }
 ```
 
-该Job向主线程发送结束指令
+<!-- 该Job向主线程发送结束指令 -->
 
 
 
@@ -1487,82 +985,41 @@ export let exec: execType<worldState> = (worldState, _) => {
 GetFinishRenderDataJob
 ```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
-	let states = getStatesFunc<worldState, states>(worldState)
-
-	let { renderWorker } = getState(states)
-
-	renderWorker = getExnFromStrictNull(renderWorker)
-
-	return createGetOtherWorkerDataStream(mostService, "FINISH_SEND_RENDER_DATA", renderWorker).map(() => {
-		console.log("get finish render data job exec on main worker")
-
-		return worldState
-	})
+    等待渲染线程发送过来的结束指令...
 }
 ```
-该Job等待渲染线程发送结束指令
+<!-- 该Job等待渲染线程发送过来的结束指令 -->
 
 
 GetFinishPhysicsDataJob
 ```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
-	let states = getStatesFunc<worldState, states>(worldState)
-
-	let { physicsWorker } = getState(states)
-
-	physicsWorker = getExnFromStrictNull(physicsWorker)
-
-	return createGetOtherWorkerDataStream(mostService, "FINISH_SEND_PHYSICS_DATA", physicsWorker).map(() => {
-		console.log("get finish physics data job exec on main worker")
-
-		return worldState
-	})
+    等待物理线程发送过来的结束指令...
 }
 ```
 
-该Job等待物理线程发送结束指令
+<!-- 该Job等待物理线程发送结束指令 -->
 
 
 UpdateAllTransformPositionsJob
 ```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
-    let states = getStatesFunc<worldState, states>(worldState)
-
-    let state = getState(states)
-
-    return mostService.callFunc(() => {
-        console.log("update all transform positions job exec on main worker")
-
-        worldState = _updateAllTransformPositions(worldState, getExnFromStrictNull(state.physicsDataBufferTypeArray))
-
-        return worldState
-    })
+    从PhysicsWorkerData的Buffer中获得物理线程的计算结果
+    用它来更新所有TransformComponent组件的位置
 }
 ```
 
-该Job使用物理线程中经过物理计算得到的值来更新所有TransformComponent组件的位置
+该Job使用物理线程中物理计算的结果来更新所有TransformComponent组件的位置
 
 
 UpdateTransformJob
 ```ts
 export let exec: execType<worldState> = (worldState, _) => {
-    return mostService.callFunc(() => {
-        console.log("update transform job exec on main worker")
-
-        let transformComponentManagerState = batchUpdate(getExnFromStrictNull(worldState.ecsData.transformComponentManagerState))
-
-        return {
-            ...worldState,
-            ecsData: {
-                ...worldState.ecsData,
-                transformComponentManagerState
-            }
-        }
-    })
+    更新所有TransformComponent组件的模型矩阵
 }
 ```
 
-该Job更新所有TransformComponent组件的模型矩阵
+<!-- 该Job更新所有TransformComponent组件的模型矩阵 -->
 
 
 
@@ -1571,25 +1028,7 @@ export let exec: execType<worldState> = (worldState, _) => {
 
 运行截图跟之前一样
 
-可以通打印的Job信息以及查看Chrome控制台的Performance的时间线，来验证确实是并行地运行了线程
-
-
-值得注意的是：
-因为使用了浏览器的SharedArrayBuffer API，所以需要启用浏览器的“跨域隔离”，打开Cross Origin
-
-具体实现是在webpack的配置文件中定义下面的代码：
-webpack.config.devserver.js
-```ts
-    devServer: {
-        ...
-        headers: {
-            "Cross-Origin-Embedder-Policy": "require-corp",
-            "Cross-Origin-Opener-Policy": "same-origin"
-        },
-        ...
-    },
-```
-
+可以通打印的Job信息以及查看Chrome控制台的Performance的时间线，来观察Job执行的顺序，从而验证确实是并行地运行了线程
 
 
 <!-- # 设计意图
@@ -1609,14 +1048,14 @@ webpack.config.devserver.js
 线程之间通过发送指令来调度
 
 如果主线程以外的其它线程都只读主线程的数据，则不需要同步；
-否则，首先需要拷贝写主线程的这部分数据；然后在需要写主线程的这部分数据的线程中，将新数据改为写到备份中；最后主线程在同步阶段，将自己的数据更新为备份中的新数据
+否则，首先备份其它线程需要写主线程的这部分数据；然后在其它线程中，将要写的数据改为写到备份中；最后主线程在同步阶段，将自己的数据更新为备份中的新数据
 
-渲染线程只读主线程的数据，其它线程则除了读以外还可能需要写主线程的数据
+渲染线程只读主线程的数据，其它线程除了读以外还可能需要写主线程的数据
 
 数据传送的方式主要有两种：拷贝、共享，其中共享主要是指共享SharedArrayBuffer和共享canvas
 
 
-其它线程相比主线程是延迟了一帧的，这是因为主线程在同步阶段会更新自己的数据，而更新的数据只能在下一帧被其它线程使用
+其它线程相比主线程是延迟了一帧的，这是因为主线程在同步阶段会更新自己的数据，而更新的数据只能在下一帧被其它线程使用，所以这一帧的其它线程使用的是上一帧的主线程的数据
 
 
 ## 通用UML？
@@ -1639,7 +1078,7 @@ X Worker对应某个其它线程，包括了运行在该线程的模块
 该角色是用户
 
 - WorldForMainWorker
-该角色是门户，封装了引擎API
+该角色是门户，封装了系统API
 
 - PipelineManager
 该角色负责管理管道
@@ -1648,7 +1087,7 @@ X Worker对应某个其它线程，包括了运行在该线程的模块
 该角色是注册的管道模块
 
 - X Pipeline
-该角色是一个管道
+该角色是管道
 
 - Job
 该角色是一段独立的逻辑
@@ -1661,7 +1100,7 @@ X Worker对应某个其它线程，包括了运行在该线程的模块
 
 
 我们看下X Worker这个部分：
-它的模块结构跟Main Worker一样，只是用户、门户、管道模块、管道不一样
+它的模块结构跟Main Worker一样，只是具体的用户、门户、管道模块、管道各不一样
 
 
 
@@ -1671,9 +1110,10 @@ X Worker对应某个其它线程，包括了运行在该线程的模块
 - 因为可能有一个或多个其它线程，所以对应的有一个或多个X Worker
 
 - 一个World注册了一个Pipeline
-值得注意的是：如果需要同时支持单线程和多线程运行环境的话，那么就需要注册两个Pipeline，它们分别为单线程和多线程的管道模块
+值得注意的是：如果需要支持单线程和多线程运行环境的话，那么就需要根据运行环境，注册对应的一个单线程Pipeline或者一个多线程Pipeline
 
 - 一个Pipeline有多个X Pipeline，如Init Pipeline、Update Pipeline等
+每个Pipeline应该至少有Init Pipeline
 
 - 一个X Pipeline有多个Job
 
@@ -1693,33 +1133,36 @@ TODO tu
 Main Worker包括了运行在主线程的Init Pipeline的Job，X Worker包括了运行在其它线程的Init Pipeline的Job
 
 
-这些Init Pipeline是并行运行的
+初始化并行运行了主线程、其它线程的Init Pipeline
 
 
-我们看下Main Worker这个部分：
+<!-- 我们看下Main Worker这个部分： -->
+首先，我们看下主线程的Init Pipeline的流程：
 
 - Create Worker Instance 
 该Job创建了所有其它线程的worker
 
 - Create XWorker Data Buffer
-该Job创建了XWorkderData的Buffer（SharedArrayBuffer），用来保存主线程和X Worker线程之间需要共享的数据
+这是多个Job，每个Job创建了对应X Worker的XWorkderData的Buffer（SharedArrayBuffer），用来保存主线程和X Worker线程之间需要共享的数据
 
 - Send Init XWorker Data
 这是多个Job，每个Job向对应的X Worker线程发送初始化数据
 
 - Get Finish Send Init XWorker Data
-这是多个Job，每个Job都并行执行，分别等待对应的X Worker线程发送过来的结束初始化的指令
+这是多个Job，每个Job都并行执行，分别等待对应的X Worker线程发送过来的结束指令
 
 
-我们看下X Worker这个部分：
+<!-- 我们看下X Worker这个部分： -->
+然后，我们看下其它线程的Init Pipeline的流程：
 
 - Get Init XWorker Data
-该Job获得主线程发送的数据
+该Job获得主线程发送过来的数据
 
 - Init Data Oriented Components
-该Job创建Data Oriented组件的Buffer的视图，从而能够通过视图读Buffer的数据
+该Job创建共享的Data Oriented组件的Buffer的视图，从而能够通过视图读Buffer的数据
+值得注意的是：不应该写Buffer的数据，而是改为写到备份的XWorkerData的Buffer中
 
-- Create XWorkre Data Buffer TypeArray
+- Create XWorker Data Buffer TypeArray
 该Job创建XWorkerData的Buffer的视图，从而能够通过视图读写Buffer的数据
 
 
@@ -1727,7 +1170,7 @@ Main Worker包括了运行在主线程的Init Pipeline的Job，X Worker包括了
 这是多个Job，每个Job实现一些逻辑，只应该更新该X Worker线程的数据
 
 - Send Finish Init XWorker Data
-该Job向主线程发送结束初始化的指定
+该Job向主线程发送结束指令
 
 
 
@@ -1741,9 +1184,9 @@ Main Worker包括了运行在主线程的Init Pipeline的Job，X Worker包括了
 
 - 主线程的“Create Worker Instance” Job在创建其它线程的worker后，会执行运行在该线程的用户代码，从而运行该线程的Init Pipeline
 
-- 主线程的每个“Send Init XWorker Data” Job将数据发送到对应的一个其它线程；该其它线程的“Get Init XWorker Data” Job获得该数据
+- 主线程的每个“Send Init XWorker Data” Job将数据发送到对应的一个其它线程；该其它线程的“Get Init XWorker Data” Job等待获得该数据
 
-- 所有其它线程的“Send Finish Init XWorker Data” Job将结束指定发送到主线程；主线程的对应的“Get Finish Send Init XWorker Data” Job等待接收该指定
+- 所有其它线程的“Send Finish Init XWorker Data” Job将结束指令发送到主线程；主线程的对应的“Get Finish Send Init XWorker Data” Job等待接收该指令
 
 
 
@@ -1756,19 +1199,14 @@ TODO tu
 
 Main Worker包括了运行在主线程的Update Pipeline和Sync Pipeline的Job，X Worker包括了运行在其它线程的X Pipeline的Job
 
-<!-- 主线程的Update Pipeline和其它线程的X Pipeline是并行运行的；
-主线程的Sync Pipeline是单独运行的
- -->
-
-首先并行运行了主线程的Update Pipeline、其它线程的X Pipeline；
+主循环的一帧首先并行运行了主线程的Update Pipeline、其它线程的X Pipeline；
 然后运行了主线程的Sync Pipeline
 
-我们看下Main Worker这个部分：
-
-Main Worker首先运行了主线程的Update Pipeline，我们看下相关的Job： 
+<!-- 我们看下Main Worker这个部分： -->
+首先，我们看下主线程的Update Pipeline的流程：
 
 - Update XWorker Data Buffer
-该Job更新了XWorkderData的Buffer中的数据
+这是多个Job，每个Job更新了对应X Worker的XWorkderData的Buffer中的数据
 
 - Send Begin Loop Data
 该Job向所有的其它线程发送开始主循环的指令
@@ -1780,17 +1218,8 @@ Main Worker首先运行了主线程的Update Pipeline，我们看下相关的Job
 这是多个Job，每个Job实现一些逻辑，只应该更新主线程的数据
 
 
-
-Main Worker接着运行了主线程的Sync Pipeline，我们看下相关的Job：
-
-- Get Finish XWorker Data
-这是多个Job，每个Job都并行执行，分别等待对应的X Worker线程发送过来的结束指令
-
-- Update Shared Data
-这是多个Job，每个Job都更新在线程之间共享的主线程的数据
-
- 
-我们看下X Worker这个部分：
+<!-- 我们看下X Worker这个部分： -->
+然后，我们看下其它线程的X Pipeline的流程：
 
 - Get XWorker Data
 该Job获得主线程发送的数据
@@ -1799,7 +1228,18 @@ Main Worker接着运行了主线程的Sync Pipeline，我们看下相关的Job�
 这是多个Job，每个Job实现一些逻辑，只应该更新该X Worker线程的数据
 
 - Send Finish XWorker Data
-该Job向主线程发送结束的指定
+该Job向主线程发送结束的指令
+
+
+最后，我们看下主线程的Sync Pipeline的流程：
+
+- Get Finish XWorker Data
+这是多个Job，每个Job都并行执行，分别等待对应的X Worker线程发送过来的结束指令
+
+- Update Shared Data
+这是多个Job，每个Job都更新在线程之间共享的主线程的数据
+
+ 
 
 
 ## 角色之间的关系？
@@ -1810,9 +1250,9 @@ Main Worker接着运行了主线程的Sync Pipeline，我们看下相关的Job�
 
 - 其它线程接收到主线程的“Send Begin Loop Data” Job发送的开始主循环的指令后，开始运行自己的X Pipeline
 
-- 主线程的每个“Send XWorker Data” Job将数据发送到对应的一个其它线程；该其它线程的“Get XWorker Data” Job获得该数据
+- 主线程的每个“Send XWorker Data” Job将数据发送到对应的其它线程；该其它线程的“Get XWorker Data” Job等待获得该数据
 
-- 所有其它线程的“Send Finish XWorker Data” Job将结束指定发送到主线程；主线程的对应的“Get Finish Send XWorker Data” Job等待接收该指定
+- 所有其它线程的“Send Finish XWorker Data” Job将结束指令发送到主线程；主线程的对应的“Get Finish Send XWorker Data” Job等待接收该指令
 
 
 
@@ -1822,24 +1262,24 @@ Main Worker接着运行了主线程的Sync Pipeline，我们看下相关的Job�
 下面我们来看看各个角色的抽象代码：
 
 
-首先，我们看下主线程中用户的代码；
-然后，我们看下主线程在初始化阶段运行的Init Pipeline的Job的代码；
-然后，我们看下X Worker线程中用户的代码；
-然后，我们看下X Worker线程在初始化阶段运行的Init Pipeline的Job的代码；
+首先，我们看下主线程中用户的抽象代码；
+然后，我们看下主线程在初始化阶段运行的Init Pipeline的Job的抽象代码；
+然后，我们看下X Worker线程中用户的抽象代码；
+然后，我们看下X Worker线程在初始化阶段运行的Init Pipeline的Job的抽象代码；
 
-在看完了初始化阶段后，我们就会看下主循环阶段的相关代码，具体步骤如下：
-首先，我们看下主线程的Update Pipeline的Job的代码；
-然后，我们看下X Worker线程的X Pipeline的Job的代码；
-最后，我们看下主线程的Sync Pipeline的Job的代码；
-
-
+在看完了初始化阶段后，我们就会看下主循环阶段的相关抽象代码，具体步骤如下：
+首先，我们看下主线程的Update Pipeline的Job的抽象代码；
+然后，我们看下X Worker线程的X Pipeline的Job的抽象代码；
+最后，我们看下主线程的Sync Pipeline的Job的抽象代码
 
 
 
-- 主线程中用户的代码
+
+
+- 主线程中用户的抽象代码
 Client
 ```ts
-let isUseWorker = true
+let isUseWorker = true or false
 
 let dataOrientedComponent1Count = xxx
 
@@ -1853,15 +1293,13 @@ let worldState = createState({ dataOrientedComponent1Count })
 worldState = _createScene(worldState)
 
 if (isUseWorker) {
-    worldState = registerWorkerAllPipelines(worldState)
+    注册MainWorkerPipeline
 }
 else {
-    console.log("registerNoWorkerAllPipelines...")
+    注册NoWorkerPipeline
 }
 
-let canvas = document.querySelector("#canvas")
-
-
+let canvas = 获得canvas Dom
 
 let _loop = (worldState: worldState) => {
     update(worldState).then(worldState => {
@@ -1875,8 +1313,6 @@ let _loop = (worldState: worldState) => {
         }
 
         handlePromise.then(worldState => {
-            console.log("after sync")
-
             requestAnimationFrame(
                 (time) => {
                     _loop(worldState)
@@ -1891,20 +1327,20 @@ init(worldState, canvas).then(worldState => {
 })
 ```
 
-- 主线程在初始化阶段运行的Init Pipeline的Job的代码
+- 主线程在初始化阶段运行的Init Pipeline的Job的抽象代码
 CreateWorkerInstanceJob
 ```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesFunc }) => {
     let states = getStatesFunc<worldState, states>(worldState)
 
     return mostService.callFunc(() => {
-        let xWorkerWorker = new Worker(new URL("../../../x_worker/XWorkerMain", import.meta.url))
+        let xWorker = new Worker(new URL("../../../x_worker/XWorkerMain", import.meta.url))
 
         return setStatesFunc<worldState, states>(
             worldState,
             setState(states, {
                 ...getState(states),
-                xWorkerWorker
+                xWorker
             })
         )
     })
@@ -1942,16 +1378,16 @@ SendInitXWorkerDataJob
 export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 	let states = getStatesFunc<worldState, states>(worldState)
 
-	let { xWorkerWorker, xWorkerDataBuffer } = getState(states)
+	let { xWorker, xWorkerDataBuffer } = getState(states)
 
 	return mostService.callFunc(() => {
-		xWorkerWorker = getExnFromStrictNull(xWorkerWorker)
+		xWorker = getExnFromStrictNull(xWorker)
 
 		let dataOrientedComponent1Count = (globalThis as any).dataOrientedComponent1Count
 
 		let allDataOrientedComponent1Indices = getAllDataOrientedComponent1s(getExnFromStrictNull(worldState.ecsData.dataOrientedComponent1ManagerState))
 
-		xWorkerWorker.postMessage({
+		xWorker.postMessage({
 			command: "SEND_INIT_XWORKER_DATA",
 			xWorkerDataBuffer: getExnFromStrictNull(xWorkerDataBuffer),
 			allDataOrientedComponent1Indices: allDataOrientedComponent1Indices,
@@ -1969,21 +1405,22 @@ GetFinishSendInitXWorkerDataJob
 export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 	let states = getStatesFunc<worldState, states>(worldState)
 
-	let { xWorkerWorker } = getState(states)
+	let { xWorker } = getState(states)
 
-	xWorkerWorker = getExnFromStrictNull(xWorkerWorker)
+	xWorker = getExnFromStrictNull(xWorker)
 
-	return createGetOtherWorkerDataStream(mostService, "FINISH_SEND_INIT_XWORKER_DATA", xWorkerWorker).map(() => {
+	return createGetOtherWorkerDataStream(mostService, "FINISH_SEND_INIT_XWORKER_DATA", xWorker).map(() => {
 		return worldState
 	})
 }
 ```
 
-### X Worker线程中用户的代码
+### X Worker线程中用户的抽象代码
 
 XWorkerMain
 ```ts
 let _frame = (worldState: worldState) => {
+    //运行X Pipeline
 	return pipelineWhenLoop(worldState)
 }
 
@@ -2026,7 +1463,7 @@ mostService.drain(
 ```
 
 
-### X Worker线程在初始化阶段运行的Init Pipeline的Job的代码
+### X Worker线程在初始化阶段运行的Init Pipeline的Job的抽象代码
 
 GetInitXWorkerDataJob
 ```ts
@@ -2129,7 +1566,7 @@ export let exec: execType<worldState> = (worldState, _) => {
 }
 ```
 
-### 主线程的Update Pipeline的Job的代码
+### 主线程的Update Pipeline的Job的抽象代码
 
 UpdateXWorkerDataBufferJob
 ```ts
@@ -2156,12 +1593,12 @@ SendBeginLoopDataJob
 export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 	let states = getStatesFunc<worldState, states>(worldState)
 
-	let { xWorkerWorker } = getState(states)
+	let { xWorker } = getState(states)
 
 	return mostService.callFunc(() => {
-		xWorkerWorker = getExnFromStrictNull(xWorkerWorker)
+		xWorker = getExnFromStrictNull(xWorker)
 
-		xWorkerWorker.postMessage({
+		xWorker.postMessage({
 			command: "SEND_BEGIN_LOOP"
 		})
 
@@ -2174,12 +1611,12 @@ SendXWorkerDataJob
 export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 	let states = getStatesFunc<worldState, states>(worldState)
 
-	let { xWorkerWorker } = getState(states)
+	let { xWorker } = getState(states)
 
 	return mostService.callFunc(() => {
-		xWorkerWorker = getExnFromStrictNull(xWorkerWorker)
+		xWorker = getExnFromStrictNull(xWorker)
 
-		xWorkerWorker.postMessage({
+		xWorker.postMessage({
 			command: "SEND_XWORKER_DATA",
 			someData:xxx
 		})
@@ -2209,7 +1646,7 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
 ```
 
 
-### X Worker线程的X Pipeline的Job的代码
+### X Worker线程的X Pipeline的Job的抽象代码
 
 
 GetXWorkerDataJob
@@ -2270,18 +1707,18 @@ export let exec: execType<worldState> = (worldState, _) => {
 ```
 
 
-### 主线程的Sync Pipeline的Job的代码
+### 主线程的Sync Pipeline的Job的抽象代码
 
 GetFinishXWorkerDataJob
 ```ts
 export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 	let states = getStatesFunc<worldState, states>(worldState)
 
-	let { xWorkerWorker } = getState(states)
+	let { xWorker } = getState(states)
 
-	xWorkerWorker = getExnFromStrictNull(xWorkerWorker)
+	xWorker = getExnFromStrictNull(xWorker)
 
-	return createGetOtherWorkerDataStream(mostService, "FINISH_SEND_XWORKER_DATA", xWorkerWorker).map(() => {
+	return createGetOtherWorkerDataStream(mostService, "FINISH_SEND_XWORKER_DATA", xWorker).map(() => {
 		return worldState
 	})
 }
@@ -2294,7 +1731,7 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
     let state = getState(states)
 
     return mostService.callFunc(() => {
-        console.log("update shared data between workers: e.g. data oriented component1's typeArrays")
+        console.log("update shared data between workers: e.g. update data oriented component1's typeArrays")
 
         return worldState
     })
@@ -2321,7 +1758,7 @@ TODO finish
 
 ## 缺点
 
-- 需要同时维护单线程和多线程的这两套代码
+- 如果需要同时支持单线程和多线程运行环境的话，则需要同时维护单线程和多线程的这两个管道的代码
 好消息是因为使用了管道模式，所以进行了充分的解耦，使得这两套代码互不影响
 
 - 需要考虑考虑线程之间的同步
@@ -2380,7 +1817,7 @@ TODO finish
 
 在单线程、多线程运行环境下分别注册不同的管道来实现对应的逻辑
 这样做的好处是：
-1.可以通过切换管道，来同时支持单线程和多线程的运行环境
+1.可以通过切换管道，来支持单线程或者多线程的运行环境
 2.可以通过管道的并行Job实现多线程的并行逻辑
 
 
@@ -2410,7 +1847,7 @@ TODO finish
 然后等到同步阶段（也就是运行主线程的Sync Pipeline时）再真正地将其删除
 
 
-- 通过切换管道，来同时支持单线程和多线程的运行环境
+- 通过切换管道，来支持单线程或者多线程的运行环境
 
 
 

@@ -7,6 +7,7 @@ import { getPipeline as getXWorkerPipeline } from "./Main"
 import { setPipelineManagerState, unsafeGetPipelineManagerState } from "mutltithread_pattern_world_abstract/src/World"
 
 let _frame = (worldState: worldState) => {
+    //运行X Pipeline
 	return pipelineWhenLoop(worldState)
 }
 

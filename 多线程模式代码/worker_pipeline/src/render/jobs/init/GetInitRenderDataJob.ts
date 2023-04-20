@@ -10,7 +10,6 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
 
     let offscreenCanvas: OffscreenCanvas
     let renderDataBuffer: SharedArrayBuffer
-    let allMaterialIndices: Array<number>
     let transformComponentCount: number, basicMaterialComponentCount: number
     let transformComponentBuffer: SharedArrayBuffer, basicMaterialComponentBuffer: SharedArrayBuffer
 
@@ -19,7 +18,6 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
         (event: MessageEvent) => {
             offscreenCanvas = event.data.canvas
             renderDataBuffer = event.data.renderDataBuffer
-            allMaterialIndices = event.data.allMaterialIndices
             transformComponentCount = event.data.transformComponentCount
             basicMaterialComponentCount = event.data.basicMaterialComponentCount
             transformComponentBuffer = event.data.transformComponentBuffer
@@ -36,7 +34,6 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc, setStatesF
                 ...getState(states),
                 canvas: offscreenCanvas,
                 renderDataBuffer: renderDataBuffer,
-                allMaterialIndices: allMaterialIndices,
                 transformComponentCount: transformComponentCount,
                 basicMaterialComponentCount: basicMaterialComponentCount,
                 transformComponentBuffer: transformComponentBuffer,
