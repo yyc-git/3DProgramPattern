@@ -1,4 +1,4 @@
-import { createState, render } from "./Render"
+import { createState, init, render } from "./Engine"
 
 //构造假canvas
 let canvas = {
@@ -9,6 +9,7 @@ let canvas = {
 //也可以通过设置为false来设置运行环境为移动端 
 globalThis.isPC = true
 
-let renderState = createState()
+let engineState = createState()
 
-renderState = render(renderState, canvas)
+engineState = init(engineState, canvas)
+engineState = render(engineState)

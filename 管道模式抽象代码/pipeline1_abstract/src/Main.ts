@@ -1,11 +1,11 @@
 import { pipeline } from "pipeline_manager_abstract/src/type/PipelineType"
 import { pipelineName, state } from "pipeline1_state_type_abstract/src/StateType"
-import { exec as execJob1 } from "./jobs/管道1的名称/Job1"
+import * as Job1 from "./jobs/管道1的名称/Job1"
 
-let _getExec = (_pipelineName: string, jobName: string) => {
+let _getExec = (pipelineName: string, jobName: string) => {
 	switch (jobName) {
 		case Job1的JSON名
-			return execJob1
+			return Job1.exec
 		case 更多Job的JSON名...
 			return ...
 		default:

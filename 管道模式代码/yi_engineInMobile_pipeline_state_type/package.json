@@ -1,0 +1,10 @@
+{
+    "name": "yi_engineInMobile_pipeline_state_type",
+    "version": "0.0.1",
+    "scripts": {
+        "watch": "tsc -w -noEmit"
+    },
+    "devDependencies": {
+        "typescript": "^4.2.3"
+    }
+}

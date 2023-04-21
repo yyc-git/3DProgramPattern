@@ -1,8 +1,8 @@
-import { state } from "./RenderStateType"
+import { state } from "./EngineStateType"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 
 export let tonemap = (state: state) => {
-    let gl = getExnFromStrictNull(state.renderInPC.gl)
+    let gl = getExnFromStrictNull(state.engineInPC.gl)
 
     console.log("tonemap for WebGL2")
 

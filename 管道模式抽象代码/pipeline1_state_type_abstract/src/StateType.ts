@@ -5,9 +5,9 @@ export type state = {
     ...
 }
 
-//该Pipeline使用的所有PipelineState的类型
+//该Pipeline的Job使用的所有PipelineState的类型
 export type states = {
     [pipelineName]: state,
 
-    [依赖的其它PipelineState的名称]: 依赖的其它PipelineState的类型,
+    [依赖的其它PipelineState的名称]: 依赖的其它PipelineState的state类型,
 }

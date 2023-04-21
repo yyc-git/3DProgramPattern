@@ -21,6 +21,15 @@ export let exec: execType<systemState> = (systemState, { getStatesFunc, setState
                 })
             )
         }
+        else if (需要写数据到其它的PipelineState) {
+            return setStatesFunc<systemState, states>(
+                systemState,
+                设置依赖的其它PipelineState(states, {
+                    ...获得依赖的其它PipelineState(states),
+                    写数据
+                })
+            )
+        }
         else {
             return systemState
         }

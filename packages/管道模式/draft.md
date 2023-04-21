@@ -57,7 +57,7 @@
 - 请给出直接的解决方案?
     - 概述解决方案？
 
-可以从Render模块中提出两个模块：RenderInPC, RenderInMobile，分别对应PC端和移动端的渲染；
+可以从Render模块中提出两个模块：EngineInPC, EngineInMobile，分别对应PC端和移动端的渲染；
 
 将Render模块中的逻辑提出来，拆分成一个个单独的模块；
 
@@ -124,7 +124,7 @@
 解决第一个问题： 如何通过可配置的JSON指定渲染中各个逻辑的执行顺序？
 
 <!-- 如何通过可配置的JSON指定渲染中各个逻辑的执行顺序？ -->
-将RenderInPC和RenderInMobile升级成两个渲染管道
+将EngineInPC和EngineInMobile升级成两个渲染管道
 
 将其中的逻辑升级成独立的Job
 
@@ -141,10 +141,10 @@ Job可以拿到每个渲染管道的数据，不过只依赖于管道数据的�
 
 解决第二个问题： 在多人开发中，如何让每个人只独立开发自己负责的逻辑，并且能方便地将每个人实现的逻辑集成到渲染中？
 
-现在增加一个开发同学乙，负责实现RenderInMobile管道的前向渲染、Tonemap的Job
-甲负责实现RenderInPC管道的所有Job，以及RenderInMobile管道的初始化WebGL1
+现在增加一个开发同学乙，负责实现EngineInMobile管道的前向渲染、Tonemap的Job
+甲负责实现EngineInPC管道的所有Job，以及EngineInMobile管道的初始化WebGL1
 
-这里需要实现的是能够合并甲、乙开发的同属于RenderInMobile管道的两个子管道。其中乙实现的两个Job应该在甲实现的Job之后执行，并且乙的Job需要读甲的子管道数据：WebGL1的上下文
+这里需要实现的是能够合并甲、乙开发的同属于EngineInMobile管道的两个子管道。其中乙实现的两个Job应该在甲实现的Job之后执行，并且乙的Job需要读甲的子管道数据：WebGL1的上下文
 
 
     - 遵循哪些设计原则

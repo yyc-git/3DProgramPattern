@@ -1,7 +1,7 @@
 import { state } from "./SystemStateType"
 import { state as pipelineState } from "pipeline_manager_abstract/src/type/StateType"
 import { createState as createPipelineManagerState, registerPipeline, runPipeline, init as initPipelineManager } from "pipeline_manager_abstract"
-import { getPipeline as getPipeline1 } from "pipeline1_abstract/src/Main"
+import * as Pipeline1  from "pipeline1_abstract/src/Main"
 import { service as mostService } from "most/src/MostService"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 import { unsafeGetState, setState } from "./SystemStateContainer"
@@ -18,7 +18,7 @@ export let registerAllPipelines = (state: state) => {
     if (_isEnvironment1()) {
         let pipelineManagerState = registerPipeline(
             state.pipelineManagerState,
-            getPipeline1(),
+            Pipeline1.getPipeline(),
             []
         )
 
@@ -26,7 +26,7 @@ export let registerAllPipelines = (state: state) => {
             //合并Pipeline2和Pipeline1的X Pipeline管道
             pipelineManagerState = registerPipeline(
                 pipelineManagerState,
-                getPipeline2(),
+                Pipeline2.getPipeline(),
                 [
                     {
                         pipelineName: 某个X Pipeline名,
@@ -92,16 +92,16 @@ export let init = (state: state, config) => {
     //把配置保存到全局变量中，从而在Job中通过全局变量获得配置
     globalThis.config = config
 
-    //管道模块通常包含一个Init Pipeline管道，包括了与初始化相关的Job
-    //这里运行Init Pipeline管道
+    //运行Init Pipeline管道
     return _runPipeline(state, "init")
 }
 
-export let runPipeline1 = (state: state, config) => {
+export let runPipelineX = (state: state, config) => {
     //把配置保存到全局变量中，从而在Job中通过全局变量获得配置
     globalThis.config = config
 
+    //运行某个X Pipeline
     return _runPipeline(state, 某个X Pipeline名)
 }
 
-更多的runPipeline函数，运行对应的X Pipeline...
+更多的runPipelineX函数，运行对应的X Pipeline...

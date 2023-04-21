@@ -11,6 +11,16 @@ export function setState(states: states, state: state): states {
     })
 }
 
+export function 获得依赖的其它PipelineState(states: states): 其它PipelineStateType.state {
+    return states[其它PipelineName]
+}
+
+export function 设置依赖的其它PipelineState(states: states, state: 其它PipelineStateType.state): states {
+    return Object.assign({}, states, {
+        [其它PipelineName]: state
+    })
+}
+
 export function 获得依赖的其它PipelineState的数据(states: states) {
-    return states[其它PipelineName].xxx
+    return 获得依赖的其它PipelineState(states).xxx
 }
