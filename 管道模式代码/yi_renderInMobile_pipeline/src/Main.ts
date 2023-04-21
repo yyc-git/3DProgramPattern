@@ -1,15 +1,15 @@
 import { state as renderState } from "render/src/RenderStateType"
 import { pipeline } from "pipeline_manager/src/type/PipelineType"
 import { pipelineName, state } from "yi_renderInMobile_pipeline_state_type/src/StateType"
-import { exec as execForwardRender } from "./jobs/render/ForwardRenderJob"
-import { exec as execTonemap } from "./jobs/render/TonemapJob"
+import * as ForwardRenderJob from "./jobs/render/ForwardRenderJob"
+import * as TonemapJob from "./jobs/render/TonemapJob"
 
 let _getExec = (_pipelineName: string, jobName: string) => {
 	switch (jobName) {
 		case "forward_render_yi_renderInMobile":
-			return execForwardRender
+			return ForwardRenderJob.exec
 		case "tonemap_yi_renderInMobile":
-			return execTonemap
+			return TonemapJob.exec
 		default:
 			return null
 	}

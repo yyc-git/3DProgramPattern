@@ -1,13 +1,13 @@
 import { createState, registerAllPipelines, render } from "render/src/Render"
 
-//假canvas
+//构造假canvas
 let canvas = {
     getContext: (_) => 1 as any
 }
 
-//指定运行环境为PC端
+//此处设置运行环境为PC端
+//也可以通过设置为false来设置运行环境为移动端 
 globalThis.isPC = true
-
 
 let renderState = createState()
 

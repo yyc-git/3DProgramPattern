@@ -8,6 +8,7 @@ export let exec: execType<renderState> = (renderState, { getStatesFunc, setState
     //从RenderState中获得所有的PipelineState
 	let states = getStatesFunc<renderState, states>(renderState)
 
+    //从全局变量中获得canvas
 	let canvas: HTMLCanvasElement = globalThis.canvas
 
     //调用most.js库，返回了一个流

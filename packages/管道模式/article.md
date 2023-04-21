@@ -2,7 +2,7 @@
 
 ## 需求
 
-甲想要实现引擎的渲染，并能够同时运行在PC端和移动端
+开发者甲需要实现引擎的渲染，使其能够同时运行在PC端和移动端
 
 两个运行环境的差异如下所示：
 
@@ -14,8 +14,8 @@
 
 渲染可分解为初始化WebGL、渲染、Tonemap后处理这三个步骤
 
-处理运行环境的差异的思路如下；
-
+处理运行环境的差异的思路是在每个步骤中判断运行环境，进行对应的处理
+具体如下：
 - 在“初始化WebGL”中判断运行环境，如果是PC端就获得WebGL2的上下文，否则就获得WebGL1的上下文
 - 在“渲染”中判断运行环境，如果是PC端就使用延迟渲染算法，否则就使用前向渲染算法
 - 在“Tonemap”中判断运行环境，如果是PC端就使用WebGL2的上下文，否则就使用WebGL1的上下文
@@ -24,39 +24,56 @@
 
 ## 给出UML
 
+**领域模型**
+
 TODO tu
+
+
+总体来看，分为用户、Render这两个部分
+
+Client是用户
 
 Render负责渲染
 
 
 ## 给出代码
 
+首先，我们看下用户的代码；
+然后，我们看下Render的代码；
+最后，我们运行代码
+
+### 用户的代码
+
 Client
 ```ts
-//假canvas
+//构造假canvas
 let canvas = {
     getContext: (_) => 1 as any
 }
 
-//指定运行环境为PC端
+//此处设置运行环境为PC端
+//也可以通过设置为false来设置运行环境为移动端 
 globalThis.isPC = true
-
 
 let renderState = createState()
 
 renderState = render(renderState, canvas)
 ```
 
-我们首先创建了引擎的RenderState，它保存了渲染的所有数据；
-最后进行渲染
+我们首先调用createState函数创建了引擎的RenderState，用来保存渲染的所有数据；
+最后调用render函数进行渲染
 
-我们看下相关代码：
+
+### Render的代码
+
 RenderStateType
 ```ts
 export type state = {
     gl: WebGLRenderingContext | WebGL2RenderingContext | null
 }
 ```
+RenderStateType定义了RenderState的类型
+
 Render
 ```ts
 let _isPC = () => {
@@ -126,8 +143,11 @@ export let render = (state: state, canvas) => {
 }
 ```
 
-渲染的三个步骤分别对应_initWebGL、_render、_tonemap这三个函数，它们都判断了运行环境，执行对应的逻辑
+渲染的三个步骤分别在_initWebGL、_render、_tonemap这三个函数中实现
+它们都判断了运行环境，并执行对应的逻辑
 
+
+### 运行代码
 
 下面，我们运行代码，运行结果如下：
 ```text
@@ -144,9 +164,10 @@ tonemap for WebGL2
 
 ## 提出问题
 
-为了加快开发进度，甲找到了开发者乙来一起开发，其中甲负责PC端的渲染实现和移动端的渲染实现中的“初始化WebGL”步骤，乙负责移动端的渲染实现中的另外两个步骤
+为了加快开发进度，甲找到了开发者乙来一起开发，其中甲负责PC端渲染的所有步骤和移动端渲染的“初始化WebGL”步骤，乙负责移动端渲染的另外两个步骤
 
-- 由于两个运行环境的逻辑混杂在一起，导致两个开发者开发时互相影响，容易出现代码冲突，最终导致开发进度逐渐变慢
+- 开发效率低
+由于两个运行环境的逻辑混杂在同一个模块的同一个函数中，导致两个开发者在开发时相互影响，导致容易出现代码冲突，最终使得整体的开发效率逐渐变慢
 
 
 
@@ -155,23 +176,24 @@ tonemap for WebGL2
 
 ## 概述解决方案？
 
-分离PC端和移动端的逻辑：
-从Render中提出两个模块：RenderInPC、RenderInMobile，它们分别实现PC端和移动端的渲染；
-在Render中判断运行环境，调用对应的模块来渲染
-
-提出步骤模块：
-将渲染的三个步骤提出成单独的模块，这样可减少步骤之间的耦合，便于维护
+通过下面的改进来提高开发效率：
+1.分离PC端和移动端的逻辑为不同的模块，具体是从Render中提出两个模块：RenderInPC、RenderInMobile，分别实现PC端和移动端的渲染；
+然后在Render中判断运行环境，调用对应的模块来渲染
+2.将渲染的三个步骤提出成单独的模块，这样可减少步骤之间的耦合，便于维护
 
 
 ## 给出UML？
 
+**领域模型**
 TODO tu
 
 
-总体来看，分为Render、针对每个运行环境的渲染、渲染的步骤这三个部分
+总体来看，分为用户、Render、针对每个运行环境的渲染、渲染的步骤这三个部分
 
 
-我们看下Render这个部分：
+我们看下用户、Render这两个部分：
+
+Client是用户
 
 Render负责判断运行环境，调用对应的模块来渲染
 
@@ -182,14 +204,15 @@ RenderInPC负责PC端的渲染
 
 RenderInMobile负责移动端的渲染
 
+
 我们看下渲染的步骤这个部分：
 
-这是RenderInPC的三个步骤模块：
+下面介绍RenderInPC的三个步骤模块：
 InitWebGL2负责初始化WebGL2
 DeferRender实现延迟渲染
 TonemapForWebGL2使用WebGL2实现Tonemap后处理
 
-这是RenderInMobile的三个步骤模块：
+下面介绍RenderInMobile的三个步骤模块：
 InitWebGL1负责初始化WebGL1
 ForwardRender实现前向渲染
 TonemapForWebGL1使用WebGL1实现Tonemap后处理
@@ -200,33 +223,29 @@ TonemapForWebGL1使用WebGL1实现Tonemap后处理
 
 ## 结合UML图，描述如何具体地解决问题？
 
-- 现在甲负责RenderInPC和对应的三个模块、以及RenderInMobile和InitWebGL1模块，乙负责ForwardRender、TonemapForWebGL1模块，互相不影响
+- 现在甲负责RenderInPC和对应的三个步骤模块、以及RenderInMobile和InitWebGL1步骤模块，乙负责ForwardRender、TonemapForWebGL1这两个步骤模块，两人相互不影响
 
 
 
 
 ## 给出代码？
 
+首先，我们看下用户的代码；
+然后，我们看下创建RenderState的代码；
+然后，我们看下Render的render函数的代码；
+然后，我们看下RenderInPC的代码；
+然后，我们看下RenderInPC的三个步骤模块的代码；
+然后，我们看下RenderInMobile的代码；
+然后，我们看下RenderInMobile的三个步骤模块的代码；
+最后，我们运行代码
 
-Client代码:
-```ts
-//假canvas
-let canvas = {
-    getContext: (_) => 1 as any
-}
+### 用户的代码
 
-//指定运行环境为PC端
-globalThis.isPC = true
+Client代码跟之前一样，故省略
 
 
-let renderState = createState()
+### 创建RenderState
 
-renderState = render(renderState, canvas)
-```
-
-Client代码跟之前一样
-
-我们看下Render的createState相关代码：
 RenderStateType
 ```ts
 export type renderInPCState = {
@@ -256,10 +275,12 @@ export let createState = (): state => {
 }
 ```
 
-createState函数创建的RenderState使用两个字段来分别保存两个运行环境的数据，互不干扰
+createState函数创建了RenderState，它现在使用两个字段来分别保存两个运行环境的数据，互不干扰
 
 
-我们看下Render的render相关代码：
+### Render的render函数的代码
+
+Render
 ```ts
 let _isPC = () => {
     return globalThis.isPC
@@ -279,9 +300,11 @@ export let render = (state: state, canvas) => {
 }
 ```
 
-render函数判断了运行环境，如果是PC端就调用RenderInPC模块来渲染；否则就调用RenderInMobile模块来渲染
+render函数判断了运行环境，如果是PC端就调用RenderInPC模块的函数来渲染；否则就调用RenderInMobile模块的函数来渲染
 
-我们看下RenderInPC代码
+### RenderInPC的代码
+
+RenderInPC
 ```ts
 export let render = (state: state, canvas) => {
     state = initWebGL2(state, canvas)
@@ -292,9 +315,10 @@ export let render = (state: state, canvas) => {
 }
 ```
 
-它依次调用三个模块来执行渲染
+它依次调用三个步骤模块来执行渲染
 
-三个模块的相关代码如下：
+### RenderInPC的三个步骤模块的代码
+
 InitWebGL2
 ```ts
 export let initWebGL2 = (state: state, canvas) => {
@@ -330,7 +354,9 @@ export let tonemap = (state: state) => {
 ```
 
 
-我们看下RenderInMobile代码
+### RenderInMobile的代码
+
+RenderInMobile
 ```ts
 export let render = (state: state, canvas) => {
     state = initWebGL1(state, canvas)
@@ -341,9 +367,10 @@ export let render = (state: state, canvas) => {
 }
 ```
 
-它依次调用另外三个模块来执行渲染
+它依次调用三个步骤模块来执行渲染
 
-三个模块的相关代码如下：
+### RenderInMobile的三个步骤模块的代码
+
 InitWebGL1
 ```ts
 export let initWebGL1 = (state: state, canvas) => {
@@ -378,6 +405,7 @@ export let tonemap = (state: state) => {
 }
 ```
 
+### 运行代码
 
 下面，我们运行代码，运行结果如下：
 ```text
@@ -397,7 +425,7 @@ tonemap for WebGL2
 
 - 不能通过配置来指定渲染的步骤
 现在是通过函数调用的方式来执行渲染的三个步骤。
-如果不懂代码的策划人员想要自定义三个步骤的执行顺序，那就需要麻烦开发人员修改代码来实现，而不能够直接通过修改配置数据来实现
+如果不懂代码的策划人员想要自定义三个步骤的执行顺序，不能够直接通过修改配置数据来实现，而需要麻烦开发人员修改代码来实现
 
 <!-- - 多人同时开发不同的步骤模块时容易造成冲突
 现在让甲负责开发RenderInPC和RenderInMobile中的InitWebGL1，乙负责开发RenderInMobile中的另外两个步骤模块，那么当他们合并RenderInMobile的代码时容易出现代码冲突和Bug。
@@ -412,10 +440,10 @@ tonemap for WebGL2
 
 
 通过下面的改进来实现“通过配置来指定渲染的步骤”：
-将RenderInPC和RenderInMobile模块改为三个管道模块，分别为：RenderInPCPipeline、JiaRenderInMobilePipeline、YiRenderInMobilePipeline，前两个由甲负责，最后一个由乙负责
+将RenderInPC和RenderInMobile改为三个管道模块，分别为：RenderInPCPipeline、JiaRenderInMobilePipeline、YiRenderInMobilePipeline，其中前两个由甲负责，最后一个由乙负责
 将每个步骤模块改为一个Job
-每个管道模块都有一个渲染管道，它包括了对应的Job
-每个管道模块都定义了自己的JSON配置，其中的Job按照它指定的执行顺序依次执行
+每个管道模块都有一个渲染管道，它包括了步骤模块修改而成的Job
+每个管道模块都定义了自己的JSON配置，用来指定Job的执行顺序
 
 <!-- 通过这样的改进， -->
 
@@ -425,52 +453,67 @@ tonemap for WebGL2
 
 ## 给出UML？
 
+**领域模型**
 TODO tu
 
 
 
 
 <!-- 总体来看，分为Render、PipelineManager、三个管道、三个管道state以及对应的state类型、三个管道包括的Job这几个部分 -->
-总体来看，分为Render、PipelineManager、三个管道这三个部分
+总体来看，分为用户、Render、PipelineManager、三个管道模块这四个部分
 
 
-我们看下Render、PipelineManager这两个部分：
+我们看下用户、Render、PipelineManager这三个部分：
+
+Client是用户
+
+Render是门户
+它的createState函数创建了RenderState；
+它的registerAllPipelines函数按照不同的运行环境注册了对应的管道模块，它们都有一个Render Pipeline管道；
+它的rende函数运行了Render Pipeline管道，依次执行它所有的Job，实现了渲染
+
+PipelineManager负责管理管道，实现了注册管道、合并管道、运行管道的逻辑
 
 
-Render是门户，它的registerAllPipelines函数实现了按照运行环境注册对应的管道模块中的Render Pipeline管道；它的rende函数通过运行Render Pipeline管道，依次执行它的所有Job来实现渲染
 
-PipelineManager负责管理管道，实现了注册管道、合并管道、运行管道的实现逻辑
+我们看下三个管道模块这个部分：
 
+这个部分包括了三个管道模块、管道模块的PipelineState和其类型定义PipelineStateType、管道模块的Render Pipeline管道、管道的Job
 
+三个管道模块具体是甲负责的RenderInPCPipeline、JiaRenderInMobilePipeline和乙负责的YiRenderInMobilePipeline
 
-我们看下三个管道这个部分：
-
-这里有三个管道模块，具体是甲负责的RenderInPCPipeline、JiaRenderInMobilePipeline和乙负责的YiRenderInMobilePipeline
-
-每个管道模块都有自己的PipelineState，这里具体有RenderInPCPipelineState、JiaRenderInMobilePipelineState、YiRenderInMobilePipelineState
+每个管道模块都有自己的PipelineState，用来保存管道的所有数据
+它们具体是RenderInPCPipelineState、JiaRenderInMobilePipelineState、YiRenderInMobilePipelineState
 
 每个PipelineState实现了定义在对应的PipelineStateType中的类型
-这里具体有RenderInPCPipelineStateType、JiaRenderInMobilePipelineStateType、YiRenderInMobilePipelineStateType
+它们具体是RenderInPCPipelineStateType、JiaRenderInMobilePipelineStateType、YiRenderInMobilePipelineStateType
 
-每个管道模块可以包括多个管道，它们的数据都保存在PipelineState中
-之前的步骤模块现在都对应地改为Job，每个管道可以包括多个Job
+每个管道模块可以有多个管道，管道的数据都保存在PipelineState中
+这里每个管道模块只包括了一个管道：Render Pipeline
 
-这里每个管道模块只包括了一个管道：Render Pipeline，它包括了对应的Job
+之前的步骤模块现在都对应地改为Job
 
-每个Job都能读写所有管道模块的PipelineState，但它们没有直接依赖PipelineState，而是依赖它的类型（PipelineStateType）。
-这里可以看到RenderInPCPipeline的Render Pipeline管道的三个Job依赖了RenderInPCPipeineStateType，这是因为它们需要读写RenderInPCPipelineState。当然它们也可以通过依赖另外两个管道模块的PipelineStateType来读写另外两个管道模块的PipelineState，只是目前没有必要
+每个管道可以包括多个Job
+
+
+值得注意的是：
+每个Job都能读写**所有**管道模块的PipelineState，但它们没有直接依赖PipelineState，而是依赖它的类型（PipelineStateType）。
+这里可以看到RenderInPCPipeline的Render Pipeline管道的三个Job依赖了RenderInPCPipeineStateType，这是因为它们需要读写RenderInPCPipelineState。
+当然它们也可以通过依赖另外两个管道模块的PipelineStateType来读写另外两个管道模块的PipelineState，只是目前没有必要
+
 同理，YiRenderInMobilePipeline的Render Pipeline管道的两个Job依赖了YiRenderInMobilePipelineStateType和JiaRenderInMobilePipelineStateType，这是因为它们需要读写YiRenderInMobilePipeline、JiaRenderInMobilePipeline这两个管道模块的PipelineState
+<!-- 另外，YiRenderInMobilePipelineStateType依赖了JiaRenderInMobilePipelineStateType，这是因为 -->
 
 
 
-下图是数据视图：
+**数据视图**
 TODO tu
 
-总体来看，数据分为运行时数据和配置数据，其中各个State是运行时数据，各个JSON是配置数据
+总体来看，数据分为运行时数据和配置数据，其中各个State属于运行时数据，各个JSON属于配置数据
 
-Render有自己的数据-RenderState，它包括了其它的state
+Render有自己的数据-RenderState，它包括了其它所有的state
 
-PipelineManager有自己的数据-PipeStateManagerState，它包括了所有管道模块的PipelineState
+PipelineManager有自己的数据-PipelineManagerState，它包括了所有管道模块的PipelineState
 
 三个管道模块各自有一个PipelineState数据和一个JSON配置数据，其中PipelineState保存了管道模块中所有管道的运行时数据，JSON配置数据用来指定管道模块中所有管道的Job的执行顺序
 
@@ -480,38 +523,42 @@ PipelineManager有自己的数据-PipeStateManagerState，它包括了所有管�
 
 - RenderInPCPipeline、JiaRenderInMobilePipeline、YiRenderInMobilePipeline这三个管道模块都有JSON配置数据，不懂开发的策划人员只需要配置它们而不需要修改代码，即可指定渲染的步骤
 
-- 现在甲、乙之间仍然互不干扰
-甲和乙开发的是不同的管道模块，它们之间唯一的依赖是乙开发的管道模块（YiRenderInMobilePipeline）的PipelineState（YiRenderInMobilePipelineState）使用了甲开发的管道模块的PipelineState（JiaRenderInMobilePipelineState）。因为它们的依赖是类型（PipelineStateType）之间的依赖，所以只要JiaRenderInMobilePipelineStateType不变（类型是抽象的，一般都不会改变），则甲、乙之间的开发就不会互相影响
-
+- 现在甲、乙之间的开发更加解耦了，进一步减少了两人的相互影响
+甲和乙开发的是不同的管道，它们之间唯一的依赖是乙开发的管道模块（YiRenderInMobilePipeline）的PipelineState（YiRenderInMobilePipelineState）使用了甲开发的管道模块的PipelineState（JiaRenderInMobilePipelineState）。
+但是因为它们的依赖是类型（PipelineStateType）之间的依赖，所以只要JiaRenderInMobilePipelineStateType不变（类型是抽象的，一般都不会改变），则甲、乙之间的开发就不会互相影响
 
 
 ## 给出代码？
 
+首先，我们看下用户的代码；
+然后，我们看下创建RenderState的代码；
+然后，我们看下注册管道模块的代码；
+然后，我们看下Render的render函数的代码
+然后，我们看下移动端的JiaRenderInMobilePipeline的相关代码
+然后，我们看下移动端的YiRenderInMobilePipeline的相关代码
+然后，我们看下移动端合并Render Pipeline的相关代码
+然后，我们看下PC端的RenderInPCPipeline的相关代码
+最后，我们运行代码
 
-Client代码:
+### 用户的代码
+
+Client
 ```ts
-//假canvas
-let canvas = {
-    getContext: (_) => 1 as any
-}
-
-//指定运行环境为PC端
-globalThis.isPC = true
-
+...
 
 let renderState = createState()
 
 renderState = registerAllPipelines(renderState)
 
-render(renderState, canvas).then(newRenderState => {
-    renderState = newRenderState
-})
+render(renderState, canvas)...
 ```
 
 
-Client代码跟之前基本上一样，只是多出了调用了registerAllPipelines函数来注册管道
+Client代码跟之前基本上一样，只是多出了调用registerAllPipelines函数来注册管道模块的这一步代码
 
-首先，我们看下Render的createState相关代码：
+
+### 创建RenderState的代码
+
 Render
 ```ts
 export let createState = (): state => {
@@ -521,17 +568,17 @@ export let createState = (): state => {
 }
 ```
 
-createState函数创建的RenderState保存了创建的PipelineManagerState
+createState函数创建的RenderState保存了创建的PipelineManagerState，而PipelineManagerState保存了所有管道的数据
 
+### 注册管道模块的代码
 
-
-然后，我们看下Render的registerAllPipelines相关代码：
+Render
 ```ts
 export let registerAllPipelines = (state: state) => {
     if (_isPC()) {
         let pipelineManagerState = registerPipeline(
             state.pipelineManagerState,
-            getRenderInPCPipeline(),
+            RenderInPCPipeline.getPipeline(),
             []
         )
 
@@ -543,12 +590,12 @@ export let registerAllPipelines = (state: state) => {
     else {
         let pipelineManagerState = registerPipeline(
             state.pipelineManagerState,
-            getJiaRenderInMobilePipeline(),
+            JiaRenderInMobilePipeline.getPipeline(),
             []
         )
         pipelineManagerState = registerPipeline(
             pipelineManagerState,
-            getYiRenderInMobilePipeline(),
+            YiRenderInMobilePipeline.getPipeline(),
             [
                 {
                     pipelineName: "render",
@@ -568,38 +615,82 @@ export let registerAllPipelines = (state: state) => {
 }
 ```
 
-这里判断运行环境，注册对应的管道模块的所有管道，具体如下：
-如果是PC端，就注册RenderInPCPipeline中所有的管道，这里只有Render Pipeline管道；
-如果是移动端，就注册JiaRenderInMobilePipeline、YiRenderInMobilePipeline中所有的管道，这里也只有Render Pipeline管道
+这里判断运行环境，注册对应的管道模块，具体如下：
+如果是PC端，就注册RenderInPCPipeline，它只有Render Pipeline管道；
+如果是移动端，就注册JiaRenderInMobilePipeline、YiRenderInMobilePipeline，它们只有Render Pipeline管道
 
-值得注意的是，移动端的注册会将两个管道模块的Render Pipeline管道进行了合并
-
-
-这里调用了PipelineManager的registerPipeline函数来注册，它接收三个参数，返回新的PipelineManagerState
-三个参数分别为PipelineManagerState、管道模块的模块数据、JobOrders，其中，JobOrders用来指定如何合并管道，后面会讨论；管道模块的模块数据是通过调用管道模块的getPipeline函数获得的
+值得注意的是：
+移动端的注册会合并两个管道模块的Render Pipeline为一个Render Pipeline
 
 
-我们来看下移动端的两个管道模块的相关代码，首先看下JiaRenderInMobilePipeline相关代码：
+这里调用了PipelineManager的registerPipeline函数来注册管道模块，它接收三个参数，返回新的PipelineManagerState
+接收的三个参数分别为PipelineManagerState、管道模块的模块数据、JobOrders，其中，JobOrders用来指定如何合并管道模块的管道，后面再讨论；
+管道模块的模块数据是通过调用管道模块的getPipeline函数获得的
+
+
+### Render的render函数的代码
+
+
+<!-- 现在我们介绍完了Render的registerAllPipelines和三个管道模块的相关代码，让我们回到Client，看下剩余的代码： -->
+
+<!-- Client
+```ts
+render(renderState, canvas).then(newRenderState => {
+    renderState = newRenderState
+})
+```
+
+这里调用了Render的render函数来渲染，该函数返回了一个Promise -->
+
+<!-- 我们看下render相关代码： -->
+Render
+```ts
+export let render = (state: state, canvas): Promise<state> => {
+    初始化PipelineManager
+
+    //将canvas保存到全局变量中，从而在Job中通过全局变量能够获得canvas
+    globalThis.canvas = canvas
+
+    运行Render Pipeline管道
+}
+```
+
+因为不管是PC端还是移动端，都只注册了一个Render Pipeline管道，所以render函数无需判断运行环境，直接运行这个管道即可
+
+值得注意的是：
+render函数将用户Client传过来的配置数据（这里是canvas）保存到了全局变量中，从而在Render Pipeline的Job中能够通过全局变量获得这些配置数据
+
+
+### 移动端的JiaRenderInMobilePipeline的相关代码
+
+<!-- 我们来看下移动端的两个管道模块的相关代码， -->
+<!-- 首先看下JiaRenderInMobilePipeline相关代码： -->
 JiaRenderInMobilePipelineStateType
 ```ts
 export const pipelineName = "JiaRenderInMobile"
 
+//JiaRenderInMobilePipelineState的类型
 export type state = {
     gl: WebGLRenderingContext | null
 }
 
+//states定义了在JiaRenderInMobilePipeline的所有的Job中需要调用的所有的PipelineState的类型
+//因为目前只需要调用JiaRenderInMobilePipelineState，所以只定义了它的类型
 export type states = {
     [pipelineName]: state,
 }
 
 ```
+
+JiaRenderInMobilePipelineStateType定义了JiaRenderInMobilePipelineState相关的类型
+
 JiaRenderInMobilePipeline
 ```ts
+//返回Job的exec函数
 let _getExec = (_pipelineName: string, jobName: string) => {
 	switch (jobName) {
 		case "init_webgl1_jia_renderInMobile":
-            //返回Job的exec函数
-			return execInitWebGL1
+			return InitWebGL1Job.exec
 		default:
 			return null
 	}
@@ -608,8 +699,7 @@ let _getExec = (_pipelineName: string, jobName: string) => {
 //获得管道模块的模块数据
 export let getPipeline = (): pipeline<renderState, state> => {
 	return {
-        //pipelineName来自JiaRenderInMobilePipelineStateType，值为"JiaRenderInMobile"
-		pipelineName: pipelineName,
+        ...
         //创建JiaRenderInMobilePipelineState
 		createState: renderState => {
 			return {
@@ -619,12 +709,12 @@ export let getPipeline = (): pipeline<renderState, state> => {
         //getExec关联了allPipelineData中的job名与管道的Job
 		getExec: _getExec,
         //allPipelineData是JSON配置数据，用来指定Job的执行顺序
-        //它可以包括多个管道的配置数据，但这里只有Render Pipeline管道的配置数据
+        //它包括所有管道的配置数据，目前只有Render Pipeline管道的配置数据
 		allPipelineData: [
 			{
                 //管道名
 				name: "render",
-                //groups包括所有的group，这里只有一个group
+                //groups包括所有的group，目前只有一个group
 				groups: [
 					{
                         //group名
@@ -636,7 +726,7 @@ export let getPipeline = (): pipeline<renderState, state> => {
 						link: "concat",
                         //elements是该group包含的所有element
                         //element的类型可以为job或者group
-                        //这里只有一个类型为job的element
+                        //目前只有一个类型为job的element
 						elements: [
 							{
 								"name": "init_webgl1_jia_renderInMobile",
@@ -659,9 +749,9 @@ JiaRenderInMobilePipeline只有Render Pipeline管道，它只有一个Job：Init
 InitWebGL1Job
 ```ts
 export let exec: execType<renderState> = (renderState, { getStatesFunc, setStatesFunc }) => {
-    //从RenderState中获得所有的PipelineState
-	let states = getStatesFunc<renderState, states>(renderState)
+    ...
 
+    //从全局变量中获得canvas
 	let canvas: HTMLCanvasElement = globalThis.canvas
 
     //调用most.js库，返回了一个流
@@ -670,50 +760,27 @@ export let exec: execType<renderState> = (renderState, { getStatesFunc, setState
 
 		let gl = canvas.getContext("webgl")
 
-        //将新的states保存到RenderState中，返回新的RenderState
-		return setStatesFunc<renderState, states>(
-			renderState,
-            //将新的JiaRenderInMobilePipelineState保存到states中，返回新的states
-			setState(states, {
-                //获得JiaRenderInMobilePipelineState，拷贝为新的JiaRenderInMobilePipelineState
-				...getState(states),
-                //保存gl到新的JiaRenderInMobilePipelineState中
-				gl: gl
-			})
-		)
+        将gl保存到RenderState中
 	})
 }
 ```
-Utils
-```ts
-export function getState(states: states): state {
-    //pipelineName来自JiaRenderInMobilePipelineStateType
-    return states[pipelineName]
-}
-
-export function setState(states: states, state: state): states {
-    return Object.assign({}, states, {
-        //pipelineName来自JiaRenderInMobilePipelineStateType
-        [pipelineName]: state
-    })
-}
-```
 
 
-虽然这个Job只有同步操作，但是Job其实可能会进行异步操作的，而处理异步一般有两种方法：
-1.通过Async、Await，将异步转换为同步
+虽然这个Job只有同步操作，但是Job其实可能会进行异步操作的（如与GPU的操作可能是异步操作），而处理异步一般有两种方法：
+1.通过Async、Await关键字，将异步转换为同步
 2.使用Promise
 
 这里我们使用第三种方法：基于FRP（函数反应型编程），使用流来处理异步操作。
-具体是让每个Job都返回一个流，在流的处理函数（这里是callFunc函数）中执行Job的逻辑
+具体是让每个Job都返回一个流，在流的处理函数（即callFunc函数）中执行Job的逻辑
 
 这样做的一个好处是能够轻易实现Job的concat或者merge的链接，这只需要将每个Job返回的流concat或者merge即可
 另一个好处是能够轻易实现合并管道，因为一个管道就是一个流，合并管道就是合并流，容易实现
 
 我们这里使用了most.js库来实现流，它是一个开源的FRP库，相比Rxjs库性能要更好
 
+### 移动端的YiRenderInMobilePipeline的相关代码
 
-我们来看下另一个管道模块-YiRenderInMobilePipeline相关代码：
+<!-- 我们来看下另一个管道模块-YiRenderInMobilePipeline相关代码： -->
 YiRenderInMobilePipelineStateType
 ```ts
 export const pipelineName = "YiRenderInMobile"
@@ -727,7 +794,10 @@ export type states = {
 }
 ```
 
-因为YiRenderInMobilePipeline中的Job需要通过这里的states类型来获得YiRenderInMobilePipelineState和JiaRenderInMobilePipelineState，所以这里的states需要定义自己的YiRenderInMobilePipelineState以及JiaRenderInMobilePipelineState
+
+YiRenderInMobilePipelineStateType定义了YiRenderInMobilePipelineState相关的类型
+
+因为YiRenderInMobilePipeline中的Job需要通过这里的states类型来获得YiRenderInMobilePipelineState和JiaRenderInMobilePipelineState，所以这里的states需要定义YiRenderInMobilePipelineState以及JiaRenderInMobilePipelineState的类型
 
 
 YiRenderInMobilePipeline
@@ -735,9 +805,9 @@ YiRenderInMobilePipeline
 let _getExec = (_pipelineName: string, jobName: string) => {
 	switch (jobName) {
 		case "forward_render_yi_renderInMobile":
-			return execForwardRender
+			return ForwardRenderJob.exec
 		case "tonemap_yi_renderInMobile":
-			return execTonemap
+			return TonemapJob.exec
 		default:
 			return null
 	}
@@ -745,7 +815,7 @@ let _getExec = (_pipelineName: string, jobName: string) => {
 
 export let getPipeline = (): pipeline<renderState, state> => {
 	return {
-		pipelineName: pipelineName,
+        ...
 		createState: renderState => {
 			return {
 			}
@@ -778,17 +848,17 @@ export let getPipeline = (): pipeline<renderState, state> => {
 
 ```
 
-YiRenderInMobilePipeline只有Render Pipeline管道，它有两个Job：ForwardRenderJob、TonemapJob
+YiRenderInMobilePipeline只有Render Pipeline管道，它依次执行这两个Job：ForwardRenderJob、TonemapJob
 
 
 Job相关代码如下：
 ForwardRenderJob
 ```ts
 export let exec: execType<renderState> = (renderState, { getStatesFunc, setStatesFunc }) => {
-	let states = getStatesFunc<renderState, states>(renderState)
+    ...
 
 	return mostService.callFunc(() => {
-		let gl = getGL(states)
+		let gl = 获得JiaRenderInMobilePipelineState的gl
 
 		console.log("前向渲染")
 
@@ -799,10 +869,10 @@ export let exec: execType<renderState> = (renderState, { getStatesFunc, setState
 TonemapJob
 ```ts
 export let exec: execType<renderState> = (renderState, { getStatesFunc }) => {
-    let states = getStatesFunc<renderState, states>(renderState)
+    ...
 
     return mostService.callFunc(() => {
-        let gl = getGL(states)
+		let gl = 获得JiaRenderInMobilePipelineState的gl
 
         console.log("tonemap for WebGL1")
 
@@ -810,42 +880,24 @@ export let exec: execType<renderState> = (renderState, { getStatesFunc }) => {
     })
 }
 ```
-Utils
-```ts
-export function getState(states: states): state {
-    //pipelineName来自YiRenderInMobilePipelineStateType
-    return states[pipelineName]
-}
 
-export function setState(states: states, state: state): states {
-    return Object.assign({}, states, {
-        //pipelineName来自YiRenderInMobilePipelineStateType
-        [pipelineName]: state
-    })
-}
-
-//获得JiaRenderInMobilePipelineState的gl
-export function getGL(states: states) {
-    //jiaRenderInMobilePipelineName来自JiaRenderInMobilePipelineStateType
-    return getExnFromStrictNull(states[jiaRenderInMobilePipelineName].gl)
-}
-```
-
-这两个Job通过Utils的getGL函数获得JiaRenderInMobilePipelineState的gl；
-而getGL函数是首先通过states获得JiaRenderInMobilePipelineState，然后再返回它的gl
+值得注意的是：
+这两个Job需要通过YiRenderInMobilePipelineState的states来获得JiaRenderInMobilePipelineState的gl
 
 
-这两个管道模块的Render Pipeline管道需要合并，我们回顾下Render的registerAllPipelines中合并这两个管道的相关代码：
+### 移动端合并Render Pipeline的相关代码
+
+移动端注册的这两个管道模块的Render Pipeline管道需要合并，我们回顾下Render的registerAllPipelines中合并这两个管道的相关代码：
 Render
 ```ts
         let pipelineManagerState = registerPipeline(
             state.pipelineManagerState,
-            getJiaRenderInMobilePipeline(),
+            JiaRenderInMobilePipeline.getPipeline(),
             []
         )
         pipelineManagerState = registerPipeline(
             pipelineManagerState,
-            getYiRenderInMobilePipeline(),
+            YiRenderInMobilePipeline.getPipeline(),
             [
                 {
                     pipelineName: "render",
@@ -856,7 +908,7 @@ Render
         )
 ```
 
-我们之前提到registerPipeline函数接收的第三个参数-JobOrders用来指定如何合并管道，它的类型定义如下：
+我们之前提到registerPipeline函数接收的第三个参数-JobOrders用来指定如何合并管道，现在我们来具体看一下它的类型定义：
 PipelineManager->RegisterPipelineType
 ```ts
 export type insertAction = "before" | "after"
@@ -864,7 +916,7 @@ export type insertAction = "before" | "after"
 export type jobOrder = {
   //管道名
   pipelineName: pipelineName,
-  //将该管道的所有Job插入到的element的名称（element可以为job或者group）
+  //将该管道的所有Job插入到element中（element可以为job或者group），这是element的名称
   insertElementName: elementName,
   //值可以为before或者after，意思是插入到该element之前或者之后
   insertAction: insertAction,
@@ -876,15 +928,16 @@ export type jobOrders = Array<jobOrder>
 
 因为这两个管道模块中都只有一个管道-Render Pipeline，所以jobOrders只包含一个jobOrder，对应这一个管道
 
-这里具体是将YiRenderInMobilePipeline中Render Pipeline的两个Job插入到JiaRenderInMobilePipeline中Render Pipeline的名为init_webgl1_jia_renderInMobile的Job（也就是InitWebGL1Job）之后执行，从而实现了在移动端只有Render Pipeline管道，该管道依次执行InitWebGL1Job、ForwardRenderJob、TonemapJob这三个Job
+Render的registerAllPipelines函数具体是将YiRenderInMobilePipeline的Render Pipeline的所有的Job插入到JiaRenderInMobilePipeline的Render Pipeline的名为init_webgl1_jia_renderInMobile的Job（也就是InitWebGL1Job）之后执行，从而实现了在移动端只有一个Render Pipeline管道，该管道依次执行InitWebGL1Job、ForwardRenderJob、TonemapJob这三个Job
 
-值得注意的是，合并后的PipelineManagerState中仍然有这两个管道模块的PipelineState-JiaRenderInMobilePipelineState、YiRenderInMobilePipelineState，而不是只有JiaRenderInMobilePipelineState
-
-
-
+值得注意的是：
+合并后的PipelineManagerState中仍然有这两个管道模块的PipelineState（JiaRenderInMobilePipelineState、YiRenderInMobilePipelineState），而不是只有JiaRenderInMobilePipelineState
 
 
-看完了移动端的两个管道模块的相关代码后，我们看下PC端的RenderInPCPipeline管道模块相关代码：
+
+### PC端的RenderInPCPipeline的相关代码
+
+<!-- 看完了移动端的两个管道模块的相关代码后，我们看下PC端的RenderInPCPipeline管道模块相关代码： -->
 RenderInPCPipelineStateType
 ```ts
 export const pipelineName = "RenderInPC"
@@ -896,18 +949,20 @@ export type state = {
 export type states = {
     [pipelineName]: state,
 }
-
 ```
+
+RenderInPCPipelineStateType定义了RenderInPCPipelineState相关的类型
+
 RenderInPCPipeline
 ```ts
 let _getExec = (_pipelineName: string, jobName: string) => {
 	switch (jobName) {
 		case "init_webgl2_renderInPC":
-			return execInitWebGL2
+			return InitWebGL2Job.exec
 		case "defer_render_renderInPC":
-			return execDeferRender
+			return DeferRenderJob.exec
 		case "tonemap_renderInPC":
-			return execTonemap
+			return TonemapJob.exec
 		default:
 			return null
 	}
@@ -915,7 +970,7 @@ let _getExec = (_pipelineName: string, jobName: string) => {
 
 export let getPipeline = (): pipeline<renderState, state> => {
 	return {
-		pipelineName: pipelineName,
+		...
 		createState: renderState => {
 			return {
 				gl: null
@@ -962,54 +1017,48 @@ export let getPipeline = (): pipeline<renderState, state> => {
 }
 ```
 
-该管道中仍然只有Render Pipeline管道，它有三个Job：InitWebGL2Job、DeferRenderJob、TonemapJob
+该管道中仍然只有Render Pipeline管道，它依次执行这三个Job：InitWebGL2Job、DeferRenderJob、TonemapJob
 
 我们看下Job相关代码：
 InitWebGL2Job
 ```ts
 export let exec: execType<renderState> = (renderState, { getStatesFunc, setStatesFunc }) => {
-	let states = getStatesFunc<renderState, states>(renderState)
+    ...
 
+    //从全局变量中获得canvas
 	let canvas: HTMLCanvasElement = globalThis.canvas
 
+    //调用most.js库，返回了一个流
 	return mostService.callFunc(() => {
 		console.log("初始化WebGL2")
 
 		let gl = canvas.getContext("webgl2")
 
-		return setStatesFunc<renderState, states>(
-			renderState,
-			setState(states, {
-				...getState(states),
-				gl: gl
-			})
-		)
+        将gl保存到RenderState中
 	})
 }
 ```
 DeferRenderJob
 ```ts
 export let exec: execType<renderState> = (renderState, { getStatesFunc }) => {
-    let states = getStatesFunc<renderState, states>(renderState)
-    let { gl } = getState(states)
+    ...
 
-    return mostService.callFunc(() => {
-        gl = getExnFromStrictNull(gl)
+	return mostService.callFunc(() => {
+		gl = 获得RenderInPCPipelineState的gl
 
         console.log("延迟渲染")
 
-        return renderState
-    })
+		return renderState
+	})
 }
 ```
 TonemapJob
 ```ts
 export let exec: execType<renderState> = (renderState, { getStatesFunc }) => {
-    let states = getStatesFunc<renderState, states>(renderState)
-    let { gl } = getState(states)
+    ...
 
     return mostService.callFunc(() => {
-        gl = getExnFromStrictNull(gl)
+		gl = 获得RenderInPCPipelineState的gl
 
         console.log("tonemap for WebGL2")
 
@@ -1017,128 +1066,8 @@ export let exec: execType<renderState> = (renderState, { getStatesFunc }) => {
     })
 }
 ```
-Utils
-```ts
-export function getState(states: states): state {
-    //pipelineName来自RenderInPCPipelineStateType
-    return states[pipelineName]
-}
 
-export function setState(states: states, state: state): states {
-    return Object.assign({}, states, {
-        //pipelineName来自RenderInPCPipelineStateType
-        [pipelineName]: state
-    })
-}
-```
-
-
-
-现在我们介绍完了Render的registerAllPipelines和三个管道模块的相关代码，让我们回到Client，看下剩余的代码：
-```ts
-render(renderState, canvas).then(newRenderState => {
-    renderState = newRenderState
-})
-```
-
-这里调用了Render的render函数来渲染，该函数返回了一个Promise
-
-我们看下render相关代码：
-Render
-```ts
-//从RenderState中获得PipelineManagerState
-let _unsafeGetPipelineManagerState = (state: state) => {
-    return state.pipelineManagerState
-}
-
-//保存PipelineManagerState到RenderState中
-let _setPipelineManagerState = (state: state, pipelineManagerState: pipelineState) => {
-    return {
-        ...state,
-        pipelineManagerState: pipelineManagerState
-    }
-}
-
-let _runPipeline = (
-    renderState: state,
-    pipelineName: string
-): Promise<state> => {
-    let tempRenderState: state | null = null
-
-    return mostService.map(
-        (renderState: state) => {
-            tempRenderState = renderState
-
-            return renderState
-        },
-        //调用PipelineManager的runPipeline函数来运行管道
-        runPipeline<state>(renderState, [
-            unsafeGetState,
-            setState,
-            _unsafeGetPipelineManagerState,
-            _setPipelineManagerState
-        ], pipelineName)
-    ).drain().then((_) => {
-        return getExnFromStrictNull(tempRenderState)
-    })
-}
-
-export let render = (state: state, canvas): Promise<state> => {
-    //调用PipelineManager的init函数来初始化PipelineManager
-    state = init(state, [_unsafeGetPipelineManagerState, _setPipelineManagerState])
-
-    //将canvas保存到全局变量中，从而在Job中通过全局变量能够获得canvas
-    globalThis.canvas = canvas
-
-    //运行Render Pipeline管道
-    return _runPipeline(state, "render")
-}
-```
-PipelineManager
-```ts
-//PipelineManager是用Rescript实现的
-//这里只给出PipelineManager相关函数的类型，没有给出具体实现代码
-//这里的systemState具体就是RenderState，而state是PipelineManagerState
-
-type unsafeGetSystemState<systemState> = () => systemState
-
-type setSystemState<systemState> = (systemState: systemState) => void
-
-type unsafeGetPipelineManagerState<systemState> = (systemState: systemState) => state
-
-type setPipelineManagerState<systemState> = (systemState: systemState, state: state) => systemState
-
-export function runPipeline<systemState>(
-    systemState: systemState,
-    [
-        unsafeGetSystemState,
-        setSystemState,
-        unsafeGetPipelineManagerState,
-        setPipelineManagerState
-    ]: [
-            unsafeGetSystemState<systemState>,
-            setSystemState<systemState>,
-            unsafeGetPipelineManagerState<systemState>,
-            setPipelineManagerState<systemState>
-        ],
-    pipelineName: pipelineName
-): stream<systemState>
-
-export function init<systemState>(systemState: systemState,
-    [
-        unsafeGetPipelineManagerState,
-        setPipelineManagerState
-    ]: [
-            unsafeGetPipelineManagerState<systemState>,
-            setPipelineManagerState<systemState>
-        ],
-): systemState
-```
-
-因为不管是PC端还是移动端，都只注册了一个名为render的Render Pipeline管道，所以render函数只需运行这个管道，即可执行其中的三个Job，从而实现了渲染的逻辑
-
-
-
+### 运行代码
 
 下面，我们运行代码，运行结果如下：
 ```text

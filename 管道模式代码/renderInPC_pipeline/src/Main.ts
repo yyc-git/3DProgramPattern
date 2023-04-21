@@ -1,18 +1,18 @@
 import { state as renderState } from "render/src/RenderStateType"
 import { pipeline } from "pipeline_manager/src/type/PipelineType"
 import { pipelineName, state } from "renderInPC_pipeline_state_type/src/StateType"
-import { exec as execInitWebGL2 } from "./jobs/render/InitWebGL2Job"
-import { exec as execDeferRender } from "./jobs/render/DeferRenderJob"
-import { exec as execTonemap } from "./jobs/render/TonemapJob"
+import * as InitWebGL2Job from "./jobs/render/InitWebGL2Job"
+import * as DeferRenderJob from "./jobs/render/DeferRenderJob"
+import * as TonemapJob from "./jobs/render/TonemapJob"
 
 let _getExec = (_pipelineName: string, jobName: string) => {
 	switch (jobName) {
 		case "init_webgl2_renderInPC":
-			return execInitWebGL2
+			return InitWebGL2Job.exec
 		case "defer_render_renderInPC":
-			return execDeferRender
+			return DeferRenderJob.exec
 		case "tonemap_renderInPC":
-			return execTonemap
+			return TonemapJob.exec
 		default:
 			return null
 	}

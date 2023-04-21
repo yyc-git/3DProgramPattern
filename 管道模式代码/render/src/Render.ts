@@ -1,9 +1,9 @@
 import { state } from "./RenderStateType"
 import { state as pipelineState } from "pipeline_manager/src/type/StateType"
 import { createState as createPipelineManagerState, registerPipeline, runPipeline, init } from "pipeline_manager"
-import { getPipeline as getRenderInPCPipeline } from "renderInPC_pipeline/src/Main"
-import { getPipeline as getJiaRenderInMobilePipeline } from "jia_renderInMobile_pipeline/src/Main"
-import { getPipeline as getYiRenderInMobilePipeline } from "yi_renderInMobile_pipeline/src/Main"
+import * as RenderInPCPipeline from "renderInPC_pipeline/src/Main"
+import * as JiaRenderInMobilePipeline from "jia_renderInMobile_pipeline/src/Main"
+import * as YiRenderInMobilePipeline from "yi_renderInMobile_pipeline/src/Main"
 import { service as mostService } from "most/src/MostService"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 import { unsafeGetState, setState } from "./RenderStateContainer"
@@ -24,7 +24,7 @@ export let registerAllPipelines = (state: state) => {
     if (_isPC()) {
         let pipelineManagerState = registerPipeline(
             state.pipelineManagerState,
-            getRenderInPCPipeline(),
+            RenderInPCPipeline.getPipeline(),
             []
         )
 
@@ -36,12 +36,12 @@ export let registerAllPipelines = (state: state) => {
     else {
         let pipelineManagerState = registerPipeline(
             state.pipelineManagerState,
-            getJiaRenderInMobilePipeline(),
+            JiaRenderInMobilePipeline.getPipeline(),
             []
         )
         pipelineManagerState = registerPipeline(
             pipelineManagerState,
-            getYiRenderInMobilePipeline(),
+            YiRenderInMobilePipeline.getPipeline(),
             [
                 {
                     pipelineName: "render",

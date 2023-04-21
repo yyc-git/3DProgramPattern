@@ -1,13 +1,14 @@
 import { state as renderState } from "render/src/RenderStateType"
 import { pipeline } from "pipeline_manager/src/type/PipelineType"
 import { pipelineName, state } from "jia_renderInMobile_pipeline_state_type/src/StateType"
-import { exec as execInitWebGL1 } from "./jobs/render/InitWebGL1Job"
+// import { exec as execInitWebGL1 } from "./jobs/render/InitWebGL1Job"
+import * as InitWebGL1Job from "./jobs/render/InitWebGL1Job"
 
+//返回Job的exec函数
 let _getExec = (_pipelineName: string, jobName: string) => {
 	switch (jobName) {
 		case "init_webgl1_jia_renderInMobile":
-            //返回Job的exec函数
-			return execInitWebGL1
+			return InitWebGL1Job.exec
 		default:
 			return null
 	}
@@ -27,12 +28,12 @@ export let getPipeline = (): pipeline<renderState, state> => {
         //getExec关联了allPipelineData中的job名与管道的Job
 		getExec: _getExec,
         //allPipelineData是JSON配置数据，用来指定Job的执行顺序
-        //它可以包括多个管道的配置数据，但这里只有Render Pipeline管道的配置数据
+        //它包括所有管道的配置数据，目前只有Render Pipeline管道的配置数据
 		allPipelineData: [
 			{
                 //管道名
 				name: "render",
-                //groups包括所有的group，这里只有一个group
+                //groups包括所有的group，目前只有一个group
 				groups: [
 					{
                         //group名
@@ -44,7 +45,7 @@ export let getPipeline = (): pipeline<renderState, state> => {
 						link: "concat",
                         //elements是该group包含的所有element
                         //element的类型可以为job或者group
-                        //这里只有一个类型为job的element
+                        //目前只有一个类型为job的element
 						elements: [
 							{
 								"name": "init_webgl1_jia_renderInMobile",
