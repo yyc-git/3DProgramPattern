@@ -183,7 +183,7 @@ tonemap for WebGL2
 
 ## 概述解决方案？
 
-通过下面的改进来提高开发效率：
+<!-- 通过下面的改进来提高开发效率： -->
 1.分离PC端和移动端的逻辑为不同的模块，具体是从Engine中提出两个模块：EngineInPC、EngineInMobile，分别实现PC端和移动端的引擎逻辑；
 然后在Engine中判断运行环境，调用对应的模块
 2.将每个步骤提出成单独的模块，这样可减少步骤之间的耦合，便于维护
@@ -476,7 +476,7 @@ tonemap for WebGL2
 ## 概述解决方案
 
 
-通过下面的改进来实现“通过配置来指定初始化和渲染的步骤”：
+<!-- 通过下面的改进来实现“通过配置来指定初始化和渲染的步骤”： -->
 将EngineInPC和EngineInMobile改为三个管道模块，分别为：EngineInPCPipeline、JiaEngineInMobilePipeline、YiEngineInMobilePipeline，其中前两个由甲负责，最后一个由乙负责
 将每个步骤模块改为一个Job
 每个管道模块都有一个渲染管道以及可能会有的一个初始化管道，它包括了步骤模块修改而成的Job

@@ -350,8 +350,8 @@ worldState的superHeroes中有一个超级英雄数据的position为[6,6,6]，�
 ## 概述解决方案？
 
 
-通过下面的改进来解决重复和继承的问题：
-使用组件化的思想，用组合代替继承，具体如下：
+<!-- 通过下面的改进来解决重复和继承的问题： -->
+基于组件化的思想，用组合代替继承，具体如下：
 将英雄抽象为GameObject
 将英雄的行为抽象为组件，并把英雄的相关数据也移到组件中
 英雄通过挂载不同的组件，来实现不同的行为
@@ -848,19 +848,24 @@ worldState的gameObjects包括了4个gameObject的数据；
 
 
 ## 提出问题
-TODO continue
 
 - 组件的数据分散在各个组件中，性能不好
-现在所有人物的position的数据一对一地分散保存在各个PositionComponent组件中，那么在遍历所有的position数据时，会因为CPU中不容易缓存命中而带来性能损失
+如position数据现在是一对一地分散保存在各个positionComponent组件中（即一个positionComponent组件保存自己的position），那么如果需要遍历所有组件的position数据，则需要遍历所有的positionComponent组件，分别获得它们的position
+因为每个positionComponent组件的数据并没有连续地保存在内存中，所以会造成缓存命中丢失，带来性能损失
 
+<!-- 因为在遍历每个positionComponent组件时，需要将它的所有数据都载入CPU的二级缓存中 -->
+<!-- 当它的大小大于CPU的二级缓存的大小时，就无法载入而造成缓存无法命中，从而带来性能损失 -->
+<!-- 当它的大小大于CPU的二级缓存的大小时，就无法全部载入，而需要
+而造成缓存无法命中，从而带来性能损失 -->
 
-- 如果超级英雄增加一个“跑”的行为，该行为不仅会更新position，还会修改速度velocity，那么该行为对应的run函数应该放在哪个组件中呢？
-因为run函数需要同时修改PositionComponent组件和VelocityComponent组件的数据，所以它放在其中的任何一种组件都不合适，需要增加一种新的组件-RunComponent，对应“跑”的行为，实现run函数
-该函数需要通过RunComponent挂载的gameObject来获得PositionComponent和VelocityComponent组件，然后再修改它们的数据
+- 如果超级英雄增加一个“跳”的行为，该行为不仅会更新position，还会修改速度velocity，那么该行为对应的jump函数应该放在哪个组件中呢？
+因为jump函数需要同时修改PositionComponent组件和VelocityComponent组件的数据，所以将它放在其中的任何一种组件都不合适
+因此需要增加一种新的组件-JumpComponent，对应“跳”这个行为，实现jump函数
+该函数会通过JumpComponent挂载的gameObject来获得挂载到该gameobject上的PositionComponent和VelocityComponent组件，修改它们的数据
 
-如果有更多的涉及多种组件的行为，就需要为每个行为增加一种组件。
-因为组件比较重，既有数据又有逻辑，所以增加的开发成本较高
-另外，组件与GameObject是聚合关系，而GameObject和World也是聚合关系，它们都属于强关联关系，所以增加组件会较强地影响GameObject和World模块，也增加了成本
+如果增加更多的涉及多种组件的行为，就需要为每个行为增加一种组件。
+因为组件比较重，既有数据又有逻辑，所以增加组件的开发成本较高
+另外，因为组件与GameObject是聚合关系，而GameObject和World也是聚合关系，它们都属于强关联关系，所以增加组件会较强地影响GameObject和World，这也增加了开发成本
 
 
 
@@ -868,47 +873,65 @@ TODO continue
 
 ## 概述解决方案
 
-使用Data Oriented的思想进行改进：
-将所有的gameObject、每种组件的数据集中起来，保存在各自的连续空间中
-其中，gameObject与挂载的组件的对应关系则保存在Hash Map中；
-将组件的角色分为Data Oriented组件（每个组件都有数据，且组件的数量较多）和其它组件（每个组件都没有数据，或者组件的数量很少）。这里具体说明一下：
-目前一共有四种组件，它们为：PositionComponent、VelocityComponent、FlyComponent、InstanceComponent。其中Instance组件因为没有组件数据，所以属于“其它组件”的角色；而另外三种组件则都属于“Data Oriented组件”的角色；
-Data Oriented组件的数据保存在各自的ArrayBuffer中；
-将GameObject和各个Component扁平化，使得GameObject是一个number类型的id值，Component是一个number类型的索引。其中GameObject是gameObject与挂载的组件的对应关系这个Hash Map的Key；Component既是这个Hash Map的Value，又是ArrayBuffer中的索引
+<!-- 通过下面的改进来提高性能： -->
+基于Data Oriented的思想进行改进，具体如下：
+<!-- 基于Data Oriented的思想进行改进，将gameObject所有的数据和每种组件的数据分别集中起来，保存在各自的一块连续空间中 -->
+<!-- 其中，gameObject的数据是指gameObject挂载了哪些组件，我们将其保存在一个Hash Map中； -->
+组件可以按角色分为Data Oriented组件和其它组件，前者的特点是每个组件都有数据，且组件的数量较多，后者的特点是每个组件都没有数据，或者组件的数量很少
+这里具体说明一下各种组件的角色：
+目前一共有四种组件，它们为：PositionComponent、VelocityComponent、FlyComponent、InstanceComponent。InstanceComponent组件因为没有组件数据，所以属于“其它组件”；另外三种组件则都属于“Data Oriented组件”
+
+将属于Data Oriented组件的三种组件的所有组件数据分别集中起来，保存在各自的一块连续空间中，具体就是分别保存在三个ArrayBuffer中
+
+将GameObject和各个Component扁平化，使得GameObject不再有数据和逻辑了，而只是一个number类型的id值；Component也不再有数据和逻辑了，而只是一个number类型的索引值
+<!-- 其中GameObject是gameObject与挂载的组件的对应关系这个Hash Map的Key；Component既是这个Hash Map的Value，又是ArrayBuffer中的索引 -->
+
+我们增加Component+GameObject这一层，将扁平的GameObject和Componet放在该层中
 
 
-我们增加Manager这一层，来维护和管理GameObject和组件的数据
-其中GameObjectManager负责维护所有的gameObject的数据；
-四种组件的Manager负责维护自己的ArrayBuffer，操作属于该种类的所有组件
+我们增加Manager这一层，来管理GameObject和组件的数据
+这一层有GameObjectManager和四种组件的Manager，其中GameObjectManager负责管理所有的gameObject；
+四种组件的Manager负责管理自己的ArrayBuffer，操作属于该种类的所有组件
 
-值得注意的是将保存gameObject与挂载的组件的对应关系的Hash Map放在哪里？
-它们可以放在GameObjectManager中，也可以分散放在组件的Manager中。
-考虑到为了方便组件直接就近获得自己挂载到的GameObject，所以我们选择将其分散放在组件的Manager中
+值得注意的是：
+<!-- 将“gameObject挂载了哪些组件”的对应关系的Hash Map放在哪里？ -->
+将“gameObject挂载了哪些组件”的数据放在哪里？
+它们可以放在GameObjectManager中，也可以分散地放在各个组件的Manager中。
+考虑到为了方便组件直接就近获得自己挂载到的GameObject，所以我们选择后者
 
 
 我们增加System这一层，来实现行为的逻辑。
-一个System对应一个行为，比如我们加入MoveSystem、FlySystem来分别实现移动、飞行的行为逻辑
+一个System对应一个行为，比如这一层中的MoveSystem、FlySystem分别实现了移动和飞行的行为逻辑
 
 
-值得注意的是一种组件的Manager只对该种组件进行操作，而System可以对多种组件进行操作
+值得注意的是：
+1.GameObject和Component的数据被移到了Manager中，它们的逻辑则被移到了Manager和System中，其中只操作自己的逻辑（如getPosition、setPosition）被移到了Manager中，其它逻辑（即行为逻辑，通常需要操作多种组件）被移到了System中
+2.一种组件的Manager只对该种组件进行操作，而一个System可以对多种组件进行操作
 
 ## 给出UML？
 
-![image](https://img2023.cnblogs.com/blog/419321/202304/419321-20230407093913041-1386894617.png)
+<!-- ![image](https://img2023.cnblogs.com/blog/419321/202304/419321-20230407093913041-1386894617.png) -->
+
+**领域模型**
+TODO tu
 
 
 
-整个UML主要分成三个层级：System、Manager、Component+GameObject，它们的依赖关系为System依赖Manager，Manager依赖Component+GameObject
+总体来看，分为五个部分：用户、World、System层、Manager层、Component+GameObject层，它们的依赖关系是用户依赖World，World依赖System层，System层依赖Manager层，Manager层依赖Component+GameObject层
 
-World不再管理所有的gameObject，但是仍然实现了初始化和主循环的逻辑
+
+我们看下用户、World这两个部分：
+Client是用户
+
+World是游戏世界，虽然仍然实现了初始化和主循环的逻辑，不过不再管理所有的GameObject了
 
 
 我们看下System这一层：
 有多个System，每个System实现一个行为逻辑
-其中，CreateStateSystem实现创建WorldState的逻辑，WorldState包括了所有的Manager的state；
+其中，CreateStateSystem实现创建WorldState的逻辑，创建的WorldState包括了所有的Manager的state数据；
 UpdateSystem实现更新所有人物的position的逻辑，具体是更新所有PositionComponent的position；
-MoveSystem实现一个人物的移动，具体是使用了挂载到该人物对应的 gameObject上的一个positionComponent和一个velocityComponent，更新了该positionComponent的position；
-FlySystem实现一个人物的飞行，具体是使用了挂载到该人物对应的gameObject上的一个positionComponent、一个velocityComponent、一个flyComponent，更新了该positionComponent的position；
+MoveSystem实现一个人物的移动的逻辑，具体是根据挂载到该人物gameObject上的一个positionComponent和一个velocityComponent，更新该positionComponent的position；
+FlySystem实现一个人物的飞行的逻辑，具体是根据挂载到该人物gameObject上的一个positionComponent、一个velocityComponent、一个flyComponent，更新该positionComponent的position；
 RenderOneByOneSystem实现渲染所有超级英雄的逻辑；
 RenderInstancesSystem实现渲染所有普通英雄的逻辑
 
@@ -922,7 +945,7 @@ PositionComponentManager、VelocityComponentManager、FlyComponentManager、Inst
 
 PositionComponentManager的batchUpdate函数负责批量更新所有的positionComponent的position
 
-PositionComponentManager维护了gameObjectMap、gameObjectPositionMap这两个Hash Map，前者为positionComponent与gameObject的对应关系，后者为gameObject与positionComponent的对应关系
+<!-- PositionComponentManager维护了gameObjectMap、gameObjectPositionMap这两个Hash Map，前者为positionComponent与gameObject的对应关系，后者为gameObject与positionComponent的对应关系 -->
 
 
 因为VelocityComponentManager、FlyComponentManager与PositionComponentManager类似（只是没有batchUpdate函数），故在图中省略它们的数据和函数
@@ -930,22 +953,41 @@ PositionComponentManager维护了gameObjectMap、gameObjectPositionMap这两个H
 
 
 我们看下Component+GameObject这一层：
-因为PositionComponent、VelocityComponent、FlyComponent属于Data Oriented组件，所以它们的值是一个index，也就是各自ArrayBuffer中的索引；
-而因为InstanceComponent属于其它组件，所以它的值是一个id。它是InstanceComponentManager维护的gameObjectMap的Key和gameObjectInstanceMap的Value
+因为PositionComponent、VelocityComponent、FlyComponent属于Data Oriented组件，所以它们是一个index，也就是各自Manager中维护的ArrayBuffer中的索引值；
+因为InstanceComponent属于其它组件，所以它是一个id，它是InstanceComponentManager维护的gameObjectMap的Key和gameObjectInstanceMap的Value
+
+GameObject是一个id，它是各个组件Manager中的gameObjectMap的Value和gameObjectXxxMap中的Key
 
 
 ## 结合UML图，描述如何具体地解决问题？
 
-- 现在组件的数据都集中保存在各自的Manager的ArrayBuffer中，从而在遍历同一种组件的所有组件的数据时增加了缓存命中，提高了性能
+- 现在各种组件的数据都集中保存在各自的Manager的ArrayBuffer中。因为ArrayBuffer的数据是连续地保存在内存中的，所以在遍历同一种组件的所有组件数据时缓存命中不会丢失，从而提高了性能
 
-- 涉及多种组件的行为放在对应的System中。因为System很轻，没有数据，只有逻辑，所以增加和维护System的成本较低；另外，修改System也不会影响它的下一层-Manager层
+- 现在将涉及多种组件的行为放在对应的System中。因为System很轻，没有数据，只有逻辑，所以增加和维护System的成本较低；另外，因为System位于最上层，所以修改System也不会影响Manager层和Component+GameObject层
 
 
 
 
 ## 给出代码？
 
-Client代码:
+TODO update
+首先，我们看下用户的代码；
+然后，我们看下创建WorldState的代码
+然后，我们看下创建场景的代码
+然后，我们看下GameObject操作组件的代码
+然后，我们看下移动的相关代码
+然后，我们看下飞行的相关代码
+然后，我们看下初始化和主循环的代码
+然后，我们看下主循环中更新的代码
+然后，我们看下主循环中渲染的代码
+最后，我们运行代码
+
+
+### 用户的代码
+
+TODO continue
+
+Client
 ```ts
 let worldState = createState({ positionComponentCount: 10, velocityComponentCount: 10, flyComponentCount: 10 })
 ```
@@ -1486,8 +1528,8 @@ positionComponentManagerState的positions有3个连续的值是2、2、2，说�
 
 ## 补充说明
 
-“组合代替继承”是指组件化思想
-“集中管理组件数据”是指Data Oriented思想
+“组合代替继承”是基于组件化思想
+“集中管理组件数据”是基于Data Oriented思想
 “分离逻辑和数据”是指提出System、Manager、Component+GameObject三层，其中System实现行为逻辑，Manager维护数据，组件和GameObject只是一个number类型的索引或者id值
 
 
