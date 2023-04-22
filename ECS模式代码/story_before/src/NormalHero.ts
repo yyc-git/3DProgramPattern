@@ -3,6 +3,7 @@ import { state as normalHeroState, hero as normalHero } from "./NormalHeroStateT
 import { state as worldState } from "./WorldStateType";
 import { getNormalHeroState, setNormalHeroState } from "./WorldUtils";
 
+// create函数负责创建一个普通英雄，该英雄的数据保存在一个normalHeroState中，并生成一个全局唯一的索引id与其关联
 export let create = (): [normalHeroState, normalHero] => {
     let normalHeroState: normalHeroState = {
         position: [0, 0, 0],
@@ -17,6 +18,7 @@ export let create = (): [normalHeroState, normalHero] => {
     ]
 }
 
+//这里只是给出了伪代码用于演示而已，实际的update函数应该会根据该普通英雄的层级关系和本地坐标来更新他的模型矩阵
 export let update = (normalHeroState: normalHeroState): normalHeroState => {
     console.log("更新NormalHero")
 

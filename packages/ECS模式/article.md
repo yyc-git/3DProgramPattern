@@ -5,69 +5,86 @@
 ## 需求
 
 
-开发一个游戏，游戏中有两种人物：普通英雄和超级英雄
-
+我们开发一个游戏，游戏中有两种人物：普通英雄和超级英雄，他们具有下面的行为：
 普通英雄只能移动
 超级英雄不仅能够移动，还能飞行
 
-使用Instance来一次性批量渲染所有的普通英雄
+我们使用下面的方法来渲染：
+使用Instance技术来一次性批量渲染所有的普通英雄
 一个一个地渲染每个超级英雄
+
+
+## 实现思路
+
+应该有一个游戏世界，由多个普通英雄和多个超级英雄组成
+
+分别使用一个模块来对应一个普通英雄和一个超级英雄，这个模块应该维护该英雄的数据和实现该英雄的行为
+
 
 
 ## 给出UML
 
-![image](https://img2023.cnblogs.com/blog/419321/202304/419321-20230407093907968-1066718182.png)
+**领域模型**
+<!-- ![image](https://img2023.cnblogs.com/blog/419321/202304/419321-20230407093907968-1066718182.png) -->
+TODO tu
+
+
+总体来看，分为用户、游戏世界、英雄这三个部分
+
+
+我们看下用户、游戏世界这两个部分：
+
+Client是用户
 
 <!-- World负责游戏世界的管理，它包括了所有的普通英雄和超级英雄数据 -->
-World对应游戏世界，由多个普通英雄和多个超级英雄组成
+World是游戏世界，由多个普通英雄和多个超级英雄组成
 World负责管理所有的英雄，并且实现了初始化和主循环的逻辑
 
-一个NormalHero对应一个普通英雄，具有移动的行为
 
-一个SuperHero对应一个超级英雄， 具有移动、飞行的行为
+我们看英雄这个部分：
+
+一个NormalHero对应一个普通英雄，维护了该英雄的数据，实现了移动的行为
+
+一个SuperHero对应一个超级英雄， 维护了该英雄的数据，实现了移动、飞行的行为
 
 
 ## 给出代码
 
-Client代码:
+首先，我们看下用户的代码；
+然后，我们看下创建WorldState的代码
+然后，我们看下创建场景的代码
+然后，我们看下普通英雄移动的代码
+然后，我们看下超级英雄移动和飞行的代码
+然后，我们看下初始化的代码
+然后，我们看下主循环的代码
+然后，我们看下主循环中更新的代码
+然后，我们看下主循环中渲染的代码
+最后，我们运行代码
+
+
+### 用户的代码
+
+Client
 ```ts
-let _createScene = (worldState: worldState): worldState => {
-    let normalHero1Data = api.normalHero.create()
-    let normalHero1 = normalHero1Data[1]
-
-    worldState = addNormalHero(worldState, normalHero1Data)
-
-    创建和加入normalHero2...
-
-
-    worldState = api.normalHero.move(worldState, normalHero1)
-
-
-    let superHero1Data = api.superHero.create()
-    let superHero1 = superHero1Data[1]
-
-    worldState = addSuperHero(worldState, superHero1Data)
-
-    创建和加入superHero2...
-
-
-    worldState = api.superHero.move(worldState, superHero1)
-    worldState = api.superHero.fly(worldState, superHero1)
-
-
-    return worldState
-}
-
 let worldState = createState()
 
 worldState = _createScene(worldState)
+
+worldState = init(worldState)
+
+loop(worldState, [update, renderOneByOne, renderInstances])
 ```
 
-我们首先创建了WorldState，用来保存所有的数据；
-然后创建了场景，包括两个普通英雄和两个超级英雄，其中第一个普通英雄进行了移动，第一个超级英雄进行了移动和飞行
+我们首先创建了WorldState，用来保存游戏世界中所有的数据；
+然后创建了场景；
+然后进行了初始化；
+最后开始了主循环
 
 
-我们首先来看下World的createState代码：
+
+### 创建WorldState的代码
+
+World
 ```ts
 export let createState = (): worldState => {
     return {
@@ -77,285 +94,197 @@ export let createState = (): worldState => {
 }
 ```
 
-createState函数创建并返回了WorldState，它包括两个分别用来保存所有的normalHero和所有的superHero的容器-Hash Map
+createState函数创建的WorldState保存了两个分别用来保存所有的normalHero和所有的superHero的容器
 
 
+### 创建场景的代码
 
-然后我们来看下创建场景相关的部分代码：
-WorldUtils
+Client
 ```ts
-export let setNormalHeroState = (worldState: worldState, normalHero: normalHero, normalHeroState: normalHeroState) => {
-    return {
-        ...worldState,
-        normalHeroes: worldState.normalHeroes.set(normalHero, normalHeroState)
-    }
+let _createScene = (worldState: worldState): worldState => {
+    创建和加入normalHero1到worldState
+    创建和加入normalHero2到worldState
+
+    normalHero1移动
+
+    创建和加入superHero1到worldState
+    创建和加入superHero2到worldState
+
+    superHero1移动
+    superHero1飞行
+
+    return worldState
 }
 
-export let setSuperHeroState = (worldState: worldState, superHero: superHero, superHeroState: superHeroState) => {
-    return {
-        ...worldState,
-        superHeroes: worldState.superHeroes.set(superHero, superHeroState)
-    }
-}
 ```
 
-World
-```ts
-export let addNormalHero = (worldState: worldState, [normalHeroState, normalHero]): worldState => {
-    return setNormalHeroState(worldState, normalHero, normalHeroState)
-}
+用户在创建的场景时，创建和加入了两个普通英雄和两个超级英雄到游戏世界中，其中第一个普通英雄进行了移动，第一个超级英雄进行了移动和飞行
 
-export let addSuperHero = (worldState: worldState, [superHeroState, superHero]): worldState => {
-    return setSuperHeroState(worldState, superHero, superHeroState)
-}
-
-...
-
-export let api = {
-    normalHero: {
-        create: NormalHero.create,
-        move: NormalHero.move
-    },
-    superHero: {
-        create: SuperHero.create,
-        move: SuperHero.move,
-        fly: SuperHero.fly
-    }
-}
-```
-
-我们将一个英雄的数据保存在一个state中，然后用一个索引与其关联。具体就是：
-normalHero、superHero其实就是一个number类型的id值
-normalHeroState、superHeroState分别保存了一个普通英雄、一个超级英雄的数据（比如position、velocity）
-normalHero与normalHeroState一一关联，这个关联体现在前者是WorldState->normalHeroes这个Hash Map的Key，后者是它的Value
-同理，superHero与superHeroState关联
-
-World封装了操作Hero的API
-
-我们继续看创建场景相关的剩余代码：
-NormalHero的相关代码如下：
-WorldUtils
-```ts
-export let getNormalHeroState = (worldState: worldState, normalHero: normalHero): normalHeroState => {
-    return worldState.normalHeroes.get(normalHero)
-}
-
-export let setNormalHeroState = (worldState: worldState, normalHero: normalHero, normalHeroState: normalHeroState) => {
-    return {
-        ...worldState,
-        normalHeroes: worldState.normalHeroes.set(normalHero, normalHeroState)
-    }
-}
-```
 
 NormalHero
 ```ts
+//创建一个普通英雄
 export let create = (): [normalHeroState, normalHero] => {
-    let normalHeroState: normalHeroState = {
-        position: [0, 0, 0],
-        velocity: 1.0
-    }
+    创建它的state数据：
+        position设置为[0,0,0]
+        velocity设置为1.0
 
-    let id = generateId()
+        其中：position为位置，velocity为速度
 
-    return [
-        normalHeroState,
-        id
-    ]
-}
-
-...
-
-export let move = (worldState: worldState, normalHero: normalHero): worldState => {
-    let normalHeroState = getNormalHeroState(worldState, normalHero)
-
-    let { position, velocity } = normalHeroState
-
-    let [x, y, z] = position
-
-    return setNormalHeroState(worldState, normalHero,
-        {
-            ...normalHeroState,
-            position: [x + velocity, y + velocity, z + velocity]
-        }
-    )
+    返回该英雄
 }
 ```
 
-move函数实现了移动的逻辑，更新了normalHero的position
-
-SuperHero的相关代码如下：
-WorldUtils
-```ts
-export let getSuperHeroState = (worldState: worldState, superHero: superHero): superHeroState => {
-    return worldState.superHeroes.get(superHero)
-}
-
-
-export let setSuperHeroState = (worldState: worldState, superHero: superHero, superHeroState: superHeroState) => {
-    return {
-        ...worldState,
-        superHeroes: worldState.superHeroes.set(superHero, superHeroState)
-    }
-}
-```
-SuperHero
-```ts
-export let create = (): [superHeroState, superHero] => {
-    let superHeroState: superHeroState = {
-        position: [0, 0, 0],
-        velocity: 1.0,
-        maxFlyVelocity: 10.0
-    }
-
-    let id = generateId()
-
-    return [
-        superHeroState,
-        id
-    ]
-}
-
-export let move = (worldState: worldState, superHero: superHero): worldState => {
-    let superHeroState = getSuperHeroState(worldState, superHero)
-
-    let { position, velocity } = superHeroState
-
-    let [x, y, z] = position
-
-    return setSuperHeroState(worldState, superHero,
-        {
-            ...superHeroState,
-            position: [x + velocity, y + velocity, z + velocity]
-        }
-    )
-}
-
-export let fly = (worldState: worldState, superHero: superHero): worldState => {
-    let superHeroState = getSuperHeroState(worldState, superHero)
-
-    let { position, velocity, maxFlyVelocity } = superHeroState
-
-    let [x, y, z] = position
-
-    velocity = velocity < maxFlyVelocity ? (velocity * 2.0) : maxFlyVelocity
-
-    return setSuperHeroState(worldState, superHero,
-        {
-            ...superHeroState,
-            position: [x + velocity, y + velocity, z + velocity]
-        }
-    )
-}
-```
-
-superHero的move的逻辑跟normalHero的move的逻辑一样
-
-fly函数实现了飞行的逻辑，它跟move函数一样，也是更新了superHero的position。只是因为两者在计算时使用的速度不一样，所以更新的幅度不同
-
-
-
-现在回到Client，继续看创建场景之后的逻辑
-Client
-```ts
-worldState = init(worldState)
-
-loop(worldState, [update, renderOneByOne, renderInstances])
-```
-
-这里进行了初始化；
-然后开始了主循环
-
-这里的初始化init函数中没有任何逻辑，只是进行了打印，所以跳过不看它的代码
-
-
-我们来看下主循环相关代码：
-utils->World
-```ts
-export let loop = (worldState, [update, renderOneByOne, renderInstances]) => {
-    worldState = update(worldState)
-    ...
-
-    requestAnimationFrame(
-        (time) => {
-            loop(worldState, [update, renderOneByOne, renderInstances])
-        }
-    )
-}
-```
-
-在每次主循环中，进行了更新
-
-我们看下更新的相关代码：
 World
 ```ts
-export let update = (worldState: worldState): worldState => {
-    return {
-        normalHeroes: worldState.normalHeroes.map(normalHeroState => {
-            return NormalHero.update(normalHeroState)
-        }),
-        superHeroes: worldState.superHeroes.map(superHeroState => {
-            return SuperHero.update(superHeroState)
-        })
-    }
+//加入一个普通英雄到游戏世界
+export let addNormalHero = (worldState: worldState, [normalHeroState, normalHero]): worldState => {
+    加入一个普通英雄到worldState.normalHeroes中
 }
 ```
 
-更新update函数会遍历所有的normalHero和superHero，调用它们的update函数来更新自己
+这是“创建和加入一个普通英雄到游戏世界”的相关代码
 
-
-我们看下NormalHero的update代码：
+我们再看下“创建和加入一个超级英雄到游戏世界”的相关代码，它跟普通英雄的相关代码是类似的：
+SuperHero
 ```ts
-export let update = (normalHeroState: normalHeroState): normalHeroState => {
-    console.log("更新NormalHero")
+//创建一个超级英雄
+export let create = (): [superHeroState, superHero] => {
+    创建它的state数据：
+        position设置为[0,0,0]
+        velocity设置为1.0
+        maxVelocity设置为1.0
 
-    let [x, y, z] = normalHeroState.position
+        其中：position为位置，velocity为速度，maxVelocity为最大速度
 
-    //更新position
-    let newPosition: [number, number, number] = [x * 2.0, y * 2.0, z * 2.0]
-
-    return {
-        ...normalHeroState,
-        position: newPosition
-    }
+    返回该英雄
 }
 ```
 
-它更新了自己的position
-这里只是给出了伪代码用于演示而已，实际的update函数应该会根据该普通英雄的层级关系和本地坐标来更新他的模型矩阵
-
-
-我们看下SuperHero的update代码：
+World
 ```ts
-export let update = (superHeroState: superHeroState): superHeroState => {
-    console.log("更新SuperHero")
-
-    let [x, y, z] = superHeroState.position
-
-    //更新position
-    let newPosition: [number, number, number] = [x * 2.0, y * 2.0, z * 2.0]
-
-
-    return {
-        ...superHeroState,
-        position: newPosition
-    }
+//加入一个超级英雄到游戏世界
+export let addSuperHero = (worldState: worldState, [superHeroState, superHero]): worldState => {
+    加入一个超级英雄到worldState.superHeroes中
 }
 ```
 
-它的逻辑跟NormalHero的update是一样的，这是因为两者都使用同样的算法来更新自己的position
 
 
-我们回到主循环代码，来看下更新之后的渲染相关的代码：
+
+### 普通英雄移动的代码
+
+NormalHero
+```ts
+//一个普通英雄的移动
+export let move = (worldState: worldState, normalHero: normalHero): worldState => {
+    从worldState中获得该英雄的position和velocity
+
+    根据velocity，更新position
+
+    更新worldState中该英雄的数据
+}
+```
+
+move函数实现了移动的行为逻辑，更新了位置
+
+
+### 超级英雄移动和飞行的代码
+
+SuperHero
+```ts
+//一个超级英雄的移动
+export let move = (worldState: worldState, superHero: superHero): worldState => {
+    从worldState中获得该英雄的position和velocity
+
+    根据velocity，更新position
+
+    更新worldState中该英雄的数据
+}
+
+//一个超级英雄的飞行
+export let fly = (worldState: worldState, superHero: superHero): worldState => {
+    从worldState中获得该英雄的position和velocity、maxVelocity
+
+    根据maxVelocity、velocity，更新position
+
+    更新worldState中该英雄的数据
+}
+```
+
+SuperHero的move函数的逻辑跟NormalHero的move函数的逻辑是一样的
+
+fly函数实现了飞行的行为逻辑
+它跟move函数一样，也是更新superHero的position，只是因为两者在计算时使用的速度的算法不一样，所以更新position的幅度不同
+
+### 初始化的代码
+
+World
+```ts
+export let init = (worldState) => {
+    console.log("初始化...")
+
+    return worldState
+}
+```
+
+这里的初始化init函数中没有任何逻辑，只是进行了打印
+
+### 主循环的代码
+
 utils->World
 ```ts
 export let loop = (worldState, [update, renderOneByOne, renderInstances]) => {
     worldState = update(worldState)
     renderOneByOne(worldState)
     renderInstances(worldState)
+
     ...
 }
 ```
+
+在每次主循环中，首先进行了更新；
+然后一个一个地渲染了所有的超级英雄；
+最后一次性批量渲染了所有的普通英雄
+
+
+### 主循环中更新的代码
+
+World
+```ts
+export let update = (worldState: worldState): worldState => {
+    遍历worldState.normalHeroes：
+        更新每个normalHero
+    遍历worldState.superHeroes：
+        更新每个superHero
+}
+```
+update函数会遍历所有的normalHero和superHero，调用它们的update函数来更新自己
+
+我们看下NormalHero的update代码：
+```ts
+//更新一个普通英雄
+export let update = (normalHeroState: normalHeroState): normalHeroState => {
+    更新该英雄的position
+}
+```
+
+它更新了自己的position
+
+我们看下SuperHero的update代码：
+```ts
+//更新一个超级英雄
+export let update = (superHeroState: superHeroState): superHeroState => {
+    更新该英雄的position
+}
+```
+
+它的逻辑跟NormalHero的update是一样的，这是因为两者都使用同样的算法来更新自己的position
+
+
+### 主循环中渲染的代码
+
+<!-- 我们回到主循环代码，来看下更新之后的渲染相关的代码： -->
 World
 ```ts
 export let renderOneByOne = (worldState: worldState): void => {
@@ -371,10 +300,11 @@ export let renderInstances = (worldState: worldState): void => {
 }
 ```
 
-渲染时，首先通过renderOneByOne函数来一个一个地渲染每个超级英雄；然后通过renderInstances函数来一次性批量渲染所有的普通英雄
+renderOneByOne函数实现了超级英雄的渲染
+renderInstances函数实现了普通英雄的渲染
 
 
-
+### 运行代码
 
 下面，我们运行代码，运行结果如下：
 ```text
@@ -389,13 +319,19 @@ OneByOne渲染 SuperHero...
 {"normalHeroes":{"144891":{"position":[0,0,0],"velocity":1},"648575":{"position":[2,2,2],"velocity":1}},"superHeroes":{"497069":{"position":[6,6,6],"velocity":1,"maxFlyVelocity":10},"783438":{"position":[0,0,0],"velocity":1,"maxFlyVelocity":10}}}
 ```
 
+通过打印的数据，可以看到运行的步骤如下：
 首先进行了初始化；
 然后更新了所有的人物，包括两个普通英雄和两个超级英雄；
-然后依次渲染了2个超级英雄，以及一次性批量渲染了所有的普通英雄；
-最后打印了WorldState
+然后依次渲染了2个超级英雄；
+然后一次性批量渲染了所有的普通英雄；
+最后打印了worldState
 
-我们看到normalHeroes中有一个的position为[2,2,2]，说明该普通英雄进行了move操作；superHeroes中有一个的position为[6,6,6]，说明该超级英雄进行了move和fly操作
-normalHeroes和superHeroes中的Key因为是随机生成的id值，所以每次打印时值都不一样
+我们看下打印的worldState：
+worldState的normalHeroes中有一个普通英雄数据的position为[2,2,2]而不是初始的[0,0,0]，说明该普通英雄进行了move操作；
+worldState的superHeroes中有一个超级英雄数据的position为[6,6,6]，说明该超级英雄进行了move和fly操作
+
+值得注意的是：
+因为worldState的normalHeroes和superHeroes中的Key是随机生成的id值，所以每次打印时都不一样
 
 
 
@@ -404,7 +340,8 @@ normalHeroes和superHeroes中的Key因为是随机生成的id值，所以每次�
 
 - NormalHero和SuperHero中的update、move函数的逻辑是重复的
 
-- 如果增加更多的行为，NormalHero和SuperHero模块的逻辑会越来越复杂，不容易维护。这可以通过继承来解决，即最上面是Hero基类，然后不同种类的Hero层层继承。但是继承的方式很死板，不够灵活
+- 如果英雄增加更多的行为，NormalHero和SuperHero模块会越来越复杂，不容易维护
+虽然可以通过继承来解决，即最上面是Hero基类，然后不同种类的Hero层层继承，但是继承的方式很死板，不够灵活
 
 
 # [给出可能的改进方案，分析存在的问题]?
@@ -412,111 +349,92 @@ normalHeroes和superHeroes中的Key因为是随机生成的id值，所以每次�
 
 ## 概述解决方案？
 
-使用组件化的思想，用组合代替继承，进行下面的改进：
-将人物抽象为GameObject
-将人物的行为抽象为组件
-<!-- ，并把相关的数据也移到组件中 -->
-这样NormalHero、SuperHero都是GameObject，只是挂载不同的组件而已
+
+通过下面的改进来解决重复和继承的问题：
+使用组件化的思想，用组合代替继承，具体如下：
+将英雄抽象为GameObject
+将英雄的行为抽象为组件，并把英雄的相关数据也移到组件中
+英雄通过挂载不同的组件，来实现不同的行为
+
+<!-- 这样NormalHero、SuperHero都是GameObject，只是挂载不同的组件而已 -->
 
 
 
 
 ## 给出UML？
-![image](https://img2023.cnblogs.com/blog/419321/202304/419321-20230407093910175-912066482.png)
+<!-- ![image](https://img2023.cnblogs.com/blog/419321/202304/419321-20230407093910175-912066482.png) -->
+
+**领域模型**
+TODO tu
+
+总体来看，分为用户、游戏世界、GameObject、组件这四个部分
+
+我们看下用户、游戏世界这两个部分：
+Client是用户
+
+World是游戏世界，由多个GameObject组成
+World负责管理所有的GameObject，并且实现了初始化和主循环的逻辑
 
 
-World由多个GameObject组成
-World负责管理所有的gameObject，并且实现了初始化和主循环的逻辑
+我们看下GameObject这个部分：
 
+一个GameObject对应一个英雄
 GameObject负责管理挂载的组件，它可以挂载PositionComponent、VelocityComponent、FlyComponent、InstanceComponent这四种组件，每种组件最多挂载一个
 
-组件负责维护自己的数据，实现自己的逻辑。
-具体来说，将NormalHero、SuperHero的position数据和move函数移到了PositionComponent中；
+
+我们看下组件这个部分：
+
+组件负责维护自己的数据，实现自己的行为逻辑
+具体来说，是将NormalHero、SuperHero的position数据和move函数、update函数移到了PositionComponent中；
 将NormalHero、SuperHero的velocity数据移到了VelocityComponent中；
 将SuperHero的maxVelocity数据和fly函数移到了FlyComponent中；
-InstanceComponent没有数据和逻辑，它只是一个标记，用来表示挂载该组件的GameObject需要进行一次性批量渲染
+InstanceComponent没有数据和逻辑，它只是一个标记，用来表示挂载该组件的GameObject使用一次性批量渲染的算法来渲染
 
 
 
 ## 结合UML图，描述如何具体地解决问题？
 
-- 现在NormalHero、SuperHero都是GameObject了，它本身没有行为的逻辑，而是通过挂载PositionComponent组件来实现，从而消除了两种人物都实现相同的update、move函数造成的重复逻辑
+- 现在只需要实现一次Position组件中的update、move函数，然后将它挂载到不同的GameObject中，就可以实现普通英雄和超级英雄的更新、移动的逻辑，从而消除了之前在NormalHero、SuperHero中共实现了两次的update、move函数造成的重复代码
 
 
-- 因为NormalHero、SuperHero都是GameObject，而GameObject本身只负责管理组件，没有其它的逻辑。随着行为的增加，GameObject并不会增加逻辑，而是增加对应行为的组件，GameObject只需挂载对应的组件即可
-通过这样的设计，就将行为的逻辑和数据分散在对应的组件中，通过组合的方式使人物具有多个行为，从而避免了庞大的人物模块的出现
+- 因为NormalHero、SuperHero都是GameObject，而GameObject本身只负责管理组件，没有行为逻辑，所以随着英雄的行为的增加，GameObject并不会增加逻辑，而只需要增加对应行为的组件，让GameObject挂载该组件即可
+通过这样的设计，将行为的逻辑和数据从英雄移到了组件中，从而可以通过组合的方式使英雄具有多个行为，避免了庞大的英雄模块的出现
 
 
 ## 给出代码？
 
+首先，我们看下用户的代码；
+然后，我们看下创建WorldState的代码
+然后，我们看下创建场景的代码
+然后，我们看下GameObject操作组件的代码
+然后，我们看下移动的相关代码
+然后，我们看下飞行的相关代码
+然后，我们看下初始化和主循环的代码
+然后，我们看下主循环中更新的代码
+然后，我们看下主循环中渲染的代码
+最后，我们运行代码
 
-Client代码:
+
+### 用户的代码
+
+Client
 ```ts
-let _createScene = (worldState: worldState): worldState => {
-    let normalHero1Data = api.gameObject.create()
-    let normalHero1State = normalHero1Data[0]
-    let normalHero1 = normalHero1Data[1]
-
-    let positionComponent1 = api.positionComponent.create()
-    let velocityComponent1 = api.velocityComponent.create()
-    let instanceComponent1 = api.instanceComponent.create()
-
-    normalHero1State = api.gameObject.setPositionComponent(normalHero1State, normalHero1, positionComponent1)
-    normalHero1State = api.gameObject.setVelocityComponent(normalHero1State, normalHero1, velocityComponent1)
-    normalHero1State = api.gameObject.setInstanceComponent(normalHero1State, normalHero1, instanceComponent1)
-
-    worldState = addGameObject(worldState, [normalHero1State, normalHero1])
-
-    创建和加入normalHero2...
-
-    worldState = api.positionComponent.move(worldState, normalHero1)
-
-
-    let superHero1Data = api.gameObject.create()
-    let superHero1State = superHero1Data[0]
-    let superHero1 = superHero1Data[1]
-
-    let positionComponent3 = api.positionComponent.create()
-    let velocityComponent3 = api.velocityComponent.create()
-    let flyComponent1 = api.flyComponent.create()
-
-    superHero1State = api.gameObject.setPositionComponent(superHero1State, superHero1, positionComponent3)
-    superHero1State = api.gameObject.setVelocityComponent(superHero1State, superHero1, velocityComponent3)
-    superHero1State = api.gameObject.setFlyComponent(superHero1State, superHero1, flyComponent1)
-
-    worldState = addGameObject(worldState, [superHero1State, superHero1])
-
-    创建和加入superHero2...
-
-    worldState = api.positionComponent.move(worldState, superHero1)
-    worldState = api.flyComponent.fly(worldState, superHero1)
-
-    return worldState
-}
-
 let worldState = createState()
 
 worldState = _createScene(worldState)
+
+worldState = init(worldState)
+
+loop(worldState, [update, renderOneByOne, renderInstances])
 ```
 
-这里跟之前不一样的地方在于如何创建场景的人物
-
-这里创建的场景跟之前一样，都包括了2个普通英雄和2个超级英雄
-只是现在创建人物的方式是改为：
-首先创建一个GameObject和相关的组件；
-然后挂载组件到GameObject；
-最后加入该GameObject到World中
+Client的代码跟之前的Client的代码一样
+<!-- ，除了_createScene函数中创建场景的方式不一样 -->
 
 
-普通英雄对应的GameObject挂载了PositionComponent、VelocityComponent、InstanceComponent组件
-超级英雄对应的GameObject挂载了PositionComponent、VelocityComponent、FlyComponent组件
+### 创建WorldState的代码
 
-
-让人物进行“移动”、“飞行”的行为改为通过调用对应组件的函数而不是直接操作人物来实现
-
-
-
-现在我们首先来看下World的createState代码：
+World
 ```ts
 export let createState = (): worldState => {
     return {
@@ -525,65 +443,61 @@ export let createState = (): worldState => {
 }
 ```
 
-createState函数创建并返回了WorldState，它现在是包括所有的GameObject的容器Hash Map
+createState函数创建的WorldState保存了一个用来保存所有的gameObject的容器
 
+### 创建场景的代码
 
-
-然后我们来看下创建场景相关的部分代码：
-World
+Client
 ```ts
-export let addGameObject = (worldState: worldState, [gameObjectState, gameObject]): worldState => {
-    return {
-        ...worldState,
-        gameObjects: worldState.gameObjects.set(gameObject, gameObjectState)
-    }
+let _createScene = (worldState: worldState): worldState => {
+    创建和加入normalHero1到worldState：
+        创建gameObject
+        创建positionComponent
+        创建velocityComponent
+        创建instanceComponent
+        挂载positionComponent、velocityComponent、instanceComponent到gameObject
+        加入gameObject到worldState
+
+    创建和加入normalHero2到worldState
+
+    normalHero1移动：
+        调用normalHero1的gameObject挂载的positionComponent的move函数，更新该组件的position
+
+    创建和加入superHero1到worldState：
+        创建gameObject
+        创建positionComponent
+        创建velocityComponent
+        创建flyComponent
+        挂载positionComponent、velocityComponent、flyComponent到gameObject
+        加入gameObject到worldState
+
+    创建和加入superHero2到worldState
+
+    superHero1移动：
+        调用superHero1的gameObject挂载的positionComponent的move函数
+    superHero1飞行：
+        调用superHero1的gameObject挂载的flyComponent的fly函数
+
+    return worldState
 }
 
-...
-
-export let api = {
-    gameObject: {
-        create: createGameObject,
-        setPositionComponent,
-        setFlyComponent,
-        setVelocityComponent,
-        setInstanceComponent
-    },
-    positionComponent: {
-        create: createPositionComponent,
-        move: (worldState: worldState, gameObject): worldState => {
-            return move(worldState, getPositionComponentExn(
-                getGameObjectStateExn(worldState, gameObject)
-            ))
-        }
-    },
-    velocityComponent: {
-        create: createVelocityComponent
-    },
-    flyComponent: {
-        create: createFlyComponent,
-        fly: (worldState: worldState, gameObject): worldState => {
-            return fly(worldState, getFlyComponentExn(
-                getGameObjectStateExn(worldState, gameObject)
-            ))
-        }
-    },
-    instanceComponent: {
-        create: createInstanceComponent
-    }
-}
 ```
 
-这里与之前一样，我们将一个GameObject的数据保存在一个state中，然后用一个索引与其关联。具体就是：
-gameObject其实就是一个number类型的id值，
-gameObjectState保存了一个GameObject的数据
-gameObject与gameObjectState一一关联，这个关联体现在前者是WorldState->gameObjects这个Hash Map的Key，后者是它的Value
+用户创建的场景的内容跟之前一样，都包括了2个普通英雄和2个超级英雄，只是现在创建一个英雄的方式改变了，具体变为：
+首先创建一个GameObject和相关的组件；
+然后挂载组件到GameObject；
+最后加入该GameObject到World中
 
-World封装了操作GameObject和组件的API
+普通英雄对应的GameObject挂载的组件跟超级英雄对应的GameObject挂载的组件也不一样，不一样的组件是前者挂载了InstanceComponent（因为普通英雄需要一次性批量渲染），后者则挂载了FlyComponent（因为超级英雄多出了飞行的行为）
 
-我们继续看创建场景相关的剩余代码：
-GameObject的相关代码如下：
-GameObjectStateType
+另外，现在改为通过调用组件的函数而不是直接操作英雄模块来实现英雄的“移动”、“飞行”
+
+
+
+
+<!-- 我们继续看创建场景相关的剩余代码：
+GameObject的相关代码如下： -->
+<!-- GameObjectStateType
 ```ts
 type id = number
 
@@ -596,57 +510,135 @@ export type state = {
     instanceComponent: instanceComponentState | null
 }
 ```
-gameObjectState中保存了该gameObject挂载的所有组件的state数据
+gameObjectState中保存了该gameObject挂载的所有组件的state数据 -->
 
 GameObject
 ```ts
+//创建一个gameObject
 export let create = (): [gameObjectState, gameObject] => {
-    let gameObjectState: gameObjectState = {
-        positionComponent: null,
-        velocityComponent: null,
-        flyComponent: null,
-        instanceComponent: null
-    }
+    创建它的state数据：
+        没有挂载任何的组件
 
-    let id = generateId()
-
-    return [
-        gameObjectState,
-        id
-    ]
+    返回该gameObject
 }
 
-export let getPositionComponentExn = ({ positionComponent }: gameObjectState): positionComponentState => {
-    return getExnFromStrictNull(positionComponent)
-}
+// export let getPositionComponentExn = ({ positionComponent }: gameObjectState): positionComponentState => {
+//     获得该gameObject挂载的positionComponent
+// }
 
-获得其它组件...
+// 获得其它组件...
 
 export let setPositionComponent = (gameObjectState: gameObjectState, gameObject: gameObject, positionComponentState): gameObjectState => {
-    return {
-        ...gameObjectState,
-        positionComponent: {
-            ...positionComponentState,
-            gameObject: gameObject
-        }
-    }
+    挂载该positionComponent到该gameObject
 }
 
 挂载其它组件...
 
-export let hasPositionComponent = ({ positionComponent }: gameObjectState): boolean => {
-    return positionComponent !== null
-}
+// export let hasPositionComponent = ({ positionComponent }: gameObjectState): boolean => {
+//     判断该gameObject是否挂载了positionComponent
+// }
 
-has其它组件...
+// has其它组件...
 ```
 
-GameObject负责创建gameObject和管理挂载的组件
+<!-- GameObject负责创建gameObject和管理挂载的组件 -->
 
 
-组件与GameObject一样，我们将它的数据保存在一个state中，只是不需要索引。所以一个组件就等于一个组件state
+PositionComponent
+```ts
+//创建一个positionComponent
+export let create = (): positionComponentState => {
+    创建它的state数据：
+        gameObject设置为null
+        position设置为[0,0,0]
+
+        其中：position为位置，gameObject为挂载到的gameObject
+
+    返回该组件
+}
+```
+
+VelocityComponent
+```ts
+//创建一个velocityComponent
+export let create = (): velocityComponentState => {
+    创建它的state数据：
+        gameObject设置为null
+        velocity设置为1.0
+
+        其中：velocity为速度，gameObject为挂载到的gameObject
+
+    返回该组件
+}
+```
+
+FlyComponent
+```ts
+//创建一个flyComponent
+export let create = (): flyComponentState => {
+    创建它的state数据：
+        gameObject设置为null
+        maxVelocity设置为1.0
+
+        其中：maxVelocity为最大速度，gameObject为挂载到的gameObject
+
+    返回该组件
+}
+```
+InstanceComponent
+```ts
+//创建一个instanceComponent
+export let create = (): flyComponentState => {
+    创建它的state数据：
+        gameObject设置为null
+
+        其中：gameObject为挂载到的gameObject
+
+    返回该组件
+}
+```
 
 
+World
+```ts
+export let addGameObject = (worldState: worldState, [gameObjectState, gameObject]): worldState => {
+    加入一个gameObject到worldState.gameObjects中
+}
+```
+
+
+
+这是“创建一个gameObject和对应组件、挂载组件到gameObject、加入gameObject到游戏世界”的相关代码
+
+组件的state中都保存了挂载到的gameObject，这样做的目的是可以通过gameObject来获得挂载到该gameObject的其它组件，从而在一个组件中可以操作其它挂载的组件
+
+
+
+### GameObject操作组件的代码
+
+GameObject
+```ts
+export let getPositionComponentExn = ({ positionComponent }: gameObjectState): positionComponentState => {
+    获得该gameObject挂载的positionComponent
+}
+
+更多获得其它组件的函数...
+
+export let hasPositionComponent = ({ positionComponent }: gameObjectState): boolean => {
+    判断该gameObject是否挂载了positionComponent
+}
+
+更多has其它组件函数...
+```
+
+<!-- GameObject负责创建gameObject和管理挂载的组件 -->
+这是GameObject中除了挂载组件以外的操作组件的代码
+
+### 移动的相关代码
+
+<!-- 组件与GameObject一样，我们将它的数据保存在一个state中，只是不需要索引。所以一个组件就等于一个组件state -->
+
+<!-- 
 组件的相关代码如下：
 PositionComponentStateType
 ```ts
@@ -656,24 +648,18 @@ export type state = {
 }
 ```
 
-组件state中保存了挂载到的gameObject，这样可以通过gameObject来获得挂载到gameObject的其它组件，从而获得其它组件的数据
+组件state中保存了挂载到的gameObject，这样可以通过gameObject来获得挂载到gameObject的其它组件，从而获得其它组件的数据 -->
 
 PositionComponent
 ```ts
-export let create = (): positionComponentState => {
-    let positionComponentState: positionComponentState = {
-        gameObject: null,
-        position: [0, 0, 0],
-    }
+...
 
-    //直接返回组件state，无需索引
-    return positionComponentState
-}
-
+//获得一个组件的position
 export let getPosition = (positionComponentState: positionComponentState) => {
     return positionComponentState.position
 }
 
+//设置一个组件的position
 export let setPosition = (positionComponentState: positionComponentState, position) => {
     return {
         ...positionComponentState,
@@ -683,63 +669,57 @@ export let setPosition = (positionComponentState: positionComponentState, positi
 
 ...
 
+//一个组件的移动
 export let move = (worldState: worldState, positionComponentState: positionComponentState): worldState => {
-    let [x, y, z] = positionComponentState.position
+    获得该组件的position、gameObject
 
-    let gameObject = getExnFromStrictNull(positionComponentState.gameObject)
+    通过该组件的gameObject，获得挂载到该gameObject的velocityComponent组件
+    获得它的velocity
 
-    //通过gameObject获得velocityComponent，获得它的velocity
-    let velocity = getVelocity(getVelocityComponentExn(getGameObjectStateExn(worldState, gameObject)))
+    根据velocity，更新position
 
-    positionComponentState = setPosition(positionComponentState, [x + velocity, y + velocity, z + velocity])
-
-    return setPositionComponentState(worldState, gameObject, positionComponentState)
+    更新worldState中该组件挂载的gameObject中的该组件的数据
 }
 ```
-VelocityComponentStateType
+
+PositionComponent维护了position数据，实现了移动的行为逻辑
+
+<!-- VelocityComponentStateType
 ```ts
 export type state = {
     gameObject: gameObject,
     velocity: number
 }
-```
+``` -->
 VelocityComponent
 ```ts
-export let create = (): velocityComponentState => {
-    let velocityComponentState: velocityComponentState = {
-        gameObject: null,
-        velocity: 1.0
-    }
-
-    return velocityComponentState
-}
-
+//获得一个组件的velocity
 export let getVelocity = (velocityComponentState: velocityComponentState) => {
     return velocityComponentState.velocity
 }
 ```
-FlyComponentStateType
+
+VelocityComponent维护了velocity数据
+
+
+
+### 飞行的相关代码
+
+<!-- FlyComponentStateType
 ```ts
 export type state = {
     gameObject: gameObject | null,
     maxVelocity: number
 }
-```
+``` -->
 FlyComponent
 ```ts
-export let create = (): flyComponentState => {
-    let flyComponentState: flyComponentState = {
-        gameObject: null,
-        maxVelocity: 10.0
-    }
-
-    return flyComponentState
-}
-
+//获得一个组件的maxVelocity
 export let getMaxVelocity = (flyComponentState: flyComponentState) => {
     return flyComponentState.maxVelocity
 }
 
+//设置一个组件的maxVelocity
 export let setMaxVelocity = (flyComponentState: flyComponentState, maxVelocity) => {
     return {
         ...flyComponentState,
@@ -747,26 +727,31 @@ export let setMaxVelocity = (flyComponentState: flyComponentState, maxVelocity) 
     }
 }
 
+//一个组件的飞行
 export let fly = (worldState: worldState, flyComponentState: flyComponentState): worldState => {
-    let maxVelocity = flyComponentState.maxVelocity
+    获得该组件的maxVelocity、gameObject
 
-    let gameObject = getExnFromStrictNull(flyComponentState.gameObject)
-    let gameObjectState = getGameObjectStateExn(worldState, gameObject)
+    通过该组件的gameObject，获得挂载到该gameObject的positionComponent组件、velocityComponent组件
+    获得它们的position和velocity
 
-    //通过gameObject获得positionComponent，获得它的position
-    let [x, y, z] = getPosition(getPositionComponentExn(gameObjectState))
+    根据maxVelocity、velocity，更新position
 
-    //通过gameObject获得velocityComponent，获得它的velocity
-    let velocity = getVelocity(getVelocityComponentExn(gameObjectState))
-
-    velocity = velocity < maxVelocity ? (velocity * 2.0) : maxVelocity
-
-    let positionComponentState = setPosition(getPositionComponentExn(gameObjectState), [x + velocity, y + velocity, z + velocity])
-
-    return setPositionComponentState(worldState, gameObject, positionComponentState)
+    更新worldState中该组件挂载的gameObject中的该组件的数据
 }
 ```
 
+FlyComponent维护了maxVelocity数据，实现了飞行的行为逻辑
+
+
+### 初始化和主循环的代码
+
+初始化和主循环的逻辑跟之前一样，故省略代码
+
+
+### 主循环中更新的代码
+
+
+<!-- 
 
 现在回到Client，继续看创建场景之后的逻辑
 Client
@@ -778,52 +763,35 @@ loop(worldState, [update, renderOneByOne, renderInstances])
 
 这里的步骤跟之前一样，初始化和主循环的逻辑也完全一样
 
-不一样的地方是主循环中的更新、渲染的逻辑不一样
+不一样的地方是主循环中的更新、渲染的逻辑不一样 -->
 
-我们看下更新的代码：
 World
 ```ts
 export let update = (worldState: worldState): worldState => {
-    return {
-        ...worldState,
-        gameObjects: worldState.gameObjects.map(gameObjectState => {
-            if (hasPositionComponent(gameObjectState)) {
-                gameObjectState = {
-                    ...gameObjectState,
-                    positionComponent: updatePositionComponent(getPositionComponentExn(gameObjectState))
-                }
-            }
-
-            return gameObjectState
-        })
-    }
+    遍历worldState.gameObjects：
+        if(gameObject挂载了positionComponent){
+            更新positionComponent
+        }
 }
 ```
 
-更新update函数会遍历所有的gameObject，调用它挂载的PositionComponent组件的update函数来更新该组件
+update函数会遍历所有的gameObject，调用它挂载的PositionComponent组件的update函数来更新该组件
 
 
 我们看PositionComponent的update代码：
 ```ts
+//更新一个组件
 export let update = (positionComponentState: positionComponentState): positionComponentState => {
-    console.log("更新PositionComponent")
-
-    let [x, y, z] = positionComponentState.position
-
-    //更新position
-    let newPosition: [number, number, number] = [x * 2.0, y * 2.0, z * 2.0]
-
-    return {
-        ...positionComponentState,
-        position: newPosition
-    }
+    更新该组件的position
 }
 ```
 
-它的逻辑跟之前的update函数的逻辑一样
+它的逻辑跟之前的NormalHero和SuperHero中的update函数的逻辑是一样的
 
 
-接下来我们看下渲染的代码：
+### 主循环中渲染的代码
+
+
 World
 ```ts
 export let renderOneByOne = (worldState: worldState): void => {
@@ -845,9 +813,10 @@ export let renderInstances = (worldState: worldState): void => {
 }
 ```
 
+这里判断gameObject是否挂载了InstanceComponent组件，如果挂载则批量渲染，否则一个一个地渲染
 
-这里判断gameObject是否挂载了InstanceComponent组件，如果挂载则进行批量渲染，否则进行一个一个地渲染
 
+### 运行代码
 
 下面，我们运行代码，运行结果如下：
 ```text
@@ -862,19 +831,24 @@ OneByOne渲染 SuperHero...
 {"gameObjects":{"304480":{"positionComponent":{"gameObject":304480,"position":[0,0,0]},"velocityComponent":{"gameObject":304480,"velocity":1},"flyComponent":{"gameObject":304480,"maxVelocity":10},"instanceComponent":null},"666533":{"positionComponent":{"gameObject":666533,"position":[2,2,2]},"velocityComponent":{"gameObject":666533,"velocity":1},"flyComponent":null,"instanceComponent":{"gameObject":666533}},"838392":{"positionComponent":{"gameObject":838392,"position":[0,0,0]},"velocityComponent":{"gameObject":838392,"velocity":1},"flyComponent":null,"instanceComponent":{"gameObject":838392}},"936933":{"positionComponent":{"gameObject":936933,"position":[6,6,6]},"velocityComponent":{"gameObject":936933,"velocity":1},"flyComponent":{"gameObject":936933,"maxVelocity":10},"instanceComponent":null}}}
 ```
 
-运行结果的步骤与之前一样
+通过打印的数据，可以看到运行的步骤与之前一样
 不同之处在于：
-更新人物变为更新positionComponent；
-打印的WorldState不一样
+更新4个英雄现在变为更新4个positionComponent；
+打印的worldState不一样
 
 
-我们看下打印的WorldState：
-gameObjects包括了4个gameObject的数据；
-有一个gameObject的positionComponent的position为[2,2,2]，说明该gameObject进行了move操作；
-有一个gameObject的positionComponent的position为[6,6,6]，说明该gameObject进行了move和fly操作
-gameObjects中的Key因为是随机生成的id值，所以每次打印时值都不一样
+我们看下打印的worldState：
+worldState的gameObjects包括了4个gameObject的数据；
+有一个gameObject数据的positionComponent的position为[2,2,2]，说明它进行了move操作；
+有一个gameObject数据的positionComponent的position为[6,6,6]，说明它进行了move和fly操作
+
+
+值得注意的是：
+因为worldState的gameObjects中的Key是随机生成的id值，所以每次打印时都不一样
+
 
 ## 提出问题
+TODO continue
 
 - 组件的数据分散在各个组件中，性能不好
 现在所有人物的position的数据一对一地分散保存在各个PositionComponent组件中，那么在遍历所有的position数据时，会因为CPU中不容易缓存命中而带来性能损失

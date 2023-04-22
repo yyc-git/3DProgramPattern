@@ -5,6 +5,8 @@
 
 * TODO 更新代码库，给出索引、how to run
 
+** TODO update README
+
 ** TODO give where has code, uml and how to run code and run result for each example
 
     TODO give how to run rescript code(pipeline pattern should mention it!)
