@@ -1611,7 +1611,7 @@ Component+GameObject层为组件和GameObject，它们现在只是有一个numbe
 
 
 - OtherComponentManager
-该角色是一种其它组件的Manager，负责维护和管理该种组件的所有组件数据，将其保存在Hash Map中，每个Hash Map保存一类数据
+该角色是一种其它组件的Manager，负责维护和管理该种组件的所有组件数据，将其保存在Map中，每个Map保存一类数据
 
 
 我们看下Component+GameObject这一层：
@@ -1953,7 +1953,7 @@ other_component1/ManagerStateType
 ```ts
 export type state = {
     maxUID: number,
-    //value1Map是Hash Map，用来保存该种组件所有的value1数据
+    //value1Map用来保存该种组件所有的value1数据
     value1Map: Map<component, value1 type>,
     更多valueXMap...,
 
@@ -2099,7 +2099,10 @@ World、System、Manager、Component+GameObject这几个层只能上层依赖下
 ## 缺点
 
 - 需要转换为函数式编程的思维
-习惯面向对象编程的同学倾向于设计一个组件是一个包括数据和逻辑的类，而ECS模式则将其扁平化为一个值对象，也就是一个组件变成了一个数据，这更符合函数式编程的思维模式
+习惯面向对象编程的同学倾向于设计一个组件是一个包括数据和逻辑的类，而ECS模式则将其扁平化为一个值对象，也就是一个组件变成了一个数据，这更符合函数式编程中一切都是数据的思维模式
+另外，ECS中的System其实就只是一个函数而已，本身没有数据，这也符合函数式编程中函数是第一公民的思维模式
+所以，如果是使用函数式编程范式的同学能够更容易地使用ECS模式
+
 
 <!-- - 实现起来比较复杂 -->
 
