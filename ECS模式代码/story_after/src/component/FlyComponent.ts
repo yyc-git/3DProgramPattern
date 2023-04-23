@@ -1,10 +1,10 @@
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils";
 import { state as flyComponentState } from "./FlyComponentStateType"
-import { getPositionComponentExn, getVelocityComponentExn } from "../gameObject/GameObject";
+import * as GameObject from "../gameObject/GameObject";
 import { getGameObjectStateExn, setPositionComponentState } from "../utils/WorldUtils";
 import { state as worldState } from "../world/WorldStateType";
-import { getVelocity } from "./VelocityComponent";
-import { getPosition, setPosition } from "./PositionComponent";
+import * as VelocityComponent from "./VelocityComponent";
+import * as PositionComponent from "./PositionComponent";
 
 export let create = (): flyComponentState => {
     let flyComponentState: flyComponentState = {
@@ -27,20 +27,21 @@ export let setMaxVelocity = (flyComponentState: flyComponentState, maxVelocity) 
 }
 
 export let fly = (worldState: worldState, flyComponentState: flyComponentState): worldState => {
-    let maxVelocity = flyComponentState.maxVelocity
-
+    //获得该组件的maxVelocity、gameObject
+    let maxVelocity = getMaxVelocity(flyComponentState)
     let gameObject = getExnFromStrictNull(flyComponentState.gameObject)
-    let gameObjectState = getGameObjectStateExn(worldState, gameObject)
 
-    //通过gameObject获得positionComponent，获得它的position
-    let [x, y, z] = getPosition(getPositionComponentExn(gameObjectState))
+    //通过该组件的gameObject，获得挂载到该gameObject的positionComponent组件
+    //获得它的position
+    let [x, y, z] = PositionComponent.getPosition(GameObject.getPositionComponentExn(getGameObjectStateExn(worldState, gameObject)))
 
-    //通过gameObject获得velocityComponent，获得它的velocity
-    let velocity = getVelocity(getVelocityComponentExn(gameObjectState))
+    //通过该组件的gameObject，获得挂载到该gameObject的velocityComponent组件
+    //获得它的velocity
+    let velocity = VelocityComponent.getVelocity(GameObject.getVelocityComponentExn(getGameObjectStateExn(worldState, gameObject)))
 
+    //根据maxVelocity、velocity，更新positionComponent组件的position
     velocity = velocity < maxVelocity ? (velocity * 2.0) : maxVelocity
-
-    let positionComponentState = setPosition(getPositionComponentExn(gameObjectState), [x + velocity, y + velocity, z + velocity])
+    let positionComponentState = PositionComponent.setPosition(GameObject.getPositionComponentExn(getGameObjectStateExn(worldState, gameObject)), [x + velocity, y + velocity, z + velocity])
 
     return setPositionComponentState(worldState, gameObject, positionComponentState)
 }

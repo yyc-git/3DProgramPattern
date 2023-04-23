@@ -9,6 +9,6 @@ export let createState = ({ dataOrientedComponent1Count }): worldState => {
         dataOrientedComponent1ManagerState: DataOrientedComponent1Manager.createState(dataOrientedComponent1Count),
         otherComponent1ManagerState: OtherComponent1Manager.createState(),
 
-        更多的DataOrientedManagerState和OtherComponentManagerState...
+        创建更多的DataOrientedManagerState和OtherComponentManagerState...
     }
 }

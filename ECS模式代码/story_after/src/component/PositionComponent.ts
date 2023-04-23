@@ -1,9 +1,9 @@
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils";
 import { state as positionComponentState } from "../component/PositionComponentStateType"
-import { getVelocityComponentExn } from "../gameObject/GameObject";
+import * as GameObject from "../gameObject/GameObject";
 import { getGameObjectStateExn, setPositionComponentState } from "../utils/WorldUtils";
 import { state as worldState } from "../world/WorldStateType";
-import { getVelocity } from "./VelocityComponent";
+import * as VelocityComponent from "./VelocityComponent";
 
 export let create = (): positionComponentState => {
     let positionComponentState: positionComponentState = {
@@ -41,13 +41,15 @@ export let update = (positionComponentState: positionComponentState): positionCo
 }
 
 export let move = (worldState: worldState, positionComponentState: positionComponentState): worldState => {
-    let [x, y, z] = positionComponentState.position
+    //获得该组件的position、gameObject
+    let [x, y, z] = getPosition(positionComponentState)
 
+    //通过该组件的gameObject，获得挂载到该gameObject的velocityComponent组件
+    //获得它的velocity
     let gameObject = getExnFromStrictNull(positionComponentState.gameObject)
+    let velocity = VelocityComponent.getVelocity(GameObject.getVelocityComponentExn(getGameObjectStateExn(worldState, gameObject)))
 
-    //通过gameObject获得velocityComponent，获得它的velocity
-    let velocity = getVelocity(getVelocityComponentExn(getGameObjectStateExn(worldState, gameObject)))
-
+    //根据velocity，更新该组件的position
     positionComponentState = setPosition(positionComponentState, [x + velocity, y + velocity, z + velocity])
 
     return setPositionComponentState(worldState, gameObject, positionComponentState)

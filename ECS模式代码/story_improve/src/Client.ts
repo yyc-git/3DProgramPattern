@@ -1,9 +1,6 @@
 import { init, loop } from "ecs_pattern_utils/src/World";
-import * as UpdateSystem from "./system/UpdateSystem"
-import * as RenderOneByOneSystem from "./system/RenderOneByOneSystem"
-import * as RenderInstancesSystem from "./system/RenderInstancesSystem"
 import { createFlyComponent, createGameObject, createInstanceComponent, createPositionComponent, createVelocityComponent, setFlyComponent, setInstanceComponent, setPositionComponent, setVelocityComponent } from "./world/SceneAPI";
-import { createState, move, fly } from "./world/World";
+import { createState, move, fly, update, renderOneByOne, renderInstances } from "./world/World";
 import { state as worldState } from "./world/WorldStateType";
 
 let _createScene = (worldState: worldState): worldState => {
@@ -106,4 +103,4 @@ worldState = _createScene(worldState)
 
 worldState = init(worldState)
 
-loop(worldState, [UpdateSystem.update, RenderOneByOneSystem.render, RenderInstancesSystem.render])
+loop(worldState, [update, renderOneByOne, renderInstances])
