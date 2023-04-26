@@ -1,13 +1,15 @@
 import { Stack } from "immutable"
-import { pushAllSubSystemStates, undo as undoRedoUndoManager, redo as redoRedoUndoManager } from "./RedoUndoManager"
+import * as RedoUndoManager from "./RedoUndoManager"
 import * as ImmutableAndMutableSubSystem1 from "./ImmutableAndMutableSubSystem1"
 import * as ImmutableSubSystem1 from "./ImmutableSubSystem1"
 
 export type state = {
+    //撤销栈和重做栈
     immutableAndMutableSubSystem1StatesForUndo: Stack<ImmutableAndMutableSubSystem1.state>,
     immutableAndMutableSubSystem1StatesForRedo: Stack<ImmutableAndMutableSubSystem1.state>,
     immutableSubSystem1StatesForUndo: Stack<ImmutableSubSystem1.state>,
     immutableSubSystem1StatesForRedo: Stack<ImmutableSubSystem1.state>,
+    //子系统模块state
     immutableAndMutableSubSystem1State: ImmutableAndMutableSubSystem1.state,
     immutableSubSystem1State: ImmutableSubSystem1.state,
 }
@@ -24,7 +26,7 @@ export let createState = (): state => {
 }
 
 export let doSomething = (state: state) => {
-    state = pushAllSubSystemStates(state)
+    state = RedoUndoManager.pushAllSubSystemStates(state)
 
     let immutableAndMutableSubSystem1State = ImmutableAndMutableSubSystem1.doSomething(state.immutableAndMutableSubSystem1State)
 
@@ -38,9 +40,9 @@ export let doSomething = (state: state) => {
 }
 
 export let undo = (state: state) => {
-    return undoRedoUndoManager(state)
+    return RedoUndoManager.undo(state)
 }
 
 export let redo = (state: state) => {
-    return redoRedoUndoManager(state)
+    return RedoUndoManager.redo(state)
 }

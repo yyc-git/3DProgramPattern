@@ -1813,6 +1813,8 @@ export let exec: execType<worldState> = (worldState, { getStatesFunc }) => {
 
 ## 结合哪些模式？
 
+多线程模式需要跟ECS模式、管道模式一起使用
+
 ## 结合ECS模式
 
 使用ECS模式中的Manager层和Component+GameObject层来创建和管理场景，将场景数据保存在组件的Buffer中，其中Buffer是SharedArrayBuffer

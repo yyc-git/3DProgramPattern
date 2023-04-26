@@ -605,7 +605,7 @@ Engine
 ```ts
 export let createState = (): state => {
     return {
-        pipelineManagerState: createPipelineManagerState()
+        pipelineManagerState: PipelineManager.createState()
     }
 }
 ```
@@ -618,7 +618,7 @@ Engine
 ```ts
 export let registerAllPipelines = (state: state) => {
     if (_isPC()) {
-        let pipelineManagerState = registerPipeline(
+        let pipelineManagerState = PipelineManager.registerPipeline(
             state.pipelineManagerState,
             EngineInPCPipeline.getPipeline(),
             []
@@ -630,12 +630,12 @@ export let registerAllPipelines = (state: state) => {
         }
     }
     else {
-        let pipelineManagerState = registerPipeline(
+        let pipelineManagerState = PipelineManager.registerPipeline(
             state.pipelineManagerState,
             JiaEngineInMobilePipeline.getPipeline(),
             []
         )
-        pipelineManagerState = registerPipeline(
+        pipelineManagerState = PipelineManager.registerPipeline(
             pipelineManagerState,
             YiEngineInMobilePipeline.getPipeline(),
             [
@@ -1188,7 +1188,7 @@ Pipeline有一个PipelineState数据和一个JSON配置数据，其中PipelineSt
 下面我们来看看各个角色的抽象代码：
 
 
-首先，我们看下用户的抽象代码；
+首先，我们看下用户的抽象代码
 然后，我们看下System的抽象代码
 然后，我们看下PipelineStateType的抽象代码
 然后，我们看下Pipeline的抽象代码
@@ -1224,13 +1224,13 @@ declare function _isEnvironment1(): boolean
 
 export let createState = (): state => {
     return {
-        pipelineManagerState: createPipelineManagerState()
+        pipelineManagerState: PipelineManager.createState()
     }
 }
 
 export let registerAllPipelines = (state: state) => {
     if (_isEnvironment1()) {
-        let pipelineManagerState = registerPipeline(
+        let pipelineManagerState = PipelineManager.registerPipeline(
             state.pipelineManagerState,
             Pipeline1.getPipeline(),
             []
@@ -1238,7 +1238,7 @@ export let registerAllPipelines = (state: state) => {
 
         if (需要合并某个X Pipeline) {
             //合并Pipeline2和Pipeline1的X Pipeline管道
-            pipelineManagerState = registerPipeline(
+            pipelineManagerState = PipelineManager.registerPipeline(
                 pipelineManagerState,
                 Pipeline2.getPipeline(),
                 [
@@ -1289,7 +1289,7 @@ let _runPipeline = (
 
             return state
         },
-        runPipeline<state>(state, [
+        PipelineManager.runPipeline<state>(state, [
             unsafeGetState,
             setState,
             _unsafeGetPipelineManagerState,
@@ -1301,7 +1301,7 @@ let _runPipeline = (
 }
 
 export let init = (state: state, config) => {
-    state = initPipelineManager(state, [_unsafeGetPipelineManagerState, _setPipelineManagerState])
+    state = PipelineManager.init(state, [_unsafeGetPipelineManagerState, _setPipelineManagerState])
 
     //把配置保存到全局变量中，从而在Job中通过全局变量获得配置
     globalThis.config = config
@@ -1318,7 +1318,7 @@ export let runPipeline1 = (state: state, config) => {
     return _runPipeline(state, 某个X Pipeline名)
 }
 
-更多的runPipeline函数，运行对应的X Pipeline...
+更多的runPipelineX函数，运行对应的X Pipeline...
 ```
 
 <!-- 因为一般System都需要进行初始化，所以这里增加了init函数来实现System的初始化
@@ -1554,7 +1554,7 @@ System
 export let registerAllPipelines = (state: state) => {
     if (_isEnvironment1()) {
         //注册Pipeline1
-        let pipelineManagerState = registerPipeline(
+        let pipelineManagerState = PipelineManager.registerPipeline(
             ...
             configForPipeline1,
             ...

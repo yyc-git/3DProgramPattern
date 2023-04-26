@@ -1,6 +1,6 @@
 import { state } from "./EngineStateType"
 import { state as pipelineState } from "pipeline_manager/src/type/StateType"
-import { createState as createPipelineManagerState, registerPipeline, runPipeline, init as initPipelineManager } from "pipeline_manager"
+import * as PipelineManager from "pipeline_manager"
 import * as EngineInPCPipeline from "engineInPC_pipeline/src/Main"
 import * as JiaEngineInMobilePipeline from "jia_engineInMobile_pipeline/src/Main"
 import * as YiEngineInMobilePipeline from "yi_engineInMobile_pipeline/src/Main"
@@ -16,13 +16,13 @@ let _isPC = () => {
 
 export let createState = (): state => {
     return {
-        pipelineManagerState: createPipelineManagerState()
+        pipelineManagerState: PipelineManager.createState()
     }
 }
 
 export let registerAllPipelines = (state: state) => {
     if (_isPC()) {
-        let pipelineManagerState = registerPipeline(
+        let pipelineManagerState = PipelineManager.registerPipeline(
             state.pipelineManagerState,
             EngineInPCPipeline.getPipeline(),
             []
@@ -34,12 +34,12 @@ export let registerAllPipelines = (state: state) => {
         }
     }
     else {
-        let pipelineManagerState = registerPipeline(
+        let pipelineManagerState = PipelineManager.registerPipeline(
             state.pipelineManagerState,
             JiaEngineInMobilePipeline.getPipeline(),
             []
         )
-        pipelineManagerState = registerPipeline(
+        pipelineManagerState = PipelineManager.registerPipeline(
             pipelineManagerState,
             YiEngineInMobilePipeline.getPipeline(),
             [
@@ -86,7 +86,7 @@ let _runPipeline = (
             return engineState
         },
         //调用PipelineManager的runPipeline函数来运行管道
-        runPipeline<state>(engineState, [
+        PipelineManager.runPipeline<state>(engineState, [
             unsafeGetState,
             setState,
             _unsafeGetPipelineManagerState,
@@ -99,7 +99,7 @@ let _runPipeline = (
 
 export let init = (state: state, canvas): Promise<state> => {
     //调用PipelineManager的init函数来初始化PipelineManager
-    state = initPipelineManager(state, [_unsafeGetPipelineManagerState, _setPipelineManagerState])
+    state = PipelineManager.init(state, [_unsafeGetPipelineManagerState, _setPipelineManagerState])
 
     //将canvas保存到全局变量中，从而在Job中通过全局变量能够获得canvas
     globalThis.canvas = canvas

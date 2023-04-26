@@ -1,5 +1,13 @@
 * TODO 删除注释文字
 
+
+* TODO 修改代码
+
+** TODO state的名字重命名为对应的state名
+
+如管道模式->story_improve->Client：
+将state重命名为editorState
+
 * TODO 修改结构，改成正式成书的结构(use markdown)
 
 

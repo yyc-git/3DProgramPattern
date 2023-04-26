@@ -1,7 +1,7 @@
 import { state } from "./SystemStateType"
 import { state as pipelineState } from "pipeline_manager_abstract/src/type/StateType"
-import { createState as createPipelineManagerState, registerPipeline, runPipeline, init as initPipelineManager } from "pipeline_manager_abstract"
-import * as Pipeline1  from "pipeline1_abstract/src/Main"
+import * as PipelineManager from "pipeline_manager_abstract"
+import * as Pipeline1 from "pipeline1_abstract/src/Main"
 import { service as mostService } from "most/src/MostService"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 import { unsafeGetState, setState } from "./SystemStateContainer"
@@ -10,13 +10,13 @@ declare function _isEnvironment1(): boolean
 
 export let createState = (): state => {
     return {
-        pipelineManagerState: createPipelineManagerState()
+        pipelineManagerState: PipelineManager.createState()
     }
 }
 
 export let registerAllPipelines = (state: state) => {
     if (_isEnvironment1()) {
-        let pipelineManagerState = registerPipeline(
+        let pipelineManagerState = PipelineManager.registerPipeline(
             state.pipelineManagerState,
             Pipeline1.getPipeline(),
             []
@@ -24,7 +24,7 @@ export let registerAllPipelines = (state: state) => {
 
         if (需要合并某个X Pipeline) {
             //合并Pipeline2和Pipeline1的X Pipeline管道
-            pipelineManagerState = registerPipeline(
+            pipelineManagerState = PipelineManager.registerPipeline(
                 pipelineManagerState,
                 Pipeline2.getPipeline(),
                 [
@@ -75,7 +75,7 @@ let _runPipeline = (
 
             return state
         },
-        runPipeline<state>(state, [
+        PipelineManager.runPipeline<state>(state, [
             unsafeGetState,
             setState,
             _unsafeGetPipelineManagerState,
@@ -87,7 +87,7 @@ let _runPipeline = (
 }
 
 export let init = (state: state, config) => {
-    state = initPipelineManager(state, [_unsafeGetPipelineManagerState, _setPipelineManagerState])
+    state = PipelineManager.init(state, [_unsafeGetPipelineManagerState, _setPipelineManagerState])
 
     //把配置保存到全局变量中，从而在Job中通过全局变量获得配置
     globalThis.config = config
@@ -96,7 +96,7 @@ export let init = (state: state, config) => {
     return _runPipeline(state, "init")
 }
 
-export let runPipelineX = (state: state, config) => {
+export let runPipeline1 = (state: state, config) => {
     //把配置保存到全局变量中，从而在Job中通过全局变量获得配置
     globalThis.config = config
 

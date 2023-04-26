@@ -5,7 +5,7 @@ import * as EditorLogic from "./EditorLogic"
 import * as EditorUI from "./EditorUI"
 
 export type state = {
-    //撤销和重做栈
+    //撤销栈和重做栈
     engineStatesForUndo: Stack<Engine.state>,
     engineStatesForRedo: Stack<Engine.state>,
     editorLogicStatesForUndo: Stack<EditorLogic.state>,
