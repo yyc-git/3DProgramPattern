@@ -1,16 +1,18 @@
 import { Stack } from "immutable"
-import { pushAllSubSystemStates, undo as undoRedoUndoManager, redo as redoRedoUndoManager } from "./RedoUndoManager"
+import * as RedoUndoManager from "./RedoUndoManager"
 import * as Engine from "./Engine"
 import * as EditorLogic from "./EditorLogic"
 import * as EditorUI from "./EditorUI"
 
 export type state = {
+    //撤销和重做栈
     engineStatesForUndo: Stack<Engine.state>,
     engineStatesForRedo: Stack<Engine.state>,
     editorLogicStatesForUndo: Stack<EditorLogic.state>,
     editorLogicStatesForRedo: Stack<EditorLogic.state>,
     editorUIStatesForUndo: Stack<EditorUI.state>,
     editorUIStatesForRedo: Stack<EditorUI.state>,
+    //子系统模块state
     engineState: Engine.state,
     editorLogicState: EditorLogic.state,
     editorUIState: EditorUI.state
@@ -39,7 +41,7 @@ export let printAllData = ({ engineState, editorLogicState, editorUIState }: sta
 export let move = (state: state) => {
     console.log("move")
 
-    state = pushAllSubSystemStates(state)
+    state = RedoUndoManager.pushAllSubSystemStates(state)
 
     let engineState = Engine.doWhenMove(state.engineState)
     let editorLogicState = EditorLogic.doWhenMove(state.editorLogicState)
@@ -56,11 +58,11 @@ export let move = (state: state) => {
 export let undo = (state: state) => {
     console.log("undo")
 
-    return undoRedoUndoManager(state)
+    return RedoUndoManager.undo(state)
 }
 
 export let redo = (state: state) => {
     console.log("redo")
 
-    return redoRedoUndoManager(state)
+    return RedoUndoManager.redo(state)
 }

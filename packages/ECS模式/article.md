@@ -5,7 +5,7 @@
 ## 需求
 
 
-我们开发一个游戏，游戏中有两种人物：普通英雄和超级英雄，他们具有下面的行为：
+我们需要开发一个游戏，游戏中有两种人物：普通英雄和超级英雄，他们具有下面的行为：
 普通英雄只能移动
 超级英雄不仅能够移动，还能飞行
 
@@ -350,7 +350,7 @@ worldState的superHeroes中有一个超级英雄数据的position为[6,6,6]，�
 
 
 <!-- 通过下面的改进来解决重复和继承的问题： -->
-基于组件化的思想，用组合代替继承，具体如下：
+- 基于组件化的思想，用组合代替继承
 将英雄抽象为GameObject
 将英雄的行为抽象为组件，并把英雄的相关数据也移到组件中
 英雄通过挂载不同的组件，来实现不同的行为
@@ -867,7 +867,7 @@ worldState的gameObjects包括了4个gameObject的数据；
 ## 概述解决方案
 
 <!-- 通过下面的改进来提高性能： -->
-基于Data Oriented的思想进行改进，具体如下：
+- 基于Data Oriented的思想进行改进
 <!-- 基于Data Oriented的思想进行改进，将gameObject所有的数据和每种组件的数据分别集中起来，保存在各自的一块连续空间中 -->
 <!-- 其中，gameObject的数据是指gameObject挂载了哪些组件，我们将其保存在一个Hash Map中； -->
 组件可以按角色分为Data Oriented组件和其它组件，前者的特点是每个组件都有数据，且组件的数量较多，后者的特点是每个组件都没有数据，或者组件的数量很少
@@ -876,13 +876,14 @@ worldState的gameObjects包括了4个gameObject的数据；
 
 将属于Data Oriented组件的三种组件的所有组件数据分别集中起来，保存在各自的一块连续的地址空间中，具体就是分别保存在三个ArrayBuffer中
 
-将GameObject和各个Component扁平化，使得GameObject不再有数据和逻辑了，而只是一个id；Component也不再有数据和逻辑了，属于“Data Oriented组件”的Component只是一个ArrayBuffer的索引；属于“其它组件”的Component只是一个id
+- 将GameObject和各个Component扁平化
+使得GameObject不再有数据和逻辑了，而只是一个id；Component也不再有数据和逻辑了，属于“Data Oriented组件”的Component只是一个ArrayBuffer的索引；属于“其它组件”的Component只是一个id
 <!-- 其中GameObject是gameObject与挂载的组件的对应关系这个Hash Map的Key；Component既是这个Hash Map的Value，又是ArrayBuffer中的索引 -->
 
-我们增加Component+GameObject这一层，将扁平的GameObject和Componet放在该层中
+- 增加Component+GameObject这一层，将扁平的GameObject和Componet放在该层中
 
 
-我们增加Manager这一层，来管理GameObject和组件的数据
+- 增加Manager这一层，来管理GameObject和组件的数据
 这一层有GameObjectManager和四种组件的Manager，其中GameObjectManager负责管理所有的gameObject；
 四种组件的Manager负责管理自己的ArrayBuffer，操作属于该种类的所有组件
 
@@ -893,7 +894,7 @@ worldState的gameObjects包括了4个gameObject的数据；
 考虑到为了方便组件直接就近获得自己挂载到的GameObject，所以我们选择后者
 
 
-我们增加System这一层，来实现行为的逻辑。
+- 增加System这一层，来实现行为的逻辑
 一个System对应一个行为，比如这一层中的MoveSystem、FlySystem分别实现了移动和飞行的行为逻辑
 
 

@@ -1,5 +1,5 @@
-import { pushCommand, undo as undoCommandManager, redo as redoCommandManager } from "./CommandManager"
-import { createCommand } from "./MoveCommand"
+import * as CommandManager from "./CommandManager"
+import * as MoveCommand from "./MoveCommand"
 import * as Engine from "./Engine"
 import * as EditorLogic from "./EditorLogic"
 import * as EditorUI from "./EditorUI"
@@ -13,21 +13,21 @@ export let printAllData = () => {
 export let move = () => {
     console.log("move")
 
-    let moveCommand = createCommand()
+    let moveCommand = MoveCommand.createCommand()
 
     moveCommand.exec()
 
-    pushCommand(moveCommand)
+    CommandManager.pushCommand(moveCommand)
 }
 
 export let undo = () => {
     console.log("undo")
 
-    undoCommandManager()
+    CommandManager.undo()
 }
 
 export let redo = () => {
     console.log("redo")
 
-    redoCommandManager()
+    CommandManager.redo()
 }

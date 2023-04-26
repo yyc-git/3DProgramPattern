@@ -10,6 +10,7 @@ export let pushAllSubSystemStates = (editorState: Editor.state): Editor.state =>
         ),
         editorLogicStatesForUndo: editorState.editorLogicStatesForUndo.push(editorState.editorLogicState),
         editorUIStatesForUndo: editorState.editorUIStatesForUndo.push(editorState.editorUIState),
+        //清空redo栈
         engineStatesForRedo: Stack(),
         editorLogicStatesForRedo: Stack(),
         editorUIStatesForRedo: Stack()
@@ -17,16 +18,19 @@ export let pushAllSubSystemStates = (editorState: Editor.state): Editor.state =>
 }
 
 export let undo = (editorState: Editor.state): Editor.state => {
+    //处理EngineState
+
     let previousEngineState = editorState.engineStatesForUndo.first()
     let engineStatesForUndo = editorState.engineStatesForUndo.pop()
 
-    //深拷贝
+    //进栈前先深拷贝
     let engineStatesForRedo = editorState.engineStatesForRedo.push(Engine.deepCopy(editorState.engineState))
 
     //恢复
     previousEngineState = Engine.restore(editorState.engineState, previousEngineState)
 
-
+    //处理EditorLogicState
+    //不需要深拷贝和恢复
 
     let previousEditorLogicState = editorState.editorLogicStatesForUndo.first()
     let editorLogicStatesForUndo = editorState.editorLogicStatesForUndo.pop()
@@ -67,16 +71,19 @@ export let redo = (editorState: Editor.state): Editor.state => {
         return editorState
     }
 
+    //处理EngineState
+
     let nextEngineState = editorState.engineStatesForRedo.first()
     let engineStatesForRedo = editorState.engineStatesForRedo.pop()
 
-    //深拷贝
+    //进栈前先深拷贝
     let engineStatesForUndo = editorState.engineStatesForUndo.push(Engine.deepCopy(editorState.engineState))
 
     //恢复
     nextEngineState = Engine.restore(editorState.engineState, nextEngineState)
 
-
+    //处理EditorLogicState
+    //不需要深拷贝和恢复
 
     let nextEditorLogicState = editorState.editorLogicStatesForRedo.first()
     let editorLogicStatesForRedo = editorState.editorLogicStatesForRedo.pop()

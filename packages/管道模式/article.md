@@ -183,10 +183,11 @@ tonemap for WebGL2
 
 ## 概述解决方案？
 
-<!-- 通过下面的改进来提高开发效率： -->
-1.分离PC端和移动端的逻辑为不同的模块，具体是从Engine中提出两个模块：EngineInPC、EngineInMobile，分别实现PC端和移动端的引擎逻辑；
+- 分离PC端和移动端的逻辑为不同的模块
+从Engine中提出两个模块：EngineInPC、EngineInMobile，分别实现PC端和移动端的引擎逻辑；
 然后在Engine中判断运行环境，调用对应的模块
-2.将每个步骤提出成单独的模块，这样可减少步骤之间的耦合，便于维护
+
+- 将每个步骤提出成单独的模块，这样可减少步骤之间的耦合，便于维护
 
 
 ## 给出UML？
@@ -475,12 +476,11 @@ tonemap for WebGL2
 
 ## 概述解决方案
 
-
-<!-- 通过下面的改进来实现“通过配置来指定初始化和渲染的步骤”： -->
-将EngineInPC和EngineInMobile改为三个管道模块，分别为：EngineInPCPipeline、JiaEngineInMobilePipeline、YiEngineInMobilePipeline，其中前两个由甲负责，最后一个由乙负责
-将每个步骤模块改为一个Job
-每个管道模块都有一个渲染管道以及可能会有的一个初始化管道，它包括了步骤模块修改而成的Job
-每个管道模块都定义了自己的JSON配置，用来指定Job的执行顺序
+- 将EngineInPC和EngineInMobile改为三个管道模块
+它们分别为：EngineInPCPipeline、JiaEngineInMobilePipeline、YiEngineInMobilePipeline，其中前两个由甲负责，最后一个由乙负责
+- 将每个步骤模块改为一个Job
+- 每个管道模块都有一个渲染管道以及可能会有的一个初始化管道，它们包括了步骤模块修改而成的Job
+- 每个管道模块都定义了自己的JSON配置，用来指定Job的执行顺序
 
 <!-- 通过这样的改进， -->
 
@@ -497,10 +497,10 @@ TODO tu
 
 
 <!-- 总体来看，分为Render、PipelineManager、三个管道、三个管道state以及对应的state类型、三个管道包括的Job这几个部分 -->
-总体来看，分为用户、Engine、PipelineManager、三个管道模块这四个部分
+总体来看，分为用户、Engine、管道管理、三个管道模块这四个部分
 
 
-我们看下用户、Engine、PipelineManager这三个部分：
+我们看下用户、Engine这三个部分：
 
 Client是用户
 
@@ -509,6 +509,9 @@ Engine的createState函数创建了EngineState；
 Engine的registerAllPipelines函数按照不同的运行环境注册了对应的管道模块；
 Engine的init函数运行了Init Pipeline管道，依次执行它所有的Job，实现了初始化；
 Engine的rende函数运行了Render Pipeline管道，依次执行它所有的Job，实现了渲染
+
+
+我们看下管道管理这个部分：
 
 PipelineManager负责管理管道，实现了注册管道、合并管道、运行管道的逻辑
 
@@ -1105,11 +1108,11 @@ TODO tu
 我们来看看模式的相关角色：
 
 
-总体来看，分为System、PipelineManager、管道模块三个部分
+总体来看，分为System、管道管理、管道模块三个部分
 
 
 
-我们看下Render、PipelineManager这两个部分：
+我们看下System这个部分：
 
 - System
 该角色是门户，下面介绍它的函数：
@@ -1118,6 +1121,8 @@ System的registerAllPipelines函数按照不同的运行环境注册了对应的
 System的init函数运行了Init Pipeline管道，依次执行它所有的Job，实现了初始化；
 System可能有多个runPipelineX函数，用来运行对应的管道，实现如渲染等逻辑
 
+
+我们看下管道管理这个部分：
 
 - PipelineManager
 该角色负责管理管道，实现了注册管道、合并管道、运行管道的实现逻辑

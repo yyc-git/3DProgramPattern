@@ -1,4 +1,4 @@
-//所有字段都应该是immutable
+//所有字段都是immutable
 export type state = {
     data1: number
 }
