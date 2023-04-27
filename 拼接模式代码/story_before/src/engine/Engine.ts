@@ -1,6 +1,6 @@
 import * as BasicMaterial from "splice_pattern_utils/src/engine/BasicMaterial"
 import * as Transform from "splice_pattern_utils/src/engine/Transform"
-import { state } from "./MainStateType"
+import { state } from "./EngineStateType"
 import { createFakeWebGLRenderingContext } from "splice_pattern_utils/src/engine/FakeGL"
 import { Map } from "immutable"
 import * as API from "splice_pattern_utils/src/engine/API"

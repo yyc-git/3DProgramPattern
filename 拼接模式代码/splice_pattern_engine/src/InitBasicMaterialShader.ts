@@ -10,6 +10,7 @@ import { attributeType, uniformField, uniformFrom, uniformType } from "./GLSLCon
 import { shaderName } from "chunk_handler/src/type/GLSLConfigType.gen"
 import { generateShaderIndex, createFakeProgram, setShaderIndex } from "splice_pattern_utils/src/engine/Shader"
 
+TODO change material type to MaterialType
 export let initBasicMaterialShader = (state: state, shaderName: shaderName, allMaterials: Array<material>): state => {
     let [programMap, sendDataMap, shaderIndexMap, _allGLSLs, maxShaderIndex] = allMaterials.reduce(([programMap, sendDataMap, shaderIndexMap, glslMap, maxShaderIndex]: any, material) => {
         let [shaderChunks, glsl] = buildGLSL(
@@ -35,6 +36,10 @@ export let initBasicMaterialShader = (state: state, shaderName: shaderName, allM
 
         let [shaderIndex, newMaxShaderIndex] = generateShaderIndex(glslMap, glsl, maxShaderIndex)
 
+        TODO fix:
+    if (!programMap.has(shaderIndex)) {
+      programMap = programMap.set(shaderIndex, createFakeProgram(glsl))
+    }
         let program = createFakeProgram(glsl)
 
         let sendData = getSendData(

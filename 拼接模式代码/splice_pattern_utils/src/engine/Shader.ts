@@ -2,9 +2,12 @@ import { Map } from "immutable"
 import { getExnFromStrictNull, getExnFromStrictUndefined } from "commonlib-ts/src/NullableUtils"
 import { shaderIndex } from "./ShaderType"
 
-type glslMap = Map<shaderIndex, glsl>
+type vsGLSL = string
+type fsGLSL = string
 
-type glsl = [string, string]
+type glsl = [vsGLSL, fsGLSL]
+
+type glslMap = Map<shaderIndex, glsl>
 
 export let generateShaderIndex = (glslMap: glslMap, glsl: glsl, maxShaderIndex: shaderIndex): [shaderIndex, shaderIndex] => {
     let result = glslMap.findEntry((value) => {

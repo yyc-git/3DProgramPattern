@@ -1,12 +1,24 @@
-* TODO 删除注释文字
-
-
 * TODO 修改代码
 
 ** TODO state的名字重命名为对应的state名
 
 如管道模式->story_improve->Client：
 将state重命名为editorState
+
+
+** TODO 处理这种 splice_pattern_utils/Client
+来自拼接模式
+
+
+* TODO 给出代码：在“总”中给出进一步的说明
+
+
+* TODO 每个模式的具体案例增加到4个
+
+
+* TODO 删除注释文字
+
+
 
 * TODO 修改结构，改成正式成书的结构(use markdown)
 

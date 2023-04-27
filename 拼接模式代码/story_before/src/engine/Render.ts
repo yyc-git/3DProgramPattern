@@ -1,4 +1,4 @@
-import { state } from "./MainStateType"
+import { state } from "./EngineStateType"
 import { transform } from "splice_pattern_utils/src/engine/TransformStateType"
 import { material } from "splice_pattern_utils/src/engine/BasicMaterialStateType"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
@@ -55,9 +55,9 @@ let _sendAttributeData = (state: state, shaderIndex: shaderIndex, gl: WebGLRende
 let _sendUniformData = (state: state, transform, material, gl: WebGLRenderingContext, program: WebGLProgram) => {
     let pos = getExnFromStrictNull(gl.getUniformLocation(program, "u_vMatrix"))
     sendMatrix4(gl, pos, state.vMatrix)
+
     pos = getExnFromStrictNull(gl.getUniformLocation(program, "u_pMatrix"))
     sendMatrix4(gl, pos, state.pMatrix)
-
 
     pos = getExnFromStrictNull(gl.getUniformLocation(program, "u_color"))
     sendFloat3(gl, pos, getColor(state.basicMaterialState, material))
@@ -66,7 +66,6 @@ let _sendUniformData = (state: state, transform, material, gl: WebGLRenderingCon
         pos = getExnFromStrictNull(gl.getUniformLocation(program, "u_mapSampler"))
         sendInt(gl, pos, getMapUnit(state.basicMaterialState, material))
     }
-
 
     if (!state.isSupportInstance) {
         pos = getExnFromStrictNull(gl.getUniformLocation(program, "u_mMatrix"))
@@ -97,7 +96,6 @@ export let render = (state: state): state => {
         let shaderIndex = getShaderIndex(state.shaderIndexMap, material)
 
         let program = getExnFromStrictNull(programMap.get(shaderIndex))
-
 
         gl.useProgram(program)
 

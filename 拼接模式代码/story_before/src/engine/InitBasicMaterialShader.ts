@@ -1,8 +1,9 @@
-import { state } from "./MainStateType"
+import { state } from "./EngineStateType"
 import { material } from "splice_pattern_utils/src/engine/BasicMaterialStateType"
 import { Map } from "immutable"
 import { hasBasicMap } from "splice_pattern_utils/src/engine/BasicMaterial"
 import { generateShaderIndex, createFakeProgram, setShaderIndex } from "splice_pattern_utils/src/engine/Shader"
+import { getExnFromStrictNull } from "../../../../utils/commonlib-ts/src/NullableUtils"
 
 let _buildDefaultVSGLSL = () => {
   return `
@@ -16,17 +17,15 @@ attribute vec4 a_mVec4_2;
 attribute vec4 a_mVec4_3;
 #endif
 
-attribute vec3 a_position;
+#ifdef NO_INSTANCE
+uniform mat4 u_mMatrix;
+#endif
 
+attribute vec3 a_position;
 
 #ifdef MAP
 attribute vec2 a_texCoord;
 varying vec2 v_mapCoord0;
-#endif
-
-
-#ifdef NO_INSTANCE
-uniform mat4 u_mMatrix;
 #endif
 
 uniform mat4 u_vMatrix;
@@ -123,7 +122,9 @@ export let initBasicMaterialShader = (state: state, allMaterials: Array<material
 
     let [shaderIndex, newMaxShaderIndex] = generateShaderIndex(glslMap, glsl, maxShaderIndex)
 
-    let program = createFakeProgram(glsl)
+    if (!programMap.has(shaderIndex)) {
+      programMap = programMap.set(shaderIndex, createFakeProgram(glsl))
+    }
 
     if (!glslMap.has(shaderIndex)) {
       glslMap = glslMap.set(shaderIndex, glsl)
@@ -133,7 +134,7 @@ export let initBasicMaterialShader = (state: state, allMaterials: Array<material
     console.log("shaderIndex:", shaderIndex)
 
     return [
-      programMap.set(shaderIndex, program),
+      programMap,
       setShaderIndex(shaderIndexMap, material, shaderIndex),
       glslMap,
       newMaxShaderIndex
