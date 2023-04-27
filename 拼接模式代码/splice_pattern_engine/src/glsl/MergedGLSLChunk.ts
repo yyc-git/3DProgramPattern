@@ -29,6 +29,8 @@
              );
   }`],``,), "common_fragment": _buildChunk([``, ``],``,[``, ``],``,), "common_define": _buildChunk([``, ``],``,[``, ``],``,), "webgl1_basic_vertex": _buildChunk([``, ``],``,[``, ``],`gl_Position = u_pMatrix * u_vMatrix * mMatrix * vec4(a_position, 1.0);`,), "webgl1_basic_end_fragment": _buildChunk([``, ``],``,[``, ``],`gl_FragColor = vec4(totalColor.rgb, totalColor.a);`,), "webgl1_no_basic_map_fragment": _buildChunk([``, ``],``,[``, ``],`vec4 totalColor = vec4(u_color, 1.0);`,), "webgl1_basic_map_vertex": _buildChunk([``, ``],`varying vec2 v_mapCoord0;`,[``, ``],`v_mapCoord0 = a_texCoord;`,), "webgl1_basic_map_fragment": _buildChunk([``, ``],`varying vec2 v_mapCoord0;`,[``, ``],`vec4 texelColor = texture2D(u_mapSampler, v_mapCoord0);
 
+    vec4 totalColor = vec4(texelColor.rgb * u_color, texelColor.a);`,), "webgl1_no_diffuse_map_fragment": _buildChunk([``, ``],``,[``, ``],`vec4 totalColor = vec4(u_diffuse, 1.0);`,), "webgl1_diffuse_map_vertex": _buildChunk([``, ``],`varying vec2 v_diffuseMapCoord0;`,[``, ``],`v_diffuseMapCoord0 = a_texCoord;`,), "webgl1_diffuse_map_fragment": _buildChunk([``, ``],`varying vec2 v_diffuseMapCoord0;`,[``, ``],`vec4 texelColor = texture2D(u_diffuseMapSampler, v_diffuseMapCoord0);
+
     vec4 totalColor = vec4(texelColor.rgb * u_color, texelColor.a);`,), 
         }
   }

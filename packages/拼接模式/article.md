@@ -7,6 +7,8 @@
 ## 需求
 
 
+TODO 介绍材质种类，功能
+
 我们需要实现一个材质系统，默认支持方向光，并且能选择性地支持贴图、Instance(一种批量渲染的技术)
 
 
@@ -15,6 +17,9 @@
 ![image](https://img2023.cnblogs.com/blog/419321/202304/419321-20230403160805774-559164177.png)
 
 如上图所示，一个材质使用一个Shader，一个Shader有一套GLSL，即一个顶点着色器的GLSL和一个片元着色器的GLSL
+
+
+TODO 8套GLSL
 
 一种实现的方案是为选择性支持的每个功能都写一套GLSL，也就是一共写4套GLSL，它们支持的功能分别是：
 [支持方向光，支持贴图，支持Instance]
@@ -530,8 +535,12 @@ GLSL Chunk是多个小块的GLSL代码文件，由引擎给出
 引擎需要进行预处理，在gulp任务中调用ChunkConverter，将所有的GLSL Chunk合并为一个Merged GLSL Chunk
 Merged GLSL Chunk是一个可被调用的Typescript或者Rescript文件
 
+TODO Send Data是多个
 
 Send Data是获得和发送顶点数据和Uniform数据的数据，如Send Data包括了getData函数和sendData函数，前者返回要发送的数据，后者发送数据
+
+
+TODO Target GLSL是多个
 
 Target GLSL是支持某些功能的一套GLSL，相当于之前的BasicMaterialShaderGLSL（Add Define），两者的区别是Target GLSL没有预定义的宏，它只有支持的功能的GLSL，没有其它的分支
 
@@ -540,6 +549,10 @@ Target GLSL是支持某些功能的一套GLSL，相当于之前的BasicMaterialS
 我们看下引擎和ChunkHandler这两个部分：
 
 Engine是引擎的门户，负责封装API给Client
+
+<!-- TODO rename InitMaterialShader to InitBasicMaterialShader -->
+<!-- TODO add InitPBRMaterialShader? -->
+TODO 合并为InitMaterialShader
 
 InitMaterialShader负责初始化材质的Shader，具体包括下面的步骤：
 通过调用ChunkHandler的buildGLSL函数，按照GLSL Config将GLSL Chunk中对应的小块GLSL拼接为Target GLSL，然后使用它创建材质的Shader；
@@ -564,8 +577,7 @@ Render负责渲染
 
 ## 给出代码
 
-TODO continue
-
+TODO fix
 首先，我们看下用户的代码
 然后，我们看下创建EngineState的代码
 然后，我们看下创建场景的代码

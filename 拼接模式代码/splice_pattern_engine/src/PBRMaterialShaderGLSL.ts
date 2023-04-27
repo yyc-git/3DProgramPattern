@@ -1,4 +1,4 @@
-import { hasBasicMap } from "splice_pattern_utils/src/engine/BasicMaterial"
+import { hasDiffuseMap } from "splice_pattern_utils/src/engine/PBRMaterial"
 import { state } from "./EngneStateType"
 import { condition } from "./GLSLConfigType"
 import * as MaterialShaderGLSLUtils from "./MaterialShaderGLSLUtils"
@@ -9,8 +9,8 @@ export let getShaderChunkFromStaticBranch = MaterialShaderGLSLUtils.getShaderChu
 
 export let isPassForDynamicBranch = (material, state: state, condition: condition): boolean => {
     switch (condition) {
-        case "basic_has_map":
-            return hasBasicMap(state.basicMaterialState, material)
+        case "diffuse_has_map":
+            return hasDiffuseMap(state.pbrMaterialState, material)
         default:
             throw new Error("unknown condition: " + condition)
     }

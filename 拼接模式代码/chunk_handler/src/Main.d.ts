@@ -7,7 +7,7 @@ export function parseConfig(
 
 type isNameValidForStaticBranch = (name: string) => boolean
 
-type getShaderLibFromStaticBranch = (name: shaderMapDataName, value: shaderMapDataValue) => string
+type getShaderChunkFromStaticBranch = (name: shaderMapDataName, value: shaderMapDataValue) => string
 
 type isPassForDynamicBranch = (condition: condition) => boolean
 
@@ -27,7 +27,7 @@ type fsGLSL = string
 
 export function buildGLSL(
     [
-        [[isNameValidForStaticBranch, getShaderLibFromStaticBranch],
+        [[isNameValidForStaticBranch, getShaderChunkFromStaticBranch],
             isPassForDynamicBranch],
         [
             generateAttributeType,
@@ -37,7 +37,7 @@ export function buildGLSL(
         ]
     ]: [
             [
-                [isNameValidForStaticBranch, getShaderLibFromStaticBranch],
+                [isNameValidForStaticBranch, getShaderChunkFromStaticBranch],
                 isPassForDynamicBranch],
             [
                 generateAttributeType,

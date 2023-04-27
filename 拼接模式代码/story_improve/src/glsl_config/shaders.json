@@ -14,6 +14,12 @@
       "condition": "basic_has_map",
       "pass": "basic_map",
       "fail": "no_basic_map"
+    },
+    {
+      "name": "diffuse_map",
+      "condition": "diffuse_has_map",
+      "pass": "diffuse_map",
+      "fail": "no_diffuse_map"
     }
   ],
   "groups": [
@@ -48,6 +54,36 @@
         {
           "type": "dynamic_branch",
           "name": "basic_map"
+        },
+        {
+          "type": "static_branch",
+          "name": "modelMatrix_instance"
+        },
+        {
+          "name": "basic_end"
+        },
+        {
+          "type": "group",
+          "name": "end"
+        }
+      ]
+    },
+    {
+      "name": "render_pbr",
+      "shader_chunks": [
+        {
+          "type": "group",
+          "name": "top"
+        },
+        {
+          "name": "define_light_count"
+        },
+        {
+          "name": "basic"
+        },
+        {
+          "type": "dynamic_branch",
+          "name": "diffuse_map"
         },
         {
           "type": "static_branch",

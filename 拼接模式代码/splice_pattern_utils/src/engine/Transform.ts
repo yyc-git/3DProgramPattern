@@ -1,6 +1,6 @@
 import { transform, state } from "./TransformStateType"
 import { Map } from "immutable"
-import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
+import { getExnFromStrictUndefined } from "commonlib-ts/src/NullableUtils"
 
 export let createState = (): state => {
     return {
@@ -24,5 +24,5 @@ export let setFakeData = (state: state, transform): state => {
 }
 
 export let getModelMatrix = (state: state, transform) => {
-    return getExnFromStrictNull(state.modelMatrixs.get(transform))
+    return getExnFromStrictUndefined(state.modelMatrixs.get(transform))
 }

@@ -1,6 +1,6 @@
 import { material, state } from "./BasicMaterialStateType"
 import { Map } from "immutable"
-import { getExnFromStrictNull, getExnFromStrictUndefined } from "commonlib-ts/src/NullableUtils"
+import { getExnFromStrictUndefined } from "commonlib-ts/src/NullableUtils"
 
 export let createState = (): state => {
     return {
@@ -30,7 +30,7 @@ export let hasBasicMap = (state: state, material: material) => {
 }
 
 export let getColor = (state: state, material) => {
-    return getExnFromStrictNull(state.colors.get(material))
+    return getExnFromStrictUndefined(state.colors.get(material))
 }
 
 export let setFakeColor = (state: state, material): state => {
@@ -41,7 +41,7 @@ export let setFakeColor = (state: state, material): state => {
 }
 
 export let getMapUnit = (state: state, material) => {
-    return getExnFromStrictNull(state.mapUnits.get(material))
+    return getExnFromStrictUndefined(state.mapUnits.get(material))
 }
 
 export let setFakeMap = (state: state, material): state => {

@@ -151,6 +151,42 @@
     }
   },
   {
+    "name": "diffuse_map",
+    "glsls": [
+      {
+        "type": "vs",
+        "name": "webgl1_diffuse_map_vertex"
+      },
+      {
+        "type": "fs",
+        "name": "webgl1_diffuse_map_fragment"
+      }
+    ],
+    "variables": {
+      "attributes": [
+        {
+          "name": "a_texCoord",
+          "buffer": 2,
+          "type": "vec2"
+        }
+      ],
+      "uniforms": [
+        {
+          "name": "u_diffuse",
+          "field": "color",
+          "type": "float3",
+          "from": "pbrMaterial"
+        },
+        {
+          "name": "u_diffuseMapSampler",
+          "field": "map",
+          "type": "sampler2D",
+          "from": "pbrMaterial"
+        }
+      ]
+    }
+  },
+  {
     "name": "no_basic_map",
     "glsls": [
       {
@@ -165,6 +201,25 @@
           "field": "color",
           "type": "float3",
           "from": "basicMaterial"
+        }
+      ]
+    }
+  },
+  {
+    "name": "no_diffuse_map",
+    "glsls": [
+      {
+        "type": "fs",
+        "name": "webgl1_no_diffuse_map_fragment"
+      }
+    ],
+    "variables": {
+      "uniforms": [
+        {
+          "name": "u_diffuse",
+          "field": "color",
+          "type": "float3",
+          "from": "pbrMaterial"
         }
       ]
     }

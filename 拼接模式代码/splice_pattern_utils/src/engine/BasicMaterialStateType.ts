@@ -1,6 +1,7 @@
+import * as MaterialStateType from "./MaterialType"
 import type { Map } from "immutable"
 
-export type material = number
+export type material = MaterialStateType.material
 
 type color = [number, number, number]
 

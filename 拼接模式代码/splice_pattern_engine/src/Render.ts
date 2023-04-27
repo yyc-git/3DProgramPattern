@@ -1,12 +1,12 @@
-import { state } from "./MainStateType"
-import { transform } from "splice_pattern_utils/src/engine/TransformStateType"
-import { material } from "splice_pattern_utils/src/engine/BasicMaterialStateType"
-import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
-import { sendData as attributeSendData } from "./BasicMaterialShaderAttributeSender"
-import { sendData as uniformSendData } from "./BasicMaterialShaderUniformSender"
+import { state } from "./EngneStateType"
+import { getExnFromStrictUndefined } from "commonlib-ts/src/NullableUtils"
+import { sendData as attributeSendData } from "./MaterialShaderAttributeSenderUtils"
+import { sendData as uniformSendData } from "./MaterialShaderUniformSenderType"
 import { attributeBuffer } from "./GLSLConfigType"
 import { getShaderIndex } from "splice_pattern_utils/src/engine/Shader"
 import { shaderIndex } from "splice_pattern_utils/src/engine/ShaderType"
+import { getAllGameObjects, getMaterial, getTransform } from "splice_pattern_utils/src/engine/GameObject"
+import { materialType } from "splice_pattern_utils/src/engine/MaterialType"
 
 let _getFakeArrayBuffer = (state, attributeBuffer: attributeBuffer, shaderIndex) => {
     return {} as WebGLBuffer
@@ -52,32 +52,27 @@ let _sendUniformData = (uniformSendData: Array<uniformSendData>, state: state, t
     })
 }
 
-let _getAllFakeGameObjects = () => {
-    return [0] as any
-}
-
-let _getFakeMaterial = (state, gameObject) => {
-    return 0 as any as material
-}
-
-let _getFakeTransform = (state, gameObject) => {
-    return 0 as any as transform
-}
-
 export let render = (state: state): state => {
     let gl = state.gl
     let sendDataMap = state.sendDataMap
     let programMap = state.programMap
 
-    _getAllFakeGameObjects().forEach(gameObject => {
-        let material = _getFakeMaterial(state, gameObject)
-        let transform = _getFakeTransform(state, gameObject)
+    getAllGameObjects(state.gameObjectState).forEach(gameObject => {
+        let [material, materialType_] = getMaterial(state.gameObjectState, gameObject)
+        let transform = getTransform(state.gameObjectState, gameObject)
 
-        let shaderIndex = getShaderIndex(state.shaderIndexMap, material)
+        let shaderIndex = null
+        switch (materialType_) {
+            case materialType.Basic:
+                shaderIndex = getShaderIndex(state.basicMaterialShaderIndexMap, material)
+                break
+            case materialType.PBR:
+                shaderIndex = getShaderIndex(state.pbrMaterialShaderIndexMap, material)
+                break
+        }
 
-        let program = getExnFromStrictNull(programMap.get(shaderIndex))
-        let sendData = getExnFromStrictNull(sendDataMap.get(shaderIndex))
-
+        let program = getExnFromStrictUndefined(programMap.get(shaderIndex))
+        let sendData = getExnFromStrictUndefined(sendDataMap.get(shaderIndex))
 
         gl.useProgram(program)
 

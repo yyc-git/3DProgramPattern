@@ -1,6 +1,6 @@
 import { state } from "./EngineStateType"
-import { material } from "splice_pattern_utils/src/engine/BasicMaterialStateType"
-import { hasBasicMap } from "splice_pattern_utils/src/engine/BasicMaterial"
+import { material } from "splice_pattern_utils/src/engine/PBRMaterialStateType"
+import { hasDiffuseMap } from "splice_pattern_utils/src/engine/PBRMaterial"
 import { initMaterialShader } from "./InitMaterialShaderUtils"
 
 let _buildDefaultVSGLSL = () => {
@@ -21,9 +21,9 @@ uniform mat4 u_mMatrix;
 
 attribute vec3 a_position;
 
-#ifdef MAP
+#ifdef DIFFUSE_MAP
 attribute vec2 a_texCoord;
-varying vec2 v_mapCoord0;
+varying vec2 v_diffuseMapCoord0;
 #endif
 
 uniform mat4 u_vMatrix;
@@ -46,8 +46,8 @@ void main(void){
 
   gl_Position = u_pMatrix * u_vMatrix * mMatrix * vec4(a_position, 1.0);
 
-#ifdef MAP
-  v_mapCoord0 = a_texCoord;
+#ifdef DIFFUSE_MAP
+  v_diffuseMapCoord0 = a_texCoord;
 #endif
 }
     `
@@ -58,22 +58,22 @@ let _buildDefaultFSGLSL = () => {
 precision lowp float;
 precision lowp int;
 
-#ifdef MAP
-varying vec2 v_mapCoord0;
-uniform sampler2D u_mapSampler;
+#ifdef DIFFUSE_MAP
+varying vec2 v_diffuseMapCoord0;
+uniform sampler2D u_diffuseMapSampler;
 #endif
 
-uniform vec3 u_color;
+uniform vec3 u_diffuse;
 
 void main(void){
-#ifdef MAP
-  vec4 texelColor = texture2D(u_mapSampler, v_mapCoord0);
+#ifdef DIFFUSE_MAP
+  vec4 texelColor = texture2D(u_diffuseMapSampler, v_diffuseMapCoord0);
 
-  vec4 totalColor = vec4(texelColor.rgb * u_color, texelColor.a);
+  vec4 totalColor = vec4(texelColor.rgb * u_diffuse, texelColor.a);
 #endif
 
-#ifdef NO_MAP
-  vec4 totalColor = vec4(u_color, 1.0);
+#ifdef NO_DIFFUSE_MAP
+  vec4 totalColor = vec4(u_diffuse, 1.0);
 #endif
 
   gl_FragColor = vec4(totalColor.rgb, totalColor.a);
@@ -100,13 +100,13 @@ let _buildGLSL = (state: state, material: material): [string, string] => {
     vsGLSL = _addDefine(vsGLSL, "NO_INSTANCE")
   }
 
-  if (hasBasicMap(state.basicMaterialState, material)) {
-    vsGLSL = _addDefine(vsGLSL, "MAP")
-    fsGLSL = _addDefine(fsGLSL, "MAP")
+  if (hasDiffuseMap(state.pbrMaterialState, material)) {
+    vsGLSL = _addDefine(vsGLSL, "DIFFUSE_MAP")
+    fsGLSL = _addDefine(fsGLSL, "DIFFUSE_MAP")
   }
   else {
-    vsGLSL = _addDefine(vsGLSL, "NO_MAP")
-    fsGLSL = _addDefine(fsGLSL, "NO_MAP")
+    vsGLSL = _addDefine(vsGLSL, "NO_DIFFUSE_MAP")
+    fsGLSL = _addDefine(fsGLSL, "NO_DIFFUSE_MAP")
   }
 
   fsGLSL = _addDefineWithValue(fsGLSL, "MAX_DIRECTION_LIGHT_COUNT", String(state.maxDirectionLightCount))
@@ -114,14 +114,14 @@ let _buildGLSL = (state: state, material: material): [string, string] => {
   return [vsGLSL, fsGLSL]
 }
 
-export let initBasicMaterialShader =
+export let initPBRMaterialShader =
   (state: state, allMaterials: Array<material>): state => {
-    let [newProgramMap, newShaderIndexMap, newMaxShaderIndex] = initMaterialShader(state, _buildGLSL, state.basicMaterialShaderIndexMap, allMaterials)
+    let [newProgramMap, newShaderIndexMap, newMaxShaderIndex] = initMaterialShader(state, _buildGLSL, state.pbrMaterialShaderIndexMap, allMaterials)
 
     return {
       ...state,
       programMap: newProgramMap,
       maxShaderIndex: newMaxShaderIndex,
-      basicMaterialShaderIndexMap: newShaderIndexMap
+      pbrMaterialShaderIndexMap: newShaderIndexMap
     }
   }

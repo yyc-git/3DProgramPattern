@@ -1,6 +1,6 @@
 export type shaderMapDataName = "modelMatrix_instance"
 
-export type condition = "basic_has_map"
+export type condition = "basic_has_map" | "diffuse_has_map"
 
 export enum attributeBuffer {
     Vertex = 0,
@@ -21,6 +21,6 @@ export type uniformField =
 
 export type uniformType = "mat4" | "float3" | "float" | "sampler2D";
 
-export type uniformFrom = "basicMaterial" | "model" | "camera";
+export type uniformFrom = "basicMaterial" | "pbrMaterial" | "model" | "camera";
 
 export type glslNameForBuildGLSLChunk = "defineMaxDirectionLightCount"
