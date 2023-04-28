@@ -109,6 +109,7 @@ let _buildGLSL = (state: state, material: material): [string, string] => {
     fsGLSL = _addDefine(fsGLSL, "NO_DIFFUSE_MAP")
   }
 
+  //这里为了简化代码，我们只是在FS GLSL中加入了“定义最大方向光个数”的代码来表示该GLSL支持方向光
   fsGLSL = _addDefineWithValue(fsGLSL, "MAX_DIRECTION_LIGHT_COUNT", String(state.maxDirectionLightCount))
 
   return [vsGLSL, fsGLSL]

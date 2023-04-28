@@ -7,6 +7,7 @@ export let initMaterialShader = (state, buildGLSL, shaderIndexMap, allMaterials)
 
         let [shaderIndex, newMaxShaderIndex] = generateShaderIndex(glslMap, glsl, maxShaderIndex)
 
+        //如果是之前的shaderIndex，则不创建新的WebGLProgram
         if (!programMap.has(shaderIndex)) {
             programMap = programMap.set(shaderIndex, createFakeProgram(glsl))
         }

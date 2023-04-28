@@ -7,38 +7,53 @@
 ## 需求
 
 
-TODO 介绍材质种类，功能
-
-我们需要实现一个材质系统，默认支持方向光，并且能选择性地支持贴图、Instance(一种批量渲染的技术)
+我们需要实现一个材质系统，包括两种材质：基础材质、PBR材质，它们都默认支持方向光，并且能选择性地支持贴图、Instance(一种批量渲染的技术)
+只是它们支持的贴图不一样，其中基础材质的贴图是普通贴图，PBR材质的贴图是diffuse贴图
 
 
 ## 实现思路
 
+这两种材质支持的功能一共有8种情况，具体如下：
+对于基础材质而言：
+[支持方向光，支持普通贴图，支持Instance]
+[支持方向光，支持普通贴图，不支持Instance]
+[支持方向光，不支持普通贴图，支持Instance]
+[支持方向光，不支持普通贴图，不支持Instance]
+对于PBR材质而言：
+[支持方向光，支持diffuse贴图，支持Instance]
+[支持方向光，支持diffuse贴图，不支持Instance]
+[支持方向光，不支持diffuse贴图，支持Instance]
+[支持方向光，不支持diffuse贴图，不支持Instance]
+
+
+材质与GLSL的对应关系如下图所示：
 ![image](https://img2023.cnblogs.com/blog/419321/202304/419321-20230403160805774-559164177.png)
 
-如上图所示，一个材质使用一个Shader，一个Shader有一套GLSL，即一个顶点着色器的GLSL和一个片元着色器的GLSL
+一个材质使用一个Shader，一个Shader有一套GLSL，即一个顶点着色器的GLSL和一个片元着色器的GLSL
 
 
-TODO 8套GLSL
+我们需要为每一种情况都写一套GLSL，共需写8套GLSL
+<!-- 
 
 一种实现的方案是为选择性支持的每个功能都写一套GLSL，也就是一共写4套GLSL，它们支持的功能分别是：
 [支持方向光，支持贴图，支持Instance]
 [支持方向光，支持贴图，不支持Instance]
 [支持方向光，不支持贴图，支持Instance]
-[支持方向光，不支持贴图，不支持Instance]
+[支持方向光，不支持贴图，不支持Instance] -->
 
 
-这个方案的问题是我们每支持一种新的功能，GLSL的套数就要翻倍
-因为每套GLSL都需要完全从0实现，所以会有巨大的实现成本
-<!-- 因此会因为GLSL的套数太多而带来巨大的实现成本 -->
+这个方案的问题是材质每支持一种新的功能，GLSL的套数就要翻倍；每增加一种材质，也需要增加GLSL的套数
+因为每套GLSL都需要完全从0写，所以会有巨大的实现成本
+
+
 
 可以通过“使用预定义的宏”来解决这个问题，具体的方案如下：
-我们只需要写一套很大的能支持各种功能的GLSL，通过用大量“#ifdef 功能名/#else/#endif”来将各个功能分开处理；
-然后在初始化时，判断材质是否支持某个功能，支持的话则在该套GLSL的基础上加入"#define 功能名"来开启该功能，成为一套支持该功能的GLSL。这样的话就可以创建出支持各种情况的4套GLSL了
+我们只需要为每种材质写一套默认的能支持各种功能的GLSL，在其中用大量“#ifdef 功能名/#else/#endif”将各个功能分开处理；
+然后在初始化时，判断材质是否支持某个功能，支持的话则在默认的GLSL的基础上加入"#define 功能名"来开启该功能，成为一套新的支持该功能的GLSL。这样的话就可以在默认的GLSL基础上创建出支持各种情况的8套GLSL了
 <!-- 然后使用修改后的GLSL创建Shader。这样的话就可以创建出支持各种情况的4个Shader了 -->
 <!-- 这样的话就可以将这套GLSL分别编译为4个Shader了 -->
 
-现在要实现4套GLSL，不需要完全从0实现，而只需在默认的大GLSL基础上加入不同的"#define 功能名"即可，大大减少了实现成本
+现在要实现8套GLSL，不需要从0实现，而只需在默认的GLSL基础上加入不同的"#define 功能名"即可，大大减少了实现成本
 
 
 
@@ -62,9 +77,16 @@ Client是用户
 我们看下GLSL这个部分：
 
 
-BasicMaterialShaderGLSL（Default）是默认的通过预定义宏来支持各种情况的一套GLSL
+BasicMaterialShaderGLSL（Default）是默认的通过预定义宏来支持基础材质的各种情况的一套GLSL
 
-BasicMaterialShaderGLSL（Add Define）是在默认的GLSL基础上加入Define变量，来支持某些功能的一套GLSL
+BasicMaterialShaderGLSL（Add Define）是在BasicMaterialShaderGLSL（Default）基础上加入Define变量，来支持基础材质的某些功能的一套GLSL
+最多可有4套BasicMaterialShaderGLSL（Add Define），分别对应基础材质的4种情况
+
+
+PBRMaterialShaderGLSL（Default）是默认的通过预定义宏来支持PBR材质的各种情况的一套GLSL
+
+PBRMaterialShaderGLSL（Add Define）是在PBRMaterialShaderGLSL（Default）基础上加入Define变量，来支持PBR材质的某些功能的一套GLSL
+最多可有4套PBRMaterialShaderGLSL（Add Define），分别对应PBR材质的4种情况
 
 
 
@@ -72,15 +94,18 @@ BasicMaterialShaderGLSL（Add Define）是在默认的GLSL基础上加入Define�
 我们看下引擎这个部分：
 
 Engine是引擎的门户，负责封装API给Client
+Engine有一个EngineState，用来保存引擎的所有数据；
 
-InitBasicMaterialShader负责初始化基础材质的Shader，判断材质是否支持功能，支持的话就将BasicMaterialShaderGLSL（Default）修改为BasicMaterialShaderGLSL（Add Define），然后创建对应的Shader
+InitBasicMaterialShader负责初始化所有基础材质的Shader，判断基础材质是否支持功能，支持的话就将BasicMaterialShaderGLSL（Default）修改为BasicMaterialShaderGLSL（Add Define），然后创建对应的Shader
+
+InitPBRMaterialShader跟InitBasicMaterialShader类似，不同的地方是初始化的对象由基础材质变为PBR材质
 
 Render负责渲染，会遍历所有的GameObjects，获得并发送它们的顶点数据和Uniform数据
 
 
-值得注意的是：
+<!-- 值得注意的是：
 这里的材质只有基础材质，这是为了简化案例，实际上可能还会有其它材质，如PBR材质，那么就需要在图中增加对应的一个InitPBRMaterialShader和一个默认的PBRMaterialShaderGLSL（Default）、一个修改后的PBRMaterialShaderGLSL（Add Define）
-其中InitPBRMaterialSahder负责初始化PBR材质的Shader，将PBRMaterialShaderGLSL（Default）修改为PBRMaterialShaderGLSL（Add Define）
+其中InitPBRMaterialSahder负责初始化PBR材质的Shader，将PBRMaterialShaderGLSL（Default）修改为PBRMaterialShaderGLSL（Add Define） -->
 
 
 
@@ -90,6 +115,7 @@ Render负责渲染，会遍历所有的GameObjects，获得并发送它们的顶
 然后，我们看下创建EngineState的代码
 然后，我们看下创建场景的代码
 然后，我们看下初始化所有基础材质的shader的代码
+然后，我们看下初始化所有PBR材质的shader的代码
 然后，我们看下渲染场景的代码
 最后，我们运行代码
 
@@ -102,23 +128,23 @@ let state = createState()
 
 let sceneData = createScene(state)
 state = sceneData[0]
-let [allMaterials, _] = sceneData[1]
+let [allBasicMaterials, allPBRMaterials, _] = sceneData[1]
 
-state = initBasicMaterialShader(state, allMaterials)
+state = initBasicMaterialShader(state, allBasicMaterials)
+
+state = initPBRMaterialShader(state, allPBRMaterials)
 
 state = initCamera(state)
 
 state = render(state)
 ```
 
-我们首先创建了引擎的EngineState，用来保存引擎的所有数据；
+我们首先创建了引擎的EngineState；
 然后创建了场景；
 然后初始化所有基础材质的shader；
+然后初始化所有PBR材质的shader；
 接着初始化相机，设置与相机相关的假的视图矩阵和透视矩阵；
 最后渲染场景
-
-值得说明的是：
-我们这里使用ECS模式的思路，在场景中创建的所有的GameObject、组件（如BasicMaterial组件、Transform组件）都只是一个number而已
 
 ### 创建EngineState的代码
 
@@ -126,10 +152,8 @@ Engine
 ```ts
 export let createState = (): state => {
     return {
-        gl: createFakeWebGLRenderingContext(),
         ...
         isSupportInstance: true,
-        maxDirectionLightCount: 4,
         ...
     }
 }
@@ -137,9 +161,9 @@ export let createState = (): state => {
 
 createState函数创建并返回了EngineState
 在EngineState中：
-我们构造了假的WebGL上下文-gl；
+<!-- 我们构造了假的WebGL上下文-gl； -->
 通过设置配置字段isSupportInstance为true，开启了Instance；
-设置最大的方向光个数为4个，这个配置字段与支持方向光的GLSL有关
+<!-- 设置最大的方向光个数为4个，这个配置字段与支持方向光的GLSL有关 -->
 
 
 ### 创建场景的代码
@@ -147,35 +171,76 @@ createState函数创建并返回了EngineState
 splice_pattern_utils/Client
 ```ts
 export let createScene = (state) => {
-    创建material1
-    设置material1的贴图
+    创建gameObject1
 
-    创建material2
+    创建基础材质basicMaterial1
+    设置basicMaterial1的贴图
 
-    创建material3
-    设置material3的贴图
+    创建transform1
+    设置transform1的数据
 
-    创建transform
-    设置transform的数据
+    挂载basicMaterial1、transform1到gameObject1
+
+
+    创建gameObject2
+
+    创建PBR材质pbrMaterial1
+
+    创建transform2
+    设置transform2的数据
+
+    挂载pbrMaterial1、transform2到gameObject2
+
+
+    创建gameObject3
+
+    创建基础材质basicMaterial2
+    设置basicMaterial2的贴图
+
+    创建transform3
+    设置transform3的数据
+
+    挂载basicMaterial2、transform3到gameObject3
 
     返回state和创建的所有组件
 }
 ```
 
-createScene函数创建了场景，场景包括3个基础材质material1、material2、material3和一个transform组件，其中material1、material3有贴图，material2没有贴图
+createScene函数创建了场景，场景包括3个gameObject，2个基础材质组件basicMaterial1、basicMaterial2、1个PBR材质组件pbrMaterial1、3个transform组件
+其中basicMaterial1、basicMaterial2有贴图，pbrMaterial1没有贴图；
+gameObject1、gameObject3挂载了基础材质组件，gameObject2挂载了PBR材质组件
+
+
+值得说明的是：
+我们这里使用ECS模式的思路，在场景中创建的所有的GameObject和组件都只是一个number类型的值而已
+
 
 ### 初始化所有基础材质的shader的代码
 
 InitBasicMaterialShader
 ```ts
-export let initBasicMaterialShader = (state: state, allMaterials: Array<material>): state => {
-    let [programMap, shaderIndexMap, _allGLSLs, maxShaderIndex] = allMaterials.reduce(([programMap, shaderIndexMap, glslMap, maxShaderIndex]: any, material) => {
-        let glsl = _buildGLSL(state, material)
+export let initBasicMaterialShader =
+  (state: state, allMaterials: Array<material>): state => {
+    let [newProgramMap, newShaderIndexMap, newMaxShaderIndex] = initMaterialShader(state, _buildGLSL, state.basicMaterialShaderIndexMap, allMaterials)
+
+    return {
+      ...state,
+      programMap: newProgramMap,
+      maxShaderIndex: newMaxShaderIndex,
+      basicMaterialShaderIndexMap: newShaderIndexMap
+    }
+  }
+```
+InitMaterialShaderUtils
+```ts
+export let initMaterialShader = (state, buildGLSL, shaderIndexMap, allMaterials) => {
+    let [newProgramMap, newShaderIndexMap, _, newMaxShaderIndex] = allMaterials.reduce(([programMap, shaderIndexMap, glslMap, maxShaderIndex]: any, material) => {
+        let glsl = buildGLSL(state, material)
 
         let [shaderIndex, newMaxShaderIndex] = generateShaderIndex(glslMap, glsl, maxShaderIndex)
 
         if (!programMap.has(shaderIndex)) {
-          programMap = programMap.set(shaderIndex, createFakeProgram(glsl))
+            programMap = programMap.set(shaderIndex, createFakeProgram(glsl))
         }
 
         if (!glslMap.has(shaderIndex)) {
@@ -190,17 +255,14 @@ export let initBasicMaterialShader = (state: state, allMaterials: Array<material
             glslMap,
             newMaxShaderIndex
         ]
-    }, [state.programMap, state.shaderIndexMap, Map(), state.maxShaderIndex])
+    }, [state.programMap, shaderIndexMap, Map(), state.maxShaderIndex])
 
-    return {
-        ...state,
-        programMap, maxShaderIndex,
-        shaderIndexMap: shaderIndexMap
-    }
+    return [newProgramMap, newShaderIndexMap, newMaxShaderIndex]
 }
 ```
 
-initBasicMaterialShader函数遍历了所有的基础材质，创建了基础材质使用的shaderIndex和WebGLProgram，将其分别保存在state.shaderIndexMap、state.programMap中
+initBasicMaterialShader函数初始化所有基础材质的shader，它调用InitMaterialShaderUtils的initMaterialShader函数来遍历了所有的基础材质，创建了基础材质使用的shaderIndex和program，将其分别保存在EngineState的basicMaterialShaderIndexMap、programMap中
+
 
 这里新提出了shaderIndex的概念，它是shader的索引，一个shaderIndex对应一个Shader
 <!-- 它们的对应关系为：因为一个shaderIndex对应一个Shader，一个Shader对应一套GLSL(VS GLSL和FS GLSL)，所以一个shaderIndex对应一套GLSL -->
@@ -208,7 +270,7 @@ initBasicMaterialShader函数遍历了所有的基础材质，创建了基础材
 Material、ShaderIndex、Program、GLSL对应关系如下图所示：
 ![image](https://img2023.cnblogs.com/blog/419321/202304/419321-20230403160828435-1930437553.png)
 
-在渲染的时候，我们首先通过Material拿到ShaderIndex，然后通过ShaderIndex再拿到Program，最后use Program
+在后面渲染时，我们会首先通过Material拿到ShaderIndex，然后通过ShaderIndex再拿到Program，最后use Program
 
 initBasicMaterialShader函数调用了_buildGLSL函数来构造BasicMaterialShaderGLSL（Add Define），它的实现代码如下：
 ```ts
@@ -302,27 +364,32 @@ let _buildGLSL = (state: state, material: material): [string, string] => {
         fsGLSL = _addDefine(fsGLSL, "NO_MAP")
     }
 
-    //加入支持方向光的GLSL
-    fsGLSL = _addDefineWithValue(fsGLSL, "MAX_DIRECTION_LIGHT_COUNT", String(state.maxDirectionLightCount))
+    ...
 
     return [vsGLSL, fsGLSL]
 }
 ```
 
 _buildGLSL函数首先判断对Instance的支持情况以及判断材质是否有贴图，在BasicMaterialShaderGLSL（Default）的基础上加入对应的Define变量；
-然后继续加入支持方向光的GLSL代码，这里为了简化代码，我们只是在FS GLSL中加入了“定义最大方向光个数”的代码；
-最后返回修改后的一套GLSL，即BasicMaterialShaderGLSL（Add Define）
+<!-- 然后继续加入支持方向光的GLSL代码，这里为了简化代码，我们只是在FS GLSL中加入了“定义最大方向光个数”的代码； -->
+最后返回修改后的一套GLSL，即返回BasicMaterialShaderGLSL（Add Define）
 
 <!-- 值得说明的是：
 这套GLSL是简化后的代码，仅用于案例展示，不能
 只给出了一些用于案例展示的代码 -->
 
 
-我们继续回到InitBasicMaterialShader的initBasicMaterialShader函数，它在调用_buildGLSL函数后，调用了generateShaderIndex函数来生成shaderIndex
-<!-- ：
+我们继续回到initMaterialShader函数，它在调用_buildGLSL函数后，调用了generateShaderIndex函数来生成shaderIndex，相关代码如下：
+InitMaterialShaderUtils
 ```ts
+export let initMaterialShader = (state, buildGLSL, shaderIndexMap, allMaterials) => {
+        ...
+        let glsl = buildGLSL(state, material)
+
         let [shaderIndex, newMaxShaderIndex] = generateShaderIndex(glslMap, glsl, maxShaderIndex)
-``` -->
+        ...
+}
+```
 
 我们看下generateShaderIndex函数的代码：
 Shader
@@ -349,7 +416,15 @@ export let generateShaderIndex = (glslMap: glslMap, glsl: glsl, maxShaderIndex: 
 
 generateShaderIndex函数比较新的GLSL是否与之前的GLSL相同，如果不相同，则返回新的shaderIndex；否则返回之前的GLSL对应的shaderIndex
 
-这样做的目的是为了优化，使得支持同样功能的材质共享同一个ShaderIndex，从而共享同一个WebGLProgram
+这样做的目的是为了优化，使得支持同样功能的材质共享同一个ShaderIndex，从而共享同一个Program
+
+
+### 初始化所有PBR材质的shader的代码
+
+InitPBRMaterialShader的initBasicMaterialShader函数初始化所有PBR材质的shader，它与InitPBRMaterialShader的initBasicMaterialShader函数类似，不同的地方如下：
+传入的形参是所有的PBR材质组件而不是所有的基础材质组件；
+传入InitMaterialShaderUtils.initMaterialShader函数的buildGLSL函数不一样，该函数是修改PBRMaterialShaderGLSL（Default）而不是修改BasicMaterialShaderGLSL（Default）；
+生成的shaderIndex改为保存到EngineState的pbrMaterialShaderIndexMap中
 
 ### 渲染场景的代码
 
@@ -359,18 +434,27 @@ export let render = (state: state): state => {
     let gl = state.gl
     let programMap = state.programMap
 
-    _getAllFakeGameObjects().forEach(gameObject => {
-        let material = _getFakeMaterial(state, gameObject)
-        let transform = _getFakeTransform(state, gameObject)
+    getAllGameObjects(state.gameObjectState).forEach(gameObject => {
+        let [material, materialType_] = getMaterial(state.gameObjectState, gameObject)
+        let transform = getTransform(state.gameObjectState, gameObject)
 
-        let shaderIndex = getShaderIndex(state.shaderIndexMap, material)
+        //不同的材质从不同的shaderIndexMap中取得shaderIndex
+        let shaderIndex = null
+        switch (materialType_) {
+            case materialType.Basic:
+                shaderIndex = getShaderIndex(state.basicMaterialShaderIndexMap, material)
+                break
+            case materialType.PBR:
+                shaderIndex = getShaderIndex(state.pbrMaterialShaderIndexMap, material)
+                break
+        }
 
-        let program = getExnFromStrictNull(programMap.get(shaderIndex))
+        let program = getExnFromStrictUndefined(programMap.get(shaderIndex))
 
         gl.useProgram(program)
 
         _sendAttributeData(state, shaderIndex, gl, program)
-        _sendUniformData(state, transform, material, gl, program)
+        _sendUniformData(state, transform, [material, materialType_], gl, program)
 
         console.log("其它渲染逻辑...")
     })
@@ -381,7 +465,7 @@ export let render = (state: state): state => {
 
 render函数遍历所有的GameObject，渲染每个GameObject
 
-在遍历中，首先获得每个gameObject的组件以及shaderIndex、program；
+在每次的遍历中，首先获得每个gameObject的组件以及shaderIndex、program；
 然后发送顶点数据和Uniform数据；
 最后执行其它的渲染逻辑
 
@@ -409,19 +493,32 @@ let _sendAttributeData = (state: state, shaderIndex: shaderIndex, gl: WebGLRende
 }
 ```
 
-_sendAttributeData函数判断了材质对功能的支持情况，获得并发送了对应的VBO数据
+_sendAttributeData函数判断了对功能的支持情况，获得并发送了对应的VBO数据
 
 
 我们看下发送Uniform数据的代码：
 Render
 ```ts
-let _sendUniformData = (state: state, transform, material, gl: WebGLRenderingContext, program: WebGLProgram) => {
+let _sendUniformData = (state: state, transform, [material, materialType_], gl: WebGLRenderingContext, program: WebGLProgram) => {
     获得并发送相机数据
 
-    获得并发送color数据
+    switch (materialType_) {
+        case materialType.Basic:
+            获得并发送基础材质的color数据
 
-    if (hasBasicMap(state.basicMaterialState, material)) {
-        获得并发送贴图数据
+            if (hasBasicMap(state.basicMaterialState, material)) {
+                获得并发送基础材质的普通贴图数据
+            }
+            break
+        case materialType.PBR:
+            获得并发送PBR材质的diffuse数据
+
+            if (hasDiffuseMap(state.pbrMaterialState, material)) {
+                获得并发送PBR材质的diffuse贴图数据
+            }
+            break
+        default:
+            throw new Error()
     }
 
     if (!state.isSupportInstance) {
@@ -431,8 +528,9 @@ let _sendUniformData = (state: state, transform, material, gl: WebGLRenderingCon
 ```
 
 _sendUniformData函数首先获得并发送了相机数据；
-然后获得并发送了材质的color；
-然后判断了材质对功能的支持情况，从BasicMaterial、Transform组件中获得并发送对应的Uniform数据
+然后在判断材质的种类后，根据材质对功能的支持情况，获得并发送了该类材质的数据；
+最后判断对Instance的支持情况，获得并发送对应的数据
+<!-- 然后判断了材质对功能的支持情况，从BasicMaterial、Transform组件中获得并发送对应的Uniform数据 -->
 
 
 ### 运行代码
@@ -441,9 +539,9 @@ _sendUniformData函数首先获得并发送了相机数据；
 ```js
 //初始化，打印shaderIndex
 shaderIndex: 0
-shaderIndex: 1
 shaderIndex: 0
-//开始渲染
+shaderIndex: 1
+//开始渲染第一个gameObject
 useProgram
 //发送Positiond的VBO
 bindBuffer
@@ -463,36 +561,45 @@ bindBuffer
 //发送相机数据
 uniformMatrix4fv
 uniformMatrix4fv
-//发送color
+//发送基础材质的color
 uniform3f
-//发送贴图数据
+//发送基础材质的普通贴图数据
 uniform1i
 其它渲染逻辑...
+//开始渲染第二个gameObject
+...
+//发送PBR材质的diffuse
+uniform3f
+//发送PBR材质的diffuse贴图数据
+uniform1i
+其它渲染逻辑...
+//开始渲染第三个gameObject，打印的输出跟“渲染第一个gameObject”打印的输出一样
+...
 ```
 
-这里首先进行初始化Shader，打印shaderIndex。
-我们看到material1、material2、material3的shaderIndex分别为0、1、0，这说明mateiral1和material3正确地共享了同一个shader；
+这里首先进行初始化Shader，打印生成的shaderIndex
+首先打印了生成的所有基础材质（basicMaterial1、basicMaterial2）的shaderIndex，它们都是0，说明这两个材质正确地共享了同一个shader（因为它们都是基础材质的[支持方向光，支持普通贴图，支持Instance]的情况）
+然后打印了生成的所有PBR材质（pbrMaterial1）的shaderIndex，它是1，说明这个PBR材质与另外两个基础材质的shader不一样（因为它是PBR材质的[支持方向光，不支持diffuse贴图，支持Instance]的情况）
 
-然后渲染，因为渲染的render函数中调用的_getAllFakeGameObjects函数只返回了第一个GameObject，所以只渲染了一次
+然后渲染所有的gameObject，因为共有3个gameObject，所以渲染了3次
 
-该次渲染发送的是material1的相关数据，而material1的GLSL是有贴图+支持Instance的
+<!-- 该次渲染发送的是material1的相关数据，而material1的GLSL是有贴图+支持Instance的 -->
 
-这一次渲染分别进行了下面的操作：
+第一次渲染的是gameObject1，它挂载了basicMaterial1组件，这次渲染分别进行了下面的操作：
 首先use program；
-
 然后发送了a_position、a_texCoord的VBO；
-
 然后发送了instance相关的VBO；
-
 然后绑定了Element Array Buffer;
-
 然后发送了一次相机的视图矩阵u_vMatrix和透视矩阵u_pMatrix数据；
-
-然后发送了一次material1的color数据
-
-然后发送了一次material1的贴图数据；
-
+然后发送了一次basicMaterial1的color数据
+然后发送了一次basicMaterial1的普通贴图数据；
 最后执行其它渲染逻辑
+
+第二次渲染的是gameObject2，它挂载了pbrMaterial1组件，这次渲染与第一次渲染不同的地方是发送的材质数据不同
+
+
+第三次渲染的是gameObject3，它挂载了basicMaterial3组件，这次渲染打印的输出与第一次渲染打印的输出一样
+
 
 
 
@@ -507,8 +614,8 @@ uniform1i
 
 ## 概述解决方案
 
-- 在引擎端将这个很大的能支持各种功能的默认GLSL分解为多个小块
-- 在用户端定义GLSL的JSON配置文件，指定如何来组合小块的GLSL，以及指定在渲染时需要发送的顶点数据和Uniform数据的配置数据
+- 将支持各种功能的默认GLSL分解为多个小块
+- 用户实现GLSL的JSON配置文件，指定如何组合小块的GLSL，以及指定在渲染时需要发送的顶点数据和Uniform数据的配置数据
 
 
 ## 给出UML？
@@ -522,62 +629,60 @@ TODO tu
 
 Client是用户
 
-<!-- 我们看下ChunkConverter这个部分： -->
-
-<!-- ChunkConverter负责合并GLSL Chunk -->
-
 我们看下数据和ChunkConverter这两个部分：
 
 GLSL Config是的GLSL的JSON配置文件，它的内容由Client给出，它的格式（也就是类型）由ChunkHandler定义
 
 GLSL Chunk是多个小块的GLSL代码文件，由引擎给出
 
-引擎需要进行预处理，在gulp任务中调用ChunkConverter，将所有的GLSL Chunk合并为一个Merged GLSL Chunk
-Merged GLSL Chunk是一个可被调用的Typescript或者Rescript文件
+引擎需要进行预处理，在gulp任务中调用ChunkConverter，将所有的GLSL Chunk合并为一个Merged GLSL Chunk，它是一个可被调用的Typescript或者Rescript文件
 
-TODO Send Data是多个
-
-Send Data是获得和发送顶点数据和Uniform数据的数据，如Send Data包括了getData函数和sendData函数，前者返回要发送的数据，后者发送数据
+Send Data是来自于GLSL Config的获得和发送顶点数据和Uniform数据的数据
+具体来说，Send Data包括了getData函数和sendData函数，前者获得顶点数据或者Uniform数据，后者发送它们
 
 
-TODO Target GLSL是多个
-
-Target GLSL是支持某些功能的一套GLSL，相当于之前的BasicMaterialShaderGLSL（Add Define），两者的区别是Target GLSL没有预定义的宏，它只有支持的功能的GLSL，没有其它的分支
+Target GLSL是支持某些功能的一套GLSL，相当于之前的BasicMaterialShaderGLSL（Add Define）或者PBRMaterialShaderGLSL（Add Define），两者的区别是Target GLSL没有预定义的宏，它只有支持的功能的GLSL，没有分支
+最多可有8套Target GLSL，分别对应基础材质的4种情况和PBR材质的4种情况
 
 
 
 我们看下引擎和ChunkHandler这两个部分：
 
-Engine是引擎的门户，负责封装API给Client
+Engine、Render跟之前一样
+<!-- Engine是引擎的门户，负责封装API给Client -->
+<!-- Engine有一个EngineState，用来保存引擎的所有数据； -->
 
-<!-- TODO rename InitMaterialShader to InitBasicMaterialShader -->
-<!-- TODO add InitPBRMaterialShader? -->
-TODO 合并为InitMaterialShader
+InitMaterialShader负责初始化所有材质的Shader，它有两个函数：initBasicMaterialShader、initPBRMaterialShader，分别负责初始化所有基础材质的Shader和初始化所有PBR材质的Shader
 
-InitMaterialShader负责初始化材质的Shader，具体包括下面的步骤：
-通过调用ChunkHandler的buildGLSL函数，按照GLSL Config将GLSL Chunk中对应的小块GLSL拼接为Target GLSL，然后使用它创建材质的Shader；
+
+这两个函数遍历了所有的基础材质或者PBR材质，在每次遍历中的步骤一样，具体步骤如下：
+通过调用ChunkHandler的buildGLSL函数，按照GLSL Config将GLSL Chunk中对应的小块GLSL拼接为Target GLSL，然后使用它创建材质使用的shaderIndex和program；
 通过调用ChunkHandler的getSendData函数，从GLSL Config中获得Send Data
 
-Render负责渲染
+在遍历结束后，将创建和获得的结果保存到EngineState中
 
 
-值得注意的是：
+<!-- Render跟之前一样，负责渲染 -->
+
+
+<!-- 值得注意的是：
 之前的InitBasicMaterialShader变成了InitMaterialShader，能够初始化各种材质而不只是基础材质了
-这是因为GLSL Config包括了各种材质Shader的GLSL的配置数据，所以InitMaterialShader通过它就可以拼接出对应各种材质Shader的Target GLSL
+这是因为GLSL Config包括了各种材质Shader的GLSL的配置数据，所以InitMaterialShader通过它就可以拼接出对应各种材质Shader的Target GLSL -->
 
 
 
 ## 结合UML图，描述如何具体地解决问题？
 
 
-- 现在用户可以通过指定GLSL Config，能够通过组合的方式自定义GLSL
-- 现在在每次渲染时不需要进行分支判断，而是直接遍历Send Data，通过它的getData、sendData函数来获得和发送数据
+- 现在用户可以通过GLSL Config来自定义GLSL
+不过自定义的GLSL的内容只能来自引擎端定义的GLSL Chunk
+如果用户希望增加自定义的GLSL Chunk，那么引擎可以暴露相关的API给用户
+- 现在每次渲染时不需要进行分支判断，而是直接遍历Send Data，通过它的getData、sendData函数来获得和发送数据
 
 <!-- TODO support light material/no material shader -->
 
 ## 给出代码
 
-TODO fix
 首先，我们看下用户的代码
 然后，我们看下创建EngineState的代码
 然后，我们看下创建场景的代码
@@ -585,6 +690,8 @@ TODO fix
 然后，我们看下渲染场景的代码
 最后，我们运行代码
 
+
+TODO continue
 
 Client定义的GLSL Config包括两个JSON文件：shaders.json和shader_chunks.json，它们的格式定义在ChunkHandler->GLSLConfigType.res中
 
@@ -1523,7 +1630,7 @@ TODO finish
 
 ### 具体案例
 
-- 构造引擎的Shader代码
+- 构造引擎的着色器代码，如GLSL、HLSL、WGSL等
 
 - 构造游戏的地图数据
 
@@ -1633,6 +1740,9 @@ shader_chunks.json相关代码可以改为：
 
 
 
+- 适用于构造DX12、Vulkan、WebGPU等现代图形API的着色器语言
+
+TODO Send Data
 
 <!-- # 结合其它模式
 
