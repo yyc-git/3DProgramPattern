@@ -4,7 +4,7 @@ import * as Curry from "../../../../../node_modules/rescript/lib/es6/curry.js";
 import * as ArraySt$Commonlib from "../../../../../node_modules/commonlib/lib/es6_global/src/structure/ArraySt.bs.js";
 import * as JsonUtils$Chunk_handler from "./utils/JsonUtils.bs.js";
 
-function addAttributeSendData(add, shaderChunks) {
+function addAttributeSendConfig(add, shaderChunks) {
   return ArraySt$Commonlib.reduceOneParam(shaderChunks, (function (sendDataArr, param) {
                 var variables = param.variables;
                 if (JsonUtils$Chunk_handler.isJsonSerializedValueNone(variables)) {
@@ -27,6 +27,6 @@ function addAttributeSendData(add, shaderChunks) {
 }
 
 export {
-  addAttributeSendData ,
+  addAttributeSendConfig ,
 }
 /* No side effect */

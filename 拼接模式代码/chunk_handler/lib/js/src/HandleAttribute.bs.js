@@ -4,7 +4,7 @@ var Curry = require("rescript/lib/js/curry.js");
 var ArraySt$Commonlib = require("commonlib/lib/js/src/structure/ArraySt.bs.js");
 var JsonUtils$Chunk_handler = require("./utils/JsonUtils.bs.js");
 
-function addAttributeSendData(add, shaderChunks) {
+function addAttributeSendConfig(add, shaderChunks) {
   return ArraySt$Commonlib.reduceOneParam(shaderChunks, (function (sendDataArr, param) {
                 var variables = param.variables;
                 if (JsonUtils$Chunk_handler.isJsonSerializedValueNone(variables)) {
@@ -26,5 +26,5 @@ function addAttributeSendData(add, shaderChunks) {
               }), []);
 }
 
-exports.addAttributeSendData = addAttributeSendData;
+exports.addAttributeSendConfig = addAttributeSendConfig;
 /* No side effect */

@@ -2,8 +2,7 @@ import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 import { uniformField, uniformType, uniformFrom } from "./GLSLConfigType";
 import { getModelMatrix } from "splice_pattern_utils/src/engine/Transform";
 import { sendFloat1, sendFloat3, sendInt, sendMatrix4 } from "splice_pattern_utils/src/engine/GLSLSend";
-import { uniformName } from "chunk_handler/src/type/GLSLConfigType.gen";
-import { sendData } from "./MaterialShaderUniformSenderType"
+import { sendConfig } from "./MaterialShaderUniformSenderType"
 
 export let getSendDataByType = (type: uniformType) => {
     switch (type) {
@@ -20,13 +19,13 @@ export let getSendDataByType = (type: uniformType) => {
     }
 }
 
-export let addCameraSendData = (sendDataArr: Array<sendData>, [pos, field, type]: [WebGLUniformLocation, uniformField, uniformType]
-): Array<sendData> => {
-    let shaderSendData = null
+export let addCameraSendConfig = (sendConfigArr: Array<sendConfig>, [pos, field, type]: [WebGLUniformLocation, uniformField, uniformType]
+): Array<sendConfig> => {
+    let shaderSendConfig = null
 
     switch (field) {
         case "vMatrix":
-            shaderSendData = {
+            shaderSendConfig = {
                 pos: pos,
                 getData: (state) => state.vMatrix,
                 sendData: getSendDataByType(type)
@@ -34,7 +33,7 @@ export let addCameraSendData = (sendDataArr: Array<sendData>, [pos, field, type]
 
             break
         case "pMatrix":
-            shaderSendData = {
+            shaderSendConfig = {
                 pos: pos,
                 getData: (state) => state.pMatrix,
                 sendData: getSendDataByType(type)
@@ -45,13 +44,13 @@ export let addCameraSendData = (sendDataArr: Array<sendData>, [pos, field, type]
             throw new Error()
     }
 
-    sendDataArr.push({ shaderSendData })
+    sendConfigArr.push({ shaderSendConfig })
 
-    return sendDataArr
+    return sendConfigArr
 }
 
-export let addModelSendData = (sendDataArr: Array<sendData>, [pos, field, type]: [WebGLUniformLocation, uniformField, uniformType]
-): Array<sendData> => {
+export let addModelSendConfig = (sendConfigArr: Array<sendConfig>, [pos, field, type]: [WebGLUniformLocation, uniformField, uniformType]
+): Array<sendConfig> => {
     let renderObjectSendModelData = null
 
     switch (field) {
@@ -67,7 +66,7 @@ export let addModelSendData = (sendDataArr: Array<sendData>, [pos, field, type]:
             throw new Error()
     }
 
-    sendDataArr.push({ renderObjectSendModelData })
+    sendConfigArr.push({ renderObjectSendModelData })
 
-    return sendDataArr
+    return sendConfigArr
 }

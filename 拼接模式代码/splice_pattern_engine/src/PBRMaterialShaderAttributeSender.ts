@@ -1,3 +1,3 @@
 import * as MaterialShaderAttributeSenderUtils from "./MaterialShaderAttributeSenderUtils"
 
-export let addAttributeSendData = MaterialShaderAttributeSenderUtils.addAttributeSendData
+export let addAttributeSendConfig = MaterialShaderAttributeSenderUtils.addAttributeSendConfig

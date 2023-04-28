@@ -29,10 +29,11 @@
 材质与GLSL的对应关系如下图所示：
 ![image](https://img2023.cnblogs.com/blog/419321/202304/419321-20230403160805774-559164177.png)
 
-一个材质使用一个Shader，一个Shader有一套GLSL，即一个顶点着色器的GLSL和一个片元着色器的GLSL
+一个材质使用一个Shader，一个Shader有一套GLSL，即一个VS GLSL（顶点着色器的GLSL）和一个FS GLSL（片元着色器的GLSL）
 
 
 我们需要为每一种情况都写一套GLSL，共需写8套GLSL
+因为每套GLSL都对应一个Shader，所以最多有8个Shader
 <!-- 
 
 一种实现的方案是为选择性支持的每个功能都写一套GLSL，也就是一共写4套GLSL，它们支持的功能分别是：
@@ -633,16 +634,21 @@ Client是用户
 
 GLSL Config是的GLSL的JSON配置文件，它的内容由Client给出，它的格式（也就是类型）由ChunkHandler定义
 
-GLSL Chunk是多个小块的GLSL代码文件，由引擎给出
+GLSL Chunk是一小块的GLSL，有多个GLSL Chunk，它们由引擎给出
+一个GLSL Chunk可以是VS GLSL中一小块GLSL文件（如common_vertex.glsl），也可以是FS GLSL中一小块GLSL文件（common_fragment.glsl）
 
-引擎需要进行预处理，在gulp任务中调用ChunkConverter，将所有的GLSL Chunk合并为一个Merged GLSL Chunk，它是一个可被调用的Typescript或者Rescript文件
 
-Send Data是来自于GLSL Config的获得和发送顶点数据和Uniform数据的数据
-具体来说，Send Data包括了getData函数和sendData函数，前者获得顶点数据或者Uniform数据，后者发送它们
+因为GLSL Chunk是自定义文件，有一些自定义的语法，不能直接使用，所以引擎需要对其预处理，在gulp任务中调用ChunkConverter，处理所有的GLSL Chunk，并将其合并为一个Merged GLSL Chunk，成为一个Typescript或者Rescript文件
+<!-- 这样做的原因是GLSL Chunk是自定义的文件，不能直接被Typescript或者Rescript调用，所以需要将其转换为可被调用文件；另外，需要将其集中在一个文件中，方便管理 -->
+
+
+Send Config是一个Shader的获得和发送顶点数据和Uniform数据的配置数据
+具体来说，每个Send Config包括了多个getData函数和多个sendData函数，前者获得对应的顶点数据或者Uniform数据，后者发送它们
+因为这里最多有8个Shader，所以最多有8个Send Config
 
 
 Target GLSL是支持某些功能的一套GLSL，相当于之前的BasicMaterialShaderGLSL（Add Define）或者PBRMaterialShaderGLSL（Add Define），两者的区别是Target GLSL没有预定义的宏，它只有支持的功能的GLSL，没有分支
-最多可有8套Target GLSL，分别对应基础材质的4种情况和PBR材质的4种情况
+这里最多可有8套Target GLSL，分别对应基础材质的4种情况和PBR材质的4种情况
 
 
 
@@ -656,8 +662,8 @@ InitMaterialShader负责初始化所有材质的Shader，它有两个函数：in
 
 
 这两个函数遍历了所有的基础材质或者PBR材质，在每次遍历中的步骤一样，具体步骤如下：
-通过调用ChunkHandler的buildGLSL函数，按照GLSL Config将GLSL Chunk中对应的小块GLSL拼接为Target GLSL，然后使用它创建材质使用的shaderIndex和program；
-通过调用ChunkHandler的getSendData函数，从GLSL Config中获得Send Data
+通过调用ChunkHandler的buildGLSL函数，按照GLSL Config的配置数据将Merged GLSL Chunk中对应的GLSL Chunk拼接为Target GLSL，然后使用它创建材质使用的shaderIndex和program；
+通过调用ChunkHandler的getSendConfig函数，从GLSL Config中获得Send Config
 
 在遍历结束后，将创建和获得的结果保存到EngineState中
 
@@ -677,7 +683,7 @@ InitMaterialShader负责初始化所有材质的Shader，它有两个函数：in
 - 现在用户可以通过GLSL Config来自定义GLSL
 不过自定义的GLSL的内容只能来自引擎端定义的GLSL Chunk
 如果用户希望增加自定义的GLSL Chunk，那么引擎可以暴露相关的API给用户
-- 现在每次渲染时不需要进行分支判断，而是直接遍历Send Data，通过它的getData、sendData函数来获得和发送数据
+- 现在每次渲染时不需要进行分支判断，而是直接遍历Send Config，通过它的getData、sendConfig函数来获得和发送数据
 
 <!-- TODO support light material/no material shader -->
 
@@ -691,11 +697,23 @@ InitMaterialShader负责初始化所有材质的Shader，它有两个函数：in
 最后，我们运行代码
 
 
-TODO continue
+### GLSL Config的代码
 
-Client定义的GLSL Config包括两个JSON文件：shaders.json和shader_chunks.json，它们的格式定义在ChunkHandler->GLSLConfigType.res中
+GLSL Config包括两个JSON文件：shaders.json和shader_chunks.json，它们的格式定义在ChunkHandler的GLSLConfigType.res中，它们的内容由Client给出
 
-shaders.json部分代码如下：
+其中shaders.json文件定义了所有种类的Shader的GLSL配置数据，
+shader_chunks.json文件是定义了所有的GLSL Chunk的配置数据
+
+shader_chunks.json是一个数组，其中的每个元素定义了一套GLSL Chunk的配置数据，它最多关联两个GLSL Chunk（分别对应VS GLSL、FS GLSL），并包括了这套GLSL Chunk中顶点、Uniform数据的Send Config
+
+
+这两个文件的关系是“总-分”的关系，具体如下：
+因为每种Shader的GLSL由多个GLSL Chunk组合而成，所以shaders.json是“总”，shader_chunks.json是“分”
+
+
+下面我们来看下这两个文件的主要代码：
+
+shaders.json的主要代码如下：
 ```ts
 {
   "static_branchs": [
@@ -713,6 +731,12 @@ shaders.json部分代码如下：
       "condition": "basic_has_map",
       "pass": "basic_map",
       "fail": "no_basic_map"
+    },
+    {
+      "name": "diffuse_map",
+      "condition": "diffuse_has_map",
+      "pass": "diffuse_map",
+      "fail": "no_diffuse_map"
     }
   ],
   "groups": [
@@ -747,31 +771,70 @@ shaders.json部分代码如下：
         },
         ...
       ]
+    },
+    {
+      "name": "render_pbr",
+      "shader_chunks": [
+        {
+          "type": "group",
+          "name": "top"
+        },
+        ...
+        {
+          "type": "dynamic_branch",
+          "name": "diffuse_map"
+        },
+        {
+          "type": "static_branch",
+          "name": "modelMatrix_instance"
+        },
+        ...
+      ]
     }
   ]
 }
 ```
 
-该文件定义了所有Shader的配置数据
 
-下面介绍各个字段的用处：
+下面介绍各个一级字段：
 
-static_branchs字段定义了所有不会变化的分支判断。比如是否支持Instance就属于这类判断，因为它只跟引擎是否支持Instance，而这是一开始就确定了的，不会在运行时变化
-
-dynamic_branchs字段定义了所有会在运行时变换的分支判断。比如是否支持贴图就属于这类判断，因为材质可能在运行时设置贴图或者移除贴图
-
-groups字段定义了多组代码块；
-
-shaders字段定义了所有的Shader。
-此处定义了一个名为render_basic的Shader，它包括的所有的代码块定义在shader_chunks字段中。 
-在shader_chunks字段中，如果type为static_branch，那么就通过name关联到static_branchs字段；如果type为dynamic_branch，那么就通过name关联到dynamic_branchs字段；如果type为group，那么就通过name关联到groups字段；如果没有定义type，那么就通过name关联到shader_chunks.json
+static_branchs字段定义了所有在运行时不会变化的分支判断的配置数据。比如是否支持Instance就属于这类判断，因为它跟引擎是否支持Instance有关，不会在运行时变化
+static_branchs字段中的value字段包括了各个分支对应的GLSL Chunk，它们跟shader_chunks.json的数组元素的name关联
 
 
-TODO explain how to support light material shader
+dynamic_branchs字段定义了所有在运行时会变化的分支判断的配置数据。比如基础材质和PBR材质是否支持贴图就属于这类判断，因为可能在运行时设置或者移除材质的贴图
+dynamic_branchs字段中的condition、pass、fail字段的值分别为条件判断、成功、失败对应的GLSL Chunk，它们跟shader_chunks.json的数组元素的name关联
 
 
 
-shader_chunks.json部分代码如下：
+groups字段定义了多组GLSL Chunk，每组的value字段包括了多个GLSL Chunk，它们跟shader_chunks.json的数组元素的name关联
+
+
+
+shaders字段定义了所有种类的Shader的GLSL配置数据
+
+一种Shader对应一种材质，所以shaders字段在这里具体定义了两种Shader的GLSL配置数据，分别是name为render_basic和name为render_pbr的配置数据，它们分别对应基础材质和PBR材质
+
+值得说明的是：
+实际上也存在没有材质的Shader，如后处理（如绘制轮廓）的Shader、天空盒的Shader等，这些种类的Shader也定义在shaders字段，只是没有对应材质而已。这种Shader我们会在后面的扩展中讨论
+
+每种Shader的GLSL由多个GLSL Chunk组合而成，它们定义在shader_chunks字段中
+<!-- groups字段定义了多组GLSL Chunk，每组的value字段包括了多个GLSL Chunk，它们跟shader_chunks.json的name关联 -->
+<!-- 此处定义了一个名为render_basic的Shader，它包括的所有的代码块定义在shader_chunks字段中。  -->
+在shader_chunks字段中，如果type为static_branch，那么就通过name关联到static_branchs字段；
+如果type为dynamic_branch，那么就通过name关联到dynamic_branchs字段；
+如果type为group，那么就通过name关联到groups字段；
+如果没有定义type，那么就通过name关联到shader_chunks.json的数组元素的name
+
+
+
+
+这些一级字段的关系如下：
+shaders字段是主字段，其它的一级字段都只是shaders字段的shader_chunks中对应type的配置数据而已
+
+
+
+shader_chunks.json的主要代码如下：
 ```ts
 [
   {
@@ -798,25 +861,7 @@ shader_chunks.json部分代码如下：
       ]
     }
   },
-  {
-    "name": "modelMatrix_noInstance",
-    "glsls": [
-      {
-        "type": "vs",
-        "name": "modelMatrix_noInstance_vertex"
-      }
-    ],
-    "variables": {
-      "uniforms": [
-        {
-          "name": "u_mMatrix",
-          "field": "mMatrix",
-          "type": "mat4",
-          "from": "model"
-        }
-      ]
-    }
-  },
+  ...
   {
     "name": "modelMatrix_instance",
     "glsls": [
@@ -836,37 +881,30 @@ shader_chunks.json部分代码如下：
       ]
     }
   },
-  {
-    "name": "define_light_count",
-    "glsls": [
-      {
-        "type": "vs_function",
-        "name": "defineMaxDirectionLightCount"
-      },
-      {
-        "type": "fs_function",
-        "name": "defineMaxDirectionLightCount"
-      }
-    ]
-  },
   ...
 ]
 ```
 
-该文件定义了所有代码块的配置数据
+<!-- shader_chunks.json是一个数组，其中的每个元素定义了一个GLSL Chunk的配置数据，它关联了一个GLSL Chunk，并包括了部分的Send Config -->
 
-下面介绍各个字段的用处：
-
-name字段是代码块的名字，与shaders.json关联
-
-glsls字段定义了VS GLSL和FS GLSL。其中如果type为vs或者fs，则name为VS GLSL或者FS GLSL的文件名，与GLSL Chunk的文件名关联；如果type为vs_function或者fs_function，则name为设置GLSL的动作名。此处为定义最大方向光的个数的动作名
-
-variables字段定义了属于Send Data的顶点数据和Uniform数据
+下面介绍数组元素的各个一级字段：
 
 
+name字段是一套GLSL Chunk的名称，与shaders.json关联
+
+glsls字段定义了一套GLSL Chunk，其中如果type为vs或者fs，则name分别为属于VS GLSL的GLSL Chunk或者属于FS GLSL的GLSL Chunk的文件名；
+<!-- 如果type为vs_function或者fs_function，则name为设置GLSL的动作名。如这里的name为define_light_count的glsls，此处的name是定义最大方向光个数的动作名 -->
 
 
-现在看下Client的代码：
+variables字段定义了这套GLSL Chunk中顶点、Uniform数据的Send Config
+
+
+### 用户的代码
+
+TODO continue
+
+
+Client
 ```ts
 // use json loader to load config
 import * as shadersJson from "./glsl_config/shaders.json"
@@ -1047,7 +1085,7 @@ gl_FragColor = vec4(1.0,0.5,1.0,1.0);
 我们继续来看下InitBasicMaterialShader中的initBasicMaterialShader代码：
 ```ts
 export let initBasicMaterialShader = (state: state, shaderName: shaderName, allMaterials: Array<material>): state => {
-    let [programMap, sendDataMap, shaderIndexMap, _allGLSLs, maxShaderIndex] = allMaterials.reduce(([programMap, sendDataMap, shaderIndexMap, glslMap, maxShaderIndex]: any, material) => {
+    let [programMap, sendConfigMap, shaderIndexMap, _allGLSLs, maxShaderIndex] = allMaterials.reduce(([programMap, sendConfigMap, shaderIndexMap, glslMap, maxShaderIndex]: any, material) => {
         let [shaderChunks, glsl] = buildGLSL(
             [
                 [[
@@ -1073,11 +1111,11 @@ export let initBasicMaterialShader = (state: state, shaderName: shaderName, allM
 
         let program = createFakeProgram(glsl)
 
-        let sendData = getSendData(
-            [(sendDataArr, [name, buffer, type]) => {
-                return addAttributeSendData(state.gl, program, sendDataArr, [name, buffer, type as attributeType])
-            }, (sendDataArr, [name, field, type, from]) => {
-                return addUniformSendData(state.gl, program, sendDataArr, [name, field as uniformField, type as uniformType, from as uniformFrom])
+        let sendConfig = getSendConfig(
+            [(sendConfigArr, [name, buffer, type]) => {
+                return addAttributeSendConfig(state.gl, program, sendConfigArr, [name, buffer, type as attributeType])
+            }, (sendConfigArr, [name, field, type, from]) => {
+                return addUniformSendConfig(state.gl, program, sendConfigArr, [name, field as uniformField, type as uniformType, from as uniformFrom])
             }],
             shaderChunks
         )
@@ -1090,26 +1128,26 @@ export let initBasicMaterialShader = (state: state, shaderName: shaderName, allM
 
         return [
             programMap.set(shaderIndex, program),
-            sendDataMap.set(shaderIndex, sendData),
+            sendConfigMap.set(shaderIndex, sendConfig),
             setShaderIndex(shaderIndexMap, material, shaderIndex),
             glslMap,
             newMaxShaderIndex
         ]
-    }, [state.programMap, state.sendDataMap, state.shaderIndexMap, Map(), state.maxShaderIndex])
+    }, [state.programMap, state.sendConfigMap, state.shaderIndexMap, Map(), state.maxShaderIndex])
 
     return {
         ...state,
-        programMap, sendDataMap, maxShaderIndex,
+        programMap, sendConfigMap, maxShaderIndex,
         shaderIndexMap
     }
 }
 ```
 
 该函数首先调用了ChunkHandler的buildGLSL函数，按照shaders.json和shader_chunks.json的配置将MergedGLSLChunk.ts文件中对应的小块GLSL拼接为材质的一套GLSL（即一个VS GLSL和一个FS GLSL），并且经过处理后返回了shaders.json->render_basic->shaderChunks的值；
-然后调用了ChunkHandler的getSendData函数，从shaderChunks的值中获得了顶点Send Data和Uniform Send Data，将其保存在state.sendDataMap中
+然后调用了ChunkHandler的getSendConfig函数，从shaderChunks的值中获得了顶点Send Config和Uniform Send Config，将其保存在state.sendConfigMap中
 
 
-ChunkHandler的buildGLSL函数和getSendData函数都接受了来自引擎的函数（如isNameValidForStaticBranch、addAttributeSendData），它们用于处理shaders.json和shader_chunks.json中的一些字段，从而实现分支处理或者从中获得Send Data。
+ChunkHandler的buildGLSL函数和getSendConfig函数都接受了来自引擎的函数（如isNameValidForStaticBranch、addAttributeSendConfig），它们用于处理shaders.json和shader_chunks.json中的一些字段，从而实现分支处理或者从中获得Send Config。
 
 由于这些字段的值是引擎定义的，所以它们的类型是再次定义在引擎端，明确了有哪些具体的值。
 具体的定义在引擎的GLSLConfigType.ts中，代码如下：
@@ -1170,7 +1208,7 @@ export type glslNameForBuildGLSLChunk = "defineMaxDirectionLightCount"
 ```ts
 export let render = (state: state): state => {
     let gl = state.gl
-    let sendDataMap = state.sendDataMap
+    let sendConfigMap = state.sendConfigMap
     let programMap = state.programMap
 
     _getAllFakeGameObjects().forEach(gameObject => {
@@ -1180,15 +1218,15 @@ export let render = (state: state): state => {
         let shaderIndex = getShaderIndex(state.shaderIndexMap, material)
 
         let program = getExnFromStrictNull(programMap.get(shaderIndex))
-        let sendData = getExnFromStrictNull(sendDataMap.get(shaderIndex))
+        let sendConfig = getExnFromStrictNull(sendConfigMap.get(shaderIndex))
 
 
         gl.useProgram(program)
 
-        let [attributeSendData, uniformSendData] = sendData
+        let [attributeSendConfig, uniformSendConfig] = sendConfig
 
-        _sendAttributeData(attributeSendData, state, shaderIndex, gl)
-        _sendUniformData(uniformSendData, state, transform, material, gl)
+        _sendAttributeData(attributeSendConfig, state, shaderIndex, gl)
+        _sendUniformData(uniformSendConfig, state, transform, material, gl)
 
         console.log("其它渲染逻辑...")
     })
@@ -1197,20 +1235,20 @@ export let render = (state: state): state => {
 }
 ```
 
-该函数跟之前几乎是一样的，只是多了从state.sendDataMap获得Send Data
+该函数跟之前几乎是一样的，只是多了从state.sendConfigMap获得Send Config
 
 我们看下_sendAttributeData代码：
 ```ts
-let _sendAttributeData = (attributeSendData: Array<attributeSendData>, state: state, shaderIndex: shaderIndex, gl: WebGLRenderingContext) => {
-    attributeSendData.forEach(data => {
-        if (!!data.elementSendData) {
-            data.elementSendData.sendBuffer(gl, _getFakeElementArrayBuffer(state, shaderIndex))
+let _sendAttributeData = (attributeSendConfig: Array<attributeSendConfig>, state: state, shaderIndex: shaderIndex, gl: WebGLRenderingContext) => {
+    attributeSendConfig.forEach(data => {
+        if (!!data.elementSendConfig) {
+            data.elementSendConfig.sendBuffer(gl, _getFakeElementArrayBuffer(state, shaderIndex))
         }
-        if (!!data.instanceSendData) {
+        if (!!data.instanceSendConfig) {
             console.log("发送instance相关的顶点数据...")
         }
-        if (!!data.otherSendData) {
-            let { pos, size, sendBuffer, buffer } = data.otherSendData
+        if (!!data.otherSendConfig) {
+            let { pos, size, sendBuffer, buffer } = data.otherSendConfig
 
             sendBuffer(gl, size, pos, _getFakeArrayBuffer(state, buffer, shaderIndex))
         }
@@ -1218,15 +1256,15 @@ let _sendAttributeData = (attributeSendData: Array<attributeSendData>, state: st
 }
 ```
 
-这里直接遍历顶点的Send Data，发送顶点数据
+这里直接遍历顶点的Send Config，发送顶点数据
 
 
 我们看下_sendUniformData代码：
 ```ts
-let _sendUniformData = (uniformSendData: Array<uniformSendData>, state: state, transform, material, gl: WebGLRenderingContext) => {
-    uniformSendData.forEach(data => {
-        if (!!data.shaderSendData) {
-            let { pos, getData, sendData } = data.shaderSendData
+let _sendUniformData = (uniformSendConfig: Array<uniformSendConfig>, state: state, transform, material, gl: WebGLRenderingContext) => {
+    uniformSendConfig.forEach(data => {
+        if (!!data.shaderSendConfig) {
+            let { pos, getData, sendData } = data.shaderSendConfig
 
             sendData(gl, pos, getData(state))
         }
@@ -1244,7 +1282,7 @@ let _sendUniformData = (uniformSendData: Array<uniformSendData>, state: state, t
 }
 ```
 
-这里直接遍历Uniform的Send Data，发送Uniform数据
+这里直接遍历Uniform的Send Config，发送Uniform数据
 
 
 下面，我们运行代码，运行结果如下：
@@ -1305,7 +1343,10 @@ uniform1i
 
 我们来看看模式的相关角色：
 
-TODO rename Main to Engine
+TODO rename Main to System
+
+
+TODO rename Runtime Data to Runtime Config
 
 - Target Config
 该角色是配置数据，用来指定如何拼接数据
@@ -1739,10 +1780,18 @@ shader_chunks.json相关代码可以改为：
 这样做的好处是让用户能够更加灵活地自定义Shader，而且还可以进行Shader编译检查
 
 
+TODO - no material shader
+
+add InitNoMaterialShader
+
+give fake code
+
+
+
 
 - 适用于构造DX12、Vulkan、WebGPU等现代图形API的着色器语言
 
-TODO Send Data
+TODO Send Config
 
 <!-- # 结合其它模式
 

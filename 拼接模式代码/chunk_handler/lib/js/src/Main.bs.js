@@ -35,14 +35,14 @@ function buildGLSL(param, shaders, shaderChunks, chunk, shaderName, precision) {
         ];
 }
 
-function getSendData(param, shaderChunks) {
+function getSendConfig(param, shaderChunks) {
   return [
-          HandleAttribute$Chunk_handler.addAttributeSendData(param[0], shaderChunks),
-          HandleUniform$Chunk_handler.addUniformSendData(param[1], shaderChunks)
+          HandleAttribute$Chunk_handler.addAttributeSendConfig(param[0], shaderChunks),
+          HandleUniform$Chunk_handler.addUniformSendConfig(param[1], shaderChunks)
         ];
 }
 
 exports.parseConfig = parseConfig;
 exports.buildGLSL = buildGLSL;
-exports.getSendData = getSendData;
+exports.getSendConfig = getSendConfig;
 /* No side effect */

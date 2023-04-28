@@ -2,11 +2,11 @@ import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 import { uniformField, uniformType, uniformFrom } from "./GLSLConfigType";
 import { getDiffuse, getDiffuseMapUnit } from "splice_pattern_utils/src/engine/PBRMaterial";
 import { uniformName } from "chunk_handler/src/type/GLSLConfigType.gen";
-import { sendData } from "./MaterialShaderUniformSenderType"
-import { addCameraSendData, addModelSendData, getSendDataByType } from "./MaterialShaderUniformSenderUtils";
+import { sendConfig } from "./MaterialShaderUniformSenderType"
+import { addCameraSendConfig, addModelSendConfig, getSendDataByType } from "./MaterialShaderUniformSenderUtils";
 
-let _addPBRMaterialSendData = (sendDataArr: Array<sendData>, [pos, field, type]: [WebGLUniformLocation, uniformField, uniformType]
-): Array<sendData> => {
+let _addPBRMaterialSendConfig = (sendConfigArr: Array<sendConfig>, [pos, field, type]: [WebGLUniformLocation, uniformField, uniformType]
+): Array<sendConfig> => {
     let renderObjectSendMaterialData = null
 
     switch (field) {
@@ -30,29 +30,29 @@ let _addPBRMaterialSendData = (sendDataArr: Array<sendData>, [pos, field, type]:
             throw new Error()
     }
 
-    sendDataArr.push({ renderObjectSendMaterialData })
+    sendConfigArr.push({ renderObjectSendMaterialData })
 
-    return sendDataArr
+    return sendConfigArr
 }
 
-export let addUniformSendData = (
+export let addUniformSendConfig = (
     gl: WebGLRenderingContext,
     program: WebGLProgram,
-    sendDataArr: Array<sendData>, [name, field, type, from]: [uniformName, uniformField, uniformType, uniformFrom]
-): Array<sendData> => {
+    sendConfigArr: Array<sendConfig>, [name, field, type, from]: [uniformName, uniformField, uniformType, uniformFrom]
+): Array<sendConfig> => {
     let pos = getExnFromStrictNull(gl.getUniformLocation(program, name))
 
     switch (from) {
         case "pbrMaterial":
-            _addPBRMaterialSendData(sendDataArr, [pos, field, type])
+            _addPBRMaterialSendConfig(sendConfigArr, [pos, field, type])
             break
         case "camera":
-            addCameraSendData(sendDataArr, [pos, field, type])
+            addCameraSendConfig(sendConfigArr, [pos, field, type])
             break
         case "model":
-            addModelSendData(sendDataArr, [pos, field, type])
+            addModelSendConfig(sendConfigArr, [pos, field, type])
             break
     }
 
-    return sendDataArr
+    return sendConfigArr
 }

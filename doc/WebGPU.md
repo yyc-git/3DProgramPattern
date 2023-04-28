@@ -12,7 +12,7 @@
 
 因为在初始化时创建对应Shader的pipeline，然后在渲染时绑定对应的pipeline即可
 
-而WebGL是在渲染时进行分支判断，得到Send Data，这一步有点性能问题
+而WebGL是在渲染时进行分支判断，得到Send Config，这一步有点性能问题
 
 但是WebGPU用老模式的话，还是使用一个大的if else宏的Shader，用户不能自由组合Shader
 

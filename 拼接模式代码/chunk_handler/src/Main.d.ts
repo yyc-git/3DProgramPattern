@@ -11,9 +11,9 @@ type getShaderChunkFromStaticBranch = (name: shaderMapDataName, value: shaderMap
 
 type isPassForDynamicBranch = (condition: condition) => boolean
 
-type addAttributeSendData<SendData> = (sendDataArr: Array<SendData>, [name, attributeBuffer, type]: [attributeName, attributeBuffer, attributeType]) => Array<SendData>
+type addAttributeSendConfig<SendConfig> = (sendDataArr: Array<SendConfig>, [name, attributeBuffer, type]: [attributeName, attributeBuffer, attributeType]) => Array<SendConfig>
 
-type addUniformSendData<SendData> = (sendDataArr: Array<SendData>, [name, field, type, from]: [uniformName, uniformField, uniformType, uniformFrom]) => Array<SendData>
+type addUniformSendConfig<SendConfig> = (sendDataArr: Array<SendConfig>, [name, field, type, from]: [uniformName, uniformField, uniformType, uniformFrom]) => Array<SendConfig>
 
 type generateAttributeType = (attributeType: attributeType) => string
 
@@ -57,18 +57,18 @@ export function buildGLSL(
     ]
 
 
-export type sendData<AttributeSendData, UniformSendData> = [
-    Array<AttributeSendData>,
-    Array<UniformSendData>
+export type sendConfig<AttributeSendConfig, UniformSendConfig> = [
+    Array<AttributeSendConfig>,
+    Array<UniformSendConfig>
 ]
 
-export function getSendData<AttributeSendData, UniformSendData>(
+export function getSendConfig<AttributeSendConfig, UniformSendConfig>(
     [
-        addAttributeSendData,
-        addUniformSendData
+        addAttributeSendConfig,
+        addUniformSendConfig
     ]: [
-            addAttributeSendData<AttributeSendData>,
-            addUniformSendData<UniformSendData>
+            addAttributeSendConfig<AttributeSendConfig>,
+            addUniformSendConfig<UniformSendConfig>
         ],
     shaderLib: shaderLibs
-): sendData<AttributeSendData, UniformSendData>
+): sendConfig<AttributeSendConfig, UniformSendConfig>

@@ -32,12 +32,12 @@ let buildGLSL = (
   )
 }
 
-let getSendData = (
-  (addAttributeSendData, addUniformSendData),
+let getSendConfig = (
+  (addAttributeSendConfig, addUniformSendConfig),
   shaderChunks: GLSLConfigType.shaderChunks,
 ) => {
   (
-    HandleAttribute.addAttributeSendData(addAttributeSendData, shaderChunks),
-    HandleUniform.addUniformSendData(addUniformSendData, shaderChunks),
+    HandleAttribute.addAttributeSendConfig(addAttributeSendConfig, shaderChunks),
+    HandleUniform.addUniformSendConfig(addUniformSendConfig, shaderChunks),
   )
 }

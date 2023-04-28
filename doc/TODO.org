@@ -135,7 +135,7 @@ add pos, type, send func, ...
 
 
 engine:
-add sendDataArr to state;
+add sendConfigArr to state;
 add log: create shader with glsl
 add RenderJob:
     use it when draw;

@@ -17,7 +17,7 @@ export let createState = ([shaders, shaderChunks]): state => {
     return {
         gl: createFakeWebGLRenderingContext(),
         programMap: Map(),
-        sendDataMap: Map(),
+        sendConfigMap: Map(),
         basicMaterialShaderIndexMap: Map(),
         pbrMaterialShaderIndexMap: Map(),
         maxShaderIndex: 0,

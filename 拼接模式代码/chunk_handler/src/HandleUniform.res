@@ -1,19 +1,19 @@
 open GLSLConfigType
 
-let addUniformSendData = (add, shaderChunks: shaderChunks) => {
-  shaderChunks->Commonlib.ArraySt.reduceOneParam((. sendDataArr, {variables}) => {
+let addUniformSendConfig = (add, shaderChunks: shaderChunks) => {
+  shaderChunks->Commonlib.ArraySt.reduceOneParam((. sendConfigArr, {variables}) => {
     variables->JsonUtils.isJsonSerializedValueNone
-      ? sendDataArr
+      ? sendConfigArr
       : {
           let {uniforms} = variables->JsonUtils.getJsonSerializedValueExn
 
           uniforms->JsonUtils.isJsonSerializedValueNone
-            ? sendDataArr
+            ? sendConfigArr
             : uniforms
               ->JsonUtils.getJsonSerializedValueExn
-              ->Commonlib.ArraySt.reduceOneParam((. sendDataArr, {name, field, type_, from}) => {
-                add(sendDataArr, (name, field, type_, from))
-              }, sendDataArr)
+              ->Commonlib.ArraySt.reduceOneParam((. sendConfigArr, {name, field, type_, from}) => {
+                add(sendConfigArr, (name, field, type_, from))
+              }, sendConfigArr)
         }
   }, [])
 }
