@@ -161,7 +161,7 @@ export let createState = (): state => {
 ```
 
 createState函数创建并返回了EngineState
-在EngineState中：
+在创建的EngineState中：
 <!-- 我们构造了假的WebGL上下文-gl； -->
 通过设置配置字段isSupportInstance为true，开启了Instance；
 <!-- 设置最大的方向光个数为4个，这个配置字段与支持方向光的GLSL有关 -->
@@ -380,7 +380,7 @@ _buildGLSL函数首先判断对Instance的支持情况以及判断材质是否�
 只给出了一些用于案例展示的代码 -->
 
 
-我们继续回到initMaterialShader函数，它在调用_buildGLSL函数后，调用了generateShaderIndex函数来生成shaderIndex，相关代码如下：
+我们继续回到initMaterialShader函数，它在调用传进来的buildGLSL函数（也就是InitBasicMaterialShader的_buildGLSL函数）后，调用了generateShaderIndex函数来生成shaderIndex，相关代码如下：
 InitMaterialShaderUtils
 ```ts
 export let initMaterialShader = (state, buildGLSL, shaderIndexMap, allMaterials) => {
@@ -422,8 +422,8 @@ generateShaderIndex函数比较新的GLSL是否与之前的GLSL相同，如果�
 
 ### 初始化所有PBR材质的shader的代码
 
-InitPBRMaterialShader的initBasicMaterialShader函数初始化所有PBR材质的shader，它与InitPBRMaterialShader的initBasicMaterialShader函数类似，不同的地方如下：
-传入的形参是所有的PBR材质组件而不是所有的基础材质组件；
+InitPBRMaterialShader的initPBRMaterialShader函数实现了初始化所有PBR材质的shader，它与InitPBRMaterialShader的initBasicMaterialShader函数类似，不同的地方主要如下：
+传入的allMaterials是所有的PBR材质组件而不是所有的基础材质组件；
 传入InitMaterialShaderUtils.initMaterialShader函数的buildGLSL函数不一样，该函数是修改PBRMaterialShaderGLSL（Default）而不是修改BasicMaterialShaderGLSL（Default）；
 生成的shaderIndex改为保存到EngineState的pbrMaterialShaderIndexMap中
 
@@ -523,20 +523,19 @@ let _sendUniformData = (state: state, transform, [material, materialType_], gl: 
     }
 
     if (!state.isSupportInstance) {
-        获得并发送对应的数据
+        获得并发送模型的数据（如模型矩阵）
     }
 }
 ```
 
 _sendUniformData函数首先获得并发送了相机数据；
 然后在判断材质的种类后，根据材质对功能的支持情况，获得并发送了该类材质的数据；
-最后判断对Instance的支持情况，获得并发送对应的数据
-<!-- 然后判断了材质对功能的支持情况，从BasicMaterial、Transform组件中获得并发送对应的Uniform数据 -->
+最后判断对Instance的支持情况，如果不支持的话则获得并发送模型矩阵的数据
 
 
 ### 运行代码
 
-下面，我们运行代码，运行结果如下：
+下面，我们运行代码，浏览器控制台打印的log如下：
 ```js
 //初始化，打印shaderIndex
 shaderIndex: 0
@@ -632,13 +631,14 @@ Client是用户
 
 我们看下数据和ChunkConverter这两个部分：
 
-GLSL Config是的GLSL的JSON配置文件，它的内容由Client给出，它的格式（也就是类型）由ChunkHandler定义
+GLSL Config是的GLSL的JSON配置文件，它的内容由用户给出，它的格式（也就是类型）由ChunkHandler定义
 
 GLSL Chunk是一小块的GLSL，有多个GLSL Chunk，它们由引擎给出
 一个GLSL Chunk可以是VS GLSL中一小块GLSL文件（如common_vertex.glsl），也可以是FS GLSL中一小块GLSL文件（common_fragment.glsl）
 
 
-因为GLSL Chunk是自定义文件，有一些自定义的语法，不能直接使用，所以引擎需要对其预处理，在gulp任务中调用ChunkConverter，处理所有的GLSL Chunk，并将其合并为一个Merged GLSL Chunk，成为一个Typescript或者Rescript文件
+因为GLSL Chunk是自定义文件，有一些自定义的语法，不能直接使用，所以引擎需要调用gulp任务来对其预处理。
+在gulp任务中，调用了ChunkConverter来处理所有的GLSL Chunk，并将其合并为一个Merged GLSL Chunk，成为一个Typescript或者Rescript文件
 <!-- 这样做的原因是GLSL Chunk是自定义的文件，不能直接被Typescript或者Rescript调用，所以需要将其转换为可被调用文件；另外，需要将其集中在一个文件中，方便管理 -->
 
 
@@ -648,6 +648,7 @@ Send Config是一个Shader的获得和发送顶点数据和Uniform数据的配�
 
 
 Target GLSL是支持某些功能的一套GLSL，相当于之前的BasicMaterialShaderGLSL（Add Define）或者PBRMaterialShaderGLSL（Add Define），两者的区别是Target GLSL没有预定义的宏，它只有支持的功能的GLSL，没有分支
+一套Target GLSL包括了一个VS GLSL和一个FS GLSL
 这里最多可有8套Target GLSL，分别对应基础材质的4种情况和PBR材质的4种情况
 
 
@@ -662,7 +663,7 @@ InitMaterialShader负责初始化所有材质的Shader，它有两个函数：in
 
 
 这两个函数遍历了所有的基础材质或者PBR材质，在每次遍历中的步骤一样，具体步骤如下：
-通过调用ChunkHandler的buildGLSL函数，按照GLSL Config的配置数据将Merged GLSL Chunk中对应的GLSL Chunk拼接为Target GLSL，然后使用它创建材质使用的shaderIndex和program；
+通过调用ChunkHandler的buildGLSL函数，按照GLSL Config的配置数据将Merged GLSL Chunk中对应的GLSL Chunk拼接为一个Target GLSL，然后使用它创建材质使用的shaderIndex和program；
 通过调用ChunkHandler的getSendConfig函数，从GLSL Config中获得Send Config
 
 在遍历结束后，将创建和获得的结果保存到EngineState中
@@ -689,17 +690,19 @@ InitMaterialShader负责初始化所有材质的Shader，它有两个函数：in
 
 ## 给出代码
 
-首先，我们看下用户的代码
+首先，我们看下GLSL Config的代码
+然后，我们看下用户的代码
 然后，我们看下创建EngineState的代码
-然后，我们看下创建场景的代码
+然后，我们看下GLSL Chunk和Merged GLSL Chunk的代码
 然后，我们看下初始化所有基础材质的shader的代码
+然后，我们看下初始化所有PBR材质的shader的代码
 然后，我们看下渲染场景的代码
 最后，我们运行代码
 
 
 ### GLSL Config的代码
 
-GLSL Config包括两个JSON文件：shaders.json和shader_chunks.json，它们的格式定义在ChunkHandler的GLSLConfigType.res中，它们的内容由Client给出
+GLSL Config包括两个JSON文件：shaders.json和shader_chunks.json，它们的格式定义在ChunkHandler的GLSLConfigType.res中，它们的内容由用户给出
 
 其中shaders.json文件定义了所有种类的Shader的GLSL配置数据，
 shader_chunks.json文件是定义了所有的GLSL Chunk的配置数据
@@ -892,7 +895,7 @@ shader_chunks.json的主要代码如下：
 
 name字段是一套GLSL Chunk的名称，与shaders.json关联
 
-glsls字段定义了一套GLSL Chunk，其中如果type为vs或者fs，则name分别为属于VS GLSL的GLSL Chunk或者属于FS GLSL的GLSL Chunk的文件名；
+glsls字段定义了一套GLSL Chunk，其中的如果它的元素的type为vs或者fs，则name分别为属于VS GLSL的GLSL Chunk或者属于FS GLSL的GLSL Chunk的文件名；
 <!-- 如果type为vs_function或者fs_function，则name为设置GLSL的动作名。如这里的name为define_light_count的glsls，此处的name是定义最大方向光个数的动作名 -->
 
 
@@ -901,37 +904,16 @@ variables字段定义了这套GLSL Chunk中顶点、Uniform数据的Send Config
 
 ### 用户的代码
 
-TODO continue
-
-
 Client
 ```ts
-// use json loader to load config
-import * as shadersJson from "./glsl_config/shaders.json"
-import * as shaderChunksJson from "./glsl_config/shader_chunks.json"
+let parsedConfig = parseConfig(shadersJson, shaderChunksJson)
 ```
 
-这里使用webpack的json loader来加载GLSL Config文件
+shadersJson、shadersChunkJson是加载shaders.json、shader_chunks.json后的JSON
 
-继续看Client后面的代码：
-```ts
-//修复json loader关于Array.isArray的bug 
-let _fixJsonForArrayBug = (jsonWithArray) => {
-    if (Array.isArray(jsonWithArray)) {
-        return jsonWithArray
-    }
-
-    return (jsonWithArray as any).default
-}
-
-
-let parsedConfig = parseConfig(shadersJson as any, _fixJsonForArrayBug(shaderChunksJson))
-
-```
-
-这里最终是调用ChunkHandler的parseConfig函数来对GLSL Config进行解析。
-因为ChunkHandler是Rescript写的，所以需要在parseConfig函数中将JSON文件转换为Rescript的数据格式。
-如果ChunkHandler使用Typescript写的，则不需要这一步。
+这里通过Engine来调用ChunkHandler的parseConfig函数，对GLSL Config进行解析
+因为ChunkHandler是Rescript写的，所以需要在parseConfig函数中将JSON转换为Rescript的数据格式-Record
+如果ChunkHandler是使用Typescript写的，则不需要parseConfig这一步
 
 
 继续看Client后面的代码：
@@ -940,71 +922,122 @@ let state = createState(parsedConfig)
 
 let sceneData = createScene(state)
 state = sceneData[0]
-let [allMaterials, _] = sceneData[1]
+let [allBasicMaterials, allPBRMaterials, _] = sceneData[1]
 
-state = initBasicMaterialShader(state, "render_basic", allMaterials)
+state = initBasicMaterialShader(state, [allBasicMaterials, "render_basic"])
+
+state = initPBRMaterialShader(state, [allPBRMaterials, "render_pbr"])
 
 state = initCamera(state)
 
 state = render(state)
 ```
 
-这里跟之前类似：
-我们首先创建了引擎的state；
+<!-- 
+我们首先创建了引擎的EngineState；
+然后创建了场景；
+然后初始化所有基础材质的shader；
+然后初始化所有PBR材质的shader；
+接着初始化相机，设置与相机相关的假的视图矩阵和透视矩阵；
+最后渲染场景 -->
+
+
+<!-- 这里的步骤跟之前一样： -->
+<!-- 我们首先创建了引擎的state；
 然后创建了场景，场景跟之前一样；
 然后初始化所有基础材质的shader；
 接着初始化相机，设置相机的假数据；
-最后渲染场景
+最后渲染场景 -->
 
-这里跟之前不一样的地方是在调用initBasicMaterialShader函数时，传入了"render_basic"这个参数，它用来指定所有的基础材质都使用shaders.json->shaders->render_basic的配置数据
+这里的步骤跟之前一样，不一样的地方是：
+现在initBasicMaterialShader、initPBRMaterialShader这两个函数是在一个模块（InitMaterialShader）中，而不是分别在两个模块（InitBasicMaterialShader、InitPBRMaterialShader）中；
+在调用initBasicMaterialShader、initPBRMaterialShader函数时，分别新传入了"render_basic"、"render_pbr"这个参数，它用来指定使用shaders.json->shaders中对应Shader种类的GLSL配置数据
 
-如果引擎再加入更多的材质，比如加入Phong材质，那么Client的代码就会变为：
+<!-- 如果引擎再加入更多的材质，比如加入Phong材质，那么Client的代码就会变为：
 ```ts
 state = initBasicMaterialShader(state, "render_basic", allBasicMaterials)
 state = initPhongMaterialShader(state, "render_phong", allPhongMaterials)
 ```
 
-也就是说基础材质对应render_basic Shader，Phong材质对应render_phong Shader
+也就是说基础材质对应render_basic Shader，Phong材质对应render_phong Shader -->
 
 
-我们看下Main中的createState代码：
+### 创建EngineState的代码
+
+Engine
 ```ts
 export let createState = ([shaders, shaderChunks]): state => {
     return {
-        gl: createFakeWebGLRenderingContext(),
         ...
         shaders,
         shaderChunks,
-        isSupportInstance: true,
-        maxDirectionLightCount: 4,
+        ...
         chunk: getData(),
         ...
     }
 }
 ```
 
-这里调用了Merge GLSL Chunk的getData函数来获得所有的GLSL Chunk的数据，将其保存到state.chunk字段
+在创建的EngineState中，主要新增了下面的内容：
+保存了GLSL Config（shaders、shaderChunks）；
+调用了Merged GLSL Chunk的getData函数来获得它的数据，也就是合并后的所有的GLSL Chunk，将其保存到chunk字段中
 
-我们介绍下相关的情况：
 
-引擎定义的GLSL Chunk具体为多个.glsl的文件，其中每个文件通过字符@top、@define、@varDeclare、@funcDeclare、@funcDefine、@body以及对应的@end定义了对应的GLSL代码片段
+### GLSL Chunk和Merged GLSL Chunk的代码
 
-举例来说，我们看下Instance相关的两个.glsl文件：
-modelMatrix_instance_vertex.glsl
+我们首先看下GLSL Chunk的相关代码；
+然后看下合并它们之后的Merged GLSL Chunk的代码
+
+
+引擎定义的GLSL Chunk具体是后缀名为.glsl的文件
+我们通过自定义的字符：@top、@define、@varDeclare、@funcDeclare、@funcDefine、@body以及对应的@end，将一个完整的GLSL分割为从上往下的不同区域的的代码片段，这样便于更细粒度的组合
+
+一个GLSL Chunk可以包括多个区域的代码片段
+
+举例来说，我们看下Diffuse贴图相关的.glsl文件：
+webgl1_diffuse_map_fragment.glsl
 ```ts
+@varDeclare
+varying vec2 v_diffuseMapCoord0;
+@end
+
 @body
-mat4 mMatrix = mat4(a_mVec4_0, a_mVec4_1, a_mVec4_2, a_mVec4_3);
+    vec4 texelColor = texture2D(u_diffuseMapSampler, v_diffuseMapCoord0);
+
+    vec4 totalColor = vec4(texelColor.rgb * u_color, texelColor.a);
 @end
 ```
-modelMatrix_noInstance_vertex.glsl
-```ts
-@body
-mat4 mMatrix = u_mMatrix;
+
+该GLSL Chunk包括了两个区域（@varDeclare、@body）的代码片段，其中@varDeclare包括了变量声明的代码，@body包括了main函数中的代码
+
+其它区域包括的代码如下：
+@top包括了define之前的代码，如精度代码:
+```glsl
+precision highp float;
+```
+@define包括了define的代码，如：
+```glsl
+define B 2;
+```
+@funcDeclare包括了函数声明的代码，如：
+```glsl
+@funcDeclare
+vec3 getDirectionLightDirByLightPos(vec3 lightPos);
+@end
+```
+@funcDefine包括了函数实现的代码，如：
+```glsl
+@funcDefine
+vec3 getDirectionLightDirByLightPos(vec3 lightPos){
+  return lightPos - vec3(0.0);
+}
 @end
 ```
 
-在每个GLSL代码片段中，还可以通过"#import 相对路径"来引入其它的GLSL Chunk，如common_vertex.glsl：
-```ts
+
+
+一个GLSL Chunk还可以通过"#import 相对路径"来引入其它的GLSL Chunk，如common_vertex.glsl：
+```glsl
 @define
 #import "common_define"
 @end
@@ -1014,10 +1047,10 @@ mat4 mMatrix = u_mMatrix;
 @end
 ```
 
-它引入了common_define的define片段和common_function的funcDefine片段
+它引入了在同一个目录下的common_define的define代码片段和common_function的funcDefine代码片段
 
-我们再来看下定义了所有片段的.glsl是什么样的：
-```ts
+我们再来看下定义了所有片段的GLSL Chunk是什么样的：
+```glsl
 @top
 precision highp float;
 @end
@@ -1044,15 +1077,28 @@ vec3 func2(vec3 lightPos){
 gl_FragColor = vec4(1.0,0.5,1.0,1.0);
 @end
 ```
+它其实是对下面这个完整的GLSL代码的分割：
+```glsl
+precision highp float;
+
+define B 2;
+
+varying vec2 v_mapCoord2;
+
+vec3 func2(vec3 lightPos);
+
+vec3 func2(vec3 lightPos){
+    return vec3(0.5);
+}
+
+void main() {
+    gl_FragColor = vec4(1.0,0.5,1.0,1.0);
+}
+```
 
 
-
-
-<!-- 这些.glsl文件是进行了抽象处理的，从而能够被正确地组合起来 -->
-
-在预处理时，引擎通过gulp任务来调用ChunkConverter模块，将所有的.glsl文件合并为一个Merged GLSL Chunk，它具体就是MergedGLSLChunk.ts或者MergedGLSLChunk.res文件
-
-我们来看下MergedGLSLChunk.ts的代码：
+我们来看下合并之后的Merged GLSL Chunk的代码：
+MergedGLSLChunk.ts
 ```ts
   let _buildChunk =
       (
@@ -1079,26 +1125,31 @@ gl_FragColor = vec4(1.0,0.5,1.0,1.0);
   }
 ```
 
-我们可以看到，getData函数返回了Merged GLSL Chunk数据，它是一个Hash Map，包括了所有的GLSL Chunk的数据
+可以根据需要（也就是看引擎是用Typescript还是Rescript写的）调用不同的gulp任务，将GLSL Chunk合并为Typescript或者Rescript文件
+这里我们给出的Typescript文件
+
+我们可以看到，getData函数返回了Merged GLSL Chunk的数据，它是一个Hash Map，其中Key是shader_chunks.json的glsls字段中元素的name，也就是GLSL Chunk的文件名；Value是该GLSL Chunk包括的区域的片段代码
 
 
-我们继续来看下InitBasicMaterialShader中的initBasicMaterialShader代码：
+
+### 初始化所有基础材质的shader的代码
+
+
+InitMaterialShader
 ```ts
-export let initBasicMaterialShader = (state: state, shaderName: shaderName, allMaterials: Array<material>): state => {
-    let [programMap, sendConfigMap, shaderIndexMap, _allGLSLs, maxShaderIndex] = allMaterials.reduce(([programMap, sendConfigMap, shaderIndexMap, glslMap, maxShaderIndex]: any, material) => {
+let _initOneMaterialTypeShader = (
+    state: state,
+    [
+      引擎实现的一些函数...
+    ]: any,
+    allMaterials: Array<material>,
+    shaderName: shaderName,
+    shaderIndexMap: Map<material, shaderIndex>
+) => {
+    let [newProgramMap, newSendConfigMap, newShaderIndexMap, _allGLSLs, newMaxShaderIndex] = allMaterials.reduce(([programMap, sendConfigMap, shaderIndexMap, glslMap, maxShaderIndex]: any, material) => {
         let [shaderChunks, glsl] = buildGLSL(
             [
-                [[
-                    isNameValidForStaticBranch,
-                    curry3_1(getShaderChunkFromStaticBranch)(state)
-                ],
-                curry3_2(isPassForDynamicBranch)(material, state)],
-                [
-                    generateAttributeType,
-                    generateUniformType,
-                    curry2(buildGLSLChunkInVS)(state),
-                    curry2(buildGLSLChunkInFS)(state)
-                ]
+              传入引擎实现的一些函数...
             ],
             state.shaders,
             state.shaderChunks,
@@ -1109,14 +1160,16 @@ export let initBasicMaterialShader = (state: state, shaderName: shaderName, allM
 
         let [shaderIndex, newMaxShaderIndex] = generateShaderIndex(glslMap, glsl, maxShaderIndex)
 
-        let program = createFakeProgram(glsl)
+        if (!programMap.has(shaderIndex)) {
+            programMap = programMap.set(shaderIndex, createFakeProgram(glsl))
+        }
+
+        ...
 
         let sendConfig = getSendConfig(
-            [(sendConfigArr, [name, buffer, type]) => {
-                return addAttributeSendConfig(state.gl, program, sendConfigArr, [name, buffer, type as attributeType])
-            }, (sendConfigArr, [name, field, type, from]) => {
-                return addUniformSendConfig(state.gl, program, sendConfigArr, [name, field as uniformField, type as uniformType, from as uniformFrom])
-            }],
+            [
+              传入引擎实现的一些函数...
+            ],
             shaderChunks
         )
 
@@ -1124,36 +1177,71 @@ export let initBasicMaterialShader = (state: state, shaderName: shaderName, allM
             glslMap = glslMap.set(shaderIndex, glsl)
         }
 
-        ...
+        console.log("shaderIndex:", shaderIndex)
 
         return [
-            programMap.set(shaderIndex, program),
+            programMap,
             sendConfigMap.set(shaderIndex, sendConfig),
             setShaderIndex(shaderIndexMap, material, shaderIndex),
             glslMap,
             newMaxShaderIndex
         ]
-    }, [state.programMap, state.sendConfigMap, state.shaderIndexMap, Map(), state.maxShaderIndex])
+    }, [state.programMap, state.sendConfigMap, shaderIndexMap, Map(), state.maxShaderIndex])
+
+    return [newProgramMap, newSendConfigMap, newShaderIndexMap, newMaxShaderIndex]
+}
+
+export let initBasicMaterialShader = (
+    state: state,
+    [allMaterials, shaderName]: [
+        Array<basicMaterial>,
+        shaderName
+    ]
+): state => {
+    let [newProgramMap, newSendConfigMap, newShaderIndexMap, newMaxShaderIndex] = _initOneMaterialTypeShader(state,
+        [
+            传入引擎实现的一些函数...
+        ],
+        allMaterials, shaderName, state.basicMaterialShaderIndexMap)
 
     return {
         ...state,
-        programMap, sendConfigMap, maxShaderIndex,
-        shaderIndexMap
+        programMap: newProgramMap,
+        sendConfigMap: newSendConfigMap,
+        basicMaterialShaderIndexMap: newShaderIndexMap,
+        maxShaderIndex: newMaxShaderIndex
     }
 }
 ```
 
-该函数首先调用了ChunkHandler的buildGLSL函数，按照shaders.json和shader_chunks.json的配置将MergedGLSLChunk.ts文件中对应的小块GLSL拼接为材质的一套GLSL（即一个VS GLSL和一个FS GLSL），并且经过处理后返回了shaders.json->render_basic->shaderChunks的值；
-然后调用了ChunkHandler的getSendConfig函数，从shaderChunks的值中获得了顶点Send Config和Uniform Send Config，将其保存在state.sendConfigMap中
+
+这里“初始化所有基础材质的shader”的步骤跟之前差不多，不一样的地方主要是在遍历所有的基础材质时增加了一步：调用getSendConfig函数
 
 
-ChunkHandler的buildGLSL函数和getSendConfig函数都接受了来自引擎的函数（如isNameValidForStaticBranch、addAttributeSendConfig），它们用于处理shaders.json和shader_chunks.json中的一些字段，从而实现分支处理或者从中获得Send Config。
+<!-- initBasicMaterialShader函数初始化所有基础材质的shader，它调用InitMaterialShaderUtils的initMaterialShader函数来遍历了所有的基础材质，创建了基础材质使用的shaderIndex和program，将其分别保存在EngineState的basicMaterialShaderIndexMap、programMap中 -->
 
-由于这些字段的值是引擎定义的，所以它们的类型是再次定义在引擎端，明确了有哪些具体的值。
-具体的定义在引擎的GLSLConfigType.ts中，代码如下：
+
+<!-- 
+这两个函数遍历了所有的基础材质或者PBR材质，在每次遍历中的步骤一样，具体步骤如下：
+通过调用ChunkHandler的buildGLSL函数，按照GLSL Config的配置数据将Merged GLSL Chunk中对应的GLSL Chunk拼接为Target GLSL，然后使用它创建材质使用的shaderIndex和program；
+通过调用ChunkHandler的getSendConfig函数，从GLSL Config中获得Send Config -->
+
+
+_initOneMaterialTypeShader函数在遍历所有的基础材质时，首先调用了ChunkHandler的buildGLSL函数，按照shaders.json和shader_chunks.json的配置数据将EngineState的chunk（即Merged GLSL Chunk数据）中对应的GLSL Chunk拼接为一个Target GLSL（即返回的glsl变量）；
+<!-- 
+材质的一套GLSL（即一个VS GLSL和一个FS GLSL），并且经过处理后返回了shaders.json->render_basic->shaderChunks的值； -->
+然后调用了ChunkHandler的getSendConfig函数，从GLSL Config（即shaderChunks变量）中获得了相关的顶点、Uniform数据的Send Config，将其保存在EngineState的sendConfigMap中
+
+
+<!-- 值得说明的是： -->
+ChunkHandler的buildGLSL函数和getSendConfig函数都接受了引擎实现的函数，它们被用于处理shaders.json和shader_chunks.json中的一些字段，从而实现分支处理或者从中获得Send Config
+
+因为这些字段的值是离散的，它们的的范围是引擎定义的，用户只能从范围内选择某个具体的值，所以这些字段的类型是定义在引擎端，类型中明确了有哪些值的范围。
+<!-- 具体是定义在引擎的GLSLConfigType.ts中，代码如下： -->
+类型定义的部分代码如下：
+GLSLConfigType
 ```ts
-export type shaderMapDataName = "modelMatrix_instance"
-
+...
 export type condition = "basic_has_map"
 
 export enum attributeBuffer {
@@ -1176,12 +1264,11 @@ export type uniformField =
 export type uniformType = "mat4" | "float3" | "float" | "sampler2D";
 
 export type uniformFrom = "basicMaterial" | "model" | "camera";
-
-export type glslNameForBuildGLSLChunk = "defineMaxDirectionLightCount"
+...
 ```
 
 
-另外值得注意的是我们对传入buildGLSL的部分函数进行了柯西化。这是因为这些函数的一部分参数需要在此处获得，所以就通过柯西化而将参数传入
+<!-- 另外值得注意的是我们对传入buildGLSL的部分函数进行了柯西化。这是因为这些函数的一部分参数需要在此处获得，所以就通过柯西化而将参数传入
 
 相关代码如下：
 ```ts
@@ -1201,25 +1288,45 @@ export type glslNameForBuildGLSLChunk = "defineMaxDirectionLightCount"
             ],
             ...
         )
-```
+``` -->
 
 
-我们继续来看Client调用的下一个函数：位于Render中的render代码：
+### 初始化所有PBR材质的shader的代码
+
+InitMaterialShader的initPBRMaterialShader函数实现了初始化所有PBR材质的shader，它与同一个模块的initBasicMaterialShader函数类似，不同的地方主要如下：
+传入的allMaterials是所有的PBR材质组件而不是所有的基础材质组件；
+传入的shaderName不一样；
+传入_initOneMaterialTypeShader函数的“引擎实现的函数”不一样；
+生成的shaderIndex改为保存到EngineState的pbrMaterialShaderIndexMap中
+
+### 渲染场景的代码
+
+
+<!-- 我们继续来看Client调用的下一个函数：位于Render中的render代码： -->
+Render
 ```ts
 export let render = (state: state): state => {
     let gl = state.gl
     let sendConfigMap = state.sendConfigMap
     let programMap = state.programMap
 
-    _getAllFakeGameObjects().forEach(gameObject => {
-        let material = _getFakeMaterial(state, gameObject)
-        let transform = _getFakeTransform(state, gameObject)
+    getAllGameObjects(state.gameObjectState).forEach(gameObject => {
+        let [material, materialType_] = getMaterial(state.gameObjectState, gameObject)
+        let transform = getTransform(state.gameObjectState, gameObject)
 
-        let shaderIndex = getShaderIndex(state.shaderIndexMap, material)
+        //不同的材质从不同的shaderIndexMap中取得shaderIndex
+        let shaderIndex = null
+        switch (materialType_) {
+            case materialType.Basic:
+                shaderIndex = getShaderIndex(state.basicMaterialShaderIndexMap, material)
+                break
+            case materialType.PBR:
+                shaderIndex = getShaderIndex(state.pbrMaterialShaderIndexMap, material)
+                break
+        }
 
-        let program = getExnFromStrictNull(programMap.get(shaderIndex))
-        let sendConfig = getExnFromStrictNull(sendConfigMap.get(shaderIndex))
-
+        let program = getExnFromStrictUndefined(programMap.get(shaderIndex))
+        let sendConfig = getExnFromStrictUndefined(sendConfigMap.get(shaderIndex))
 
         gl.useProgram(program)
 
@@ -1235,82 +1342,56 @@ export let render = (state: state): state => {
 }
 ```
 
-该函数跟之前几乎是一样的，只是多了从state.sendConfigMap获得Send Config
+render函数跟之前几乎是一样的，只是多了“从EngineState的sendConfigMap中获得Send Config”这一步的代码
 
-我们看下_sendAttributeData代码：
+我们看下发送顶点数据的代码：
+Render
 ```ts
 let _sendAttributeData = (attributeSendConfig: Array<attributeSendConfig>, state: state, shaderIndex: shaderIndex, gl: WebGLRenderingContext) => {
     attributeSendConfig.forEach(data => {
         if (!!data.elementSendConfig) {
-            data.elementSendConfig.sendBuffer(gl, _getFakeElementArrayBuffer(state, shaderIndex))
+            绑定ElementArrayBuffer
         }
         if (!!data.instanceSendConfig) {
-            console.log("发送instance相关的顶点数据...")
+            获得并发送instance相关的VBO
         }
         if (!!data.otherSendConfig) {
-            let { pos, size, sendBuffer, buffer } = data.otherSendConfig
-
-            sendBuffer(gl, size, pos, _getFakeArrayBuffer(state, buffer, shaderIndex))
+            获得并发送Position、TexCoord的VBO
         }
     })
 }
 ```
 
-这里直接遍历顶点的Send Config，发送顶点数据
+
+现在_sendAttributeData函数没有分支判断了，而是直接遍历顶点数据的Send Config，获得并发送对应的VBO数据
 
 
-我们看下_sendUniformData代码：
+我们看下发送Uniform数据的代码：
+Render
 ```ts
 let _sendUniformData = (uniformSendConfig: Array<uniformSendConfig>, state: state, transform, material, gl: WebGLRenderingContext) => {
     uniformSendConfig.forEach(data => {
         if (!!data.shaderSendConfig) {
-            let { pos, getData, sendData } = data.shaderSendConfig
-
-            sendData(gl, pos, getData(state))
+            获得并发送相机数据
         }
         if (!!data.renderObjectSendMaterialData) {
-            let { pos, getData, sendData } = data.renderObjectSendMaterialData
-
-            sendData(gl, pos, getData(state, material))
+            获得并发送材质数据
         }
         if (!!data.renderObjectSendModelData) {
-            let { pos, getData, sendData } = data.renderObjectSendModelData
-
-            sendData(gl, pos, getData(state, transform))
+            获得并发送模型的数据（如模型矩阵）
         }
     })
 }
 ```
 
-这里直接遍历Uniform的Send Config，发送Uniform数据
+现在_sendUniformData函数没有分支判断了，而是直接遍历Uniform数据的Send Config，获得并发送对应的Uniform数据
 
 
-下面，我们运行代码，运行结果如下：
-```text
-shaderIndex: 0
-shaderIndex: 1
-shaderIndex: 0
-useProgram
-bindBuffer
-vertexAttribPointer
-enableVertexAttribArray
-bindBuffer
-vertexAttribPointer
-enableVertexAttribArray
-发送instance相关的顶点数据...
-发送instance相关的顶点数据...
-发送instance相关的顶点数据...
-发送instance相关的顶点数据...
-bindBuffer
-uniformMatrix4fv
-uniformMatrix4fv
-uniform3f
-uniform1i
-其它渲染逻辑...
-```
+### 运行代码
 
-<!-- 运行结果与之前基本上一样，通过了运行测试 -->
-运行结果与之前基本上一样
+
+下面，我们运行代码，浏览器控制台打印的log跟之前基本上一样
+
 
 <!-- # 设计意图 -->
 <!-- 分解大块数据为小块单位，按照配置文件来拼接 -->
@@ -1319,6 +1400,9 @@ uniform1i
 # 定义
 
 ## 一句话定义？
+
+
+TODO continue
 
 <!-- 可配置地拼接小块数据 -->
 

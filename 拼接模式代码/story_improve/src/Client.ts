@@ -14,7 +14,6 @@ let _fixJsonForArrayBug = (jsonWithArray) => {
     return (jsonWithArray as any).default
 }
 
-
 let parsedConfig = parseConfig(shadersJson as any, _fixJsonForArrayBug(shaderChunksJson))
 
 let state = createState(parsedConfig)

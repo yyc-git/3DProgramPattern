@@ -61,6 +61,7 @@ export let render = (state: state): state => {
         let [material, materialType_] = getMaterial(state.gameObjectState, gameObject)
         let transform = getTransform(state.gameObjectState, gameObject)
 
+        //不同的材质从不同的shaderIndexMap中取得shaderIndex
         let shaderIndex = null
         switch (materialType_) {
             case materialType.Basic:

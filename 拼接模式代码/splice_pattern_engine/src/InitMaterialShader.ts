@@ -38,17 +38,23 @@ let _initOneMaterialTypeShader = (
     shaderIndexMap: Map<material, shaderIndex>
 ) => {
     let [newProgramMap, newSendConfigMap, newShaderIndexMap, _allGLSLs, newMaxShaderIndex] = allMaterials.reduce(([programMap, sendConfigMap, shaderIndexMap, glslMap, maxShaderIndex]: any, material) => {
+        //返回的glsl是拼接后的一个Target GLSL
+        //返回的shaderChunks是处理shaders.json的shaders字段中shaderName种类的shader_chunks字段后的配置数据
         let [shaderChunks, glsl] = buildGLSL(
             [
                 [[
                     isNameValidForStaticBranch,
+                    //柯西化，传入部分参数：state
                     curry3_1(getShaderChunkFromStaticBranch)(state) as any
                 ],
+                //柯西化，传入部分参数：material, state
                 curry3_2(isPassForDynamicBranch)(material, state)] as any,
                 [
                     generateAttributeType,
                     generateUniformType,
+                    //柯西化，传入部分参数：state
                     curry2(buildGLSLChunkInVS)(state) as any,
+                    //柯西化，传入部分参数：state
                     curry2(buildGLSLChunkInFS)(state) as any
                 ]
             ],
