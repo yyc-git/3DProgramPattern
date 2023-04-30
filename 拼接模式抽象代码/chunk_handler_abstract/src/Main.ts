@@ -6,6 +6,6 @@ type target = any
 
 export declare function buildTarget(handleConfigFuncs, parsedConfig: config, targetChunk, someConfigData): target
 
-type runtimeData = any
+type runtimeConfig = any
 
-export declare function getRuntimeData(addRuntimeDataFuncs, target: target): runtimeData
+export declare function getRuntimeConfig(addRuntimeConfigFuncs, target: target): runtimeConfig

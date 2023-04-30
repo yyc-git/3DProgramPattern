@@ -2,7 +2,7 @@
 import * as targetsConfigJson from "./target_config/targets_config.json"
 import * as chunksConfigJson from "./target_config/chunks_config.json"
 
-import { parseConfig, createState, init, operateWhenRuntime } from "splice_pattern_system_abstract/src/Main"
+import { parseConfig, createState, init, operateWhenRuntime } from "splice_pattern_system_abstract/src/System"
 
 let parsedConfig = parseConfig(targetsConfigJson, chunksConfigJson)
 

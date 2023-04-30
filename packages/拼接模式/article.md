@@ -615,7 +615,7 @@ uniform1i
 ## 概述解决方案
 
 - 将支持各种功能的默认GLSL分解为多个小块
-- 用户实现GLSL的JSON配置文件，指定如何组合小块的GLSL，以及指定在渲染时需要发送的顶点数据和Uniform数据的配置数据
+- 用户实现GLSL的JSON配置文件，指定如何拼接小块的GLSL，以及指定在渲染时需要发送的顶点数据和Uniform数据的配置数据
 
 
 ## 给出UML？
@@ -631,37 +631,45 @@ Client是用户
 
 我们看下数据和ChunkConverter这两个部分：
 
-GLSL Config是的GLSL的JSON配置文件，它的内容由用户给出，它的格式（也就是类型）由ChunkHandler定义
-
-GLSL Chunk是一小块的GLSL，有多个GLSL Chunk，它们由引擎给出
-一个GLSL Chunk可以是VS GLSL中一小块GLSL文件（如common_vertex.glsl），也可以是FS GLSL中一小块GLSL文件（common_fragment.glsl）
-
-
-因为GLSL Chunk是自定义文件，有一些自定义的语法，不能直接使用，所以引擎需要调用gulp任务来对其预处理。
-在gulp任务中，调用了ChunkConverter来处理所有的GLSL Chunk，并将其合并为一个Merged GLSL Chunk，成为一个Typescript或者Rescript文件
-<!-- 这样做的原因是GLSL Chunk是自定义的文件，不能直接被Typescript或者Rescript调用，所以需要将其转换为可被调用文件；另外，需要将其集中在一个文件中，方便管理 -->
-
-
-Send Config是一个Shader的获得和发送顶点数据和Uniform数据的配置数据
-具体来说，每个Send Config包括了多个getData函数和多个sendData函数，前者获得对应的顶点数据或者Uniform数据，后者发送它们
-因为这里最多有8个Shader，所以最多有8个Send Config
-
-
 Target GLSL是支持某些功能的一套GLSL，相当于之前的BasicMaterialShaderGLSL（Add Define）或者PBRMaterialShaderGLSL（Add Define），两者的区别是Target GLSL没有预定义的宏，它只有支持的功能的GLSL，没有分支
 一套Target GLSL包括了一个VS GLSL和一个FS GLSL
 这里最多可有8套Target GLSL，分别对应基础材质的4种情况和PBR材质的4种情况
 
 
+Send Config是如何获得和发送顶点数据和Uniform数据的配置数据
+具体来说，每个Send Config包括了多个getData函数和多个sendData函数，前者获得对应的顶点数据或者Uniform数据，后者发送它们
+因为一个Send Config对应一套Target GLSL，所以最多有8个Send Config
 
-我们看下引擎和ChunkHandler这两个部分：
+
+
+
+
+GLSL Config是的GLSL的JSON配置文件，用来指定如何拼接Target GLSL，并包括了Send Config
+它的内容由用户给出，它的格式（也就是类型）由ChunkHandler定义
+
+
+GLSL Chunk是一小块的GLSL，有多个GLSL Chunk，它们由引擎给出
+一个GLSL Chunk可以是VS GLSL中一小块GLSL文件（如common_vertex.glsl），也可以是FS GLSL中一小块GLSL文件（common_fragment.glsl）
+
+
+ChunkConverter负责转换GLSL Chunk
+因为GLSL Chunk是自定义文件，有一些自定义的语法，不能直接使用，所以引擎需要调用gulp任务来对其预处理。
+在gulp任务中，调用了ChunkConverter来处理所有的GLSL Chunk，并将其合并为一个Merged GLSL Chunk，成为一个Typescript或者Rescript文件
+<!-- 这样做的原因是GLSL Chunk是自定义的文件，不能直接被Typescript或者Rescript调用，所以需要将其转换为可被调用文件；另外，需要将其集中在一个文件中，方便管理 -->
+
+
+
+
+我们看下ChunkHandler和引擎这两个部分：
+
+ChunkHandler负责拼接Target GLSL和获得Send Config
+
 
 Engine、Render跟之前一样
 <!-- Engine是引擎的门户，负责封装API给Client -->
 <!-- Engine有一个EngineState，用来保存引擎的所有数据； -->
 
 InitMaterialShader负责初始化所有材质的Shader，它有两个函数：initBasicMaterialShader、initPBRMaterialShader，分别负责初始化所有基础材质的Shader和初始化所有PBR材质的Shader
-
-
 这两个函数遍历了所有的基础材质或者PBR材质，在每次遍历中的步骤一样，具体步骤如下：
 通过调用ChunkHandler的buildGLSL函数，按照GLSL Config的配置数据将Merged GLSL Chunk中对应的GLSL Chunk拼接为一个Target GLSL，然后使用它创建材质使用的shaderIndex和program；
 通过调用ChunkHandler的getSendConfig函数，从GLSL Config中获得Send Config
@@ -711,7 +719,7 @@ shader_chunks.json是一个数组，其中的每个元素定义了一套GLSL Chu
 
 
 这两个文件的关系是“总-分”的关系，具体如下：
-因为每种Shader的GLSL由多个GLSL Chunk组合而成，所以shaders.json是“总”，shader_chunks.json是“分”
+因为每种Shader的GLSL由多个GLSL Chunk组合拼接而成，所以shaders.json是“总”，shader_chunks.json是“分”
 
 
 下面我们来看下这两个文件的主要代码：
@@ -821,7 +829,7 @@ shaders字段定义了所有种类的Shader的GLSL配置数据
 值得说明的是：
 实际上也存在没有材质的Shader，如后处理（如绘制轮廓）的Shader、天空盒的Shader等，这些种类的Shader也定义在shaders字段，只是没有对应材质而已。这种Shader我们会在后面的扩展中讨论
 
-每种Shader的GLSL由多个GLSL Chunk组合而成，它们定义在shader_chunks字段中
+每种Shader的GLSL由多个GLSL Chunk组合拼接而成，它们定义在shader_chunks字段中
 <!-- groups字段定义了多组GLSL Chunk，每组的value字段包括了多个GLSL Chunk，它们跟shader_chunks.json的name关联 -->
 <!-- 此处定义了一个名为render_basic的Shader，它包括的所有的代码块定义在shader_chunks字段中。  -->
 在shader_chunks字段中，如果type为static_branch，那么就通过name关联到static_branchs字段；
@@ -990,7 +998,7 @@ export let createState = ([shaders, shaderChunks]): state => {
 
 
 引擎定义的GLSL Chunk具体是后缀名为.glsl的文件
-我们通过自定义的字符：@top、@define、@varDeclare、@funcDeclare、@funcDefine、@body以及对应的@end，将一个完整的GLSL分割为从上往下的不同区域的的代码片段，这样便于更细粒度的组合
+我们通过自定义的字符：@top、@define、@varDeclare、@funcDeclare、@funcDefine、@body以及对应的@end，将一个完整的GLSL分割为从上往下的不同区域的代码片段，这样便于更细粒度的组合拼接
 
 一个GLSL Chunk可以包括多个区域的代码片段
 
@@ -1236,7 +1244,7 @@ _initOneMaterialTypeShader函数在遍历所有的基础材质时，首先调用
 <!-- 值得说明的是： -->
 ChunkHandler的buildGLSL函数和getSendConfig函数都接受了引擎实现的函数，它们被用于处理shaders.json和shader_chunks.json中的一些字段，从而实现分支处理或者从中获得Send Config
 
-因为这些字段的值是离散的，它们的的范围是引擎定义的，用户只能从范围内选择某个具体的值，所以这些字段的类型是定义在引擎端，类型中明确了有哪些值的范围。
+因为这些字段的值是离散的，它们的范围是引擎定义的，用户只能从范围内选择某个具体的值，所以这些字段的类型是定义在引擎端，在类型中明确了有哪些值的范围。
 <!-- 具体是定义在引擎的GLSLConfigType.ts中，代码如下： -->
 类型定义的部分代码如下：
 GLSLConfigType
@@ -1402,24 +1410,34 @@ let _sendUniformData = (uniformSendConfig: Array<uniformSendConfig>, state: stat
 ## 一句话定义？
 
 
-TODO continue
-
 <!-- 可配置地拼接小块数据 -->
 
-分解包括各种分支的大数据为小块单位，按照配置文件来拼接
+分解有各种分支的大数据为多个小块数据，按照配置文件来拼接
 
 
 ## 补充说明
 
-把每个分支对应的数据都对应分解为一块数据；
+大数据中的每个分支都可以分解为一块数据，如有下面的一个大数据：
+```ts
+#ifdef INSTANCE
+数据1
+#endif
 
-由用户给出配置文件来指定：有哪些分支、要构造哪些Target数据、每个Target数据包括哪些块、每块有哪些配置数据
+#ifdef NO_INSTANCE
+数据2
+#endif
+```
+它有两个分支，可以将其分解为数据1、数据2这两个小块数据
+
+
+配置文件由用户给出，包括下面的内容：
+有哪些分支、要构造哪些Target数据、每个Target数据包括哪些块、每块有哪些配置数据
 
 
 
 
 ## 通用UML？
-![image](https://img2023.cnblogs.com/blog/419321/202304/419321-20230403163737312-1241675852.png)
+TODO tu
 
 
 
@@ -1427,59 +1445,94 @@ TODO continue
 
 我们来看看模式的相关角色：
 
-TODO rename Main to System
+总体来看，分为数据、ChunkConverter、ChunkHandler、系统这四个部分
 
 
-TODO rename Runtime Data to Runtime Config
+我们看下数据和ChunkConverter这两个部分：
 
-- Target Config
-该角色是配置数据，用来指定如何拼接数据
-
-- Target Chunk
-该角色是小块的数据，它是通过对原始的大数据抽象分解后得到的，一般来说大数据中的一个分支对应一个Target Chunk数据
-
-- Merged Target Chunk
-该角色是合并了所有的Target Chunk后的数据，它将所有的Target Chunk文件合并为一个Hash Map
 
 - Target
-该角色是拼接后的符合某种特定分支条件的数据，如[支持方向光，支持贴图，支持Instance]的GLSL
+该角色是拼接后的符合某种特定分支条件的数据，如[支持方向光，支持贴图，支持Instance]的GLSL就是一个Target
 
-- Runtime Data
-该角色是运行时数据，它在初始化时从Target Config中获得，在运行时被使用
+- Runtime Config
+该角色是如何操作运行时数据的配置数据
+具体来说，每个Runtime Config包括了多个getData函数和多个sendData函数，前者获得对应的运行时数据，后者发送它们
+<!-- 因为一个Send Config对应一个Shader，而这里最多有8个Shader，所以最多有8个Send Config -->
+
+<!-- ，它在初始化时从Target Config中获得，在运行时被使用 -->
+
+
+
+
+- Target Config
+该角色是配置数据，用来指定如何拼接Target，并包括了Runtime Config
+它的内容由用户给出，它的格式（也就是类型）由ChunkHandler定义
+Target Config中某些字段的值是离散的，它们的范围是系统定义的，用户只能从范围内选择某个具体的值
+
+- Target Chunk
+该角色是小块的数据，由系统给出
+<!-- 它是通过对原始的大数据抽象分解后得到的，一般来说大数据中的一个分支对应一个Target Chunk数据 -->
+
+
+
 
 - ChunkConverter
-该角色负责在预处理时合并所有的Target Chunk为一个Merged Target Chunk文件
+该角色负责在系统预处理处理Target Chunk，并将其合并为一个Merged Target Chunk
+
+
+- Merged Target Chunk
+该角色是合并了所有的Target Chunk后的数据，它是一个Typescript或者Rescript文件
+
+
+
+我们看下ChunkHandler和系统这两个部分：
 
 - ChunkHandler
-该角色定义了Target Config的格式（也就是类型），并且实现了拼接Target和获得Runtime Data的相关函数
+该角色负责拼接Target和获得Runtime Config
 
-- Main
+- System
 该角色为系统的门户，提供API给Client
 
 - Init
-该角色实现系统的初始化，调用ChunkHandler->buildTarget来拼接了Target并且直接使用它，调用ChunkHandler->getRuntimeData来获得了Runtime Data
+该角色实现系统的初始化，它包括下面的步骤：
+调用ChunkHandler的buildTarget函数，按照Target Config的配置数据将Merged Target Chunk中对应的Target Chunk拼接为一个Target，然后使用它；
+调用ChunkHandler的getRuntimeConfig函数，从Target Config中获得Runtime Config
 
 - OperateWhenRuntime
-该角色进行某个在运行时的操作，使用了Runtime Data
+该角色在运行时进行某个操作（如渲染），使用了Runtime Config
+
+
+
+<!-- ## 与之前构造GLSL案例的UML的区别
+
+TODO -->
 
 
 ## 角色之间的关系？
 
-- 应该有多个Target Chunk，它们由系统给出
+- 有多个Target Chunk
 
-- Target Config的格式由ChunkHandler定义。其中由系统处理的字段的类型由系统再次定义，目的是定义这些字段的所有可能的值
+<!-- - Target Config的格式由ChunkHandler定义。其中由系统处理的字段的类型由系统再次定义，目的是定义这些字段的所有可能的值 -->
 
-- Target Config的内容由Client给出
+<!-- - Target Config的内容由Client给出 -->
 
 - Target Config通常包含两个配置文件：targets_config、chunks_config
+这两个文件的关系是“总-分”的关系，其中targets_config是“总”，chunks_config是“分”
 
-- 应该有多个Target，如[支持方向光，支持贴图，支持Instance]的GLSL和[支持方向光，不支持贴图，支持Instance]的GLSL
+- 有多个Target，如[支持方向光，支持贴图，支持Instance]的GLSL是一个Target，[支持方向光，不支持贴图，支持Instance]的GLSL是另外一个Target
 
+- 有多个Runtime Config，一个Runtime Config对应一个Target
 
 ## 角色的抽象代码？
 
+
+值得注意的是：
+这里只考虑了一个Target和一个Runtime Config的情况，因此Init中也没有进行遍历
+
+
 下面我们来看看各个角色的抽象代码：
 
+TODO continue
 
 - 一个Target Chunk的抽象代码
 ```ts
@@ -1659,7 +1712,7 @@ state = operateWhenRuntime(state)
 ```ts
 declare function _handleConfigFunc1(state: state, someConfigData): any
 
-declare function _addRuntimeDataFunc1(someRuntimeDataFromState, someConfigData): any
+declare function _addRuntimeConfigFunc1(someRuntimeConfigFromState, someConfigData): any
 
 export let parseConfig = ChunkHandler.parseConfig
 
@@ -1683,8 +1736,8 @@ export let init = (state: state, someConfigData): state => {
 
     console.log("使用target...")
 
-    let runtimeData = ChunkHandler.getRuntimeData(
-        [_addRuntimeDataFunc1, ... ],
+    let runtimeConfig = ChunkHandler.getRuntimeConfig(
+        [_addRuntimeConfigFunc1, ... ],
 
         target
     )
@@ -1692,12 +1745,12 @@ export let init = (state: state, someConfigData): state => {
     return {
         ...state,
         target: target,
-        runtimeData: runtimeData
+        runtimeConfig: runtimeConfig
     }
 }
 
 export let operateWhenRuntime = (state: state): state => {
-    console.log("使用state.runtimeData...")
+    console.log("使用state.runtimeConfig...")
 
     return state
 }
@@ -1711,9 +1764,9 @@ type target = any
 
 export declare function buildTarget(handleConfigFuncs, parsedConfig: config, targetChunk, someConfigData): target
 
-type runtimeData = any
+type runtimeConfig = any
 
-export declare function getRuntimeData(addRuntimeDataFuncs, target: target): runtimeData
+export declare function getRuntimeConfig(addRuntimeConfigFuncs, target: target): runtimeConfig
 ```
 
 
@@ -1734,7 +1787,7 @@ TODO finish
 拼接后的Target数据没有分支判断，非常精简
 
 - 提高性能
-系统能够在初始化时一次性从配置文件中获得Runtime Data，然后在运行时无需进行分支判断而是直接发送Runtime Data，这样就提高了性能
+系统能够在初始化时一次性从配置文件中获得Runtime Config，然后在运行时无需进行分支判断而是直接发送Runtime Config，这样就提高了性能
 
 
 

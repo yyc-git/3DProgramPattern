@@ -1,10 +1,10 @@
 import * as ChunkHandler from "chunk_handler_abstract"
-import { state } from "./MainStateType"
+import { state } from "./SystemStateType"
 import { getData } from "./target_chunks/ConverterdChunk"
 
 declare function _handleConfigFunc1(state: state, someConfigData): any
 
-declare function _addRuntimeDataFunc1(someRuntimeDataFromState, someConfigData): any
+declare function _addRuntimeConfigFunc1(someRuntimeConfigFromState, someConfigData): any
 
 export let parseConfig = ChunkHandler.parseConfig
 
@@ -28,8 +28,8 @@ export let init = (state: state, someConfigData): state => {
 
     console.log("使用target...")
 
-    let runtimeData = ChunkHandler.getRuntimeData(
-        [_addRuntimeDataFunc1, ... ],
+    let runtimeConfig = ChunkHandler.getRuntimeConfig(
+        [_addRuntimeConfigFunc1, ... ],
 
         target
     )
@@ -37,12 +37,12 @@ export let init = (state: state, someConfigData): state => {
     return {
         ...state,
         target: target,
-        runtimeData: runtimeData
+        runtimeConfig: runtimeConfig
     }
 }
 
 export let operateWhenRuntime = (state: state): state => {
-    console.log("使用state.runtimeData...")
+    console.log("使用state.runtimeConfig...")
 
     return state
 }

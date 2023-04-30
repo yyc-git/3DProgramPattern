@@ -6,7 +6,7 @@ export type state = {
     chunk: Record<chunkName, chunk>,
 
     target:any,
-    runtimeData:any,
+    runtimeConfig:any,
 
     更多字段...
 }
