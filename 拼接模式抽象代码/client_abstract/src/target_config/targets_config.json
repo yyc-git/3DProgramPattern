@@ -3,8 +3,8 @@
     {
       "name": "xxx",
       "value": [
-        "chunk name with condition1",
-        "chunk name with condition2",
+        "chunk name for condition1",
+        "chunk name for condition2",
         ...
       ]
     },

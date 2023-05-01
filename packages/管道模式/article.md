@@ -1527,7 +1527,7 @@ PipelineStateType的states字段中只定义需要使用的PipelineState的state
 # 扩展
 
 
-- 避免使用全局变量来保存配置数据，改为在注册管道时传入管道的配置数据
+## 避免使用全局变量来保存配置数据，改为在注册管道时传入管道的配置数据
 
 我们现在是在运行管道时，把配置数据保存到全局变量，从而在Job中通过全局变量获得配置数据，参考代码如下：
 Pipeline
@@ -1588,7 +1588,7 @@ export let exec: execType<systemState> = (systemState, { getStatesFunc, setState
     let config = pipeline1State.config
 ```
 
-- 可以增强管道模块的JSON配置数据
+## 可以增强管道模块的JSON配置数据
 
 目前只有指定Job执行顺序的配置数据，除此之外，可以增加对Job进行一些配置的配置数据，如在Pipeline的getPipeline函数返回的数据中增加allJobData这个JSON配置数据，在其中对Job指定一些配置数据
 举例来说，可以对设置WebGL的clearColor的ClearColorJob指定ClearColor的值，以及对清空WebGL的ClearJob指定清空哪个Buffer
