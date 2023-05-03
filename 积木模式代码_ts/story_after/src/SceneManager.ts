@@ -1,4 +1,4 @@
-import { multiplyMatrix } from "./Math"
+import * as Math from "./Math"
 import { state as sceneManagerState } from "./SceneManagerStateType"
 import { state as engineState } from "./EngineStateType"
 
@@ -16,7 +16,7 @@ export let createScene = (state: engineState) => {
         ...state,
         scene: {
             ...state.scene,
-            //通过concat而不是push来加入，保持state的immutable
+            //通过concat而不是push来加入，保持immutable
             allGameObjects: state.scene.allGameObjects.concat([sceneGameObject])
         }
     }
@@ -35,7 +35,7 @@ export let init = (state: engineState) => {
 export let update = (state: engineState) => {
     console.log("更新场景")
 
-    let _ = multiplyMatrix(1, 2)
+    let _ = Math.multiplyMatrix(1, 2)
 
     return state
 }

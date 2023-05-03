@@ -94,7 +94,7 @@ PBRMaterialShaderGLSL（Add Define）是在PBRMaterialShaderGLSL（Default）基
 
 我们看下引擎这个部分：
 
-Engine是引擎的门户，负责封装API给Client
+Engine是引擎的门户，负责提供API给Client
 Engine有一个EngineState，用来保存引擎的所有数据；
 
 InitBasicMaterialShader负责初始化所有基础材质的Shader，判断基础材质是否支持功能，支持的话就将BasicMaterialShaderGLSL（Default）修改为BasicMaterialShaderGLSL（Add Define），然后创建对应的Shader
@@ -269,7 +269,7 @@ initBasicMaterialShader函数初始化所有基础材质的shader，它调用Ini
 <!-- 它们的对应关系为：因为一个shaderIndex对应一个Shader，一个Shader对应一套GLSL(VS GLSL和FS GLSL)，所以一个shaderIndex对应一套GLSL -->
 
 Material、ShaderIndex、Program、GLSL对应关系如下图所示：
-![image](https://img2023.cnblogs.com/blog/419321/202304/419321-20230403160828435-1930437553.png)
+![image](https://img2023.cnblogs.com/blog/419321/202305/419321-20230501123700400-921756639.png)
 
 在后面渲染时，我们会首先通过Material拿到ShaderIndex，然后通过ShaderIndex再拿到Program，最后use Program
 
@@ -666,7 +666,7 @@ ChunkHandler负责拼接Target GLSL和获得Send Config
 
 
 Engine、Render跟之前一样
-<!-- Engine是引擎的门户，负责封装API给Client -->
+<!-- Engine是引擎的门户，负责提供API给Client -->
 <!-- Engine有一个EngineState，用来保存引擎的所有数据； -->
 
 InitMaterialShader负责初始化所有材质的Shader，它有两个函数：initBasicMaterialShader、initPBRMaterialShader，分别负责初始化所有基础材质的Shader和初始化所有PBR材质的Shader
@@ -1022,11 +1022,15 @@ varying vec2 v_diffuseMapCoord0;
 其它区域包括的代码如下：
 @top包括了define之前的代码，如精度代码:
 ```glsl
+@top
 precision highp float;
+@end
 ```
 @define包括了define的代码，如：
 ```glsl
+@define
 define B 2;
+@end
 ```
 @funcDeclare包括了函数声明的代码，如：
 ```glsl

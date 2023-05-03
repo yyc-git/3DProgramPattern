@@ -1,4 +1,40 @@
+* TODO 修改UML描述
+
+** TODO 增加： 我们介绍下各个模块的依赖关系：xxx
+
+
+** TODO UML中的函数增加返回值类型？
+
+
 * TODO 修改代码
+
+** TODO 都改为调用模块.xxx函数
+
+如：
+Client
+```ts
+...
+
+let engineState = createState()
+
+engineState = registerAllPipelines(engineState)
+
+...
+```
+
+改为：
+Client
+```ts
+...
+
+let engineState = World.createState()
+
+engineState = World.registerAllPipelines(engineState)
+
+...
+```
+
+
 
 ** TODO state的名字重命名为对应的state名
 
@@ -10,7 +46,31 @@
 来自拼接模式
 
 
-* TODO 给出代码：在“总”中给出进一步的说明
+* TODO 给出代码：在“总”中给出进一步的说明每一步的关系
+
+如将下面的描述：
+首先，我们看下用户的代码；
+然后，我们看下Engine的代码
+然后，我们看下创建EngineState的代码
+然后，我们看下创建场景的代码
+然后，我们看下初始化的代码
+然后，我们看下主循环的代码
+最后，我们运行代码
+
+改为：
+首先，我们看下用户的代码；
+然后，因为用户调用了Engine的API，所以我们看下Engine的代码
+然后，我们依次看下用户代码中每个步骤的相关代码，它们包括：
+- 创建EngineState的代码
+- 创建场景的代码
+- 初始化的代码
+- 主循环的代码
+
+最后，我们运行代码
+
+
+
+
 
 
 * TODO 每个模式的具体案例增加到4个

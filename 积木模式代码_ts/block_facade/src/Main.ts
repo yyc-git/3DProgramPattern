@@ -1,68 +1,48 @@
-import { createState, getBlockServiceExn, registerBlock } from "block_manager/src/Main"
-import {
-    getBlockService as getSceneManagerBlockService,
-    getDependentBlockProtocolNameMap as getDependentSceneManagerBlockProtocolNameMap,
-    createBlockState as createSceneManagerState
-} from "sceneManager_block/src/Main"
-import {
-    getBlockService as getDirectorBlockService,
-    getDependentBlockProtocolNameMap as getDependentDirectorBlockProtocolNameMap,
-    createBlockState as createDirectorState
-} from "director_block/src/Main"
-import {
-    getBlockService as getRenderBlockService,
-    getDependentBlockProtocolNameMap as getDependentRenderBlockProtocolNameMap,
-    createBlockState as createRenderState
-} from "render_block/src/Main"
-import {
-    getBlockService as getEngineBlockService,
-    getDependentBlockProtocolNameMap as getDependentEngineBlockProtocolNameMap,
-    createBlockState as createEngineState
-} from "engine_block/src/Main"
-import {
-    getBlockService as getMathBlockService,
-    getDependentBlockProtocolNameMap as getDependentMathBlockProtocolNameMap,
-    createBlockState as createMathState
-} from "math_block/src/Main"
+import * as BlockManager from "block_manager/src/Main"
+import * as SceneManagerBlock from "sceneManager_block/src/Main"
+import * as DirectorBlock from "director_block/src/Main"
+import * as RenderBlock from "render_block/src/Main"
+import * as EngineBlock from "engine_block/src/Main"
+import * as MathBlock from "math_block/src/Main"
 import { blockProtocolName, blockService, state as blockManagerState } from "block_manager/src/BlockManagerType"
 
 export let init = (): blockManagerState => {
-    let blockManagerState = createState()
+    let blockManagerState = BlockManager.createState()
 
-    blockManagerState = registerBlock(
+    blockManagerState = BlockManager.registerBlock(
         blockManagerState,
         "engine_block_protocol",
-        getEngineBlockService,
-        getDependentEngineBlockProtocolNameMap(),
-        createEngineState()
+        EngineBlock.getBlockService,
+        EngineBlock.getDependentBlockProtocolNameMap(),
+        EngineBlock.createBlockState()
     )
-    blockManagerState = registerBlock(
+    blockManagerState = BlockManager.registerBlock(
         blockManagerState,
         "director_block_protocol",
-        getDirectorBlockService,
-        getDependentDirectorBlockProtocolNameMap(),
-        createDirectorState()
+        DirectorBlock.getBlockService,
+        DirectorBlock.getDependentBlockProtocolNameMap(),
+        DirectorBlock.createBlockState()
     )
-    blockManagerState = registerBlock(
+    blockManagerState = BlockManager.registerBlock(
         blockManagerState,
         "sceneManager_block_protocol",
-        getSceneManagerBlockService,
-        getDependentSceneManagerBlockProtocolNameMap(),
-        createSceneManagerState()
+        SceneManagerBlock.getBlockService,
+        SceneManagerBlock.getDependentBlockProtocolNameMap(),
+        SceneManagerBlock.createBlockState()
     )
-    blockManagerState = registerBlock(
+    blockManagerState = BlockManager.registerBlock(
         blockManagerState,
         "render_block_protocol",
-        getRenderBlockService,
-        getDependentRenderBlockProtocolNameMap(),
-        createRenderState()
+        RenderBlock.getBlockService,
+        RenderBlock.getDependentBlockProtocolNameMap(),
+        RenderBlock.createBlockState()
     )
-    blockManagerState = registerBlock(
+    blockManagerState = BlockManager.registerBlock(
         blockManagerState,
         "math_block_protocol",
-        getMathBlockService,
-        getDependentMathBlockProtocolNameMap(),
-        createMathState()
+        MathBlock.getBlockService,
+        MathBlock.getDependentBlockProtocolNameMap(),
+        MathBlock.createBlockState()
     )
 
     return blockManagerState
@@ -72,5 +52,5 @@ export let init = (): blockManagerState => {
 export let getEntryBlockProtocolName = () => "engine_block_protocol"
 
 export let getBlockService = <blockService>(blockManagerState: blockManagerState, blockProtocolName: blockProtocolName) => {
-    return getBlockServiceExn<blockService>(blockManagerState, blockProtocolName)
+    return BlockManager.getBlockServiceExn<blockService>(blockManagerState, blockProtocolName)
 }

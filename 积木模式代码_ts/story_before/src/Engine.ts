@@ -1,6 +1,6 @@
-import { init, loop } from "./Director";
+import * as Director from "./Director";
 
 export let DirectorAPI = {
-    init: init,
-    loop: loop
+    init: Director.init,
+    loop: Director.loop
 }

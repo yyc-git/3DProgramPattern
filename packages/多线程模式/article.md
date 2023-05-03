@@ -47,7 +47,7 @@ TODO tu
 
 Client是用户
 
-WorldForNoWorker是门户，封装了引擎的API
+WorldForNoWorker是门户，提供了引擎的API
 
 
 我们来看下管道这个部分：
@@ -1079,7 +1079,7 @@ X Worker对应某个其它线程，包括了运行在该线程的模块
 该角色是用户
 
 - WorldForMainWorker
-该角色是门户，封装了系统API
+该角色是门户，提供了系统API
 
 - PipelineManager
 该角色负责管理管道

@@ -1,10 +1,10 @@
-import { init, getEntryBlockProtocolName, getBlockService } from "block_facade/src/Main";
+import * as BlockFacade from "block_facade/src/Main";
 import { service } from "engine_block_protocol/src/service/ServiceType";
 
-let blockManagerState = init()
+let blockManagerState = BlockFacade.init()
 
 //获得了入口积木-Engine Block的服务
-let { director, scene } = getBlockService<service>(blockManagerState, getEntryBlockProtocolName())
+let { director, scene } = BlockFacade.getBlockService<service>(blockManagerState, BlockFacade.getEntryBlockProtocolName())
 
 blockManagerState = scene.createScene(blockManagerState)
 

@@ -1189,7 +1189,7 @@ export let setPositionComponent = (worldState: worldState, gameObject: gameObjec
 挂载其它组件...
 ```
 
-SceneAPI封装了创建场景的API -->
+SceneAPI提供了创建场景的API -->
 
 
 <!-- GameObjectManager的相关代码如下：
@@ -1587,7 +1587,7 @@ Component+GameObject层为组件和GameObject，它们现在只是有一个numbe
 我们看下World这一层：
 
 - World
-该角色是门户，封装了API，实现了初始化和主循环的逻辑
+该角色是门户，提供了API，实现了初始化和主循环的逻辑
 
 
 

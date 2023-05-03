@@ -253,7 +253,7 @@ TonemapForWebGL1使用WebGL1实现Tonemap后处理
 Client代码跟之前一样，故省略
 
 
-### 创建EngineState
+### 创建EngineState的代码
 
 EngineStateType
 ```ts
@@ -500,7 +500,7 @@ TODO tu
 总体来看，分为用户、Engine、管道管理、三个管道模块这四个部分
 
 
-我们看下用户、Engine这三个部分：
+我们看下用户、Engine这两个部分：
 
 Client是用户
 
@@ -610,7 +610,7 @@ export let createState = (): state => {
 }
 ```
 
-createState函数创建的EngineState保存了创建的PipelineManagerState，而PipelineManagerState负责保存了所有管道的数据
+createState函数创建的EngineState保存了创建的PipelineManagerState，而PipelineManagerState负责保存所有管道的数据
 
 ### 注册管道模块的代码
 
