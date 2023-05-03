@@ -1,24 +1,24 @@
-import { getBlockService as getBlockServiceBlockManager, createBlockState as createBlockStateBlockManager, getDependentBlockProtocolNameMap as getDependentBlockProtocolNameMapBlockManager } from "block_manager_abstract/src/BlockManagerType"
-import { service } from "block_protocol_abstarct/src/service/ServiceType"
-import { state } from "block_protocol_abstarct/src/state/StateType"
-import { dependentBlockProtocolNameMap } from "./DependentMapType"
+import * as BlockManagerType from "block_manager_abstract/src/BlockManagerType"
+import * as BlockProtocolServiceType from "block_protocol_abstract/src/service/ServiceType"
+import * as BlockProtocolStateType from "block_protocol_abstract/src/state/StateType"
+import * as DependentMapType from "./DependentMapType"
 
-export let getBlockService: getBlockServiceBlockManager<
-	dependentBlockProtocolNameMap,
-	service
+export let getBlockService: BlockManagerType.getBlockService<
+	DependentMapType.dependentBlockProtocolNameMap,
+	BlockProtocolServiceType.service
 > = (api, { block1ProtocolName, block2ProtocolName, ... }) => {
 	return {
 		实现service...
 	}
 }
 
-export let createBlockState: createBlockStateBlockManager<
-	state
+export let createBlockState: BlockManagerType.createBlockState<
+	BlockProtocolStateType.state
 > = () => {
-	return 创建state...
+	return 创建blockState...
 }
 
-export let getDependentBlockProtocolNameMap: getDependentBlockProtocolNameMapBlockManager = () => {
+export let getDependentBlockProtocolNameMap: BlockManagerType.getDependentBlockProtocolNameMap = () => {
 	return {
 		"block1ProtocolName": "block1 protocol's package.json's name",
 		"block2ProtocolName": "block2 protocol's package.json's name",

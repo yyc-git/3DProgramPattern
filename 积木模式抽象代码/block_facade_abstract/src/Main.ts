@@ -1,33 +1,25 @@
-import { createState, getBlockServiceExn, registerBlock } from "block_manager_abstract/src/Main"
-import {
-    getBlockService as getEntryBlockService,
-    getDependentBlockProtocolNameMap as getDependentEntryBlockProtocolNameMap,
-    createBlockState as createEntryBlockState
-} from "entry_block_abstract/src/Main"
-import {
-    getBlockService as getBlock1Service,
-    getDependentBlockProtocolNameMap as getDependentBlock1ProtocolNameMap,
-    createBlockState as createBlock1State
-} from "block1/src/Main"
+import * as BlockManager from "block_manager_abstract/src/Main"
+import * as EntryBlock from "entry_block_abstract/src/Main"
+import * as Block1 from "block1/src/Main"
 import { blockProtocolName, state as blockManagerState } from "block_manager_abstract/src/BlockManagerType"
 
 export let init = (): blockManagerState => {
-    let blockManagerState = createState()
+    let blockManagerState = BlockManager.createState()
 
-    blockManagerState = registerBlock(
+    blockManagerState = BlockManager.registerBlock(
         blockManagerState,
         "entry_block_protocol",
-        getEntryBlockService,
-        getDependentEntryBlockProtocolNameMap(),
-        createEntryBlockState()
+        EntryBlock.getBlockService,
+        EntryBlock.getDependentBlockProtocolNameMap(),
+        EntryBlock.createBlockState()
     )
 
-    blockManagerState = registerBlock(
+    blockManagerState = BlockManager.registerBlock(
         blockManagerState,
         "block1_protocol",
-        getBlock1Service,
-        getDependentBlock1ProtocolNameMap(),
-        createBlock1State()
+        Block1.getBlockService,
+        Block1.getDependentBlockProtocolNameMap(),
+        Block1.createBlockState()
     )
     注册更多的Block...
 
@@ -38,5 +30,5 @@ export let init = (): blockManagerState => {
 export let getEntryBlockProtocolName = () => "entry_block_protocol"
 
 export let getBlockService = <blockService>(blockManagerState: blockManagerState, blockProtocolName: blockProtocolName) => {
-    return getBlockServiceExn<blockService>(blockManagerState, blockProtocolName)
+    return BlockManager.getBlockServiceExn<blockService>(blockManagerState, blockProtocolName)
 }

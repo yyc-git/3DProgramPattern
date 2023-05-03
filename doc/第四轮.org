@@ -2,8 +2,20 @@
 
 ** TODO 增加： 我们介绍下各个模块的依赖关系：xxx
 
+注：抽象UML可以在“角色之间的关系”中增加依赖关系说明
+
 
 ** TODO UML中的函数增加返回值类型？
+
+
+
+** TODO 角色之间的关系？ 中增加 x对x 的明确描述
+
+如：
+- 因为入口积木依赖多个其它积木，所以Entry Block和Block Protocol是一对多的依赖关系
+
+- 因为BlockManager通过registerBlock函数注册了多个积木，所以BlockManager与System Blocks中的积木是一对多的组合关系
+
 
 
 * TODO 修改代码
