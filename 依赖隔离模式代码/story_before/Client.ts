@@ -1,3 +1,3 @@
-import { createScene } from "./Editor";
+import * as Editor from "./Editor";
 
-createScene()
+Editor.createScene()

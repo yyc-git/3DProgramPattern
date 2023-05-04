@@ -61,7 +61,7 @@ engineState = init(engineState, canvas)
 engineState = render(engineState)
 ```
 
-我们首先调用createState函数创建了引擎的EngineState，用来保存渲染的所有数据；
+Client首先调用createState函数创建了引擎的EngineState，用来保存渲染的所有数据；
 然后调用init函数进行初始化；
 然后调用render函数进行渲染
 

@@ -1,6 +1,6 @@
-import { createScene, injectDependencies } from "./Editor";
-import { implement } from "./BabylonImplement";
+import * as Editor from "./Editor";
+import * as BabylonImplement from "./BabylonImplement";
 
-injectDependencies(implement())
+Editor.injectDependencies(BabylonImplement.implement())
 
-createScene()
+Editor.createScene()

@@ -155,7 +155,7 @@ init(worldState, canvas).then(worldState => {
 })
 ```
 
-我们首先调用createState函数并传入最大的组件个数，创建了WorldState，用来保存引擎所有的数据；
+Client首先调用createState函数并传入最大的组件个数，创建了WorldState，用来保存引擎所有的数据；
 然后创建场景；
 然后注册了NoWorkerPipeline；
 然后初始化；

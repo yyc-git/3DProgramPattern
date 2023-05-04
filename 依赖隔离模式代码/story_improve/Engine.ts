@@ -2,7 +2,7 @@
 //这里用any类型表示抽象类型
 type scene = any
 
-export interface RenderEngine {
+export interface Engine {
     createScene(): scene
     ...
 }

@@ -177,7 +177,7 @@ engineState = DirectorAPI.init(engineState)
 DirectorAPI.loop(engineState)
 ```
 
-我们首先创建了EngineState，用来保存引擎的所有数据；
+Client首先创建了EngineState，用来保存引擎的所有数据；
 然后创建了场景；
 然后初始化；
 最后主循环
@@ -520,7 +520,7 @@ blockManagerState = director.init(blockManagerState)
 director.loop(blockManagerState)
 ```
 
-我们首先调用BlockFacade的init函数初始化积木；
+Client首先调用BlockFacade的init函数初始化积木；
 然后调用BlockFacade的getEntryBlockProtocolName函数获得入口积木的积木协议-Engine Block Protocol的协议名，并将其传给BlockFacade的getBlockService函数后获得入口积木Engine Block的服务；
 然后调用服务的scene的createScene函数，创建了场景；
 然后调用服务的director的init函数，实现初始化；

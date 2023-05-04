@@ -1,4 +1,6 @@
-* TODO 图片使用白底
+* TODO 图片使用白底?
+
+need study markdown specification!
 
 
 

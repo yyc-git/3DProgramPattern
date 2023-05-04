@@ -1,6 +1,6 @@
-import { doSomethingUseDependency1, injectDependencies } from "./System";
-import { implement } from "./Dependency1Implement1";
+import * as System  from "./System";
+import * as Dependency1Implement1  from "./Dependency1Implement1";
 
-injectDependencies(implement(), 其它DependencyImplement...)
+System.injectDependencies(Dependency1Implement1.implement(), 其它DependencyImplement...)
 
-doSomethingUseDependency1()
+System.doSomethingUseDependency1()

@@ -1,11 +1,11 @@
-import {RenderEngine} from "./RenderEngine"
+import {Engine} from "./Engine"
 
-let _renderEngine: RenderEngine = null
+let _engine: Engine = null
 
-export let getRenderEngine = (): RenderEngine => {
-  return _renderEngine;
+export let getEngine = (): Engine => {
+  return _engine;
 }
 
-export let setRenderEngine = (renderEngine: RenderEngine) {
-  _renderEngine = renderEngine;
+export let setEngine = (engine: Engine) {
+  _engine = engine;
 }

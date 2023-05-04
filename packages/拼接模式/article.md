@@ -140,7 +140,7 @@ state = initCamera(state)
 state = render(state)
 ```
 
-我们首先创建了引擎的EngineState；
+Client首先创建了引擎的EngineState；
 然后创建了场景；
 然后初始化所有基础材质的shader；
 然后初始化所有PBR材质的shader；
