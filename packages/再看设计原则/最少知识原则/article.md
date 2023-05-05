@@ -10,7 +10,7 @@
 
 最少知识原则也称为迪米特法则，虽然名字不同，但描述的是同一个规则
 
-该原则可理解为一个模块或者函数A应该对自己需要耦合或调用的模块或者函数B知道得最少
+该原则可理解为一个模块或者一个函数A应该对自己需要耦合或调用的模块或者函数B知道得最少
 A不需要知道B的细节，只需要知道B提供的接口
 
 该原则包括两个方面：
@@ -34,7 +34,7 @@ export let Boss = {
         let members = []
 
         for (let i = 0; i < 20; i++) {
-            members.push(createMember())
+            members.push(Member.create())
         }
 
         manager.count(members)
@@ -55,7 +55,7 @@ Boss.command(Manager)
 ```
 
 
-这里的问题在于Boss应该只知道Manager，不应该知道Member
+这里的问题是Boss应该只知道Manager，不应该知道Member
 
 
 修改后的领域模型如下：
@@ -82,7 +82,7 @@ export let Manager = {
         let members = []
 
         for (let i = 0; i < 20; i++) {
-            members.push(createMember())
+            members.push(Member.create())
         }
 
         return members
@@ -98,18 +98,15 @@ Client代码不变
 
 # 第二个方面的案例
 
-前端使用一个后端服务，该服务暴露了过多的细节
+前端使用一个后端服务来更新用户信息，而该后端服务却暴露了过多的细节
 
 领域模型如下：
 TODO tu
 
 
-前端只想调用后端服务来更新用户信息，却需要调用后端服务的三个属于实现细节的函数来实现
+前端需要调用后端服务的三个属于实现细节的函数，这样做的问题是如果这三个函数中的任何一个修改了，都会影响前端
 
-这样做的问题是如果这三个函数中的任何一个修改了，都会影响前端
-
-因此，后端服务应该只提供update函数，而把原有的三个函数修改为私有函数
-
+因此，后端服务应该只提供update函数，并且把原有的三个函数隐藏为私有函数
 
 修改后的领域模型如下：
 TODO tu
