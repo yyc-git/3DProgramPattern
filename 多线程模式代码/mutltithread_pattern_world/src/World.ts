@@ -1,22 +1,22 @@
 import { state } from "./WorldStateType"
 import { state as pipelineState } from "pipeline_manager/src/type/StateType"
-import { createState as createPipelineManagerState, runPipeline as runPipelineManager, init as initPipelineManager } from "pipeline_manager"
+import * as PipelineManager from "pipeline_manager"
 import { service as mostService } from "most/src/MostService"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 import { unsafeGetState, setState } from "./WorldStateContainer"
-import { createState as createGameObjectManagerState } from "multithread_pattern_ecs/src/manager/gameObject/Manager"
-import { createState as createTransformManagerState } from "multithread_pattern_ecs/src/manager/transform_component/Manager"
-import { createState as createBasicMateiralManagerState } from "multithread_pattern_ecs/src/manager/basicMaterial_component/Manager"
+import * as GameObjectManager from "multithread_pattern_ecs/src/manager/gameObject/Manager"
+import * as TransformComponentManager from "multithread_pattern_ecs/src/manager/transform_component/Manager"
+import * as BasicMaterialComponentManager from "multithread_pattern_ecs/src/manager/basicMaterial_component/Manager"
 
 export let createState = ({ transformComponentCount, basicMaterialComponentCount }): state => {
     return {
         ecsData:
         {
-            gameObjectManagerState: createGameObjectManagerState(),
-            transformComponentManagerState: createTransformManagerState(transformComponentCount),
-            basicMaterialComponentManagerState: createBasicMateiralManagerState(basicMaterialComponentCount)
+            gameObjectManagerState: GameObjectManager.createState(),
+            transformComponentManagerState: TransformComponentManager.createState(transformComponentCount),
+            basicMaterialComponentManagerState: BasicMaterialComponentManager.createState(basicMaterialComponentCount)
         },
-        pipelineState: createPipelineManagerState(),
+        pipelineState: PipelineManager.createState(),
     }
 }
 
@@ -43,7 +43,7 @@ export let runPipeline = (
 
             return renderState
         },
-        runPipelineManager<state>(renderState, [
+        PipelineManager.runPipeline<state>(renderState, [
             unsafeGetState,
             setState,
             unsafeGetPipelineManagerState,
@@ -55,7 +55,7 @@ export let runPipeline = (
 }
 
 export let init = (state: state, canvas): Promise<state> => {
-    state = initPipelineManager(state, [
+    state = PipelineManager.init(state, [
         unsafeGetPipelineManagerState, setPipelineManagerState
     ])
 

@@ -1,6 +1,25 @@
-* TODO 图片使用白底?
+# * TODO 图片使用白底?
 
-need study markdown specification!
+# need study markdown specification!
+
+
+
+* TODO 显示图片
+
+![xxx图](相对路径)
+
+文件名为英文 
+
+
+
+* TODO 如果不是作者原创的图表，请在图表下方用文字说明图片来源。（例如，图片/表格来源：XXX。）
+
+
+
+* TODO 图片使用黑白色
+
+
+
 
 
 

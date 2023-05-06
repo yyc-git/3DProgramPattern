@@ -51,6 +51,8 @@ engineState = World.registerAllPipelines(engineState)
 ```
 
 
+** TODO 进一步抽象代码，隐藏细节
+
 
 ** TODO state的名字重命名为对应的state名
 
@@ -62,10 +64,14 @@ engineState = World.registerAllPipelines(engineState)
 来自拼接模式
 
 
+
+
+
+
 * TODO 给出代码：在“总”中给出进一步的说明每一步的关系
 
 如将下面的描述：
-首先，我们看下用户的代码；
+首先，我们看下Client的代码；
 然后，我们看下Engine的代码
 然后，我们看下创建EngineState的代码
 然后，我们看下创建场景的代码
@@ -74,8 +80,8 @@ engineState = World.registerAllPipelines(engineState)
 最后，我们运行代码
 
 改为：
-首先，我们看下用户的代码；
-然后，因为用户调用了Engine的API，所以我们看下Engine的代码
+首先，我们看下Client的代码；
+然后，因为Client调用了Engine的API，所以我们看下Engine的代码
 然后，我们依次看下用户代码中每个步骤的相关代码，它们包括：
 - 创建EngineState的代码
 - 创建场景的代码
@@ -89,17 +95,24 @@ engineState = World.registerAllPipelines(engineState)
 * TODO 给出代码：“总”中一般会使用模块名
 
 如将：
-首先，我们看下用户的代码；
+首先，我们看下Client的代码；
 
 改为：
 首先，我们看下Client的代码；
+
+
+* TODO 修改文字错误
 
 
 
 * TODO 每个模式的具体案例增加到4个
 
 
-* TODO 删除注释文字
+# * TODO 删除注释文字
+
+
+
+
 
 
 

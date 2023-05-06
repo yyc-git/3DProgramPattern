@@ -112,7 +112,7 @@ Render负责渲染，会遍历所有的GameObjects，获得并发送它们的顶
 
 ## 给出代码
 
-首先，我们看下用户的代码
+首先，我们看下Client的代码
 然后，我们看下创建EngineState的代码
 然后，我们看下创建场景的代码
 然后，我们看下初始化所有基础材质的shader的代码
@@ -120,7 +120,7 @@ Render负责渲染，会遍历所有的GameObjects，获得并发送它们的顶
 然后，我们看下渲染场景的代码
 最后，我们运行代码
 
-### 用户的代码
+### Client的代码
 
 
 Client
@@ -699,7 +699,7 @@ InitMaterialShader负责初始化所有材质的Shader，它有两个函数：in
 ## 给出代码
 
 首先，我们看下GLSL Config的代码
-然后，我们看下用户的代码
+然后，我们看下Client的代码
 然后，我们看下创建EngineState的代码
 然后，我们看下GLSL Chunk和Merged GLSL Chunk的代码
 然后，我们看下初始化所有基础材质的shader的代码
@@ -910,7 +910,7 @@ glsls字段定义了一套GLSL Chunk，其中的如果它的元素的type为vs�
 variables字段定义了这套GLSL Chunk中顶点、Uniform数据的Send Config
 
 
-### 用户的代码
+### Client的代码
 
 Client
 ```ts

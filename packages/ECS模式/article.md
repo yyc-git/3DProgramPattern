@@ -49,7 +49,7 @@ World负责管理所有的英雄，并且实现了初始化和主循环的逻辑
 
 ## 给出代码
 
-首先，我们看下用户的代码；
+首先，我们看下Client的代码；
 然后，我们看下创建WorldState的代码
 然后，我们看下创建场景的代码
 然后，我们看下普通英雄移动的代码
@@ -61,7 +61,7 @@ World负责管理所有的英雄，并且实现了初始化和主循环的逻辑
 最后，我们运行代码
 
 
-### 用户的代码
+### Client的代码
 
 Client
 ```ts
@@ -401,7 +401,7 @@ InstanceComponent没有数据和逻辑，它只是一个标记，用来表示挂
 
 ## 给出代码？
 
-首先，我们看下用户的代码；
+首先，我们看下Client的代码；
 然后，我们看下创建WorldState的代码
 然后，我们看下创建场景的代码
 然后，我们看下GameObject操作组件的代码
@@ -413,7 +413,7 @@ InstanceComponent没有数据和逻辑，它只是一个标记，用来表示挂
 最后，我们运行代码
 
 
-### 用户的代码
+### Client的代码
 
 Client
 ```ts
@@ -963,7 +963,7 @@ GameObject是一个id，它是各个组件Manager中的gameObjectMap的Value和g
 
 ## 给出代码？
 
-首先，我们看下用户的代码；
+首先，我们看下Client的代码；
 然后，我们看下创建WorldState的代码
 然后，我们看下创建ArrayBuffer的代码
 然后，我们看下创建场景的代码
@@ -976,7 +976,7 @@ GameObject是一个id，它是各个组件Manager中的gameObjectMap的Value和g
 最后，我们运行代码
 
 
-### 用户的代码
+### Client的代码
 
 Client
 ```ts

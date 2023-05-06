@@ -40,12 +40,12 @@ Director负责初始化和主循环
 
 ## 给出代码
 
-首先，我们看下用户的代码；
+首先，我们看下Client的代码；
 然后，我们看下Engine和Director的代码；
 最后，我们运行代码
 
 
-### 用户的代码
+### Client的代码
 
 Client
 ```ts
@@ -154,7 +154,7 @@ SceneManager、Render依赖Math，通过它进行数学计算
 
 ## 给出代码？
 
-首先，我们看下用户的代码；
+首先，我们看下Client的代码；
 然后，我们看下Engine的代码
 然后，我们看下创建EngineState的代码
 然后，我们看下创建场景的代码
@@ -163,7 +163,7 @@ SceneManager、Render依赖Math，通过它进行数学计算
 最后，我们运行代码
 
 
-### 用户的代码
+### Client的代码
 
 
 Client
@@ -488,14 +488,14 @@ Client调用入口积木的方式如下：
 ## 给出代码？
 
 
-首先，我们看下用户的代码
-然后，我们看下用户的代码中第一个步骤（初始化积木）的代码
+首先，我们看下Client的代码
+然后，我们看下Client的代码中第一个步骤（初始化积木）的代码
 然后，我们看下初始化积木中每个步骤的相关代码，它们包括：
 - 创建BlockManagerState的代码
 - BlockManager的registerBlock函数的相关代码
 - 积木实现的三个函数的代码
 
-然后，我们继续看下用户的代码中剩余的每个步骤的代码，它们包括：
+然后，我们继续看下Client的代码中剩余的每个步骤的代码，它们包括：
 - 获得入口积木的服务的代码
 - 创建场景的代码
 - 初始化的代码
@@ -504,7 +504,7 @@ Client调用入口积木的方式如下：
 最后，我们运行代码
 
 
-### 用户的代码
+### Client的代码
 
 Client
 ```ts
@@ -834,7 +834,7 @@ SceneManager Block的state和服务的逻辑跟之前的SceneManager模块的Sce
 ### 初始化的代码
 
 
-<!-- 我们回到Client，继续看Client中初始化的相关代码： -->
+<!-- 我们回到Client，继续看Client中初始化的代码： -->
 <!-- Client
 ```ts
 blockManagerState = director.init(blockManagerState)
@@ -962,7 +962,7 @@ export type service = {
 ### 主循环的代码
 
 
-<!-- 我们回到Client，继续看Client中主循环的相关代码：
+<!-- 我们回到Client，继续看Client中主循环的代码：
 Client
 ```ts
 director.loop(blockManagerState)
@@ -1248,7 +1248,7 @@ TODO tu
 
 下面我们来看看各个角色的抽象代码：
 
-首先，我们看下用户的代码
+首先，我们看下Client的代码
 然后，我们看下BlockFacade的抽象代码
 然后，我们看下BlockManager的抽象代码
 然后，我们看下Entry Block Protocol的抽象代码
