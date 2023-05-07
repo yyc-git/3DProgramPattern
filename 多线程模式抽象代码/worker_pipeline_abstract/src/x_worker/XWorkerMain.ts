@@ -1,5 +1,5 @@
 import { service as mostService } from "most/src/MostService"
-import { createStateForWorker, init, pipelineWhenLoop } from "mutltithread_pattern_world_abstract/src/WorldForXWorker"
+import * as WorldForXWorker  from "mutltithread_pattern_world_abstract/src/WorldForXWorker"
 import { state as worldState } from "mutltithread_pattern_world_abstract/src/WorldStateType"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
 import { registerPipeline } from "pipeline_manager"
@@ -8,7 +8,7 @@ import { setPipelineManagerState, unsafeGetPipelineManagerState } from "mutltith
 
 let _frame = (worldState: worldState) => {
     //运行X Pipeline
-	return pipelineWhenLoop(worldState)
+	return WorldForXWorker.pipelineWhenLoop(worldState)
 }
 
 let _registerAllPipelines = (worldState: worldState): worldState => {
@@ -21,14 +21,14 @@ let _registerAllPipelines = (worldState: worldState): worldState => {
 	return setPipelineManagerState(worldState, pipelineManagerState)
 }
 
-let worldState = createStateForWorker()
+let worldState = WorldForXWorker.createStateForWorker()
 
 worldState = _registerAllPipelines(worldState)
 
 
 let tempWorldState: worldState | null = null
 
-init(worldState).then(worldState => {
+WorldForXWorker.init(worldState).then(worldState => {
 	tempWorldState = worldState
 })
 

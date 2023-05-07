@@ -1,17 +1,17 @@
 import { service as mostService } from "most/src/MostService"
-import { createStateForWorker, init, render } from "mutltithread_pattern_world/src/WorldForRenderWorker"
+import * as WorldForRenderWorker from "mutltithread_pattern_world/src/WorldForRenderWorker"
 import { state as worldState } from "mutltithread_pattern_world/src/WorldStateType"
 import { getExnFromStrictNull } from "commonlib-ts/src/NullableUtils"
-import { registerPipeline } from "pipeline_manager"
+import * as PipelineManager from "pipeline_manager"
 import { getPipeline as getRenderWorkerPipeline } from "./Main"
 import { setPipelineManagerState, unsafeGetPipelineManagerState } from "mutltithread_pattern_world/src/World"
 
 let _frame = (worldState: worldState) => {
-	return render(worldState)
+	return WorldForRenderWorker.render(worldState)
 }
 
 let _registerAllPipelines = (worldState: worldState): worldState => {
-	let pipelineManagerState = registerPipeline(
+	let pipelineManagerState = PipelineManager.registerPipeline(
 		unsafeGetPipelineManagerState(worldState),
 		getRenderWorkerPipeline(),
 		[]
@@ -20,14 +20,14 @@ let _registerAllPipelines = (worldState: worldState): worldState => {
 	return setPipelineManagerState(worldState, pipelineManagerState)
 }
 
-let worldState = createStateForWorker()
+let worldState = WorldForRenderWorker.createStateForWorker()
 
 worldState = _registerAllPipelines(worldState)
 
 
 let tempWorldState: worldState | null = null
 
-init(worldState).then(worldState => {
+WorldForRenderWorker.init(worldState).then(worldState => {
 	console.log("finish init on render worker");
 
 	tempWorldState = worldState

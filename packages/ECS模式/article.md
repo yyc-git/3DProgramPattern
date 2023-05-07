@@ -58,7 +58,7 @@ World负责管理所有的英雄，并且实现了初始化和主循环的逻辑
 然后，我们看下主循环的代码
 然后，我们看下主循环中更新的代码
 然后，我们看下主循环中渲染的代码
-最后，我们运行代码
+最后，我们运行Client的代码
 
 
 ### Client的代码
@@ -303,9 +303,9 @@ renderOneByOne函数实现了超级英雄的渲染
 renderInstances函数实现了普通英雄的渲染
 
 
-### 运行代码
+### 运行Client的代码
 
-下面，我们运行代码，运行结果如下：
+下面，我们运行Client的代码，运行结果如下：
 ```text
 初始化...
 更新NormalHero
@@ -410,7 +410,7 @@ InstanceComponent没有数据和逻辑，它只是一个标记，用来表示挂
 然后，我们看下初始化和主循环的代码
 然后，我们看下主循环中更新的代码
 然后，我们看下主循环中渲染的代码
-最后，我们运行代码
+最后，我们运行Client的代码
 
 
 ### Client的代码
@@ -809,9 +809,9 @@ export let renderInstances = (worldState: worldState): void => {
 这里判断gameObject是否挂载了InstanceComponent组件，如果挂载则批量渲染，否则一个一个地渲染
 
 
-### 运行代码
+### 运行Client的代码
 
-下面，我们运行代码，运行结果如下：
+下面，我们运行Client的代码，运行结果如下：
 ```text
 初始化...
 更新PositionComponent
@@ -973,7 +973,7 @@ GameObject是一个id，它是各个组件Manager中的gameObjectMap的Value和g
 然后，我们看下初始化和主循环的代码
 然后，我们看下主循环中更新的代码
 然后，我们看下主循环中渲染的代码
-最后，我们运行代码
+最后，我们运行Client的代码
 
 
 ### Client的代码
@@ -1523,9 +1523,9 @@ RenderInstancesSystem则是获得所有挂载InstanceComponent组件的gameObjec
 
 
 
-### 运行代码
+### 运行Client的代码
 
-下面，我们运行代码，运行结果如下：
+下面，我们运行Client的代码，运行结果如下：
 ```text
 初始化...
 更新PositionComponent: 0

@@ -118,7 +118,7 @@ Render负责渲染，会遍历所有的GameObjects，获得并发送它们的顶
 然后，我们看下初始化所有基础材质的shader的代码
 然后，我们看下初始化所有PBR材质的shader的代码
 然后，我们看下渲染场景的代码
-最后，我们运行代码
+最后，我们运行Client的代码
 
 ### Client的代码
 
@@ -533,9 +533,9 @@ _sendUniformData函数首先获得并发送了相机数据；
 最后判断对Instance的支持情况，如果不支持的话则获得并发送模型矩阵的数据
 
 
-### 运行代码
+### 运行Client的代码
 
-下面，我们运行代码，浏览器控制台打印的log如下：
+下面，我们运行Client的代码，浏览器控制台打印的log如下：
 ```js
 //初始化，打印shaderIndex
 shaderIndex: 0
@@ -705,7 +705,7 @@ InitMaterialShader负责初始化所有材质的Shader，它有两个函数：in
 然后，我们看下初始化所有基础材质的shader的代码
 然后，我们看下初始化所有PBR材质的shader的代码
 然后，我们看下渲染场景的代码
-最后，我们运行代码
+最后，我们运行Client的代码
 
 
 ### GLSL Config的代码
@@ -1438,10 +1438,10 @@ let _sendUniformData = (uniformSendConfig: Array<uniformSendConfig>, state: stat
 现在_sendUniformData函数没有分支判断了，而是直接遍历Uniform数据的Send Config，获得并发送对应的Uniform数据
 
 
-### 运行代码
+### 运行Client的代码
 
 
-下面，我们运行代码，浏览器控制台打印的log跟之前基本上一样
+下面，我们运行Client的代码，浏览器控制台打印的log跟之前基本上一样
 
 
 <!-- # 设计意图 -->

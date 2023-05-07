@@ -42,7 +42,7 @@ Director负责初始化和主循环
 
 首先，我们看下Client的代码；
 然后，我们看下Engine和Director的代码；
-最后，我们运行代码
+最后，我们运行Client的代码
 
 
 ### Client的代码
@@ -77,9 +77,9 @@ export let loop = () => {
 }
 ```
 
-### 运行代码
+### 运行Client的代码
 
-下面，我们运行代码，运行结果如下：
+下面，我们运行Client的代码，运行结果如下：
 ```text
 初始化
 主循环
@@ -160,7 +160,7 @@ SceneManager、Render依赖Math，通过它进行数学计算
 然后，我们看下创建场景的代码
 然后，我们看下初始化的代码
 然后，我们看下主循环的代码
-最后，我们运行代码
+最后，我们运行Client的代码
 
 
 ### Client的代码
@@ -357,9 +357,9 @@ export let getAllGameObjects = (state: engineState) => {
 Render的render函数实现了渲染，调用了SceneManger来获得场景中所有的gameObjects，以及调用了Math来计算
 
 
-### 运行代码
+### 运行Client的代码
 
-下面，我们运行代码，运行结果如下：
+下面，我们运行Client的代码，运行结果如下：
 ```text
 创建场景
 初始化场景
@@ -501,7 +501,7 @@ Client调用入口积木的方式如下：
 - 初始化的代码
 - 主循环的代码
 
-最后，我们运行代码
+最后，我们运行Client的代码
 
 
 ### Client的代码
@@ -1139,10 +1139,10 @@ export type state = null
 同样的，这几个Block的state和服务的逻辑跟之前对应的模块的state和逻辑一样，没有变化
 
 
-### 运行代码
+### 运行Client的代码
 
 
-下面，我们运行代码，运行结果如下：
+下面，我们运行Client的代码，运行结果如下：
 ```text
 创建场景
 初始化场景

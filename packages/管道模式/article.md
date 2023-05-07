@@ -40,7 +40,7 @@ Engine是引擎，负责初始化和渲染
 
 首先，我们看下Client的代码；
 然后，我们看下Engine的代码；
-最后，我们运行代码
+最后，我们运行Client的代码
 
 ### Client的代码
 
@@ -154,9 +154,9 @@ export let render = (state: state) => {
 它们都判断了运行环境，并执行对应的逻辑
 
 
-### 运行代码
+### 运行Client的代码
 
-下面，我们运行代码，运行结果如下：
+下面，我们运行Client的代码，运行结果如下：
 ```text
 is PC
 初始化WebGL2
@@ -246,7 +246,7 @@ TonemapForWebGL1使用WebGL1实现Tonemap后处理
 然后，我们看下EngineInPC的步骤模块的代码；
 然后，我们看下EngineInMobile的代码；
 然后，我们看下EngineInMobile的步骤模块的代码；
-最后，我们运行代码
+最后，我们运行Client的代码
 
 ### Client的代码
 
@@ -443,9 +443,9 @@ export let tonemap = (state: state) => {
 }
 ```
 
-### 运行代码
+### 运行Client的代码
 
-下面，我们运行代码，运行结果如下：
+下面，我们运行Client的代码，运行结果如下：
 ```text
 is PC
 初始化WebGL2
@@ -580,7 +580,7 @@ PipelineManager有自己的数据-PipelineManagerState，它包括了所有管�
 然后，我们看下移动端的YiEngineInMobilePipeline的相关代码
 然后，我们看下移动端合并Render Pipeline的相关代码
 然后，我们看下PC端的EngineInPCPipeline的相关代码
-最后，我们运行代码
+最后，我们运行Client的代码
 
 ### Client的代码
 
@@ -1067,9 +1067,9 @@ export let exec: execType<engineState> = (engineState, { getStatesFunc }) => {
 }
 ```
 
-### 运行代码
+### 运行Client的代码
 
-下面，我们运行代码，运行结果如下：
+下面，我们运行Client的代码，运行结果如下：
 ```text
 is PC
 初始化WebGL2

@@ -88,7 +88,7 @@ CommandManager负责管理所有的命令，维护用来保存命令的撤销栈
 然后，我们看下打印数据的代码
 然后，我们看下编辑器的Move操作的代码
 然后，我们看下撤销和重做的代码
-最后，我们运行代码
+最后，我们运行Client的代码
 
 
 ### Client的代码
@@ -341,9 +341,9 @@ MoveCommand的undo函数实现了命令的撤销，恢复了子系统的数据
 MoveCommand的undo函数还调用EditorUI的undraw函数来撤销EditorUI的绘制，会还原页面Dom的状态（这里省略了相关代码）
 
 
-### 运行代码
+### 运行Client的代码
 
-下面，我们运行代码，运行结果如下：
+下面，我们运行Client的代码，运行结果如下：
 ```text
 Engine->data1: 0
 EditorLogic->data1: 0
@@ -503,7 +503,7 @@ RedoUndoManager负责实现撤销和重做，维护EditorState中的撤销栈和
 然后，我们看下打印数据的代码
 然后，我们看下编辑器的Move操作的代码
 然后，我们看下撤销和重做的代码
-最后，我们运行代码
+最后，我们运行Client的代码
 
 
 ### Client的代码 
@@ -845,9 +845,9 @@ redo函数的代码与undo函数的代码类似
 
 
 
-### 运行代码
+### 运行Client的代码
 
-下面，我们运行代码，运行结果如下：
+下面，我们运行Client的代码，运行结果如下：
 ```text
 Engine->state: { immutableData1: 0, mutableData2: [ 1 ] }
 EditorLogic->state: { data1: 0 }

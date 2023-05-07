@@ -1,6 +1,6 @@
 import { state as worldState } from "mutltithread_pattern_world/src/WorldStateType"
-import { createState, init, update, render, sync, registerNoWorkerAllPipelines, registerWorkerAllPipelines } from "mutltithread_pattern_world/src/WorldForMainWorker"
-import { createScene } from "multithread_pattern_utils/src/Client"
+import * as WorldForMainWorker from "mutltithread_pattern_world/src/WorldForMainWorker"
+import * as ClientUtils from "multithread_pattern_utils/src/Client"
 
 let isUseWorker = true
 
@@ -13,15 +13,15 @@ globalThis.basicMaterialComponentCount = basicMaterialComponentCount
 globalThis.maxRenderGameObjectCount = 8000
 
 
-let worldState = createState({ transformComponentCount, basicMaterialComponentCount })
+let worldState = WorldForMainWorker.createState({ transformComponentCount, basicMaterialComponentCount })
 
-worldState = createScene(worldState, 8000)
+worldState = ClientUtils.createScene(worldState, 8000)
 
 if (isUseWorker) {
-    worldState = registerWorkerAllPipelines(worldState)
+    worldState = WorldForMainWorker.registerWorkerAllPipelines(worldState)
 }
 else {
-    worldState = registerNoWorkerAllPipelines(worldState)
+    worldState = WorldForMainWorker.registerNoWorkerAllPipelines(worldState)
 }
 
 
@@ -31,14 +31,14 @@ let canvas = document.querySelector("#canvas")
 
 
 let _loop = (worldState: worldState) => {
-    update(worldState).then(worldState => {
+    WorldForMainWorker.update(worldState).then(worldState => {
         let handlePromise
 
         if (isUseWorker) {
-            handlePromise = sync(worldState)
+            handlePromise = WorldForMainWorker.sync(worldState)
         }
         else {
-            handlePromise = render(worldState)
+            handlePromise = WorldForMainWorker.render(worldState)
         }
 
         handlePromise.then(worldState => {
@@ -53,6 +53,6 @@ let _loop = (worldState: worldState) => {
     })
 }
 
-init(worldState, canvas).then(worldState => {
+WorldForMainWorker.init(worldState, canvas).then(worldState => {
     _loop(worldState)
 })
