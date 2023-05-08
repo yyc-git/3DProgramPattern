@@ -79,7 +79,7 @@ export let loop = () => {
 
 ### 运行Client的代码
 
-下面，我们运行Client的代码，运行结果如下：
+下面，我们运行Client的代码，打印的结果如下：
 ```text
 初始化
 主循环
@@ -359,7 +359,7 @@ Render的render函数实现了渲染，调用了SceneManger来获得场景中所
 
 ### 运行Client的代码
 
-下面，我们运行Client的代码，运行结果如下：
+下面，我们运行Client的代码，打印的结果如下：
 ```text
 创建场景
 初始化场景
@@ -1142,7 +1142,7 @@ export type state = null
 ### 运行Client的代码
 
 
-下面，我们运行Client的代码，运行结果如下：
+下面，我们运行Client的代码，打印的结果如下：
 ```text
 创建场景
 初始化场景
@@ -1248,7 +1248,7 @@ TODO tu
 
 下面我们来看看各个角色的抽象代码：
 
-首先，我们看下Client的代码
+首先，我们看下Client的抽象代码
 然后，我们看下BlockFacade的抽象代码
 然后，我们看下BlockManager的抽象代码
 然后，我们看下Entry Block Protocol的抽象代码
@@ -1258,7 +1258,7 @@ TODO tu
 
 
 
-- 用户的抽象代码
+- Client的抽象代码
 ```ts
 let blockManagerState = BlockFacade.init()
 

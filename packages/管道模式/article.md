@@ -156,7 +156,7 @@ export let render = (state: state) => {
 
 ### 运行Client的代码
 
-下面，我们运行Client的代码，运行结果如下：
+下面，我们运行Client的代码，打印的结果如下：
 ```text
 is PC
 初始化WebGL2
@@ -445,7 +445,7 @@ export let tonemap = (state: state) => {
 
 ### 运行Client的代码
 
-下面，我们运行Client的代码，运行结果如下：
+下面，我们运行Client的代码，打印的结果如下：
 ```text
 is PC
 初始化WebGL2
@@ -1069,7 +1069,7 @@ export let exec: execType<engineState> = (engineState, { getStatesFunc }) => {
 
 ### 运行Client的代码
 
-下面，我们运行Client的代码，运行结果如下：
+下面，我们运行Client的代码，打印的结果如下：
 ```text
 is PC
 初始化WebGL2
@@ -1188,7 +1188,7 @@ Pipeline有一个PipelineState数据和一个JSON配置数据，其中PipelineSt
 下面我们来看看各个角色的抽象代码：
 
 
-首先，我们看下用户的抽象代码
+首先，我们看下Client的抽象代码
 然后，我们看下System的抽象代码
 然后，我们看下PipelineStateType的抽象代码
 然后，我们看下Pipeline的抽象代码
@@ -1197,7 +1197,7 @@ Pipeline有一个PipelineState数据和一个JSON配置数据，其中PipelineSt
 
 
 
-- 用户的抽象代码
+- Client的抽象代码
 Client
 ```ts
 let systemState = createState()

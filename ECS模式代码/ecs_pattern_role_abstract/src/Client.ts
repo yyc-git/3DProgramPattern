@@ -23,7 +23,7 @@ let _createScene = (worldState: worldState): worldState => {
     //触发gameObject1的行为
     worldState = World.action1(worldState, gameObject1, dataOrientedComponent1, otherComponent1)
 
-    创建更多的GameObjects...
+    创建更多的gameObjects...
 
     return worldState
 }

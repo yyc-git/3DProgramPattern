@@ -152,13 +152,13 @@ Main Worker包括了运行在主线程的Update Pipeline和Render Pipeline的Job
 ## 给出代码
 
 首先，我们看下Client的代码；
-然后，我们依次看下Client代码中前两个步骤的相关代码，它们包括：
+然后，我们依次看下Client代码中前两个步骤的代码，它们包括：
 - 创建WorldState的代码
 - 创建场景的代码
 
 然后，因为Client会注册NoWorkerPipeline，它包括Init Pipeline、Update Pipeline、Render Pipeline这三个管道，所以我们依次看下各个管道的Job的代码
 
-然后，我们依次看下Client代码中剩余的两个步骤的相关代码，它们包括：
+然后，我们依次看下Client代码中剩余的两个步骤的代码，它们包括：
 - 初始化的代码
 - 主循环的代码
 
@@ -1195,6 +1195,8 @@ X Worker对应某个其它线程，包括了运行在该线程的模块
 - 一个X Pipeline有多个Job
 
 
+**依赖关系**
+
 - Job调用了Manager+Component+GameObject来读写场景数据
 
 - World调用了Manager+Component+GameObject来创建场景
@@ -1270,6 +1272,9 @@ Main Worker包括了运行在主线程的Init Pipeline的Job，X Worker包括了
 - 因为可能有一个或多个其它线程，所以对应的有一个或多个X Worker
 
 - Main Worker和X Worker都只运行了Init Pipeline
+
+
+**依赖关系**
 
 - 主线程的“Create Worker Instance” Job在创建其它线程的worker后，会执行运行在该线程的用户代码，从而运行该线程的Init Pipeline
 
@@ -1354,6 +1359,9 @@ Main Worker包括了运行在主线程的Update Pipeline和Sync Pipeline的Job�
 - 因为可能有一个或多个其它线程，所以对应的有一个或多个X Worker
 
 - 其它线程通常只运行一个Pipeline，如果运行了1个以上的Pipeline，那么它们也通常与主线程的Update Pipeline并行运行，或者至少要在主线程的Sync Pipeline开始前结束
+
+
+**依赖关系**
 
 - 其它线程接收到主线程的“Send Begin Loop Data” Job发送的开始主循环的指令后，开始运行自己的X Pipeline
 

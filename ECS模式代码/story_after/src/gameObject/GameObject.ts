@@ -22,6 +22,10 @@ export let create = (): [gameObjectState, gameObject] => {
     ]
 }
 
+/*
+值得注意的是：
+getPositionComponentExn函数的函数名以“Exn”结尾，它是“Exception”的缩写，表明如果该函数返回的值为空，则报错
+*/
 export let getPositionComponentExn = ({ positionComponent }: gameObjectState): positionComponentState => {
     return getExnFromStrictNull(positionComponent)
 }

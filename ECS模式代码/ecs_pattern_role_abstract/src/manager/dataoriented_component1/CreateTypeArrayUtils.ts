@@ -1,8 +1,8 @@
-import { getValue1Length, getValue2Length, getValue1Offset, getValue2Offset } from "./BufferUtils"
+import * as BufferUtils from "./BufferUtils"
 
 export let createTypeArrays = (buffer, count) => {
     return [
-        new Float32Array(buffer, getValue1Offset(), getValue1Length(count)),
-        new Float32Array(buffer, getValue2Offset(count), getValue2Length(count)),
+        new Float32Array(buffer, BufferUtils.getValue1Offset(), BufferUtils.getValue1Length(count)),
+        new Float32Array(buffer, BufferUtils.getValue2Offset(count), BufferUtils.getValue2Length(count)),
     ]
 }

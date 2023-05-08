@@ -1,5 +1,5 @@
-import { createBuffer } from "./BufferUtils"
-import { createTypeArrays } from "./CreateTypeArrayUtils"
+import * as BufferUtils from "./BufferUtils"
+import * as CreateTypeArrayUtils from "./CreateTypeArrayUtils"
 import { range } from "commonlib-ts/src/ArrayUtils"
 import { state, TypeArrayType } from "./ManagerStateType"
 import { Map } from "immutable"
@@ -18,9 +18,9 @@ let _setAllTypeArrDataToDefault = ([value1s, value2s]: Array<Float32Array>, coun
 }
 
 let _initBufferData = (count, defaultDataTuple): [ArrayBuffer, Array<TypeArrayType>] => {
-    let buffer = createBuffer(count)
+    let buffer = BufferUtils.createBuffer(count)
 
-    let typeArrData = _setAllTypeArrDataToDefault(createTypeArrays(buffer, count), count, defaultDataTuple)
+    let typeArrData = _setAllTypeArrDataToDefault(CreateTypeArrayUtils.createTypeArrays(buffer, count), count, defaultDataTuple)
 
     return [buffer, typeArrData]
 }

@@ -1577,7 +1577,7 @@ TODO -->
 然后，我们看下Merged Target Chunk的抽象代码
 然后，我们看下系统的gulp任务的抽象代码
 然后，我们看下Target Config的抽象代码
-然后，我们看下用户的抽象代码
+然后，我们看下Client的抽象代码
 然后，我们看下系统的抽象代码
 最后，我们看下ChunkHandler的抽象代码
 
@@ -1757,7 +1757,7 @@ chunks_config.json
 ]
 ```
 
-- 用户的抽象代码
+- Client的抽象代码
 Client
 ```ts
 // use json loader to load target config

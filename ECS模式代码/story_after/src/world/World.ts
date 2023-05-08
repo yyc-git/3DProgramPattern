@@ -5,7 +5,7 @@ import { create as createPositionComponent, move } from "../component/PositionCo
 import { create as createVelocityComponent } from "../component/VelocityComponent";
 import { create as createFlyComponent, fly } from "../component/FlyComponent";
 import { create as createInstanceComponent } from "../component/InstanceComponent";
-import { create as createGameObject, setPositionComponent, setFlyComponent, setVelocityComponent, setInstanceComponent, getPositionComponentExn, getFlyComponentExn, hasPositionComponent, hasInstanceComponent } from "../gameObject/GameObject";
+import * as GameObject from "../gameObject/GameObject";
 import { getGameObjectStateExn } from "../utils/WorldUtils";
 
 export let createState = (): worldState => {
@@ -25,10 +25,10 @@ export let update = (worldState: worldState): worldState => {
     return {
         ...worldState,
         gameObjects: worldState.gameObjects.map(gameObjectState => {
-            if (hasPositionComponent(gameObjectState)) {
+            if (GameObject.hasPositionComponent(gameObjectState)) {
                 gameObjectState = {
                     ...gameObjectState,
-                    positionComponent: updatePositionComponent(getPositionComponentExn(gameObjectState))
+                    positionComponent: updatePositionComponent(GameObject.getPositionComponentExn(gameObjectState))
                 }
             }
 
@@ -39,7 +39,7 @@ export let update = (worldState: worldState): worldState => {
 
 export let renderOneByOne = (worldState: worldState): void => {
     let superHeroGameObjects = worldState.gameObjects.filter(gameObjectState => {
-        return !hasInstanceComponent(gameObjectState)
+        return !GameObject.hasInstanceComponent(gameObjectState)
     })
 
     superHeroGameObjects.forEach(gameObjectState => {
@@ -49,7 +49,7 @@ export let renderOneByOne = (worldState: worldState): void => {
 
 export let renderInstances = (worldState: worldState): void => {
     let normalHeroGameObejcts = worldState.gameObjects.filter(gameObjectState => {
-        return hasInstanceComponent(gameObjectState)
+        return GameObject.hasInstanceComponent(gameObjectState)
     })
 
     console.log("批量Instance渲染 NormalHeroes...")
@@ -57,16 +57,16 @@ export let renderInstances = (worldState: worldState): void => {
 
 export let api = {
     gameObject: {
-        create: createGameObject,
-        setPositionComponent,
-        setFlyComponent,
-        setVelocityComponent,
-        setInstanceComponent
+        create: GameObject.create,
+        setPositionComponent: GameObject.setPositionComponent,
+        setFlyComponent: GameObject.setFlyComponent,
+        setVelocityComponent: GameObject.setVelocityComponent,
+        setInstanceComponent: GameObject.setInstanceComponent
     },
     positionComponent: {
         create: createPositionComponent,
         move: (worldState: worldState, gameObject): worldState => {
-            return move(worldState, getPositionComponentExn(
+            return move(worldState, GameObject.getPositionComponentExn(
                 getGameObjectStateExn(worldState, gameObject)
             ))
         }
@@ -77,7 +77,7 @@ export let api = {
     flyComponent: {
         create: createFlyComponent,
         fly: (worldState: worldState, gameObject): worldState => {
-            return fly(worldState, getFlyComponentExn(
+            return fly(worldState, GameObject.getFlyComponentExn(
                 getGameObjectStateExn(worldState, gameObject)
             ))
         }

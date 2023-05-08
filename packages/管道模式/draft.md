@@ -42,7 +42,7 @@
 <!-- 
 <!-- 因为移动端只支持WebGL1，所以需要重新实现初始化WebGL1的逻辑 -->
 
-因为移动端不支持multi render targets，所以只能使用前向渲染替代延迟渲染
+因为移动端不支持multi render targets，所以只能使用前向渲染代替延迟渲染
 
 <!-- 原来的Tonemap使用了WebGL2的上下文，需要改为使用WebGL1的上下文 -->
 

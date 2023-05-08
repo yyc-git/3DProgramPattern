@@ -19,9 +19,9 @@ let requestAnimationFrame = (func) => {
 
 
 export let loop = (worldState: worldState) => {
-    调用OtherSystem来update
+    调用OtherSystem来更新
 
-    调用OtherSystem来render
+    调用OtherSystem来渲染
 
     requestAnimationFrame(
         (time) => {

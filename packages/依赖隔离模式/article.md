@@ -408,7 +408,7 @@ TODO tu
 然后，我们看下容器的代码
 最后，我们看下外部依赖的代码
 
-- 用户的抽象代码
+- Client的抽象代码
 Client
 ```ts
 System.injectDependencies(Dependency1Implement1.implement(), 其它DependencyImplement...)

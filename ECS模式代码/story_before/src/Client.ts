@@ -1,44 +1,44 @@
-import { init, loop } from "ecs_pattern_utils/src/World";
-import { api, addNormalHero, addSuperHero, createState, update, renderOneByOne, renderInstances } from "./World";
+import * as WorldUtils from "ecs_pattern_utils/src/World";
+import * as World from "./World";
 import { state as worldState } from "./WorldStateType";
 
 let _createScene = (worldState: worldState): worldState => {
-    let normalHero1Data = api.normalHero.create()
+    let normalHero1Data = World.api.normalHero.create()
     let normalHero1 = normalHero1Data[1]
 
-    worldState = addNormalHero(worldState, normalHero1Data)
+    worldState = World.addNormalHero(worldState, normalHero1Data)
 
-    let normalHero2Data = api.normalHero.create()
+    let normalHero2Data = World.api.normalHero.create()
     let normalHero2 = normalHero2Data[1]
 
-    worldState = addNormalHero(worldState, normalHero2Data)
+    worldState = World.addNormalHero(worldState, normalHero2Data)
 
 
-    worldState = api.normalHero.move(worldState, normalHero1)
+    worldState = World.api.normalHero.move(worldState, normalHero1)
 
 
-    let superHero1Data = api.superHero.create()
+    let superHero1Data = World.api.superHero.create()
     let superHero1 = superHero1Data[1]
 
-    worldState = addSuperHero(worldState, superHero1Data)
+    worldState = World.addSuperHero(worldState, superHero1Data)
 
-    let superHero2Data = api.superHero.create()
+    let superHero2Data = World.api.superHero.create()
     let superHero2 = superHero2Data[1]
 
-    worldState = addSuperHero(worldState, superHero2Data)
+    worldState = World.addSuperHero(worldState, superHero2Data)
 
 
-    worldState = api.superHero.move(worldState, superHero1)
-    worldState = api.superHero.fly(worldState, superHero1)
+    worldState = World.api.superHero.move(worldState, superHero1)
+    worldState = World.api.superHero.fly(worldState, superHero1)
 
 
     return worldState
 }
 
-let worldState = createState()
+let worldState = World.createState()
 
 worldState = _createScene(worldState)
 
-worldState = init(worldState)
+worldState = WorldUtils.init(worldState)
 
-loop(worldState, [update, renderOneByOne, renderInstances])
+WorldUtils.loop(worldState, [World.update, World.renderOneByOne, World.renderInstances])
