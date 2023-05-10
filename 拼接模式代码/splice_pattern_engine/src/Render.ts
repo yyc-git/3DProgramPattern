@@ -1,9 +1,9 @@
 import { state } from "./EngneStateType"
 import { getExnFromStrictUndefined } from "commonlib-ts/src/NullableUtils"
-import { sendConfig as attributeSendConfig } from "./MaterialShaderAttributeSenderUtils"
-import { sendConfig as uniformSendConfig } from "./MaterialShaderUniformSenderType"
+import { sendMetadata as attributeSendMetadata } from "./MaterialShaderAttributeSenderUtils"
+import { sendMetadata as uniformSendMetadata } from "./MaterialShaderUniformSenderType"
 import { attributeBuffer } from "./GLSLConfigType"
-import { getShaderIndex } from "splice_pattern_utils/src/engine/Shader"
+import * as ShaderUtils from "splice_pattern_utils/src/engine/Shader"
 import { shaderIndex } from "splice_pattern_utils/src/engine/ShaderType"
 import { getAllGameObjects, getMaterial, getTransform } from "splice_pattern_utils/src/engine/GameObject"
 import { materialType } from "splice_pattern_utils/src/engine/MaterialType"
@@ -16,26 +16,26 @@ let _getFakeElementArrayBuffer = (state, shaderIndex) => {
     return {} as WebGLBuffer
 }
 
-let _sendAttributeData = (attributeSendConfig: Array<attributeSendConfig>, state: state, shaderIndex: shaderIndex, gl: WebGLRenderingContext) => {
-    attributeSendConfig.forEach(data => {
-        if (!!data.elementSendConfig) {
-            data.elementSendConfig.sendBuffer(gl, _getFakeElementArrayBuffer(state, shaderIndex))
+let _sendAttributeData = (attributeSendMetadata: Array<attributeSendMetadata>, state: state, shaderIndex: shaderIndex, gl: WebGLRenderingContext) => {
+    attributeSendMetadata.forEach(data => {
+        if (!!data.elementSendMetadata) {
+            data.elementSendMetadata.sendBuffer(gl, _getFakeElementArrayBuffer(state, shaderIndex))
         }
-        if (!!data.instanceSendConfig) {
+        if (!!data.instanceSendMetadata) {
             console.log("发送instance相关的顶点数据...")
         }
-        if (!!data.otherSendConfig) {
-            let { pos, size, sendBuffer, buffer } = data.otherSendConfig
+        if (!!data.otherSendMetadata) {
+            let { pos, size, sendBuffer, buffer } = data.otherSendMetadata
 
             sendBuffer(gl, size, pos, _getFakeArrayBuffer(state, buffer, shaderIndex))
         }
     })
 }
 
-let _sendUniformData = (uniformSendConfig: Array<uniformSendConfig>, state: state, transform, material, gl: WebGLRenderingContext) => {
-    uniformSendConfig.forEach(data => {
-        if (!!data.shaderSendConfig) {
-            let { pos, getData, sendData } = data.shaderSendConfig
+let _sendUniformData = (uniformSendMetadata: Array<uniformSendMetadata>, state: state, transform, material, gl: WebGLRenderingContext) => {
+    uniformSendMetadata.forEach(data => {
+        if (!!data.shaderSendMetadata) {
+            let { pos, getData, sendData } = data.shaderSendMetadata
 
             sendData(gl, pos, getData(state))
         }
@@ -54,7 +54,7 @@ let _sendUniformData = (uniformSendConfig: Array<uniformSendConfig>, state: stat
 
 export let render = (state: state): state => {
     let gl = state.gl
-    let sendConfigMap = state.sendConfigMap
+    let sendMetadataMap = state.sendMetadataMap
     let programMap = state.programMap
 
     getAllGameObjects(state.gameObjectState).forEach(gameObject => {
@@ -65,22 +65,22 @@ export let render = (state: state): state => {
         let shaderIndex = null
         switch (materialType_) {
             case materialType.Basic:
-                shaderIndex = getShaderIndex(state.basicMaterialShaderIndexMap, material)
+                shaderIndex = ShaderUtils.getShaderIndex(state.basicMaterialShaderIndexMap, material)
                 break
             case materialType.PBR:
-                shaderIndex = getShaderIndex(state.pbrMaterialShaderIndexMap, material)
+                shaderIndex = ShaderUtils.getShaderIndex(state.pbrMaterialShaderIndexMap, material)
                 break
         }
 
         let program = getExnFromStrictUndefined(programMap.get(shaderIndex))
-        let sendConfig = getExnFromStrictUndefined(sendConfigMap.get(shaderIndex))
+        let sendMetadata = getExnFromStrictUndefined(sendMetadataMap.get(shaderIndex))
 
         gl.useProgram(program)
 
-        let [attributeSendConfig, uniformSendConfig] = sendConfig
+        let [attributeSendMetadata, uniformSendMetadata] = sendMetadata
 
-        _sendAttributeData(attributeSendConfig, state, shaderIndex, gl)
-        _sendUniformData(uniformSendConfig, state, transform, material, gl)
+        _sendAttributeData(attributeSendMetadata, state, shaderIndex, gl)
+        _sendUniformData(uniformSendMetadata, state, transform, material, gl)
 
         console.log("其它渲染逻辑...")
     })

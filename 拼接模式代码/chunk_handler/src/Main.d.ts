@@ -1,9 +1,9 @@
-import { shaderLibs, shaderMapDataName, shaderMapDataValue, condition, shaders, attributeName, attributeBuffer, attributeType, uniformName, uniformField, uniformType, uniformFrom, shaderName, glslName } from "./type/GLSLConfigType.gen";
+import { shaderChunks, shaderMapDataName, shaderMapDataValue, condition, shaders, attributeName, attributeBuffer, attributeType, uniformName, uniformField, uniformType, uniformFrom, shaderName, glslName } from "./type/GLSLConfigType.gen";
 import { glslChunk } from "../../chunk_converter/src/ChunkType.gen"
 
 export function parseConfig(
-    shadersJson: JSON, shaderLibsJson: JSON
-): [shaders, shaderLibs]
+    shadersJson: JSON, shaderChunksJson: JSON
+): [shaders, shaderChunks]
 
 type isNameValidForStaticBranch = (name: string) => boolean
 
@@ -11,9 +11,9 @@ type getShaderChunkFromStaticBranch = (name: shaderMapDataName, value: shaderMap
 
 type isPassForDynamicBranch = (condition: condition) => boolean
 
-type addAttributeSendConfig<SendConfig> = (sendDataArr: Array<SendConfig>, [name, attributeBuffer, type]: [attributeName, attributeBuffer, attributeType]) => Array<SendConfig>
+type addAttributeSendMetadata<SendMetadata> = (sendDataArr: Array<SendMetadata>, [name, attributeBuffer, type]: [attributeName, attributeBuffer, attributeType]) => Array<SendMetadata>
 
-type addUniformSendConfig<SendConfig> = (sendDataArr: Array<SendConfig>, [name, field, type, from]: [uniformName, uniformField, uniformType, uniformFrom]) => Array<SendConfig>
+type addUniformSendMetadata<SendMetadata> = (sendDataArr: Array<SendMetadata>, [name, field, type, from]: [uniformName, uniformField, uniformType, uniformFrom]) => Array<SendMetadata>
 
 type generateAttributeType = (attributeType: attributeType) => string
 
@@ -47,28 +47,28 @@ export function buildGLSL(
             ]
         ],
     shaders: shaders,
-    shaderLibs: shaderLibs,
+    shaderChunks: shaderChunks,
     chunk: Record<glslName, glslChunk>,
     shaderName: shaderName,
     precision: "highp" | "mediump" | "lowp"
 ): [
-        shaderLibs,
+        shaderChunks,
         [vsGLSL, fsGLSL]
     ]
 
 
-export type sendConfig<AttributeSendConfig, UniformSendConfig> = [
-    Array<AttributeSendConfig>,
-    Array<UniformSendConfig>
+export type sendMetadata<AttributeSendMetadata, UniformSendMetadata> = [
+    Array<AttributeSendMetadata>,
+    Array<UniformSendMetadata>
 ]
 
-export function getSendConfig<AttributeSendConfig, UniformSendConfig>(
+export function buildSendMetadata<AttributeSendMetadata, UniformSendMetadata>(
     [
-        addAttributeSendConfig,
-        addUniformSendConfig
+        addAttributeSendMetadata,
+        addUniformSendMetadata
     ]: [
-            addAttributeSendConfig<AttributeSendConfig>,
-            addUniformSendConfig<UniformSendConfig>
+            addAttributeSendMetadata<AttributeSendMetadata>,
+            addUniformSendMetadata<UniformSendMetadata>
         ],
-    shaderLib: shaderLibs
-): sendConfig<AttributeSendConfig, UniformSendConfig>
+    shaderLib: shaderChunks
+): sendMetadata<AttributeSendMetadata, UniformSendMetadata>

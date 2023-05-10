@@ -10,14 +10,14 @@ type getModelDataFunc = (state: state, transform: transform) => Float32Array
 
 type sendDataFunc = (gl: WebGLRenderingContext, pos: WebGLUniformLocation, data: any) => void
 
-type singleSendConfig<getDataFunc> = {
+type singleSendMetadata<getDataFunc> = {
     pos: WebGLUniformLocation,
     getData: getDataFunc,
     sendData: sendDataFunc,
 }
 
-export type sendConfig = {
-    shaderSendConfig?: singleSendConfig<getCameraDataFunc>,
-    renderObjectSendModelData?: singleSendConfig<getModelDataFunc>,
-    renderObjectSendMaterialData?: singleSendConfig<getMaterialDataFunc>
+export type sendMetadata = {
+    shaderSendMetadata?: singleSendMetadata<getCameraDataFunc>,
+    renderObjectSendModelData?: singleSendMetadata<getModelDataFunc>,
+    renderObjectSendMaterialData?: singleSendMetadata<getMaterialDataFunc>
 }

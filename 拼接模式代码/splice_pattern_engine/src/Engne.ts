@@ -5,7 +5,7 @@ import * as Transform from "splice_pattern_utils/src/engine/Transform"
 import * as ChunkHandler from "chunk_handler"
 import { state } from "./EngneStateType"
 import { createFakeWebGLRenderingContext } from "splice_pattern_utils/src/engine/FakeGL"
-import { getData } from "./glsl/MergedGLSLChunk"
+import * as MergedGLSLChunk from "./glsl/MergedGLSLChunk"
 import { Map } from "immutable"
 import * as API from "splice_pattern_utils/src/engine/API"
 import * as InitMaterialShader from "./InitMaterialShader"
@@ -17,7 +17,7 @@ export let createState = ([shaders, shaderChunks]): state => {
     return {
         gl: createFakeWebGLRenderingContext(),
         programMap: Map(),
-        sendConfigMap: Map(),
+        sendMetadataMap: Map(),
         basicMaterialShaderIndexMap: Map(),
         pbrMaterialShaderIndexMap: Map(),
         maxShaderIndex: 0,
@@ -27,7 +27,7 @@ export let createState = ([shaders, shaderChunks]): state => {
         shaderChunks,
         isSupportInstance: true,
         maxDirectionLightCount: 4,
-        chunk: getData(),
+        chunk: MergedGLSLChunk.getData(),
         precision: "lowp",
 
         gameObjectState: GameObject.createState(),

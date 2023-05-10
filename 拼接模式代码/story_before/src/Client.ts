@@ -1,16 +1,16 @@
-import { createState, initBasicMaterialShader, initPBRMaterialShader, render, initCamera } from "./engine/Engine"
-import { createScene } from "splice_pattern_utils/src/Client"
+import * as Engine from "./engine/Engine"
+import * as  ClientUtils from "splice_pattern_utils/src/Client"
 
-let state = createState()
+let state = Engine.createState()
 
-let sceneData = createScene(state)
+let sceneData = ClientUtils.createScene(state)
 state = sceneData[0]
 let [allBasicMaterials, allPBRMaterials, _] = sceneData[1]
 
-state = initBasicMaterialShader(state, allBasicMaterials)
+state = Engine.initBasicMaterialShader(state, allBasicMaterials)
 
-state = initPBRMaterialShader(state, allPBRMaterials)
+state = Engine.initPBRMaterialShader(state, allPBRMaterials)
 
-state = initCamera(state)
+state = Engine.initCamera(state)
 
-state = render(state)
+state = Engine.render(state)

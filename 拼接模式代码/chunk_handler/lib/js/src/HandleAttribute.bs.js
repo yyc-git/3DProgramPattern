@@ -4,27 +4,27 @@ var Curry = require("rescript/lib/js/curry.js");
 var ArraySt$Commonlib = require("commonlib/lib/js/src/structure/ArraySt.bs.js");
 var JsonUtils$Chunk_handler = require("./utils/JsonUtils.bs.js");
 
-function addAttributeSendConfig(add, shaderChunks) {
-  return ArraySt$Commonlib.reduceOneParam(shaderChunks, (function (sendDataArr, param) {
+function addAttributeSendMetadata(add, shaderChunks) {
+  return ArraySt$Commonlib.reduceOneParam(shaderChunks, (function (sendMetadataArr, param) {
                 var variables = param.variables;
                 if (JsonUtils$Chunk_handler.isJsonSerializedValueNone(variables)) {
-                  return sendDataArr;
+                  return sendMetadataArr;
                 }
                 var match = JsonUtils$Chunk_handler.getJsonSerializedValueExn(variables);
                 var attributes = match.attributes;
                 if (JsonUtils$Chunk_handler.isJsonSerializedValueNone(attributes)) {
-                  return sendDataArr;
+                  return sendMetadataArr;
                 } else {
-                  return ArraySt$Commonlib.reduceOneParam(JsonUtils$Chunk_handler.getJsonSerializedValueExn(attributes), (function (sendDataArr, param) {
-                                return Curry._2(add, sendDataArr, [
+                  return ArraySt$Commonlib.reduceOneParam(JsonUtils$Chunk_handler.getJsonSerializedValueExn(attributes), (function (sendMetadataArr, param) {
+                                return Curry._2(add, sendMetadataArr, [
                                             JsonUtils$Chunk_handler.toNullable(param.name),
                                             param.buffer,
                                             JsonUtils$Chunk_handler.toNullable(param.type_)
                                           ]);
-                              }), sendDataArr);
+                              }), sendMetadataArr);
                 }
               }), []);
 }
 
-exports.addAttributeSendConfig = addAttributeSendConfig;
+exports.addAttributeSendMetadata = addAttributeSendMetadata;
 /* No side effect */

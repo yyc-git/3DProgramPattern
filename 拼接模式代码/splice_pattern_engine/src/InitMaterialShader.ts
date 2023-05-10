@@ -1,4 +1,4 @@
-import { getSendConfig, buildGLSL } from "chunk_handler"
+import * as ChunkHandler from "chunk_handler"
 import { state } from "./EngneStateType"
 import { material } from "splice_pattern_utils/src/engine/MaterialType"
 import { material as basicMaterial } from "splice_pattern_utils/src/engine/BasicMaterialStateType"
@@ -13,7 +13,7 @@ import * as PBRMaterialShaderUniformSender from "./PBRMaterialShaderUniformSende
 import { Map } from "immutable"
 import { attributeType, uniformField, uniformFrom, uniformType } from "./GLSLConfigType"
 import { shaderName } from "chunk_handler/src/type/GLSLConfigType.gen"
-import { generateShaderIndex, createFakeProgram, setShaderIndex } from "splice_pattern_utils/src/engine/Shader"
+import * as ShaderUtils from "splice_pattern_utils/src/engine/Shader"
 import { getExnFromStrictUndefined } from "commonlib-ts/src/NullableUtils"
 import { shaderIndex } from "splice_pattern_utils/src/engine/ShaderType"
 
@@ -29,18 +29,18 @@ let _initOneMaterialTypeShader = (
             buildGLSLChunkInFS
         ],
         [
-            addAttributeSendConfig,
-            addUniformSendConfig
+            addAttributeSendMetadata,
+            addUniformSendMetadata
         ]
     ]: any,
     allMaterials: Array<material>,
     shaderName: shaderName,
     shaderIndexMap: Map<material, shaderIndex>
 ) => {
-    let [newProgramMap, newSendConfigMap, newShaderIndexMap, _allGLSLs, newMaxShaderIndex] = allMaterials.reduce(([programMap, sendConfigMap, shaderIndexMap, glslMap, maxShaderIndex]: any, material) => {
+    let [newProgramMap, newSendMetadataMap, newShaderIndexMap, _allGLSLs, newMaxShaderIndex] = allMaterials.reduce(([programMap, sendMetadataMap, shaderIndexMap, glslMap, maxShaderIndex]: any, material) => {
         //返回的glsl是拼接后的一个Target GLSL
         //返回的shaderChunks是处理shaders.json的shaders字段中shaderName种类的shader_chunks字段后的配置数据
-        let [shaderChunks, glsl] = buildGLSL(
+        let [shaderChunks, glsl] = ChunkHandler.buildGLSL(
             [
                 [[
                     isNameValidForStaticBranch,
@@ -65,19 +65,19 @@ let _initOneMaterialTypeShader = (
             state.precision
         )
 
-        let [shaderIndex, newMaxShaderIndex] = generateShaderIndex(glslMap, glsl, maxShaderIndex)
+        let [shaderIndex, newMaxShaderIndex] = ShaderUtils.generateShaderIndex(glslMap, glsl, maxShaderIndex)
 
         if (!programMap.has(shaderIndex)) {
-            programMap = programMap.set(shaderIndex, createFakeProgram(glsl))
+            programMap = programMap.set(shaderIndex, ShaderUtils.createFakeProgram(glsl))
         }
 
         let program = getExnFromStrictUndefined(programMap.get(shaderIndex))
 
-        let sendConfig = getSendConfig(
-            [(sendConfigArr, [name, buffer, type]) => {
-                return addAttributeSendConfig(state.gl, program, sendConfigArr, [name, buffer, type as attributeType])
-            }, (sendConfigArr, [name, field, type, from]) => {
-                return addUniformSendConfig(state.gl, program, sendConfigArr, [name, field as uniformField, type as uniformType, from as uniformFrom])
+        let sendMetadata = ChunkHandler.buildSendMetadata(
+            [(sendMetadataArr, [name, buffer, type]) => {
+                return addAttributeSendMetadata(state.gl, program, sendMetadataArr, [name, buffer, type as attributeType])
+            }, (sendMetadataArr, [name, field, type, from]) => {
+                return addUniformSendMetadata(state.gl, program, sendMetadataArr, [name, field as uniformField, type as uniformType, from as uniformFrom])
             }],
             shaderChunks
         )
@@ -91,14 +91,14 @@ let _initOneMaterialTypeShader = (
 
         return [
             programMap,
-            sendConfigMap.set(shaderIndex, sendConfig),
-            setShaderIndex(shaderIndexMap, material, shaderIndex),
+            sendMetadataMap.set(shaderIndex, sendMetadata),
+            ShaderUtils.setShaderIndex(shaderIndexMap, material, shaderIndex),
             glslMap,
             newMaxShaderIndex
         ]
-    }, [state.programMap, state.sendConfigMap, shaderIndexMap, Map(), state.maxShaderIndex])
+    }, [state.programMap, state.sendMetadataMap, shaderIndexMap, Map(), state.maxShaderIndex])
 
-    return [newProgramMap, newSendConfigMap, newShaderIndexMap, newMaxShaderIndex]
+    return [newProgramMap, newSendMetadataMap, newShaderIndexMap, newMaxShaderIndex]
 }
 
 export let initBasicMaterialShader = (
@@ -108,7 +108,7 @@ export let initBasicMaterialShader = (
         shaderName
     ]
 ): state => {
-    let [newProgramMap, newSendConfigMap, newShaderIndexMap, newMaxShaderIndex] = _initOneMaterialTypeShader(state,
+    let [newProgramMap, newSendMetadataMap, newShaderIndexMap, newMaxShaderIndex] = _initOneMaterialTypeShader(state,
         [
             [[
                 BasicMaterialShaderGLSL.isNameValidForStaticBranch,
@@ -122,8 +122,8 @@ export let initBasicMaterialShader = (
                 BasicMaterialShaderGLSL.buildGLSLChunkInFS
             ],
             [
-                BasicMaterialShaderAttributeSender.addAttributeSendConfig,
-                BasicMaterialShaderUniformSender.addUniformSendConfig
+                BasicMaterialShaderAttributeSender.addAttributeSendMetadata,
+                BasicMaterialShaderUniformSender.addUniformSendMetadata
             ]
         ],
         allMaterials, shaderName, state.basicMaterialShaderIndexMap)
@@ -131,7 +131,7 @@ export let initBasicMaterialShader = (
     return {
         ...state,
         programMap: newProgramMap,
-        sendConfigMap: newSendConfigMap,
+        sendMetadataMap: newSendMetadataMap,
         basicMaterialShaderIndexMap: newShaderIndexMap,
         maxShaderIndex: newMaxShaderIndex
     }
@@ -144,7 +144,7 @@ export let initPBRMaterialShader = (
         shaderName
     ]
 ): state => {
-    let [newProgramMap, newSendConfigMap, newShaderIndexMap, newMaxShaderIndex] = _initOneMaterialTypeShader(state,
+    let [newProgramMap, newSendMetadataMap, newShaderIndexMap, newMaxShaderIndex] = _initOneMaterialTypeShader(state,
         [
             [[
                 PBRMaterialShaderGLSL.isNameValidForStaticBranch,
@@ -158,8 +158,8 @@ export let initPBRMaterialShader = (
                 PBRMaterialShaderGLSL.buildGLSLChunkInFS
             ],
             [
-                PBRMaterialShaderAttributeSender.addAttributeSendConfig,
-                PBRMaterialShaderUniformSender.addUniformSendConfig
+                PBRMaterialShaderAttributeSender.addAttributeSendMetadata,
+                PBRMaterialShaderUniformSender.addUniformSendMetadata
             ]
         ],
         allMaterials, shaderName, state.pbrMaterialShaderIndexMap)
@@ -167,7 +167,7 @@ export let initPBRMaterialShader = (
     return {
         ...state,
         programMap: newProgramMap,
-        sendConfigMap: newSendConfigMap,
+        sendMetadataMap: newSendMetadataMap,
         pbrMaterialShaderIndexMap: newShaderIndexMap,
         maxShaderIndex: newMaxShaderIndex
     }

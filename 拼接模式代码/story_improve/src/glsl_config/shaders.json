@@ -46,9 +46,6 @@
           "name": "top"
         },
         {
-          "name": "define_light_count"
-        },
-        {
           "name": "basic"
         },
         {
@@ -74,9 +71,6 @@
         {
           "type": "group",
           "name": "top"
-        },
-        {
-          "name": "define_light_count"
         },
         {
           "name": "basic"

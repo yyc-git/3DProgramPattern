@@ -81,10 +81,6 @@ void main(void){
     `
 }
 
-let _addDefineWithValue = (glsl: string, name: string, value: string): string => {
-  return "#define " + name + " " + value + "\n" + glsl
-}
-
 let _addDefine = (glsl: string, name: string): string => {
   return "#define " + name + "\n" + glsl
 }
@@ -108,9 +104,6 @@ let _buildGLSL = (state: state, material: material): [string, string] => {
     vsGLSL = _addDefine(vsGLSL, "NO_DIFFUSE_MAP")
     fsGLSL = _addDefine(fsGLSL, "NO_DIFFUSE_MAP")
   }
-
-  //这里为了简化代码，我们只是在FS GLSL中加入了“定义最大方向光个数”的代码来表示该GLSL支持方向光
-  fsGLSL = _addDefineWithValue(fsGLSL, "MAX_DIRECTION_LIGHT_COUNT", String(state.maxDirectionLightCount))
 
   return [vsGLSL, fsGLSL]
 }

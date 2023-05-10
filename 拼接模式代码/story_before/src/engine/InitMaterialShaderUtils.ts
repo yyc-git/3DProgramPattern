@@ -1,15 +1,15 @@
 import { Map } from "immutable"
-import { generateShaderIndex, createFakeProgram, setShaderIndex } from "splice_pattern_utils/src/engine/Shader"
+import * as ShaderUtils from "splice_pattern_utils/src/engine/Shader"
 
 export let initMaterialShader = (state, buildGLSL, shaderIndexMap, allMaterials) => {
     let [newProgramMap, newShaderIndexMap, _, newMaxShaderIndex] = allMaterials.reduce(([programMap, shaderIndexMap, glslMap, maxShaderIndex]: any, material) => {
         let glsl = buildGLSL(state, material)
 
-        let [shaderIndex, newMaxShaderIndex] = generateShaderIndex(glslMap, glsl, maxShaderIndex)
+        let [shaderIndex, newMaxShaderIndex] = ShaderUtils.generateShaderIndex(glslMap, glsl, maxShaderIndex)
 
         //如果是之前的shaderIndex，则不创建新的WebGLProgram
         if (!programMap.has(shaderIndex)) {
-            programMap = programMap.set(shaderIndex, createFakeProgram(glsl))
+            programMap = programMap.set(shaderIndex, ShaderUtils.createFakeProgram(glsl))
         }
 
         if (!glslMap.has(shaderIndex)) {
@@ -21,7 +21,7 @@ export let initMaterialShader = (state, buildGLSL, shaderIndexMap, allMaterials)
 
         return [
             programMap,
-            setShaderIndex(shaderIndexMap, material, shaderIndex),
+            ShaderUtils.setShaderIndex(shaderIndexMap, material, shaderIndex),
             glslMap,
             newMaxShaderIndex
         ]

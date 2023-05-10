@@ -2,24 +2,24 @@ import { state as gameObjectState } from "splice_pattern_utils/src/engine/GameOb
 import { glslName, shaderChunks, shaders } from "chunk_handler/src/type/GLSLConfigType.gen"
 import { state as transformState } from "splice_pattern_utils/src/engine/TransformStateType"
 import type { Map } from "immutable"
-import { sendConfig as sendConfigGLSLHandler } from "chunk_handler/src/Main"
-import { sendConfig as attributeSendConfig } from "./MaterialShaderAttributeSenderUtils"
-import { sendConfig as uniformSendConfig } from "./MaterialShaderUniformSenderType"
+import { sendMetadata as sendMetadataGLSLHandler } from "chunk_handler/src/Main"
+import { sendMetadata as attributeSendMetadata } from "./MaterialShaderAttributeSenderUtils"
+import { sendMetadata as uniformSendMetadata } from "./MaterialShaderUniformSenderType"
 import { glslChunk } from "chunk_converter/src/ChunkType.gen"
 import { shaderIndex } from "splice_pattern_utils/src/engine/ShaderType"
 import * as BasicMaterialStateType from "splice_pattern_utils/src/engine/BasicMaterialStateType"
 import * as PBRMaterialStateType from "splice_pattern_utils/src/engine/PBRMaterialStateType"
 
-export type sendConfig = sendConfigGLSLHandler<attributeSendConfig, uniformSendConfig>
+export type sendMetadata = sendMetadataGLSLHandler<attributeSendMetadata, uniformSendMetadata>
 
 export type programMap = Map<shaderIndex, WebGLProgram>
 
-export type sendConfigMap = Map<shaderIndex, sendConfig>
+export type sendMetadataMap = Map<shaderIndex, sendMetadata>
 
 export type state = {
     gl: WebGLRenderingContext,
     programMap: programMap,
-    sendConfigMap: sendConfigMap,
+    sendMetadataMap: sendMetadataMap,
     maxShaderIndex: number,
     basicMaterialShaderIndexMap: Map<BasicMaterialStateType.material, shaderIndex>,
     pbrMaterialShaderIndexMap: Map<PBRMaterialStateType.material, shaderIndex>,

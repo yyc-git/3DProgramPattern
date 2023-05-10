@@ -1,7 +1,8 @@
 import { state } from "./EngineStateType"
 import { material } from "splice_pattern_utils/src/engine/BasicMaterialStateType"
 import { hasBasicMap } from "splice_pattern_utils/src/engine/BasicMaterial"
-import { initMaterialShader } from "./InitMaterialShaderUtils"
+import * as InitMaterialShaderUtils from "./InitMaterialShaderUtils"
+
 
 let _buildDefaultVSGLSL = () => {
   return `
@@ -81,10 +82,6 @@ void main(void){
     `
 }
 
-let _addDefineWithValue = (glsl: string, name: string, value: string): string => {
-  return "#define " + name + " " + value + "\n" + glsl
-}
-
 let _addDefine = (glsl: string, name: string): string => {
   return "#define " + name + "\n" + glsl
 }
@@ -109,15 +106,12 @@ let _buildGLSL = (state: state, material: material): [string, string] => {
     fsGLSL = _addDefine(fsGLSL, "NO_MAP")
   }
 
-  //这里为了简化代码，我们只是在FS GLSL中加入了“定义最大方向光个数”的代码来表示该GLSL支持方向光
-  fsGLSL = _addDefineWithValue(fsGLSL, "MAX_DIRECTION_LIGHT_COUNT", String(state.maxDirectionLightCount))
-
   return [vsGLSL, fsGLSL]
 }
 
 export let initBasicMaterialShader =
   (state: state, allMaterials: Array<material>): state => {
-    let [newProgramMap, newShaderIndexMap, newMaxShaderIndex] = initMaterialShader(state, _buildGLSL, state.basicMaterialShaderIndexMap, allMaterials)
+    let [newProgramMap, newShaderIndexMap, newMaxShaderIndex] = InitMaterialShaderUtils.initMaterialShader(state, _buildGLSL, state.basicMaterialShaderIndexMap, allMaterials)
 
     return {
       ...state,

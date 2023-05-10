@@ -3,16 +3,16 @@ import { attributeType, attributeBuffer } from "./GLSLConfigType";
 
 type attributeLocation = GLint
 
-export type sendConfig = {
-    elementSendConfig?: {
+export type sendMetadata = {
+    elementSendMetadata?: {
         sendBuffer: (gl: WebGLRenderingContext, buffer: WebGLBuffer) => void
     },
-    instanceSendConfig?: {
+    instanceSendMetadata?: {
         pos: attributeLocation,
         size: number,
         getOffset: (index: number) => number
     },
-    otherSendConfig?: {
+    otherSendMetadata?: {
         pos: attributeLocation,
         size: number,
         buffer: attributeBuffer,
@@ -20,17 +20,17 @@ export type sendConfig = {
     }
 }
 
-let _addModelMatrixInstanceArrayBufferSendConfig = (sendConfigArr: Array<sendConfig>, pos: attributeLocation
+let _addModelMatrixInstanceArrayBufferSendMetadata = (sendMetadataArr: Array<sendMetadata>, pos: attributeLocation
 ) => {
-    sendConfigArr.push({
-        instanceSendConfig: {
+    sendMetadataArr.push({
+        instanceSendMetadata: {
             pos: pos,
             size: 4,
             getOffset: (index) => index * 16,
         }
     })
 
-    return sendConfigArr
+    return sendMetadataArr
 }
 
 let _getBufferSizeByType = (type: attributeType) => {
@@ -44,23 +44,23 @@ let _getBufferSizeByType = (type: attributeType) => {
     }
 }
 
-let _addElementBufferSendConfig = (sendConfigArr: Array<sendConfig>
+let _addElementBufferSendMetadata = (sendMetadataArr: Array<sendMetadata>
 ) => {
-    sendConfigArr.push({
-        elementSendConfig: {
+    sendMetadataArr.push({
+        elementSendMetadata: {
             sendBuffer: (gl: WebGLRenderingContext, buffer: WebGLBuffer) => {
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer)
             }
         }
     })
 
-    return sendConfigArr
+    return sendMetadataArr
 }
 
-let _addOtherSendConfig = (sendConfigArr: Array<sendConfig>, [pos, buffer, type]: [attributeLocation, attributeBuffer, attributeType]
+let _addOtherSendMetadata = (sendMetadataArr: Array<sendMetadata>, [pos, buffer, type]: [attributeLocation, attributeBuffer, attributeType]
 ) => {
-    sendConfigArr.push({
-        otherSendConfig: {
+    sendMetadataArr.push({
+        otherSendMetadata: {
             pos: pos,
             size: _getBufferSizeByType(type),
             buffer: buffer,
@@ -74,27 +74,27 @@ let _addOtherSendConfig = (sendConfigArr: Array<sendConfig>, [pos, buffer, type]
         }
     })
 
-    return sendConfigArr
+    return sendMetadataArr
 }
 
-export let addAttributeSendConfig = (
+export let addAttributeSendMetadata = (
     gl: WebGLRenderingContext,
     program: WebGLProgram,
-    sendConfigArr: Array<sendConfig>, [name, buffer, type]: [attributeName, attributeBuffer, attributeType]
-): Array<sendConfig> => {
+    sendMetadataArr: Array<sendMetadata>, [name, buffer, type]: [attributeName, attributeBuffer, attributeType]
+): Array<sendMetadata> => {
     let pos = gl.getAttribLocation(program, name)
 
     switch (buffer) {
         case attributeBuffer.Instance_model_matrix:
-            _addModelMatrixInstanceArrayBufferSendConfig(sendConfigArr, pos)
+            _addModelMatrixInstanceArrayBufferSendMetadata(sendMetadataArr, pos)
             break
         case attributeBuffer.Index:
-            _addElementBufferSendConfig(sendConfigArr)
+            _addElementBufferSendMetadata(sendMetadataArr)
             break
         default:
-            _addOtherSendConfig(sendConfigArr, [pos, buffer, type])
+            _addOtherSendMetadata(sendMetadataArr, [pos, buffer, type])
             break
     }
 
-    return sendConfigArr
+    return sendMetadataArr
 }

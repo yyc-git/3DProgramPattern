@@ -4,7 +4,7 @@ import { getColor, getMapUnit, hasBasicMap } from "splice_pattern_utils/src/engi
 import { shaderIndex } from "splice_pattern_utils/src/engine/ShaderType"
 import { sendFloat3, sendInt, sendMatrix4 } from "splice_pattern_utils/src/engine/GLSLSend"
 import { getModelMatrix } from "splice_pattern_utils/src/engine/Transform"
-import { getShaderIndex } from "splice_pattern_utils/src/engine/Shader"
+import * as ShaderUtils from "splice_pattern_utils/src/engine/Shader"
 import { getDiffuse, getDiffuseMapUnit, hasDiffuseMap } from "splice_pattern_utils/src/engine/PBRMaterial"
 import { getAllGameObjects, getMaterial, getTransform } from "splice_pattern_utils/src/engine/GameObject"
 import { materialType } from "splice_pattern_utils/src/engine/MaterialType"
@@ -99,10 +99,10 @@ export let render = (state: state): state => {
         let shaderIndex = null
         switch (materialType_) {
             case materialType.Basic:
-                shaderIndex = getShaderIndex(state.basicMaterialShaderIndexMap, material)
+                shaderIndex = ShaderUtils.getShaderIndex(state.basicMaterialShaderIndexMap, material)
                 break
             case materialType.PBR:
-                shaderIndex = getShaderIndex(state.pbrMaterialShaderIndexMap, material)
+                shaderIndex = ShaderUtils.getShaderIndex(state.pbrMaterialShaderIndexMap, material)
                 break
         }
 

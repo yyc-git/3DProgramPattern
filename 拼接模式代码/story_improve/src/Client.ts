@@ -2,8 +2,8 @@
 import * as shadersJson from "./glsl_config/shaders.json"
 import * as shaderChunksJson from "./glsl_config/shader_chunks.json"
 
-import { createState, initBasicMaterialShader, initPBRMaterialShader, render, initCamera, parseConfig } from "splice_pattern_engine/src/Engne"
-import { createScene } from "splice_pattern_utils/src/Client"
+import * as Engine from "splice_pattern_engine/src/Engne"
+import * as ClientUtils from "splice_pattern_utils/src/Client"
 
 //修复json loader关于Array.isArray的bug 
 let _fixJsonForArrayBug = (jsonWithArray) => {
@@ -14,18 +14,18 @@ let _fixJsonForArrayBug = (jsonWithArray) => {
     return (jsonWithArray as any).default
 }
 
-let parsedConfig = parseConfig(shadersJson as any, _fixJsonForArrayBug(shaderChunksJson))
+let parsedConfig = Engine.parseConfig(shadersJson as any, _fixJsonForArrayBug(shaderChunksJson))
 
-let state = createState(parsedConfig)
+let state = Engine.createState(parsedConfig)
 
-let sceneData = createScene(state)
+let sceneData = ClientUtils.createScene(state)
 state = sceneData[0]
 let [allBasicMaterials, allPBRMaterials, _] = sceneData[1]
 
-state = initBasicMaterialShader(state, [allBasicMaterials, "render_basic"])
+state = Engine.initBasicMaterialShader(state, [allBasicMaterials, "render_basic"])
 
-state = initPBRMaterialShader(state, [allPBRMaterials, "render_pbr"])
+state = Engine.initPBRMaterialShader(state, [allPBRMaterials, "render_pbr"])
 
-state = initCamera(state)
+state = Engine.initCamera(state)
 
-state = render(state)
+state = Engine.render(state)
