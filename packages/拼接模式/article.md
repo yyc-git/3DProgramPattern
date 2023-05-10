@@ -606,7 +606,7 @@ uniform1i
 ## 概述解决方案
 
 - 将支持各种功能的默认GLSL分解为多个小块
-- 用户实现GLSL的JSON配置文件，指定如何拼接小块的GLSL，以及指定在渲染时需要发送的顶点数据和Uniform数据的配置数据
+- 用户给出GLSL的JSON配置文件，指定如何拼接小块的GLSL，以及指定在渲染时需要发送的顶点数据和Uniform数据的配置数据
 
 
 ## 给出UML？
@@ -623,13 +623,13 @@ Client是用户
 我们看下数据和ChunkConverter这两个部分：
 
 Target GLSL是支持某些功能的一套GLSL，相当于之前的BasicMaterialShaderGLSL（Add Define）或者PBRMaterialShaderGLSL（Add Define），两者的区别是因为Target GLSL没有预定义的宏，所以它没有分支，只有支持的功能的GLSL
-一套Target GLSL包括了一个VS GLSL和一个FS GLSL
-这里最多有八套Target GLSL，分别对应基础材质的Shader的四种情况和PBR材质的Shader的四种情况
+一个Target GLSL包括了一个VS GLSL和一个FS GLSL
+这里最多有八个Target GLSL，对应了基础材质的Shader的四种情况和PBR材质的Shader的四种情况
 
 
 Send Metadata是获得和发送顶点数据和Uniform数据的元数据
 具体来说，每个Send Metadata包括了多个getData函数和多个sendData函数，前者获得对应的顶点数据或者Uniform数据，后者发送它们
-因为一个Send Metadata对应一套Target GLSL，所以最多有8个Send Metadata
+因为一个Send Metadata对应一个Target GLSL，所以最多有8个Send Metadata
 
 
 
@@ -704,7 +704,7 @@ InitMaterialShader负责初始化所有材质的Shader，它有两个函数：in
 
 ### GLSL Config的代码
 
-GLSL Config包括两个JSON文件：shaders.json和shader_chunks.json，它们的格式定义在ChunkHandler的GLSLConfigType.gen.tsx中，它们的内容由用户给出
+GLSL Config包括两个JSON文件：shaders.json和shader_chunks.json，它们的格式定义在ChunkHandler的GLSLConfigType中，它们的内容由用户给出
 
 其中shaders.json文件定义了所有种类的Shader的GLSL配置数据，
 shader_chunks.json文件是定义了所有的GLSL Chunk的配置数据
@@ -1491,7 +1491,7 @@ let _sendUniformData = (uniformSendMetadata: Array<uniformSendMetadata>, state: 
 数据2
 #endif
 ```
-它有两个分支，可以将其分解为数据1、数据2这两个小块数据
+它有两个分支，可以将其分解为数据1、数据2这两个小块数据：
 
 
 配置文件由用户给出，包括下面的内容：
@@ -1510,27 +1510,27 @@ let _sendUniformData = (uniformSendMetadata: Array<uniformSendMetadata>, state: 
 
 我们来看看模式的相关角色：
 
-总体来看，分为数据、ChunkConverter、ChunkHandler、系统这四个部分
+总体来看，分为用户、数据、ChunkConverter、ChunkHandler、系统这五个部分
+
+
+我们看下用户这个部分：
+
+Client是用户
 
 
 我们看下数据和ChunkConverter这两个部分：
 
 
 - Target
-该角色是拼接后的符合某种特定分支条件的数据，如[支持贴图，支持Instance]的GLSL就是一个Target
+该角色是符合某种特定分支条件的数据，如[有普通贴图，支持Instance]的GLSL就是一个Target
 
-- Runtime Config
-该角色是如何操作运行时数据的配置数据
-具体来说，每个Runtime Config包括了多个getData函数和多个sendData函数，前者获得对应的运行时数据，后者发送它们
-<!-- 因为一个Send Metadata对应一个Shader，而这里最多有8个Shader，所以最多有8个Send Metadata -->
-
-<!-- ，它在初始化时从Target Config中获得，在运行时被使用 -->
-
-
+- Runtime Metadata
+该角色是操作运行时数据的元数据
+具体来说，每个Runtime Metadata包括了多个getData函数和多个sendData函数，前者获得对应的运行时数据，后者发送它们
 
 
 - Target Config
-该角色是配置数据，用来指定如何拼接Target，并包括了Runtime Config
+该角色是配置数据，用来指定如何拼接Target，并包括了Runtime Metadata的配置数据
 它的内容由用户给出，它的格式（也就是类型）由ChunkHandler定义
 Target Config中某些字段的值是离散的，它们的范围是系统定义的，用户只能从范围内选择某个具体的值
 
@@ -1542,7 +1542,8 @@ Target Config中某些字段的值是离散的，它们的范围是系统定义�
 
 
 - ChunkConverter
-该角色负责在系统预处理处理Target Chunk，并将其合并为一个Merged Target Chunk
+该角色负责处理Target Chunk，并将其合并为一个Merged Target Chunk
+因为Target Chunk是自定义文件，有一些自定义的语法，不能直接使用，所以系统需要调用ChunkConverter对其预处理
 
 
 - Merged Target Chunk
@@ -1553,18 +1554,19 @@ Target Config中某些字段的值是离散的，它们的范围是系统定义�
 我们看下ChunkHandler和系统这两个部分：
 
 - ChunkHandler
-该角色负责拼接Target和获得Runtime Config
+该角色负责拼接Target和构造Runtime Metadata
 
 - System
 该角色为系统的门户，提供API给Client
 
 - Init
 该角色实现系统的初始化，它包括下面的步骤：
-调用ChunkHandler的buildTarget函数，按照Target Config的配置数据将Merged Target Chunk中对应的Target Chunk拼接为一个Target，然后使用它；
-调用ChunkHandler的getRuntimeConfig函数，从Target Config中获得Runtime Config
+调用ChunkHandler的buildTarget函数，按照Target Config将Merged Target Chunk中对应的Target Chunk拼接为一个Target，然后使用它；
+调用ChunkHandler的buildRuntimeMetadata函数，按照Target Config构造Runtime Metadata
+
 
 - OperateWhenRuntime
-该角色在运行时进行某个操作（如渲染），使用了Runtime Config
+该角色是运行时进行的某个操作（如渲染），使用了Runtime Metadata来操作运行时数据
 
 
 
@@ -1581,22 +1583,32 @@ TODO -->
 
 <!-- - Target Config的内容由Client给出 -->
 
+- 只有一个Merged Target Chunk，由所有的Target Chunk合并而来
+
+
 - Target Config通常包含两个配置文件：targets_config、chunks_config
 这两个文件的关系是“总-分”的关系，其中targets_config是“总”，chunks_config是“分”
+前者应该指定要构造哪些种类的Target、每种Target有哪些Target Chunk；
+后者应该指定所有的Target Chunk的配置数据
 
-- 有多个Target，如[支持贴图，支持Instance]的GLSL是一个Target，[不支持贴图，支持Instance]的GLSL是另外一个Target
 
-- 有多个Runtime Config，一个Runtime Config对应一个Target
+- 有多个Target，如[有普通贴图，支持Instance]的GLSL是一个Target，[没有普通贴图，支持Instance]的GLSL是另外一个Target
+
+- 有多个Runtime Metadata，一个Runtime Metadata对应一个Target
+
+
 
 ## 角色的抽象代码？
 
 
 下面我们来看看各个角色的抽象代码：
 
-首先，我们看下一个Target Chunk的抽象代码
-然后，我们看下ChunkConverter的抽象代码
-然后，我们看下Merged Target Chunk的抽象代码
-然后，我们看下系统的gulp任务的抽象代码
+首先，我们看下Target Chunk的抽象代码
+然后，因为系统会在预处理时调用gulp任务，调用ChunkConverter来合并Target Chunk为Merged Target Chunk，所以我们看下它们的抽象代码：
+- ChunkConverter的抽象代码
+- Merged Target Chunk的抽象代码
+- 系统的gulp任务的抽象代码
+
 然后，我们看下Target Config的抽象代码
 然后，我们看下Client的抽象代码
 然后，我们看下系统的抽象代码
@@ -1604,15 +1616,17 @@ TODO -->
 
 
 
-- 一个Target Chunk的抽象代码
+- Target Chunk的抽象代码
+
+下面是一个Target Chunk文件的抽象代码：
 target_chunk1
 ```ts
 @part1
-...
+区域1的数据
 @end
 
 @part2
-...
+区域2的数据
 @end
 
 ...
@@ -1620,7 +1634,7 @@ target_chunk1
 
 part1、part2是抽象的自定义字符（实际上可以为任意的字符），用于将一个完整的大数据按照一定的顺序分割为不同区域的片段，这样便于更细粒度的组合拼接
 
-
+一个Target Chunk可以包括多个区域的片段
 
 - ChunkConverter的抽象代码
 ```ts
@@ -1667,7 +1681,7 @@ export let getData = (): Record<chunkName, chunk> => {
 
 - 系统的gulp任务的抽象代码
 
-在系统预处理时，系统调用下面的gulp任务来创建Merged Target Chunk:
+系统在预处理时，调用下面的gulp任务来创建Merged Target Chunk:
 gulpfile.js
 ```ts
 var gulp = require("gulp");
@@ -1698,7 +1712,8 @@ createMergedTargetChunkFile_res任务用来创建Rescript文件
 
 
 - Target Config的抽象代码
-Target Config通常包括targets_config.json和chunks_config.json这两个配置文件，其中前者应该指定要构造哪些种类的Target、每种Target有哪些Target Chunk；后者应该指定所有的Target Chunk的配置数据
+
+Target Config通常包括targets_config.json和chunks_config.json这两个配置文件
 
 它们的抽象代码如下：
 targets_config.json
@@ -1706,7 +1721,7 @@ targets_config.json
 {
   "static_branchs": [
     {
-      "name": "xxx",
+      "name": "static branch name",
       "value": [
         "chunk name for condition1",
         "chunk name for condition2",
@@ -1717,7 +1732,7 @@ targets_config.json
   ],
   "dynamic_branchs": [
     {
-      "name": "xxx",
+      "name": "dynamic branch name",
       "condition": "xxx",
       "pass": "chunk name when condition pass",
       "fail": "chunk name when condition fail"
@@ -1726,7 +1741,7 @@ targets_config.json
   ],
   "groups": [
     {
-      "name": "xxx",
+      "name": "group name",
       "value": [
         "chunk name",
         "chunk name",
@@ -1740,8 +1755,8 @@ targets_config.json
       "name": "target1",
       "target_chunks": [
         {
-          "type": "static_branch | dynamic_branch | group",
-          "name": "xxx"
+          "type": "static_branch || dynamic_branch || group",
+          "name": "static branch name || dynamic branch name || group name"
         },
         {
           "name": "chunk name"
@@ -1761,12 +1776,12 @@ chunks_config.json
         "target chunk": [
             {
                 "type": "xxx",
-                "name": "target chunk's filename"
+                "name": "target chunk's filename(e.g. target_chunk1)"
             },
             ...
         ],
-        "runtime config": {
-            "runtime data1 config": [
+        "runtime metadata config": {
+            "runtime metadata1 config": [
                 {
                     xxx
                 },
@@ -1781,30 +1796,22 @@ chunks_config.json
 - Client的抽象代码
 Client
 ```ts
-// use json loader to load target config
-import * as targetsConfigJson from "./target_config/targets_config.json"
-import * as chunksConfigJson from "./target_config/chunks_config.json"
+let parsedConfig = System.parseConfig(targetsConfigJson, chunksConfigJson)
 
-...
-
-let parsedConfig = parseConfig(targetsConfigJson, chunksConfigJson)
-
-let state = createState(parsedConfig)
+let state = System.createState(parsedConfig)
 
 declare let someConfigData
-state = init(state, someConfigData)
+state = System.init(state, someConfigData)
 
-state = operateWhenRuntime(state)
+state = System.operateWhenRuntime(state)
 ```
-
-这里使用webpack的json loader来加载Target Config文件
 
 - 系统的抽象代码
 System
 ```ts
 declare function _handleConfigFunc1(state: state, someConfigData): any
 
-declare function _addRuntimeConfigFunc1(someRuntimeConfigFromState, someConfigData): any
+declare function _addRuntimeMetadataFunc1(someRuntimeMetadataFromState, someConfigData): any
 
 export let parseConfig = ChunkHandler.parseConfig
 
@@ -1828,8 +1835,8 @@ export let init = (state: state, someConfigData): state => {
 
     console.log("使用target...")
 
-    let runtimeConfig = ChunkHandler.getRuntimeConfig(
-        [_addRuntimeConfigFunc1, ... ],
+    let runtimeMetadata = ChunkHandler.buildRuntimeMetadata(
+        [_addRuntimeMetadataFunc1, ... ],
 
         target
     )
@@ -1837,20 +1844,21 @@ export let init = (state: state, someConfigData): state => {
     return {
         ...state,
         target: target,
-        runtimeConfig: runtimeConfig
+        runtimeMetadata: runtimeMetadata
     }
 }
 
 export let operateWhenRuntime = (state: state): state => {
-    console.log("使用state.runtimeConfig...")
+    console.log("使用state.runtimeMetadata...")
 
     return state
 }
 ```
 
-这里的抽象代码直接给出了System、Init、OperateWhenRuntime这三个模块的代码，其中init函数是Init模块的函数，operateWhenRuntime函数是OperateWhenRuntime模块的函数
+这里的抽象代码直接给出了系统中System、Init、OperateWhenRuntime这三个模块的抽象代码，其中init函数是Init模块的函数，operateWhenRuntime函数是OperateWhenRuntime模块的函数
 
-这里只考虑了只有一个Target和一个Runtime Config的情况，因此init函数中没有进行遍历
+值得注意的是：
+这里只考虑了只有一个Target和一个Runtime Metadata的情况，因此init函数中没有进行遍历
 
 
 - ChunkHandler的抽象代码
@@ -1861,9 +1869,9 @@ type target = any
 
 export declare function buildTarget(handleConfigFuncs, parsedConfig: config, targetChunk, someConfigData): target
 
-type runtimeConfig = any
+type runtimeMetadata = any
 
-export declare function getRuntimeConfig(addRuntimeConfigFuncs, target: target): runtimeConfig
+export declare function buildRuntimeMetadata(addRuntimeMetadataFuncs, target: target): runtimeMetadata
 ```
 
 ChunkHandler的API是这三个函数，这里只给出了函数签名
@@ -1881,9 +1889,10 @@ Target组合了多个Target Chunk
 - 依赖倒置原则
 组合Target Chunk的顺序定义在抽象的Target Config中，而不是通过预定义宏的方式写死在Target中
 - 最少知识原则
+各个RuntimeMetadata相互独立
 各个Target相互独立
 - 开闭原则
-要改变Target Chunk的组合顺序，只需要调整配置数据，无需修改代码
+要改变Target Chunk的组合顺序，只需要修改Target Config，无需修改代码
 要增加一种Target，只需要在Target Config的targets_config.json的targets字段中增加该种类的配置数据、系统增加对应的Target Chunk、系统的Init增加对应的初始化函数，无需修改代码
 
 
@@ -1900,14 +1909,14 @@ Target组合了多个Target Chunk
 拼接后的Target没有分支判断，非常精简
 
 - 提高性能
-系统能够在初始化时一次性从配置文件中获得Runtime Config，然后在运行时无需进行分支判断，而是直接遍历Runtime Config，通过它的getData、sendData函数来获得和发送运行时的数据，从而提高运行时的性能
+系统能够在初始化时一次性从配置文件中构造Runtime Metadata，然后在运行时无需进行分支判断，而是直接遍历Runtime Metadata，通过它的getData、sendData函数来操作运行时的数据，从而提高运行时的性能
 
 
 
 
 ## 缺点
 
-- Target Config配置文件的格式由系统端定义，用户需要遵守该格式来写配置内容，这样会有一些限制
+- Target Config的格式由系统定义，用户需要遵守该格式来写Target Config的内容，这样会有一些限制
 
 - 因为Target Chunk使用了自定义的分段字符（如@top），所以无法正确使用该文件的编译检查，如无法正确使用Shader编译检查
 
@@ -1926,7 +1935,7 @@ Target组合了多个Target Chunk
 
 - 构造游戏的地图数据
 
-一张大的世界地图根据各种分支条件来生成，其中分支条件可以为是否有水、是否有树等
+一张大的世界地图可以根据各种分支条件来生成，其中分支条件可以为“是否有水”、“是否有树”等
 
 可以将世界地图按照分支分为多个小块数据
 
@@ -1940,21 +1949,21 @@ Target组合了多个Target Chunk
 有水.map
 ```ts
 @区域1
-有水的数据1
+有水的区域1的数据
 @end
 
 @区域2
-有水的数据2
+有水的区域2的数据2
 @end
 ```
 无水.map
 ```ts
 @区域1
-无水的数据1
+无水的区域1的数据
 @end
 
 @区域2
-无水的数据2
+无水的区域2的数据
 @end
 ```
 
@@ -1968,7 +1977,8 @@ Target组合了多个Target Chunk
 <!-- 将一个区域的地图数据看作一个Target数据，将每块数据看作一个Target Chunk数据 -->
 
 
-由用户给出Target Config，其中的targets_config.json应该指定要构造哪些种类的世界地图、每种世界地图有哪些Target Chunk，chunks_config.json应该指定所有的Target Chunk的配置数据
+由用户给出Target Config，其中的targets_config.json应该指定要构造哪些种类的世界地图、每种世界地图有哪些Target Chunk；
+chunks_config.json应该指定所有的Target Chunk的配置数据
 
 
 <!-- ## 实现该场景需要修改模式的哪些角色？
@@ -1980,15 +1990,15 @@ Target组合了多个Target Chunk
 - Target Chunk应该进行了适当抽象，从而能够保证在组合拼接为Target后是正确的
 
 如有三个属于VS GLSL的GLSL Chunk：basic_map_fragment.glsl, no_basic_map_fragment.glsl, basic_end_fragment.glsl，其中前两个分别处理有贴图和没有贴图的情况，第三个负责输出到gl_FragColor
-我们需要组合前两个中的一个GLSL Chunk、第三个GLSL Chunk
+我们需要组合前两个中任意的一个GLSL Chunk和第三个GLSL Chunk
 
-如果没有进行抽象的话，前两个的代码可能为：
+如果没有进行抽象的话，前两个的代码可能是：
 basic_map_fragment.glsl
 ```glsl
 @body
     vec4 texelColor = texture2D(u_mapSampler, v_mapCoord0);
 
-    //对texelColor进行一些处理...
+    对texelColor进行一些处理...
 @end
 ```
 no_basic_map_fragment.glsl
@@ -2008,7 +2018,7 @@ basic_map_fragment.glsl
 @body
     vec4 texelColor = texture2D(u_mapSampler, v_mapCoord0);
 
-    //对texelColor进行一些处理...
+    对texelColor进行一些处理...
 
     vec4 totalColor = texelColor;
 @end
@@ -2022,21 +2032,21 @@ no_basic_map_fragment.glsl
 basic_end_fragment.glsl
 ```glsl
 @body
-    gl_FragColor = vec4(totalColor.rgb, totalColor.a);
+    gl_FragColor = totalColor;
 @end
 ```
 
-有两种组合的情况，它们的代码如下：
+这三个GLSL Chunk一共有两种组合的情况，它们各自组合后的代码如下：
 basic_map_fragment.glsl+basic_end_fragment.glsl
 ```glsl
 @body
     vec4 texelColor = texture2D(u_mapSampler, v_mapCoord0);
 
-    //对texelColor进行一些处理...
+    对texelColor进行一些处理...
 
     vec4 totalColor = texelColor;
 
-    gl_FragColor = vec4(totalColor.rgb, totalColor.a);
+    gl_FragColor = totalColor;
 @end
 ```
 no_basic_map_fragment.glsl+basic_end_fragment.glsl
@@ -2044,7 +2054,7 @@ no_basic_map_fragment.glsl+basic_end_fragment.glsl
 @body
     vec4 totalColor = vec4(u_color, u_alpha);
 
-    gl_FragColor = vec4(totalColor.rgb, totalColor.a);
+    gl_FragColor = totalColor;
 @end
 ```
 
@@ -2068,7 +2078,7 @@ no_basic_map_fragment.glsl+basic_end_fragment.glsl
 1.扩展Target Config
 <!-- ，来支持更灵活的配置 -->
 
-如我们可以在shader_chunks.json->glsls字段中增加值为“custom_vs”和“custom_fs”的type，从而插入用户自定义的属于VS GLSL和FS GLSL的GLSL Chunk
+如我们可以在shader_chunks.json的glsls字段中增加值为“custom_vs”和“custom_fs”的type，从而插入用户自定义的属于VS GLSL和FS GLSL的GLSL Chunk
 
 shader_chunks.json相关代码如下：
 ```ts
@@ -2103,8 +2113,8 @@ shader_chunks.json相关代码如下：
 ```
 
 要实现这个扩展，需要进行下面的修改：
-- 修改ChunkHandler的GLSLConfigType.res中glsls的类型，使其支持该type
-- 修改ChunkHanlder的buildGLSL函数的传入参数，传入来自引擎的新的函数；然后在ChunkHanlder的buildGLSL函数中使用传入的新函数来处理type为custom_vs、custom_fs的情况
+- 修改ChunkHandler的GLSLConfigType中glsls的类型，使其支持该type
+- 修改ChunkHanlder的buildGLSL函数的传入参数，增加“来自引擎的新的函数”的传入参数；然后在ChunkHanlder的buildGLSL函数中使用传入的新函数来处理type为custom_vs、custom_fs的情况
 
 
 2.系统提供增加Target Chunk的API给用户
@@ -2114,7 +2124,7 @@ shader_chunks.json相关代码如下：
 addGLSLChunk(engineState, {top, define, varDeclare, funcDeclare, funcDefine, body}, glslChunkFileName)
 ```
 
-然后用户就可以在GLSL Config中使用文件名为指定的glslChunkFileName的GLSL Chunk
+用户调用该API加入一个GLSL Chunk后，就可以在GLSL Config中使用文件名为指定的glslChunkFileName的GLSL Chunk
 
 
 
@@ -2122,7 +2132,7 @@ addGLSLChunk(engineState, {top, define, varDeclare, funcDeclare, funcDefine, bod
 
 之前提到了没有材质的Shader，现在来讨论一下实现的细节
 
-我们将没有材质的Shader定义在shaders.json的shaders字段中，代码如下所示：
+我们可以将没有材质的Shader定义在shaders.json的shaders字段中，代码如下所示：
 shaders.json
 ```ts
 "shaders": [
@@ -2157,11 +2167,20 @@ state = initNoMaterialShader(state,  "no_material_shader2")
 不需要“所有的材质”这个参数；
 InitMaterialShader的initNoMaterialShader函数跟初始化有材质的Shader的函数（如initBasicMaterialShader）差不多，只是没有遍历allMaterials，也无需生成shaderIndex，而是只创建了一个Shader（也就是一个Program），将其保存到EngineState的一个Hash Map中，它的Key是shaderName（也就是  "no_material_shader1"或者  "no_material_shader2"），Value是Shader（具体就是Program）
 
+然后在需要使用没有材质的Shader来渲染（如绘制轮廓）时，直接通过EngineState的这个Hash Map来拿到Program，代码如下：
+```ts
+  let program = getExnFromStrictNull(engineState.noMaterialShaderMap.get("no_material_shader1"))
+
+  use program
+
+  ...
+```
 
 
 ## 构造DX12、Vulkan、WebGPU等现代图形API的着色器代码
 
-构造现代图形API的着色器代码（如WebGPU的WGSL）与构造GLSL的区别主要是Send Metadata不同，因此可以在构造GLSL案例代码的基础上，修改下Send Metadata相关的代码和配置，增加对UBO、SSBO等新种类的着色器数据的支持
+构造现代图形API的着色器代码（如WebGPU的WGSL）与构造GLSL的区别主要是Send Metadata不同，因此可以在构造GLSL案例代码的基础上，修改下Send Metadata相关的代码和配置，增加对UBO、SSBO等新种类的着色器数据的支持，即可实现构造现代图形API的着色器代码
+
 
 
 
@@ -2172,7 +2191,7 @@ InitMaterialShader的initNoMaterialShader函数跟初始化有材质的Shader的
 可以把Target Config配置文件升级成新的着色器语言；
 把ChunkConverter、ChunkHandler升级为编译器，负责把新的着色器语言编译为GLSL
 
-这样做的好处是让用户能够更加灵活地自定义着色器代码，而且还可以正确地使用Shader编译检查
+这样做的好处是让用户能够更加灵活地自定义着色器代码，而且还可以在编译器中使用Shader编译检查
 
 
 
@@ -2196,7 +2215,7 @@ InitMaterialShader的initNoMaterialShader函数跟初始化有材质的Shader的
 
 如对于路径追踪渲染而言，它是一个统一的框架，没有什么分支判断，因此只需要一套大的GLSL即可
 
-但是，因为这套大的GLSL的代码量可能达到上万行，所以可以使用[slang](https://github.com/shader-slang/slang)提供的更容易维护、更模块化的编程语言来实现着色器代码，并将其编译为GLSL
+但是，因为这套大的GLSL的代码量可能达到上万行，所以可以使用slang这个开源项目提供的更容易维护、更模块化的着色器语言来写着色器代码
 
 slang相当于着色器语言中的Typescript，它在原始的着色器语言之上增加了一层编译器，实现了一个新的着色器语言。slang可以将其编译为GLSL、HLSL等各种原始的着色器语言
 
@@ -2206,5 +2225,7 @@ slang相当于着色器语言中的Typescript，它在原始的着色器语言�
 
 
 # 更多资料推荐
+
+slang是一个开源库，可以在网上搜索“shader-slang/slang”来找到它的Github Repo
 
 Unity实现了拼接模式的扩展，提出了自己的着色器语言

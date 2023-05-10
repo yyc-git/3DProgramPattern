@@ -4,7 +4,7 @@ import { getData } from "./target_chunks/ConverterdChunk"
 
 declare function _handleConfigFunc1(state: state, someConfigData): any
 
-declare function _addRuntimeConfigFunc1(someRuntimeConfigFromState, someConfigData): any
+declare function _addRuntimeMetadataFunc1(someRuntimeMetadataFromState, someConfigData): any
 
 export let parseConfig = ChunkHandler.parseConfig
 
@@ -28,8 +28,8 @@ export let init = (state: state, someConfigData): state => {
 
     console.log("使用target...")
 
-    let runtimeConfig = ChunkHandler.getRuntimeConfig(
-        [_addRuntimeConfigFunc1, ... ],
+    let runtimeMetadata = ChunkHandler.buildRuntimeMetadata(
+        [_addRuntimeMetadataFunc1, ... ],
 
         target
     )
@@ -37,12 +37,12 @@ export let init = (state: state, someConfigData): state => {
     return {
         ...state,
         target: target,
-        runtimeConfig: runtimeConfig
+        runtimeMetadata: runtimeMetadata
     }
 }
 
 export let operateWhenRuntime = (state: state): state => {
-    console.log("使用state.runtimeConfig...")
+    console.log("使用state.runtimeMetadata...")
 
     return state
 }

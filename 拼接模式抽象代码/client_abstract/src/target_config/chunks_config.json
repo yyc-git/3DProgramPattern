@@ -4,12 +4,12 @@
         "target chunk": [
             {
                 "type": "xxx",
-                "name": "target chunk's filename"
+                "name": "target chunk's filename(e.g. target_chunk1)"
             },
             ...
         ],
-        "runtime config": {
-            "runtime data1 config": [
+        "runtime metadata config": {
+            "runtime metadata1 config": [
                 {
                     xxx
                 },
