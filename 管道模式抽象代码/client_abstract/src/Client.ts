@@ -1,11 +1,11 @@
-import { createState, registerAllPipelines, runPipeline1... } from "system_abstract/src/System"
+import * as System  from "system_abstract/src/System"
 
-let systemState = createState()
+let systemState = System.createState()
 
-systemState = registerAllPipelines(systemState)
+systemState = System.registerAllPipelines(systemState)
 
-init(systemState, configForInit).then(systemState => {
-    runPipeline1(systemState, configForPipeline1).then(systemState => {
+System.init(systemState, configForInit).then(systemState => {
+    System.runPipeline1(systemState, configForPipeline1).then(systemState => {
         运行其它的管道...
     })
 })

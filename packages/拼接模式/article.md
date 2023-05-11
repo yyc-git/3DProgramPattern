@@ -526,7 +526,7 @@ _sendUniformData函数首先获得并发送了相机数据；
 
 ### 运行Client的代码
 
-下面，我们运行Client的代码，浏览器控制台打印的log如下：
+下面，我们运行Client的代码，浏览器控制台打印的结果如下：
 ```js
 //初始化，打印shaderIndex
 shaderIndex: 0
@@ -564,7 +564,7 @@ uniform3f
 //发送PBR材质的diffuse贴图数据
 uniform1i
 其它渲染逻辑...
-//开始渲染第三个gameObject，打印的log跟“渲染第一个gameObject”打印的输出一样
+//开始渲染第三个gameObject，打印的结果跟“渲染第一个gameObject”打印的输出一样
 ...
 ```
 
@@ -589,7 +589,7 @@ uniform1i
 第二次渲染的是gameObject2，它挂载了pbrMaterial1组件，这次渲染与第一次渲染不同的地方是发送的材质数据不同
 
 
-第三次渲染的是gameObject3，它挂载了basicMaterial3组件，这次渲染打印的log与第一次渲染打印的log一样
+第三次渲染的是gameObject3，它挂载了basicMaterial3组件，这次渲染打印的结果与第一次渲染打印的结果一样
 
 
 
@@ -1462,7 +1462,7 @@ let _sendUniformData = (uniformSendMetadata: Array<uniformSendMetadata>, state: 
 ### 运行Client的代码
 
 
-下面，我们运行Client的代码，浏览器控制台打印的log跟之前基本上一样，故省略
+下面，我们运行Client的代码，浏览器控制台打印的结果跟之前基本上一样，故省略
 
 
 <!-- # 设计意图 -->

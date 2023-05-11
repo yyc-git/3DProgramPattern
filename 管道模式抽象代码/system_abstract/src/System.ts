@@ -22,11 +22,10 @@ export let registerAllPipelines = (state: state) => {
             []
         )
 
-        if (需要合并某个X Pipeline) {
-            //合并Pipeline2和Pipeline1的X Pipeline管道
-            pipelineManagerState = PipelineManager.registerPipeline(
-                pipelineManagerState,
-                Pipeline2.getPipeline(),
+        pipelineManagerState = PipelineManager.registerPipeline(
+            pipelineManagerState,
+            Pipeline2.getPipeline(),
+            if (需要合并Pipeline2和Pipeline1的某个X Pipeline管道) {
                 [
                     {
                         pipelineName: 某个X Pipeline名,
@@ -35,8 +34,11 @@ export let registerAllPipelines = (state: state) => {
                     },
                     指定其它的X Pipeline的合并...
                 ]
-            )
-        }
+            }
+            else{
+                []
+            }
+        )
 
         注册更多的Pipeline...
 

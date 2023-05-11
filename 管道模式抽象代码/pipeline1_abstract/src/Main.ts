@@ -30,7 +30,8 @@ export let getPipeline = (): pipeline<state> => {
 						elements: [
 							包含的group或者job的配置数据（将会依次按照link的方式执行每个element）
 						]
-					}
+					},
+                    更多的group...
 				],
 				first_group: "first_xxx"
 			},

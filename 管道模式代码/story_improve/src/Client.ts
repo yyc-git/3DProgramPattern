@@ -1,4 +1,4 @@
-import { createState, init, registerAllPipelines, render } from "engine/src/Engine"
+import * as Engine from "engine/src/Engine"
 
 //构造假canvas
 let canvas = {
@@ -9,11 +9,11 @@ let canvas = {
 //也可以通过设置为false来设置运行环境为移动端 
 globalThis.isPC = true
 
-let engineState = createState()
+let engineState = Engine.createState()
 
-engineState = registerAllPipelines(engineState)
+engineState = Engine.registerAllPipelines(engineState)
 
-init(engineState, canvas).then(engineState => {
-    render(engineState).then(engineState => {
+Engine.init(engineState, canvas).then(engineState => {
+    Engine.render(engineState).then(engineState => {
     })
 })

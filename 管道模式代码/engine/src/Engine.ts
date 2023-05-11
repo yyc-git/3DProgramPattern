@@ -98,7 +98,7 @@ let _runPipeline = (
 }
 
 export let init = (state: state, canvas): Promise<state> => {
-    //调用PipelineManager的init函数来初始化PipelineManager
+    //调用PipelineManager的init函数来初始化管道
     state = PipelineManager.init(state, [_unsafeGetPipelineManagerState, _setPipelineManagerState])
 
     //将canvas保存到全局变量中，从而在Job中通过全局变量能够获得canvas
