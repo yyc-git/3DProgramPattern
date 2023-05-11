@@ -12,7 +12,7 @@ export type state = {
     editorLogicStatesForRedo: Stack<EditorLogic.state>,
     editorUIStatesForUndo: Stack<EditorUI.state>,
     editorUIStatesForRedo: Stack<EditorUI.state>,
-    //子系统模块state
+    //子系统的模块state
     engineState: Engine.state,
     editorLogicState: EditorLogic.state,
     editorUIState: EditorUI.state

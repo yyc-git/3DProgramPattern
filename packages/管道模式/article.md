@@ -1223,7 +1223,7 @@ Pipeline有一个PipelineState数据和一个JSON配置数据，其中PipelineSt
 下面我们来看看各个角色的抽象代码：
 
 
-我们依次看下用户、System、管道模块这几个部分的抽象代码：
+我们依次看下领域模型中用户、System、管道模块这几个部分的抽象代码：
 
 首先，我们看下Client的抽象代码
 然后，我们看下System的抽象代码

@@ -9,7 +9,7 @@ export type state = {
     immutableAndMutableSubSystem1StatesForRedo: Stack<ImmutableAndMutableSubSystem1.state>,
     immutableSubSystem1StatesForUndo: Stack<ImmutableSubSystem1.state>,
     immutableSubSystem1StatesForRedo: Stack<ImmutableSubSystem1.state>,
-    //子系统模块state
+    //子系统的模块state
     immutableAndMutableSubSystem1State: ImmutableAndMutableSubSystem1.state,
     immutableSubSystem1State: ImmutableSubSystem1.state,
 }

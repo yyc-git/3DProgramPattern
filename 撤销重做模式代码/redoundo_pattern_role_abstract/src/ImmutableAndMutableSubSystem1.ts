@@ -1,4 +1,4 @@
-//一些字段是immutable，另外的字段是mutable
+//一些字段是不可变的，另外的字段是可变的
 export type state = {
     immutable数据: xxx,
     mutable数据: xxx
@@ -30,7 +30,7 @@ export let deepCopy = (state: state): state => {
 }
 
 export let restore = (currentState: state, targetState: state): state => {
-    console.log("处理currentState中与targetState共享的可变数据（如图形API的对象：WebGLBuffer），然后将处理结果重新共享到targetState")
+    console.log("处理currentState中与targetState共享的可变数据（如图形API的对象：WebGLBuffer），然后将处理结果写到targetState")
 
     return targetState
 }

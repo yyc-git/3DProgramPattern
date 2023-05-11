@@ -1,9 +1,9 @@
-import { createState, doSomething, redo, undo } from "./System";
+import * as System from "./System";
 
-let state = createState()
+let state = System.createState()
 
-state = doSomething(state)
+state = System.doSomething(state)
 
-state = undo(state)
+state = System.undo(state)
 
-state = redo(state)
+state = System.redo(state)

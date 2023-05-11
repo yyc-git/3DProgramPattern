@@ -1,20 +1,20 @@
-import {createState, move, printAllData, redo, undo } from "./Editor";
+import * as Editor from "./Editor";
 
-let state =  createState()
+let state = Editor.createState()
 
-printAllData(state)
+Editor.printAllData(state)
 
-state = move(state)
+state = Editor.move(state)
 
-printAllData(state)
+Editor.printAllData(state)
 
-state = undo(state)
+state = Editor.undo(state)
 
-printAllData(state)
+Editor.printAllData(state)
 
 // state = move(state)
 // printAllData(state)
 
-state = redo(state)
+state = Editor.redo(state)
 
-printAllData(state)
+Editor.printAllData(state)

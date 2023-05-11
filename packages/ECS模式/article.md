@@ -1692,7 +1692,7 @@ Component+GameObject层：
 
 下面我们来看看各个角色的抽象代码：
 
-我们按照依赖关系，依次看下用户、World、System层、Manager层、Component+GameObject层这五个部分的抽象代码：
+我们按照依赖关系，依次看下领域模型中用户、World、System层、Manager层、Component+GameObject层这五个部分的抽象代码：
 
 首先，我们看下属于用户的Client的抽象代码
 然后，我们看下World的抽象代码
