@@ -1,32 +1,31 @@
+import { state } from "./EngineStateType"
 import * as SceneManager  from "./SceneManager"
-
 import * as Render  from "./Render"
-import { state as engineState } from "./EngineStateType"
 
-export let createState = (): engineState => {
+export let createState = (): state => {
     return {
         scene: SceneManager.createState()
     }
 }
 
-export let init = (engineState) => {
-    engineState = SceneManager.init(engineState)
-    engineState = Render.init(engineState)
+export let init = (state) => {
+    state = SceneManager.init(state)
+    state = Render.init(state)
 
-    return engineState
+    return state
 }
 
 //假实现
 let requestAnimationFrame = (func) => {
 }
 
-export let loop = (engineState: engineState) => {
-    engineState = SceneManager.update(engineState)
-    engineState = Render.render(engineState)
+export let loop = (state: state) => {
+    state = SceneManager.update(state)
+    state = Render.render(state)
 
     requestAnimationFrame(
         (time) => {
-            loop(engineState)
+            loop(state)
         }
     )
 }

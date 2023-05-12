@@ -1,9 +1,9 @@
-import { DirectorAPI, SceneAPI } from "./Engine"
+import * as Engine from "./Engine"
 
-let engineState = DirectorAPI.createState()
+let state = Engine.DirectorAPI.createState()
 
-engineState = SceneAPI.createScene(engineState)
+state = Engine.SceneAPI.createScene(state)
 
-engineState = DirectorAPI.init(engineState)
+state = Engine.DirectorAPI.init(state)
 
-DirectorAPI.loop(engineState)
+Engine.DirectorAPI.loop(state)

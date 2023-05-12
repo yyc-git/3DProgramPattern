@@ -1,4 +1,4 @@
-import { DirectorAPI } from "./Engine";
+import * as Engine from "./Engine";
 
-DirectorAPI.init()
-DirectorAPI.loop()
+Engine.DirectorAPI.init()
+Engine.DirectorAPI.loop()

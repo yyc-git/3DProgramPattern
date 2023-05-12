@@ -6,7 +6,7 @@ type directorAPI = {
 }
 
 type sceneAPI = {
-	createScene: (blockManagerState) => blockManagerState,
+	createScene: (blockManagerState: blockManagerState) => blockManagerState,
 }
 
 export type service = {

@@ -1,9 +1,9 @@
 import * as BlockManager from "block_manager/src/Main"
-import * as SceneManagerBlock from "sceneManager_block/src/Main"
-import * as DirectorBlock from "director_block/src/Main"
-import * as RenderBlock from "render_block/src/Main"
-import * as EngineBlock from "engine_block/src/Main"
-import * as MathBlock from "math_block/src/Main"
+import * as SceneManagerBlockImplement from "sceneManager_block_implement/src/Main"
+import * as DirectorBlockImplement from "director_block_implement/src/Main"
+import * as RenderBlockImplement from "render_block_implement/src/Main"
+import * as EngineBlockImplement from "engine_block_implement/src/Main"
+import * as MathBlockImplement from "math_block_implement/src/Main"
 import { blockProtocolName, blockService, state as blockManagerState } from "block_manager/src/BlockManagerType"
 
 export let init = (): blockManagerState => {
@@ -12,37 +12,37 @@ export let init = (): blockManagerState => {
     blockManagerState = BlockManager.registerBlock(
         blockManagerState,
         "engine_block_protocol",
-        EngineBlock.getBlockService,
-        EngineBlock.getDependentBlockProtocolNameMap(),
-        EngineBlock.createBlockState()
+        EngineBlockImplement.getBlockService,
+        EngineBlockImplement.getDependentBlockProtocolNameMap(),
+        EngineBlockImplement.createBlockState()
     )
     blockManagerState = BlockManager.registerBlock(
         blockManagerState,
         "director_block_protocol",
-        DirectorBlock.getBlockService,
-        DirectorBlock.getDependentBlockProtocolNameMap(),
-        DirectorBlock.createBlockState()
+        DirectorBlockImplement.getBlockService,
+        DirectorBlockImplement.getDependentBlockProtocolNameMap(),
+        DirectorBlockImplement.createBlockState()
     )
     blockManagerState = BlockManager.registerBlock(
         blockManagerState,
         "sceneManager_block_protocol",
-        SceneManagerBlock.getBlockService,
-        SceneManagerBlock.getDependentBlockProtocolNameMap(),
-        SceneManagerBlock.createBlockState()
+        SceneManagerBlockImplement.getBlockService,
+        SceneManagerBlockImplement.getDependentBlockProtocolNameMap(),
+        SceneManagerBlockImplement.createBlockState()
     )
     blockManagerState = BlockManager.registerBlock(
         blockManagerState,
         "render_block_protocol",
-        RenderBlock.getBlockService,
-        RenderBlock.getDependentBlockProtocolNameMap(),
-        RenderBlock.createBlockState()
+        RenderBlockImplement.getBlockService,
+        RenderBlockImplement.getDependentBlockProtocolNameMap(),
+        RenderBlockImplement.createBlockState()
     )
     blockManagerState = BlockManager.registerBlock(
         blockManagerState,
         "math_block_protocol",
-        MathBlock.getBlockService,
-        MathBlock.getDependentBlockProtocolNameMap(),
-        MathBlock.createBlockState()
+        MathBlockImplement.getBlockService,
+        MathBlockImplement.getDependentBlockProtocolNameMap(),
+        MathBlockImplement.createBlockState()
     )
 
     return blockManagerState

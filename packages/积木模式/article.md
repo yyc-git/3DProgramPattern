@@ -2,15 +2,15 @@
 
 ## 需求
 
-开发者甲需要从0开始，开发一个引擎
+开发者甲要从零开始，开发一个引擎
 
 
 ## 实现思路
 
 <!-- 他首先实现了一个引擎的Demo，直接使用WebGL绘制出了一个最简单的场景 -->
-首先，他实现了一个引擎的Demo，使用图形API绘制出了一个最简单的场景；
+首先，甲实现了一个引擎的Demo，使用图形API绘制出了一个最简单的场景；
 <!-- 他首先实现了一个引擎的Demo，直接使用WebGL绘制出了包括三个三角形的简单场景； -->
-然后，他从Demo中提炼出了引擎的最基本的框架，包括初始化、主循环这两个步骤
+然后，甲从Demo中提炼出了引擎的最基本的框架，实现了初始化、主循环这两个步骤
 
 
 
@@ -18,9 +18,7 @@
 
 **领域模型**
 TODO tu
-
-
-这是甲提出的引擎基本框架的领域模型
+引擎基本框架的领域模型
 
 
 总体来看，分为用户、引擎这两个部分
@@ -40,8 +38,10 @@ Director负责初始化和主循环
 
 ## 给出代码
 
-首先，我们看下Client的代码；
-然后，我们看下Engine和Director的代码；
+首先，我们依次看下每个模块的代码，它们包括：
+- Client的代码；
+- Engine和Director的代码；
+
 最后，我们运行Client的代码
 
 
@@ -49,11 +49,11 @@ Director负责初始化和主循环
 
 Client
 ```ts
-DirectorAPI.init()
-DirectorAPI.loop()
+Engine.DirectorAPI.init()
+Engine.DirectorAPI.loop()
 ```
 
-我们通过Engine的API，调用了Director的init和loop函数，实现引擎的初始化和主循环
+我们通过Engine的API来调用了Director的init和loop函数，实现引擎的初始化和主循环
 
 
 ### Engine和Director的代码
@@ -86,9 +86,8 @@ export let loop = () => {
 ```
 
 
-## 提出问题
+<!-- ## 提出问题 -->
 
-甲发现一个人开发引擎需要的时间太长，于是找了另外三个开发者乙、丙、丁一起来开发
 
 
 
@@ -98,10 +97,12 @@ export let loop = () => {
 
 ## 概述解决方案？
 
-- 分工
+为了加快开发进度，甲找了另外三个开发者乙、丙、丁一起来开发引擎
+
+<!-- - 分工 -->
 他们的分工如下：
 甲继续开发Engine和Director；
-乙负责实现实现一个数学库，实现矩阵计算之类的逻辑；
+乙负责实现实现一个数学库，实现矩阵计算之类的数学计算逻辑；
 丙负责实现场景的管理；
 丁负责实现渲染
 
@@ -110,7 +111,7 @@ export let loop = () => {
 
 **领域模型**
 TODO tu
-这是引擎基本框架新的领域模型
+引擎基本框架的领域模型
 
 
 总体来看，分为用户、引擎这两个部分
@@ -126,19 +127,14 @@ Client是用户
 Engine和Director跟之前一样
 
 我们介绍新加入的引擎模块，他们由分别由一个新的开发者负责开发：
-
 SceneManager负责场景的管理，由丙负责开发
-
 Render负责渲染，由丁负责开发
-
 Math负责数学计算，由乙负责开发
 
 
 
 
-
-
-我们介绍下各个模块的依赖关系：
+**依赖关系**
 
 Engine依赖Director、SceneManager，封装它们来提供初始化、主循环和管理场景的API
 
@@ -154,12 +150,16 @@ SceneManager、Render依赖Math，通过它进行数学计算
 
 ## 给出代码？
 
-首先，我们看下Client的代码；
+首先，我们看下Client的代码
+
 然后，我们看下Engine的代码
-然后，我们看下创建EngineState的代码
-然后，我们看下创建场景的代码
-然后，我们看下初始化的代码
-然后，我们看下主循环的代码
+
+然后，我们依次看下Client代码中每个步骤的代码，它们包括：
+- 创建EngineState的代码
+- 创建场景的代码
+- 初始化的代码
+- 主循环的代码
+
 最后，我们运行Client的代码
 
 
@@ -168,13 +168,13 @@ SceneManager、Render依赖Math，通过它进行数学计算
 
 Client
 ```ts
-let engineState = DirectorAPI.createState()
+let state = Engine.DirectorAPI.createState()
 
-engineState = SceneAPI.createScene(engineState)
+state = Engine.SceneAPI.createScene(state)
 
-engineState = DirectorAPI.init(engineState)
+state = Engine.DirectorAPI.init(state)
 
-DirectorAPI.loop(engineState)
+Engine.DirectorAPI.loop(state)
 ```
 
 Client首先创建了EngineState，用来保存引擎的所有数据；
@@ -188,13 +188,13 @@ Client首先创建了EngineState，用来保存引擎的所有数据；
 Engine
 ```ts
 export let DirectorAPI = {
-    createState: createState,
-    init: init,
-    loop: loop
+    createState: Director.createState,
+    init: Director.init,
+    loop: Director.loop
 }
 
 export let SceneAPI = {
-    createScene: createScene
+    createScene: SceneManager.createScene
 }
 ```
 
@@ -205,15 +205,13 @@ Engine负责提供API给Client
 
 Director
 ```ts
-export let createState = (): engineState => {
+export let createState = (): state => {
     return {
         scene: SceneManager.createState()
     }
 }
 ```
-createState函数创建的EngineState保存了创建的SceneManagerState，而SceneManagerState负责保存场景数据
-
-<!-- createState函数调用了SceneManager的createState函数来初始化场景数据，我们看下相关代码： -->
+createState函数创建的EngineState保存了创建的SceneManagerState，其中SceneManagerState负责保存场景数据
 
 我们看下创建SceneManagerState的代码：
 SceneManager
@@ -223,7 +221,7 @@ export let createState = (): sceneManagerState => {
 }
 ```
 
-createState函数创建的SceneManagerState包括了场景中所有的gameObject
+createState函数创建的SceneManagerState包括了保存场景中所有的gameObject的容器
 <!-- 目前它的值是空数组，表示场景中目前没有gameObject -->
 
 
@@ -233,7 +231,7 @@ createState函数创建的SceneManagerState包括了场景中所有的gameObject
 
 SceneManager
 ```ts
-export let createScene = (state: engineState) => {
+export let createScene = (state: state) => {
     console.log("创建场景")
 
     //创建一个假的gameObject
@@ -251,27 +249,27 @@ export let createScene = (state: engineState) => {
 ```
 
 createScene函数创建了场景，场景中只有一个gameObject
-这里具体是创建了一个gameObject，并将其加入到SceneManagerState的allGameObjects数组中
+这里具体是创建了一个假的gameObject，并将其加入到SceneManagerState的allGameObjects数组中
 
 
 ### 初始化的代码
 
 Director
 ```ts
-export let init = (engineState) => {
-    engineState = SceneManager.init(engineState)
-    engineState = Render.init(engineState)
+export let init = (state) => {
+    state = SceneManager.init(state)
+    state = Render.init(state)
 
-    return engineState
+    return state
 }
 ```
 
-init函数实现了初始化，调用了SceneManager来初始化场景，以及调用了Render来初始化渲染
+init函数实现了初始化，调用了SceneManager的init函数来初始化场景，以及调用了Render的init函数来初始化渲染
 
 我们看下相关代码：
 SceneManager
 ```ts
-export let init = (state: engineState) => {
+export let init = (state: state) => {
     console.log("初始化场景")
 
     return state
@@ -279,10 +277,10 @@ export let init = (state: engineState) => {
 ```
 Render
 ```ts
-export let init = (engineState: engineState) => {
+export let init = (state: state) => {
     console.log("初始化渲染")
 
-    return engineState
+    return state
 }
 ```
 
@@ -295,24 +293,24 @@ Director
 let requestAnimationFrame = (func) => {
 }
 
-export let loop = (engineState: engineState) => {
-    engineState = SceneManager.update(engineState)
-    engineState = Render.render(engineState)
+export let loop = (state: state) => {
+    state = SceneManager.update(state)
+    state = Render.render(state)
 
     requestAnimationFrame(
         (time) => {
-            loop(engineState)
+            loop(state)
         }
     )
 }
 ```
 
-loop函数实现了主循环，调用了SceneManager来更新场景，以及调用了Render来渲染
+loop函数实现了主循环，调用了SceneManager的update函数来更新场景，以及调用了Render的render函数来渲染
 
 我们看下更新场景的相关代码：
 SceneManager
 ```ts
-export let update = (state: engineState) => {
+export let update = (state: state) => {
     console.log("更新场景")
 
     let _ = Math.multiplyMatrix(1, 2)
@@ -329,14 +327,14 @@ export let multiplyMatrix = (mat1, mat2) => {
 }
 ```
 
-SceneManager的update函数实现了更新场景，调用了Math来计算
+SceneManager的update函数实现了更新场景，调用了Math的multiplyMatrix函数来计算
 
 
 我们看下渲染的相关代码：
 Render
 ```ts
-export let render = (engineState: engineState) => {
-    let allGameObjects = SceneManager.getAllGameObjects(engineState)
+export let render = (state: state) => {
+    let allGameObjects = SceneManager.getAllGameObjects(state)
 
     console.log("处理场景数据")
 
@@ -344,17 +342,17 @@ export let render = (engineState: engineState) => {
 
     console.log("渲染")
 
-    return engineState
+    return state
 }
 ```
 SceneManager
 ```ts
-export let getAllGameObjects = (state: engineState) => {
+export let getAllGameObjects = (state: state) => {
     return state.scene.allGameObjects
 }
 ```
 
-Render的render函数实现了渲染，调用了SceneManger来获得场景中所有的gameObjects，以及调用了Math来计算
+Render的render函数实现了渲染，调用了SceneManger的getAllGameObjects函数来获得场景中所有的gameObjects，以及调用了Math的multiplyMatrix函数来计算
 
 
 ### 运行Client的代码
@@ -362,8 +360,10 @@ Render的render函数实现了渲染，调用了SceneManger来获得场景中所
 下面，我们运行Client的代码，打印的结果如下：
 ```text
 创建场景
+//初始化
 初始化场景
 初始化渲染
+//主循环
 更新场景
 计算
 处理场景数据
@@ -378,7 +378,7 @@ Render的render函数实现了渲染，调用了SceneManger来获得场景中所
 - 模块之间互相依赖，导致团队开发效率的降低和沟通成本的增加
 因为这四个开发者实现的模块互相依赖，所以可能会出现下面的情况：
 一个开发者修改了自己的代码，如果该代码是被其它开发者实现的模块依赖，则会影响到它们；
-一个开发者可能需要修改其它开发者的代码，如实现Render的丁可能会修改丙实现的SceneManager的代码，使其能提供某些特定的场景数据
+一个开发者可能需要修改其它开发者的代码，如实现Render的丁可能需要修改丙实现的SceneManager的代码，使其能提供某些特定的场景数据
 
 这些情况都会造成在开发者合并自己的代码时出现大量的冲突
 
@@ -409,11 +409,11 @@ Render的render函数实现了渲染，调用了SceneManger来获得场景中所
 
 <!-- 通过下面的改进来降低模块之间的依赖： -->
 - 将每个模块改为一个独立的积木，互相之间只依赖于抽象的协议
-积木包括积木实现和积木协议两个部分，其中积木协议定义了积木提供的服务和积木包括的数据的类型；
+积木包括积木实现和积木协议两个部分，其中积木协议是接口，定义了积木的服务的类型和积木的数据的类型；
 积木实现是对积木协议的实现
 
-积木的服务就是多个实现积木逻辑的函数；
-积木的数据是一个state，该state保存了积木所有的数据
+积木的服务就是多个实现该积木的逻辑的函数；
+积木的数据是一个state，它保存了该积木所有的数据
 
 每个积木之间依赖的是抽象的积木协议而不是具体的积木实现
 
@@ -440,9 +440,11 @@ Client是用户
 
 我们看下BlockFacade、BlockManager这两个部分：
 
-BlockFacade提供了管理积木的API，其中init函数负责注册所有使用的积木
+BlockFacade是门户，提供了管理积木的API
+BlockFacade的init函数负责注册所有使用的积木
 
 BlockManager负责实现管理积木，提供了注册积木、获得积木的服务和state等函数
+BlockManager有一个BlockManagerState，用来保存所有的积木
 
 
 
@@ -454,27 +456,33 @@ BlockManager负责实现管理积木，提供了注册积木、获得积木的�
 之前的各个引擎模块都对应地改为积木了，其中Engine改为Engine Block，Director改为Director Block，SceneManager改为SceneManager Block，Render改为Render Block，Math改为Math Block
 
 
-各个积木实现的逻辑不变，就是实现对应的之前引擎模块的逻辑
 
-积木包括积木实现和积木协议这两个部分，其中积木实现的模块名以“Block”结尾，积木协议的模块名以“Protocol”结尾，如Engine Block是积木实现，Engine Block Protocol是积木协议
+积木包括积木实现和积木协议这两个部分，其中积木实现的模块名以“Implement”结尾，积木协议的模块名以“Protocol”结尾，如Engine Block Implement是积木实现，Engine Block Protocol是积木协议
 
-积木实现是对积木协议的实现，如Engine Block实现了Engine Block Protocol
+积木实现是对积木协议的实现，如Engine Block Implement实现了Engine Block Protocol
 
-积木协议的state定义了积木包括的数据的类型
-积木协议的service定义了积木提供的服务的类型
+各个积木实现的逻辑不变，仍然是之前的引擎模块的逻辑
 
 
-各个积木实现之间没有直接依赖，而是依赖抽象的积木协议，如Engine Block没有依赖Director Block，而是依赖它实现的积木协议：Directo Block Protocol
+积木协议的state定义了积木的数据的类型
+积木协议的service定义了积木的服务的类型
 
 
-在所有的积木中，需要定义一个积木作为入口
-入口积木向Client提供了调用其它积木的API
 
-这里Engine Block就是入口积木的积木实现，Engine Block Protocol是入口积木的积木协议
+
+在所有的积木中，需要定义一个积木作为入口。入口积木向Client提供了调用其它积木的API
+这里Engine Block就是入口积木，其中Engine Block Implement就是入口积木的积木实现，Engine Block Protocol是入口积木的积木协议
 
 Client调用入口积木的方式如下：
-首先Client调用BlockFacade的getEntryBlockProtocolName函数获得入口积木的积木协议名；
-然后将其传给BlockFacade的getBlockService函数（作为blockProtocolName参数），获得入口积木的服务，从而使用它提供的API
+首先Client调用BlockFacade的getEntryBlockProtocolName函数来获得入口积木的积木协议名；
+然后将其传给BlockFacade的getBlockService函数来获得入口积木的服务，从而使用它提供的API
+
+
+
+**依赖关系**
+
+各个积木实现之间没有直接依赖，而是依赖抽象的积木协议，如Engine Block Implement没有依赖Director Block Implement，而是依赖它实现的积木协议：Directo Block Protocol
+
 
 
 
@@ -482,14 +490,15 @@ Client调用入口积木的方式如下：
 
 ## 结合UML图，描述如何具体地解决问题？
 
-- 因为不同积木之间只依赖于积木协议，所以每个开发者只需要关注自己开发的积木实现。只要积木协议不修改，就不会互相影响，从而提升了团队的开发效率，降低了团队的沟通成本
+- 因为不同积木之间只依赖于积木协议，所以只要积木协议不修改，积木之间就不会互相影响。因此每个开发者只需要关注自己开发的积木实现，互相不影响，从而提升了团队的开发效率，降低了团队的沟通成本
 
 
 ## 给出代码？
 
 
 首先，我们看下Client的代码
-然后，我们看下Client的代码中第一个步骤（初始化积木）的代码
+然后，我们看下Client的代码中第一个步骤的代码：
+- 初始化积木的代码
 然后，我们看下初始化积木中每个步骤的相关代码，它们包括：
 - 创建BlockManagerState的代码
 - BlockManager的registerBlock函数的相关代码
@@ -510,7 +519,7 @@ Client
 ```ts
 let blockManagerState = BlockFacade.init()
 
-//获得了入口积木-Engine Block的服务
+//获得了入口积木（Engine Block）的服务
 let { director, scene } = BlockFacade.getBlockService<service>(blockManagerState, BlockFacade.getEntryBlockProtocolName())
 
 blockManagerState = scene.createScene(blockManagerState)
@@ -521,7 +530,7 @@ director.loop(blockManagerState)
 ```
 
 Client首先调用BlockFacade的init函数初始化积木；
-然后调用BlockFacade的getEntryBlockProtocolName函数获得入口积木的积木协议-Engine Block Protocol的协议名，并将其传给BlockFacade的getBlockService函数后获得入口积木Engine Block的服务；
+然后调用BlockFacade的getEntryBlockProtocolName函数来获得入口积木的积木协议（Engine Block Protocol）的协议名，将其传给BlockFacade的getBlockService函数来获得入口积木（Engine Block）的服务；
 然后调用服务的scene的createScene函数，创建了场景；
 然后调用服务的director的init函数，实现初始化；
 最后调用服务的director的loop函数，实现主循环
@@ -536,56 +545,55 @@ export let init = (): blockManagerState => {
     blockManagerState = BlockManager.registerBlock(
         blockManagerState,
         "engine_block_protocol",
-        EngineBlock.getBlockService,
-        EngineBlock.getDependentBlockProtocolNameMap(),
-        EngineBlock.createBlockState()
+        EngineBlockImplement.getBlockService,
+        EngineBlockImplement.getDependentBlockProtocolNameMap(),
+        EngineBlockImplement.createBlockState()
     )
     blockManagerState = BlockManager.registerBlock(
         blockManagerState,
         "director_block_protocol",
-        DirectorBlock.getBlockService,
-        DirectorBlock.getDependentBlockProtocolNameMap(),
-        DirectorBlock.createBlockState()
+        DirectorBlockImplement.getBlockService,
+        DirectorBlockImplement.getDependentBlockProtocolNameMap(),
+        DirectorBlockImplement.createBlockState()
     )
     blockManagerState = BlockManager.registerBlock(
         blockManagerState,
         "sceneManager_block_protocol",
-        SceneManagerBlock.getBlockService,
-        SceneManagerBlock.getDependentBlockProtocolNameMap(),
-        SceneManagerBlock.createBlockState()
+        SceneManagerBlockImplement.getBlockService,
+        SceneManagerBlockImplement.getDependentBlockProtocolNameMap(),
+        SceneManagerBlockImplement.createBlockState()
     )
     blockManagerState = BlockManager.registerBlock(
         blockManagerState,
         "render_block_protocol",
-        RenderBlock.getBlockService,
-        RenderBlock.getDependentBlockProtocolNameMap(),
-        RenderBlock.createBlockState()
+        RenderBlockImplement.getBlockService,
+        RenderBlockImplement.getDependentBlockProtocolNameMap(),
+        RenderBlockImplement.createBlockState()
     )
     blockManagerState = BlockManager.registerBlock(
         blockManagerState,
         "math_block_protocol",
-        MathBlock.getBlockService,
-        MathBlock.getDependentBlockProtocolNameMap(),
-        MathBlock.createBlockState()
+        MathBlockImplement.getBlockService,
+        MathBlockImplement.getDependentBlockProtocolNameMap(),
+        MathBlockImplement.createBlockState()
     )
 
     return blockManagerState
 }
 ```
 
-init函数实现了初始化积木，它首先调用BlockManager的createState函数创建BlockManagerState，用来保存所有的积木数据；
-然后调用多次BlockManager的registerBlock函数，注册了Engine Blocks中所有的积木
+init函数实现了初始化积木，它首先调用BlockManager的createState函数创建BlockManagerState；
+然后多次调用BlockManager的registerBlock函数，注册了Engine Blocks中所有的积木
 
-在注册积木时传入了BlockManagerState、积木协议名、获得积木的服务的函数、积木依赖的所有积木协议名、积木的state；
+其中，在调用BlockManager的registerBlock函数时传入了BlockManagerState、积木协议名、获得积木的服务的函数、积木依赖的所有积木协议名、积木的state；
 
 
 ### 创建BlockManagerState的代码
 
 
-<!-- 我们看下BlockManager的createState函数代码： -->
 BlockManager
 ```ts
-export let createState = (): state => {
+export let createState = (): blockManagerState => {
     return {
         blockServiceMap: Map(),
         blockStateMap: Map()
@@ -593,26 +601,25 @@ export let createState = (): state => {
 }
 ```
 
-createState函数创建了BlockManagerState，它包括一个保存所有积木的服务的Hash Map和一个保存所有积木的state的Hash Map，它们的Key是积木协议名，Value分别是积木服务和积木state
+createState函数创建了BlockManagerState，它包括一个保存所有积木的服务的Hash Map和一个保存所有积木的state的Hash Map，它们的Key是积木协议名，Value分别是积木的服务和积木的state
 
 
 ### BlockManager的registerBlock函数的相关代码
 
-<!-- 我们看下BlockManager的registerBlock函数的相关代码： -->
 BlockManager
 ```ts
-export let getBlockServiceExn = <blockService>(state: state, blockProtocolName: blockProtocolName): blockService => {
-    return getExnFromStrictUndefined(state.blockServiceMap.get(blockProtocolName))
+export let getBlockServiceExn = <blockService>(blockManagerState: blockManagerState, blockProtocolName: blockProtocolName): blockService => {
+    return getExnFromStrictUndefined(blockManagerState.blockServiceMap.get(blockProtocolName))
 }
 
-export let getBlockStateExn = <blockState>(state: state, blockProtocolName: blockProtocolName): blockState => {
-    return getExnFromStrictUndefined(state.blockStateMap.get(blockProtocolName))
+export let getBlockStateExn = <blockState>(blockManagerState: blockManagerState, blockProtocolName: blockProtocolName): blockState => {
+    return getExnFromStrictUndefined(blockManagerState.blockStateMap.get(blockProtocolName))
 }
 
-export let setBlockState = <blockState>(state: state, blockProtocolName: blockProtocolName, blockState: blockState): state => {
+export let setBlockState = <blockState>(blockManagerState: blockManagerState, blockProtocolName: blockProtocolName, blockState: blockState): blockManagerState => {
     return {
-        ...state,
-        blockStateMap: state.blockStateMap.set(blockProtocolName, blockState)
+        ...blockManagerState,
+        blockStateMap: blockManagerState.blockStateMap.set(blockProtocolName, blockState)
     }
 }
 
@@ -624,21 +631,21 @@ let _buildAPI = (): api => {
     }
 }
 
-export let registerBlock = <blockService, dependentBlockProtocolNameMap, blockState>(state: state, blockProtocolName: blockProtocolName, getBlockService: getBlockService<dependentBlockProtocolNameMap, blockService>,
+export let registerBlock = <blockService, dependentBlockProtocolNameMap, blockState>(blockManagerState: blockManagerState, blockProtocolName: blockProtocolName, getBlockService: getBlockService<dependentBlockProtocolNameMap, blockService>,
     dependentBlockProtocolNameMap: dependentBlockProtocolNameMap,
     blockState: blockState
-): state => {
-    state = {
-        ...state,
-        blockServiceMap: state.blockServiceMap.set(blockProtocolName, getBlockService(
+): blockManagerState => {
+    blockManagerState = {
+        ...blockManagerState,
+        blockServiceMap: blockManagerState.blockServiceMap.set(blockProtocolName, getBlockService(
             _buildAPI(),
             dependentBlockProtocolNameMap
         ))
     }
 
-    state = setBlockState(state, blockProtocolName, blockState)
+    blockManagerState = setBlockState(blockManagerState, blockProtocolName, blockState)
 
-    return state
+    return blockManagerState
 }
 ```
 
@@ -646,15 +653,15 @@ registerBlock函数实现了注册积木，它首先通过传入的getBlockServi
 最后将传入的积木的state保存在BlockManagerState的blockStateMap中
 
 <!-- 值得注意的是： -->
-registerBlock函数在调用传入的getBlockService函数时，注入了依赖于_buildAPI函数构造的BlockManager的api和积木依赖的所有积木协议名，从而使得该积木能在它的服务中能够通过它们来调用依赖的其它积木的服务和state，如Engine Block积木能通过它们调用SceneManagerBlock的服务和state
+registerBlock函数在调用传入的getBlockService函数时，注入了_buildAPI函数构造的BlockManager的api和积木依赖的所有积木协议名，从而使得该积木能在它的服务中通过它们来调用依赖的其它积木的服务和state，如Engine Block能通过它们调用SceneManagerBlock的服务和state
 
 
 ### 积木实现的三个函数的代码
 
 BlockFacade的init函数在调用BlockManager的registerBlock函数注册积木时，调用了该积木的积木实现的三个函数：getBlockService、getDependentBlockProtocolNameMap、createBlockState
 
-我们以Engine Block为例，来看下它的三个函数的相关代码：
-Engine Block
+我们以Engine Block Implement为例，来看下它的三个函数的相关代码：
+Engine Block Implement
 ```ts
 //获得积木的服务
 export let getBlockService: ... = (api, { directorBlockProtocolName, sceneManagerBlockProtocolName }) => {
@@ -695,6 +702,9 @@ export let getDependentBlockProtocolNameMap: ... = () => {
 getBlockService函数实现了Engine Block Protocol定义的服务
 createBlockState函数实现了Engine Block Protocol定义的state
 
+getBlockService函数的形参包括注入的BlockManager的api和积木依赖的所有积木协议名
+
+
 我们看下Engine Block Protocol对应的代码：
 Engine Block Protocol->ServiceType
 ```ts
@@ -704,7 +714,7 @@ type directorAPI = {
 }
 
 type sceneAPI = {
-	createScene: (blockManagerState) => blockManagerState,
+	createScene: (blockManagerState: blockManagerState) => blockManagerState,
 }
 
 export type service = {
@@ -722,11 +732,9 @@ export type state = null
 
 ### 获得入口积木的服务的代码
 
-<!-- Client
-```ts
-//获得了入口积木-Engine Block的服务
-let { director, scene } = BlockFacade.getBlockService<service>(blockManagerState, BlockFacade.getEntryBlockProtocolName())
-``` -->
+Client调用了BlockFacade的函数，获得了入口积木的服务
+
+我们看下BlockFacade的相关代码：
 BlockFacade
 ```ts
 //获得Engine Block Protocol的协议名
@@ -739,8 +747,8 @@ export let getBlockService = <blockService>(blockManagerState: blockManagerState
 }
 ```
 
-BlockFacade的getBlockService函数通过BlockManager的getBlockServiceExn函数获得了注册的积木服务。
-Client通过指定BlockFacade的getBlockService函数的参数blockProtocolName为Engine Block Protocol的协议名，从而获得了Engine Block的服务
+BlockFacade的getBlockService函数通过BlockManager的getBlockServiceExn函数获得了注册的积木的服务。
+Client通过指定BlockFacade的getBlockService函数的形参blockProtocolName为Engine Block Protocol的协议名，从而获得了Engine Block的服务
 
 
 
@@ -748,20 +756,12 @@ Client通过指定BlockFacade的getBlockService函数的参数blockProtocolName�
 
 
 
-<!-- 我们继续看Client中创建场景的相关代码：
-Client
-```ts
-blockManagerState = scene.createScene(blockManagerState)
-``` -->
-
 Client调用了Engine Block的服务，创建了场景
 
-<!-- 这里调用了Engine Block的服务的scene的createScene函数，我们看下相关代码： -->
-
 我们看下Engine Block的相关代码：
-Engine Block
+Engine Block Implement
 ```ts
-export let getBlockService: ... = (api, { directorBlockProtocolName, sceneManagerBlockProtocolName }) => {
+export let getBlockService: ... = (api, { ..., sceneManagerBlockProtocolName }) => {
 	return {
         ...
 		scene: {
@@ -781,14 +781,16 @@ export let getBlockService: ... = (api, { directorBlockProtocolName, sceneManage
 }
 ```
 
-Engine Block的服务的scene的createScene函数调用了Scene Manager Block的服务和state来创建场景，它依赖该积木的积木协议（SceneManager Block Protocol）而不是积木实现（Scene Manager Block）
+Engine Block的服务的scene的createScene函数调用了Scene Manager Block的服务和state来创建场景
 
-只要积木协议（SceneManager Block Protocol）不变，那么不管这个积木实现（SceneManager Block）如何改变，都不会影响到Engine Block
+值得注意的是：
+Engine Block Implement依赖Scene Manager Block的积木协议（SceneManager Block Protocol）而不是积木实现（Scene Manager Block Implement）
+只要积木协议（SceneManager Block Protocol）不变，那么不管这个积木实现（SceneManager Block Implement）如何改变，都不会影响到Engine Block Implement
 
-我们看下SceneManager Block相关代码：
-SceneManager Block
+我们看下SceneManager Block的相关代码：
+SceneManager Block Implement
 ```ts
-export let getBlockService: ... = (api, { mathBlockProtocolName }) => {
+export let getBlockService: ... = (...) => {
 	return {
 		createScene: (sceneManagerState) => {
 			console.log("创建场景")
@@ -844,10 +846,10 @@ Client调用了Engine Block的服务，实现初始化
 
 
 <!-- 这里调用了Engine Block的服务的director的init函数，我们看下相关代码： -->
-我们看下相关代码：
-Engine Block
+我们看下Engine Block的相关代码：
+Engine Block Implement
 ```ts
-export let getBlockService: ... = (api, { directorBlockProtocolName, sceneManagerBlockProtocolName }) => {
+export let getBlockService: ... = (api, { directorBlockProtocolName, ... }) => {
 	return {
 		director: {
 			init: (blockManagerState) => {
@@ -862,10 +864,11 @@ export let getBlockService: ... = (api, { directorBlockProtocolName, sceneManage
 ```
 
 
-Engine Block的服务的director的init函数调用了Director Block的服务来实现初始化，它依赖该积木的积木协议（Director Block Protocol）
+Engine Block的服务的director的init函数调用了Director Block的服务来实现初始化
 
-我们看下该积木的相关代码：
-Director Block
+
+我们看下Director Block的相关代码：
+Director Block Implement
 ```ts
 export let getBlockService: ... = (api, { sceneManagerBlockProtocolName, renderBlockProtocolName }) => {
 	return {
@@ -886,13 +889,11 @@ export let getBlockService: ... = (api, { sceneManagerBlockProtocolName, renderB
     }
 }
 
-export let createBlockState: createBlockStateBlockManager<
-	renderState
-> = () => {
+export let createBlockState: ... = () => {
 	return null
 }
 
-export let getDependentBlockProtocolNameMap: getDependentBlockProtocolNameMapBlockManager = () => {
+export let getDependentBlockProtocolNameMap: ... = () => {
 	return {
 		"sceneManagerBlockProtocolName": "sceneManager_block_protocol",
 		"renderBlockProtocolName": "render_block_protocol"
@@ -911,10 +912,10 @@ Director Block Protocol->StateType
 export type state = null
 ```
 
-Director Block又依赖了SceneManager Block Protocol、Render Block Protocol，相关代码如下：
-SceneManager Block
+Director Block的服务的init函数调用了SceneManager Block和Render Block的服务，相关代码如下：
+SceneManager Block Implement
 ```ts
-export let getBlockService: ... = (api, { mathBlockProtocolName }) => {
+export let getBlockService: ... = (...) => {
 	return {
         ...
 		init: (blockManagerState) => {
@@ -934,9 +935,9 @@ export type service = {
     ...
 }
 ```
-Render Block
+Render Block Implement
 ```ts
-export let getBlockService: ... = (api, { sceneManagerBlockProtocolName, mathBlockProtocolName }) => {
+export let getBlockService: ... = (...) => {
 	return {
 		init: (blockManagerState) => {
 			console.log("初始化渲染")
@@ -956,7 +957,9 @@ export type service = {
 ```
 
 
-同样的，SceneManager Block的服务和Render Block服务的逻辑跟之前的SceneManager、Render模块的逻辑一样，没有变化
+同样的，Director Block的服务、SceneManager Block的服务、Render Block服务的逻辑跟之前的SceneManager、Render模块的逻辑一样，没有变化
+
+不过Director Block的state变为null了
 
 
 ### 主循环的代码
@@ -971,10 +974,10 @@ director.loop(blockManagerState)
 Client调用了Engine Block的服务，实现主循环
 
 <!-- 这里调用了Engine Block的服务的director的loop函数，我们看下相关代码： -->
-我们看下相关代码：
-Engine Block
+我们看下Engine Block的相关代码：
+Engine Block Implement
 ```ts
-export let getBlockService: ... = (api, { directorBlockProtocolName, sceneManagerBlockProtocolName }) => {
+export let getBlockService: ... = (api, { directorBlockProtocolName, ... }) => {
 	return {
 		director: {
             ...
@@ -990,10 +993,10 @@ export let getBlockService: ... = (api, { directorBlockProtocolName, sceneManage
 ```
 
 
-Engine Block的服务的director的loop函数调用了Director Block的服务来实现主循环，它依赖该积木的积木协议（Director Block Protocol）
+Engine Block的服务的director的loop函数调用了Director Block的服务来实现主循环
 
-我们看下该积木的相关代码：
-Director Block
+我们看下Director Block的相关代码：
+Director Block Implement
 ```ts
 //假实现
 let requestAnimationFrame = (func) => {
@@ -1034,8 +1037,8 @@ export type service = {
 }
 ```
 
-Director Block又依赖了SceneManager Block Protocol、Render Block Protocol，相关代码如下：
-SceneManager Block
+Director Block的服务的loop函数调用了SceneManager Block和Render Block的服务，相关代码如下：
+SceneManager Block Implement
 ```ts
 export let getBlockService: ... = (api, { mathBlockProtocolName }) => {
 	return {
@@ -1098,11 +1101,10 @@ export let getBlockService: ... = (api, { sceneManagerBlockProtocolName, mathBlo
 	}
 }
 ```
-
-SceneManager Block和Render Block又依赖了Math Block Protocol，相关代码如下：
-Math Block
+SceneManager Block的服务的update函数和Render Block的服务的render函数调用了Math Block的服务，相关代码如下：
+Math Block Implement
 ```ts
-export let getBlockService: ... = (api, _) => {
+export let getBlockService: ... = (...) => {
 	return {
 		multiplyMatrix: (mat1, mat2) => {
 			console.log("计算")
@@ -1136,7 +1138,7 @@ export type state = null
 ```
 
 
-同样的，这几个Block的state和服务的逻辑跟之前对应的模块的state和逻辑一样，没有变化
+同样的，这几个Block的服务的逻辑跟之前对应的模块的逻辑一样，没有变化
 
 
 ### 运行Client的代码

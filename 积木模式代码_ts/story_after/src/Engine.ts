@@ -1,12 +1,12 @@
-import { createState, init, loop } from "./Director";
-import { createScene } from "./SceneManager";
+import * as Director from "./Director";
+import * as SceneManager from "./SceneManager";
 
 export let DirectorAPI = {
-    createState: createState,
-    init: init,
-    loop: loop
+    createState: Director.createState,
+    init: Director.init,
+    loop: Director.loop
 }
 
 export let SceneAPI = {
-    createScene: createScene
+    createScene: SceneManager.createScene
 }
