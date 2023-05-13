@@ -440,8 +440,7 @@ Client是用户
 
 我们看下BlockFacade、BlockManager这两个部分：
 
-BlockFacade是门户，提供了管理积木的API
-BlockFacade的init函数负责注册所有使用的积木
+BlockFacade是门户，提供了管理积木的API，其中init函数负责注册所有使用的积木
 
 BlockManager负责实现管理积木，提供了注册积木、获得积木的服务和state等函数
 BlockManager有一个BlockManagerState，用来保存所有的积木
@@ -1177,7 +1176,6 @@ export type state = null
 
 ## 补充说明
 
-
 将系统的每个模块离散化为一个积木
 
 积木之间依赖于抽象的协议而不是具体的实现
@@ -1193,16 +1191,24 @@ TODO tu
 我们来看看模式的相关角色：
 
 
-总体来看，分为BlockFacade、BlockManager、System Blocks三个部分
+总体来看，分为用户、BlockFacade、BlockManager、System Blocks四个部分
+
+
+
+我们看下用户这个部分：
+
+- Client
+该角色是用户
 
 
 我们看下BlockFacade、BlockManager这两个部分：
 
 - BlockFacade
-该角色提供了管理积木的API，其中init函数负责注册所有使用的积木
+该角色是门户，提供了管理积木的API，其中init函数负责注册所有使用的积木
 
 - BlockManager
 该角色负责实现管理积木，提供了注册积木、获得积木的服务和state等函数
+该角色有一个BlockManagerState，用来保存所有的积木
 
 
 
@@ -1211,15 +1217,15 @@ TODO tu
 整个系统由积木组成，它们都在这个部分中
 
 - Entry Block Protocol
-该角色为入口积木的积木协议，它的state定义了积木包括的数据的类型，它的service定义了积木提供的服务的类型
+该角色为入口积木的积木协议，它的state定义了积木的数据的类型，它的service定义了积木的服务的类型
 
-- Entry Block
-该角色为入口积木的积木实现，它有一个blockState数据和3个函数，其中getBlockService函数返回了实现的服务，createBlockState函数创建了blockState，getDependentBlockProtocolNameMap函数返回了依赖的所有积木协议名
+- Entry Block Implement
+该角色为入口积木的积木实现，它有一个BlockState数据和3个函数，其中getBlockService函数返回了实现的服务，createBlockState函数创建了blockState，getDependentBlockProtocolNameMap函数返回了依赖的所有积木协议名
 
 - Block Protocol
 该角色为其它积木的积木协议，它的成员跟Entry Block Protocol一样
 
-- Block
+- Block Implement
 该角色为其它积木的积木实现，它的成员跟Entry Block一样，图中省略了它们
 
 
@@ -1232,15 +1238,18 @@ TODO tu
 
 - System Blocks中有且只有一个入口积木
 
-- 一个积木实现实现了一个积木协议
+- 因为多个积木实现可以实现同一个积木协议，所以Entry Block Implement和Entry Block Protocol、Block Implement和Block Protocol是一对多的关系
+
+
+**依赖关系**
 
 - 各个积木实现之间没有直接依赖，而是依赖抽象的积木协议
 
-- 因为入口积木依赖多个其它积木，所以Entry Block和Block Protocol是一对多的依赖关系
+- 因为入口积木依赖多个其它积木，所以Entry Block Implement和Block Protocol是一对多的依赖关系
 
 - 其它积木不能依赖入口积木
 
-- 因为其它积木可以通过其它积木协议来依赖多个其它积木，所以Block和BlockProtocol是多对多的依赖关系
+- 因为其它积木可以通过多个其它积木协议来依赖多个其它积木，所以Block Implement和BlockProtocol是一对多的依赖关系
 
 - 因为BlockManager通过registerBlock函数注册了多个积木，所以BlockManager与System Blocks中的积木是一对多的组合关系
 
@@ -1250,13 +1259,17 @@ TODO tu
 
 下面我们来看看各个角色的抽象代码：
 
+
+我们依次看下领域模型中各个部分的抽象代码：
+
 首先，我们看下Client的抽象代码
 然后，我们看下BlockFacade的抽象代码
 然后，我们看下BlockManager的抽象代码
-然后，我们看下Entry Block Protocol的抽象代码
-然后，我们看下Entry Block的抽象代码
-然后，我们看下Block Protocol的抽象代码
-最后，我们看下Block的抽象代码
+最后，我们看下System Blocks这个部分的抽象代码，它们包括：
+- Entry Block Protocol的抽象代码
+- Entry Block的抽象代码
+- Block Protocol的抽象代码
+- Block的抽象代码
 
 
 
@@ -1347,7 +1360,7 @@ export declare function registerBlock<blockService, dependentBlockProtocolNameMa
 ): state
 ```
 
-BlockManager只给出了函数签名，其中的类型定义在BlockManagerType
+BlockManager的函数实现已经在之前的案例代码中给出了，这里只给出函数签名，其中的类型定义在BlockManagerType中
 
 - Entry Block Protocol的抽象代码
 ServiceType
@@ -1360,7 +1373,7 @@ StateType
 ```ts
 export type state = ...
 ```
-- Entry Block的抽象代码
+- Entry Block Implement的抽象代码
 DependentMapType
 ```ts
 export type dependentBlockProtocolNameMap = {
@@ -1369,7 +1382,7 @@ export type dependentBlockProtocolNameMap = {
     ...
 }
 ```
-Entry Block
+Entry Block Implement
 ```ts
 export let getBlockService: BlockManagerType.getBlockService<
 	DependentMapType.dependentBlockProtocolNameMap,
@@ -1396,8 +1409,8 @@ export let getDependentBlockProtocolNameMap: BlockManagerType.getDependentBlockP
 ```
 - Block Protocol的抽象代码
 跟Entry Block Protocl的抽象代码一样，故省略
-- Block的抽象代码
-跟Entry Block的抽象代码一样，故省略
+- Block Implement的抽象代码
+跟Entry Block Implement的抽象代码一样，故省略
 
 
 
@@ -1411,12 +1424,12 @@ export let getDependentBlockProtocolNameMap: BlockManagerType.getDependentBlockP
 - 依赖倒置原则
 各个积木实现之间没有直接依赖，而是依赖抽象的积木协议
 - 接口隔离原则
-积木协议的state和service只定义了该积木需要的数据和服务的类型，没有定义其它积木的类型
+积木协议的state和service只定义了该积木的数据和服务的类型，没有定义其它积木的相关类型
 - 最少知识原则
 各个积木协议相互独立，如Block Protocol和其它的Block Protocol之间没有依赖关系
-各个积木实现相互独立，如Block和其它的Block之间没有依赖关系
+各个积木实现相互独立，如Block Implement和其它的Block Implement之间没有依赖关系
 - 开闭原则
-要增加系统的一个模块，只需要增加一个积木即可，无需修改其它的积木
+要增加系统的一个模块，只需要增加一个积木，并在BlockFacade的init函数中注册该积木即可，无需修改其它的积木
 
 
 
@@ -1426,16 +1439,16 @@ export let getDependentBlockProtocolNameMap: BlockManagerType.getDependentBlockP
 ## 优点
 
 - 实现了可插拔架构，支持大型的开发团队
-因为每个开发者只独立地负责自己的积木，互相之间通过积木协议交互，所以只要积木协议设计得足够抽象而使未来的改动较少，则可以任意插拔积木，显著降低各个开发者之间的影响
+因为每个开发者只独立地负责自己的积木，互相之间通过积木协议交互，所以只要积木协议设计得足够抽象，则可以任意插拔积木，显著降低了各个开发者之间的影响
 
 - 可以按需打包使用的积木到build后的系统文件中，从而减小文件大小
-具体是在BlockFacade的init函数中只通过import引入需要使用的积木并注册，其它的积木则不需要引入进来，这样的话通过打包工具（如webpack）的tree shaking机制，即可只打包import进来的积木
+具体是在BlockFacade的init函数中通过import只引入需要使用的积木并注册，其它的积木则不需要引入进来，这样的话通过打包工具（如webpack）的tree shaking机制，即可只打包import进来的积木
 
 - 测试方便
 
 对于单个积木的单元测试：
 因为各个积木实现之间没有耦合，所以可以单独地对每个积木实现进行单元测试；
-对于积木实现之间通过依赖积木协议而交互的代码，则可以很容易地使用stub或者mock来构造依赖的积木协议的积木实现
+对于积木实现之间通过依赖积木协议交互的代码，可以很容易地使用stub或者mock来构造依赖的积木协议的积木实现
 
 对于涉及到多个积木的集成测试或者运行测试：
 开发单个积木的开发者可以在本地构造假的Client，并构造假的BlockFacade的init函数来引入和注册需要测试的多个积木；然后运行Client来测试
@@ -1459,16 +1472,16 @@ export let getDependentBlockProtocolNameMap: BlockManagerType.getDependentBlockP
 
 - 多人开发的引擎
 
-引擎的动画、场景管理、模型加载、粒子、物理等各个模块都可以作为一个或者拆解为多个积木
+引擎的动画、场景管理、模型加载、粒子、物理等各个模块都可以作为一个积木或者拆解为多个更小的积木
 
-整个引擎可以完全由积木搭建而成，每个开发者负责一个积木的开发，相互的影响降到最低
+整个引擎可以完全由积木搭建而成，每个开发者负责一个积木的开发，这样相互的影响会降到最低
 
 
 - 多人开发的编辑器
 
-编辑器的引擎调用逻辑、UI、撤销重做、导入导出、发布等各个模块都可以作为一个或者拆解为多个积木
+编辑器的引擎、UI、撤销重做、导入导出、发布等各个模块都可以作为一个积木或者拆解为多个更小的积木
 
-整个编辑器可以完全由积木搭建而成，每个开发者负责一个积木的开发，相互的影响降到最低
+整个编辑器可以完全由积木搭建而成，每个开发者负责一个积木的开发，这样相互的影响会降到最低
 
 
 ## 注意事项
@@ -1480,15 +1493,14 @@ export let getDependentBlockProtocolNameMap: BlockManagerType.getDependentBlockP
 
 # 扩展
 
-## 对积木协议中定义的服务、state的类型使用Dependent Type来加强类型约束，从而在编译期间尽量除错
+## 对于积木协议中定义的服务、state的类型，可以使用Dependent Type来加强类型约束，从而在编译期间尽量除错
 
 因为Typescript部分地支持Dependent Type，所以使用它开发的积木协议可以加入Dependent Type
 
 
 ## 对积木本身进行扩展
 
-有些积木本身需要进行扩展
-如一个积木A有自己的数据，提供了默认的方式来操作数据，而积木的用户希望能够用自定义的方式来操作它的数据
+有些积木本身需要进行扩展，如一个积木A有自己的数据，它提供了默认的方式来操作数据。而积木的用户希望能够用自定义的方式来操作它的数据
 实现的思路是将“默认的方式”和“自定义的方式”这两个方式作为对这个积木的两个扩展，用户通过在注册该积木时指定使用哪个扩展，来实现使用哪种方式操作它的数据
 
 积木应该有两种类型：默认类型、扩展类型
@@ -1511,7 +1523,6 @@ Extension有数据，Contribute没有数据
 
 那么就可以实现一个Extension：Engine Extension，它是编辑器使用的引擎积木，负责维护所有的场景数据；
 实现两个Contribute：EngineSceneContribute1、EngineSceneContribute2，它们是对Engine Extension的扩展
-
 前者使用默认的组件来操作Engine Extension的场景数据，后者使用自定义的组件来操作Engine Extension的场景数据
 
 因为两者都是操作Engine Extension的场景数据，它们的接口应该相同，所以它们实现同一个积木协议
@@ -1520,8 +1531,8 @@ Extension有数据，Contribute没有数据
 编辑器在注册Engine Extension积木时，可以通过指定注册其中一个Contribute，从而实现使用默认的组件或者自定义的组件来操作场景数据
 
 
-实现的它们的参考代码如下：
-Engine Extension
+实现它们的参考代码如下：
+Engine Extension Implement
 ```ts
 export let getExtensionService: BlockManagerType.getExtensionService<
     //将Engine Extension的DependentMapType拆分为DependentExtensionMapType、DependentContributeMapType
@@ -1534,7 +1545,8 @@ export let getExtensionService: BlockManagerType.getExtensionService<
 (api, [{ extension1ProtocolName, ...}, { engineSceneContributeProtocolName }]) => {
     return {
         operateScene: (blockManagerState) => {
-			//依赖于Contribute的积木协议来调用Contribute的积木实现（可能是EngineSceneContribute1或者EngineSceneContribute2）的服务
+			//依赖于Contribute的积木协议来调用Contribute的积木实现的服务
+            //（调用的积木实现可能是EngineSceneContribute1或者EngineSceneContribute2）
             let { operate } = api.getContribute<EngineSceneContributeProtocolServiceType.service>(blockManagerState, engineSceneContributeProtocolName)
 
             //操作场景数据
@@ -1549,7 +1561,7 @@ export let createExtensionState: BlockManagerType.createExtensionState<
     EngineExtensionProtocolStateType.state
 > = () => {
 	return {
-        初始化场景数据...
+        创建初始的场景数据...
     }
 }
 
@@ -1557,6 +1569,7 @@ export let createExtensionState: BlockManagerType.createExtensionState<
 export let getDependentExtensionProtocolNameMap: BlockManagerType.getDependentExtensionProtocolNameMap = () => {
 	return {
 		"extension1ProtocolName": "xxx",
+        ...
 	}
 }
 
@@ -1568,7 +1581,20 @@ export let getDependentContributeProtocolNameMap: BlockManagerType.getDependentC
 	}
 }
 ```
-EngineSceneContribute1
+Engine Extension Implement DependentExtensionMapType
+```ts
+export type dependentBlockProtocolNameMap = {
+    extension1ProtocolName: string,
+    ...
+}
+```
+Engine Extension Implement DependentContributeMapType
+```ts
+export type dependentBlockProtocolNameMap = {
+    engineSceneContributeProtocolName: string
+}
+```
+EngineSceneContribute1 Implement
 ```ts
 export let getContributeService: BlockManagerType.getContributeService<
 	EngineSceneContribute1DependentExtensionMapType.dependentBlockProtocolNameMap,
@@ -1596,7 +1622,7 @@ export let getDependentContributeProtocolNameMap: BlockManagerType.getDependentC
 
 //因为没有数据，所以没有create block state函数
 ```
-EngineSceneContribute2
+EngineSceneContribute2 Implement
 ```ts
 export let getContributeService: BlockManagerType.getContributeService<
 	EngineSceneContribute2DependentExtensionMapType.dependentBlockProtocolNameMap,
@@ -1625,7 +1651,10 @@ export let getDependentContributeProtocolNameMap: BlockManagerType.getDependentC
 //因为没有数据，所以没有create block state函数
 ```
 
-在BlockFacade的init函数中注册Engine Extension和需要的Contribute，它的参考代码如下：
+这里省略了积木协议以及EngineSceneContribute1、EngineSceneContribute2的DependentExtensionMapType、DependentContributeMapType的代码
+
+
+在BlockFacade的init函数中注册Engine Extension和需要的Contribute，参考代码如下：
 BlockFacade
 ```ts
 export let init = (): blockManagerState => {
@@ -1662,10 +1691,10 @@ export let init = (): blockManagerState => {
 
 积木可以加入钩子函数，从而在不同的时机执行对应的钩子函数，实现对积木生命周期的控制
 
-如积木可以加入onRegister钩子函数，该钩子函数在注册该积木时被执行
+如积木可以加入onRegister钩子函数，它在注册该积木时被执行
 
 积木的参考代码：
-Block
+Block Implement
 ```ts
 //加入getBlockLife函数
 export let getBlockLife: BlockManagerType.getBlockLife<BlockProtocolServiceType.service> = (api, blockProtocolName) => {
@@ -1690,7 +1719,7 @@ type blockLife<blockService> = {
 export type getBlockLife<blockService> = (api: api, blockProtocolName: blockProtocolName) => blockLife<blockService>
 ```
 
-BlockManager的registerBlock函数需要执行积木的onRegister函数
+BlockManager的registerBlock函数在注册了积木后，需要执行该积木的生命周期的onRegister函数
 
 
 
@@ -1714,17 +1743,17 @@ BlockManager的registerBlock函数需要执行积木的onRegister函数
 <!-- ## 结合具体项目实践经验，如何应用模式来改进项目？ -->
 ## 哪些场景不需要使用模式？
 
-如果系统的开发者人数很少，就不需要积木模式
+如果系统的规模较小，或者系统的开发者人数较少，那么就不需要积木模式
 
 <!-- ## 哪些场景需要使用模式？ -->
 ## 给出具体的实践案例？
 
 
-- 使用lerna管理monorepo
+- monorepo
 
 每个积木实现以及积木协议都可以作为一个单独的项目
 
-如果使用monorepo来管理系统开发的话，整个系统就只有一个大的项目，项目中有很多独立的package，每个积木实现以及积木协议都是一个package
+如果使用monorepo来管理一个系统的开发，那么整个系统就只有一个大的项目，项目中有很多个独立的package，其中每个积木实现以及积木协议都是一个package
 
 可以使用lerna来管理monorepo
 
@@ -1752,5 +1781,10 @@ TODO 开发流程：
 
 # 更多资料推荐
 
-我开发的[Meta3D](https://github.com/Meta3D-Technology/Meta3D)使用了积木模式来设计整体架构
-Meta3D是开源的Web3D低代码开发平台，用来开发Web3D引擎和编辑器
+我开发的Meta3D使用了积木模式来设计整体架构。Meta3D是开源的Web3D低代码开发平台，用来开发Web3D引擎和编辑器，可以在网上搜索“Meta3D Github”来找到Github Repo
+
+
+可以在网上搜索“dependent type typescript”来找到在Typescript使用Dependent Type的资料
+
+
+可以在网上搜索“lerna”来找到lerna的资料

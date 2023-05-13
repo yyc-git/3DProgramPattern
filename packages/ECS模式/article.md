@@ -1583,7 +1583,7 @@ worldState的positionComponentManagerState的positions有3个连续的值是2、
 
 我们来看看模式的相关角色：
 
-总体来看，分为五个部分：用户、World、System层、Manager层、Component+GameObject层，它们的依赖关系是用户依赖World，World依赖System层，System层依赖Manager层，Manager层依赖Component+GameObject层
+总体来看，分为用户、World、System层、Manager层、Component+GameObject层五个部分，它们的依赖关系是用户依赖World，World依赖System层，System层依赖Manager层，Manager层依赖Component+GameObject层
 
 
 System层负责实现行为的逻辑
@@ -1591,8 +1591,14 @@ Manager层负责管理场景数据，即管理GameObject和组件的数据
 Component+GameObject层为组件和GameObject，它们现在只是有一个number类型的数据的值对象
 
 
+我们看下用户这个部分：
 
-我们看下World这一层：
+- Client
+该角色是用户
+
+
+
+我们看下World这个部分：
 
 - World
 该角色是门户，提供了API，实现了初始化和主循环的逻辑

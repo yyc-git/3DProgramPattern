@@ -1,0 +1,13 @@
+{
+  "name": "render_block_implement",
+  "version": "0.0.1",
+  "scripts": {
+    "watch": "tsc -w -noEmit",
+    
+    "webpack:dev-server": "NODE_ENV=development webpack-dev-server  --open 'Chrome' --config webpack.config.devserver.js"
+  },
+  "devDependencies": {
+    "typescript": "^4.2.3",
+    "ts-node": "^10.9.1"
+  }
+}
