@@ -6,10 +6,9 @@ import {
 
 export let implement = (): Dependency1 => {
 	return {
-		abstractAPI1: () => {
-			...
-			return api1()
-	},
+		abstractOperate1: () => {
+			使用api1...
+		},
 		...
   }
 }

@@ -2,6 +2,8 @@ import { Dependency1 } from "./Dependency1"
 
 let _dependency1: Dependency1 = null
 
+更多的_dependencyX...
+
 export let getDependency1 = (): Dependency1 => {
   return _dependency1;
 }
