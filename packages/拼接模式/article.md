@@ -601,7 +601,7 @@ uniform1i
 - 在每次渲染的发送顶点数据和Uniform数据时，要进行分支判断，这样即增加了代码的维护成本（GLSL每增加一个#ifdef分支，渲染时也要对应增加该分支的判断），也降低了性能（因为有各种分支跳转，所以降低了CPU的缓存命中）
 
 
-# [给出使用模式的改进方案]
+# 使用拼接模式来改进
 
 ## 概述解决方案
 
@@ -609,7 +609,7 @@ uniform1i
 - 用户给出GLSL的JSON配置文件，指定如何拼接小块的GLSL，以及指定在渲染时需要发送的顶点数据和Uniform数据的配置数据
 
 
-## 给出UML？
+## 给出UML
 
 **领域模型**
 ![image](https://img2023.cnblogs.com/blog/419321/202305/419321-20230501112230042-1888695031.png)
@@ -674,7 +674,7 @@ InitMaterialShader负责初始化所有材质的Shader，它有两个函数：in
 
 
 
-## 结合UML图，描述如何具体地解决问题？
+## 结合UML图，描述如何具体地解决问题
 
 
 - 现在用户可以通过GLSL Config来自定义GLSL
@@ -1471,7 +1471,7 @@ let _sendUniformData = (uniformSendMetadata: Array<uniformSendMetadata>, state: 
 
 # 定义
 
-## 一句话定义？
+## 一句话定义
 
 
 <!-- 可配置地拼接小块数据 -->
@@ -1500,13 +1500,13 @@ let _sendUniformData = (uniformSendMetadata: Array<uniformSendMetadata>, state: 
 
 
 
-## 通用UML？
+## 通用UML
 
 ![image](https://img2023.cnblogs.com/blog/419321/202305/419321-20230501112232185-1121387971.png)
 
 
 
-## 分析角色？
+## 分析角色
 
 我们来看看模式的相关角色：
 
@@ -1575,7 +1575,7 @@ Target Config中某些字段的值是离散的，它们的范围是系统定义�
 TODO -->
 
 
-## 角色之间的关系？
+## 角色之间的关系
 
 - 有多个Target Chunk
 
@@ -1598,7 +1598,7 @@ TODO -->
 
 
 
-## 角色的抽象代码？
+## 角色的抽象代码
 
 
 下面我们来看看各个角色的抽象代码：
@@ -1878,7 +1878,7 @@ ChunkHandler的API是这三个函数，这里只给出了函数签名
 
 
 
-## 遵循的设计原则在UML中的体现？
+## 遵循的设计原则在UML中的体现
     
 拼接模式主要遵循下面的设计原则：
 
@@ -2209,7 +2209,7 @@ InitMaterialShader的initNoMaterialShader函数跟初始化有材质的Shader的
 # 最佳实践
 
 <!-- ## 结合具体项目实践经验，如何应用模式来改进项目？ -->
-## 哪些场景不需要使用模式？
+## 哪些场景不需要使用模式
 
 如果大数据没有多少分支，那么不需要使用该模式来将其分解
 
@@ -2220,7 +2220,7 @@ InitMaterialShader的initNoMaterialShader函数跟初始化有材质的Shader的
 slang相当于着色器语言中的Typescript，它在原始的着色器语言之上增加了一层编译器，实现了一个新的着色器语言。slang可以将其编译为GLSL、HLSL等各种原始的着色器语言
 
 
-<!-- ## 给出具体的实践案例？ -->
+<!-- ## 给出具体的实践案例 -->
 
 
 

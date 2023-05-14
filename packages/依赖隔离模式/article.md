@@ -75,11 +75,11 @@ Editor引入Three.js引擎，并在createScene函数中调用它来创建场景
 # [解决问题的方案，分析存在的问题]?
 
 
-## 概述解决方案？
+## 概述解决方案
 
 - Editor改为引入Babylon.js引擎，并修改Editor中与引擎相关的代码
 
-## 给出UML？
+## 给出UML
 
 
 **领域模型**
@@ -89,7 +89,7 @@ TODO tu
 
 
 
-## 结合UML图，描述如何具体地解决问题？
+## 结合UML图，描述如何具体地解决问题
 
 
 需要进行下面的修改：
@@ -98,7 +98,7 @@ TODO tu
 - 修改Editor的相关代码
 
 
-## 给出代码？
+## 给出代码
 
 Client代码跟之前一样，故省略
 
@@ -129,7 +129,7 @@ Editor改为引入Babylon.js引擎，并修改createScene函数中与引擎相�
 替换引擎需要修改Editor中所有与引擎相关代码，成本太高了。有没有办法能在不修改Editor代码的情况下实现替换引擎呢？
 
 
-# [给出使用模式的改进方案]
+# 使用依赖隔离模式来改进
 
 ## 概述解决方案
 
@@ -138,7 +138,7 @@ Editor改为引入Babylon.js引擎，并修改createScene函数中与引擎相�
 
 
 
-## 给出UML？
+## 给出UML
 
 **领域模型**
 TODO tu
@@ -180,13 +180,13 @@ DependencyContainer是保存注入的Engine接口实现的容器，提供操作�
 Client通过依赖注入的方式注入Engine接口的一个实现（BabylonImplement或者ThreeImplement），从而使Editor能够调用它来创建场景
 
 
-## 结合UML图，描述如何具体地解决问题？
+## 结合UML图，描述如何具体地解决问题
 
 - 替换Three.js为Babylon.js引擎现在不再影响Editor了，只需要增加BabylonImplement，并让Client从注入ThreeImplement改为注入BabylonImplement即可
 因为Editor只依赖Engine接口，所以Engine接口的实现的变化不会影响Editor
 
 
-## 给出代码？
+## 给出代码
 
 我们来看下领域模型中各个部分的代码：
 首先，我们看下Client的代码
@@ -322,7 +322,7 @@ BabylonImplement的implement函数使用了Babylon.js引擎，返回了Engine接
 
 # 定义
 
-## 一句话定义？
+## 一句话定义
 
 隔离系统的外部依赖，使得外部依赖的变化不会影响系统
 
@@ -342,12 +342,12 @@ BabylonImplement的implement函数使用了Babylon.js引擎，返回了Engine接
 
 
 
-## 通用UML？
+## 通用UML
 
 TODO tu
 
 
-## 分析角色？
+## 分析角色
 
 我们来看看模式的相关角色：
 
@@ -382,7 +382,7 @@ TODO tu
 该角色是保存注入的DependencyImplement的容器，提供操作它的get和set函数
 
 
-## 角色之间的关系？
+## 角色之间的关系
 
 - 可以有多个Dependency接口
 如除了Engine以外，还可以有File、Server等Dependency接口，其中每个Dependency对应一个外部依赖
@@ -403,7 +403,7 @@ TODO tu
 
 
 
-## 角色的抽象代码？
+## 角色的抽象代码
 
 下面我们来看看各个角色的抽象代码：
 
@@ -501,7 +501,7 @@ export let api1 = function () {
 有多个DependencyImplement和多个DependencyLibrary，这里给出一个DependencyImplement和一个DependencyLibrary的抽象代码
 
 
-## 遵循的设计原则在UML中的体现？
+## 遵循的设计原则在UML中的体现
 
 
 依赖隔离模式主要遵循下面的设计原则：
@@ -607,7 +607,7 @@ export let api1 = function () {
 # 最佳实践
 
 <!-- ## 结合具体项目实践经验，如何应用模式来改进项目？ -->
-## 哪些场景不需要使用模式？
+## 哪些场景不需要使用模式
 
 
 - 系统的外部依赖比较稳定，不易变化
@@ -620,7 +620,7 @@ export let api1 = function () {
 
 
 <!-- ## 哪些场景需要使用模式？ -->
-## 给出具体的实践案例？
+## 给出具体的实践案例
 
 <!-- - 使用了频繁变化的外部依赖的系统 -->
 - 扩大使用场景

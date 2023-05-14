@@ -3,29 +3,29 @@
 # need study markdown specification!
 
 
-
-* TODO 显示图片
-
-![xxx图](相对路径)
-
-文件名为英文 
-
-
-
-* TODO 如果不是作者原创的图表，请在图表下方用文字说明图片来源。（例如，图片/表格来源：XXX。）
-
-
-
-* TODO 图片使用黑白色
-
-
-
-
-
-
 * TODO 交稿给编辑老师，改错(use markdown)
 
 
+* TODO 更新代码库，给出索引、how to run
+
+** TODO update and fix README
+
+** TODO give where has code, uml and how to run code and run result for each example
+
+    TODO give how to run rescript code(pipeline pattern should mention it!)
+
+
+
+** TODO 整理每个package代码，给出运行Client的代码的script；并在README中说明如何运行，怎样运行
+
+
+** TODO 对用Rescript写的package，说明如何编译，以及package.json->main对应哪个src/的.res文件
+
+
+
+** TODO 代码示例
+
+https://github.com/nivance/DPModel
 
 
 * TODO 加入前言等补充章节

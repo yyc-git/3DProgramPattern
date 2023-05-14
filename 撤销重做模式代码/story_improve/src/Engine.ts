@@ -13,7 +13,7 @@ export let createState = (): state => {
 
 export let doWhenMove = (state: state) => {
     //更新不可变字段
-    //先拷贝state，再修改拷贝后的state中的对应字段
+    //先浅拷贝state，再修改拷贝后的state中的对应字段
     state = {
         ...state,
         immutableData1: state.immutableData1 + 1

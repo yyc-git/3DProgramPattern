@@ -9,11 +9,11 @@ export let setData1 = (data1) => {
 }
 
 export let draw = () => {
-    console.log("operate dom to draw")
+    console.log("operate Dom to draw")
 }
 
 export let undraw = () => {
-    console.log("operate dom to undraw")
+    console.log("operate Dom to undraw")
 }
 
 export let doWhenMove = () => {

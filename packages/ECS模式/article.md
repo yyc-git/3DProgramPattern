@@ -364,7 +364,7 @@ worldState的superHeroes中一共有两个超级英雄的数据，其中有一�
 # [给出可能的改进方案，分析存在的问题]?
 
 
-## 概述解决方案？
+## 概述解决方案
 
 
 <!-- 通过下面的改进来解决重复和继承的问题： -->
@@ -380,7 +380,7 @@ worldState的superHeroes中一共有两个超级英雄的数据，其中有一�
 
 
 
-## 给出UML？
+## 给出UML
 
 **领域模型**
 ![image](https://img2023.cnblogs.com/blog/419321/202304/419321-20230407093910175-912066482.png)
@@ -410,7 +410,7 @@ InstanceComponent没有数据和逻辑，它只是一个标记，用来表示挂
 
 
 
-## 结合UML图，描述如何具体地解决问题？
+## 结合UML图，描述如何具体地解决问题
 
 - 现在只需要实现一次Position组件中的update、move函数，然后将它挂载到不同的GameObject中，就可以实现普通英雄和超级英雄的更新、移动的逻辑，从而消除了之前在NormalHero、SuperHero中共实现了两次的update、move函数造成的重复代码
 
@@ -419,7 +419,7 @@ InstanceComponent没有数据和逻辑，它只是一个标记，用来表示挂
 通过这样的设计，将行为的逻辑和数据从人物移到了组件中，从而可以通过组合的方式使人物具有多个行为，避免了庞大的人物模块的出现
 
 
-## 给出代码？
+## 给出代码
 
 首先，我们看下Client的代码；
 然后，我们依次看下Client代码中前两个步骤的代码，它们包括：
@@ -899,7 +899,7 @@ worldState的gameObjects包括了4个gameObject的数据，其中有一个gameOb
 
 
 
-# [给出使用模式的改进方案]
+# 使用ECS模式来改进
 
 ## 概述解决方案
 
@@ -940,7 +940,7 @@ GameObject不再有数据和逻辑了，而只是一个全局唯一的id；组�
 1.GameObject和组件的数据被移到了Manager中，它们的逻辑则被移到了Manager和System中，其中只操作自己数据的逻辑（如getPosition、setPosition）被移到了Manager中，其它逻辑（通常为行为逻辑，需要操作多种组件）被移到了System中
 2.一种组件的Manager只对该种组件进行操作，而一个System可以对多种组件进行操作
 
-## 给出UML？
+## 给出UML
 
 
 **领域模型**
@@ -1027,7 +1027,7 @@ Manager层：
 
 
 
-## 结合UML图，描述如何具体地解决问题？
+## 结合UML图，描述如何具体地解决问题
 
 - 现在各种组件的数据都集中保存在各自Manager的ArrayBuffer中，遍历同一种组件的所有组件数据即是遍历一个ArrayBuffer。因为ArrayBuffer的数据是连续地保存在内存中的，所以缓存命中不会丢失，从而提高了性能
 
@@ -1036,7 +1036,7 @@ Manager层：
 
 
 
-## 给出代码？
+## 给出代码
 
 
 首先，我们看下Client的代码；
@@ -1559,7 +1559,7 @@ worldState的positionComponentManagerState的positions有3个连续的值是2、
 
 # 定义
 
-## 一句话定义？
+## 一句话定义
 
 组合代替继承；内存中连续地保存组件数据；分离逻辑和数据
 
@@ -1576,10 +1576,10 @@ worldState的positionComponentManagerState的positions有3个连续的值是2、
 提出System、Manager、Component+GameObject这三层，其中System层实现行为逻辑，Manager层维护数据，Component+GameObject层的组件和GameObject只是一个扁平的number类型的索引或者id值 -->
 
 
-## 通用UML？
+## 通用UML
 ![image](https://img2023.cnblogs.com/blog/419321/202304/419321-20230407093915551-2129951086.png)
 
-## 分析角色？
+## 分析角色
 
 我们来看看模式的相关角色：
 
@@ -1647,7 +1647,7 @@ OtherComponentManager的state数据包括多个“value map”字段，它们是
 
 
 
-## 角色之间的关系？
+## 角色之间的关系
 
 - 只有一个CreateStateSystem
 
@@ -1694,7 +1694,7 @@ Component+GameObject层：
 
 
 
-## 角色的抽象代码？
+## 角色的抽象代码
 
 下面我们来看看各个角色的抽象代码：
 
@@ -2044,7 +2044,7 @@ export type component = id
 
 
 
-## 遵循的设计原则在UML中的体现？
+## 遵循的设计原则在UML中的体现
 
 ECS模式主要遵循下面的设计原则：
 
@@ -2153,12 +2153,12 @@ World、System、Manager、Component+GameObject这几个层只能上层依赖下
 
 # 最佳实践
 
-## 哪些场景不需要使用模式？
+## 哪些场景不需要使用模式
 
 如果游戏的人物种类很少，行为简单，那么就可以使用最开始给出的继承方案，使用一个人物模块对应一种人物，通过继承实现多种人物，这样最容易实现
 
 
-<!-- ## 给出具体的实践案例？ -->
+<!-- ## 给出具体的实践案例 -->
 
 <!-- 对于GeometryComponent组件，它的ArrayBuffer会保存顶点数据，如顶点、法线之类的数据。
 

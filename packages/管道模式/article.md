@@ -188,7 +188,7 @@ tonemap for WebGL2
 # [给出可能的改进方案，分析存在的问题]?
 
 
-## 概述解决方案？
+## 概述解决方案
 
 - 分离PC端和移动端的逻辑为不同的模块
 从Engine中提出两个模块：EngineInPC、EngineInMobile，分别实现PC端和移动端的逻辑；
@@ -197,7 +197,7 @@ tonemap for WebGL2
 - 进一步将每个步骤提出成单独的模块，这样可减少步骤之间的耦合，便于维护
 
 
-## 给出UML？
+## 给出UML
 
 **领域模型**
 TODO tu
@@ -236,14 +236,14 @@ TonemapForWebGL1负责使用WebGL1实现Tonemap后处理
 
 
 
-## 结合UML图，描述如何具体地解决问题？
+## 结合UML图，描述如何具体地解决问题
 
 - 现在甲负责EngineInPC的所有步骤模块、以及EngineInMobile的InitWebGL1、ForwardRender步骤模块，乙负责TonemapForWebGL1步骤模块，两人相互不影响
 
 
 
 
-## 给出代码？
+## 给出代码
 
 首先，我们看下Client的代码；
 
@@ -490,7 +490,7 @@ tonemap for WebGL2
 
 
 
-# [给出使用模式的改进方案]
+# 使用管道模式来改进
 
 ## 概述解决方案
 
@@ -506,7 +506,7 @@ tonemap for WebGL2
 <!-- 通过下面的改进来解决冲突的问题：
 因为不同的管道相互独立，同一个管道中的Job也是相互独立，它们相互之间不依赖，所以甲和乙同时开发EngineInMobile管道的不同的Job是不会相互影响的 -->
 
-## 给出UML？
+## 给出UML
 
 **领域模型**
 TODO tu
@@ -579,7 +579,7 @@ PipelineManager有自己的数据-PipelineManagerState，它包括了所有管�
 
 
 
-## 结合UML图，描述如何具体地解决问题？
+## 结合UML图，描述如何具体地解决问题
 
 - EngineInPCPipeline、JiaEngineInMobilePipeline、YiEngineInMobilePipeline这三个管道模块都有自己的JSON配置数据，不懂开发的策划人员只需要配置它们而不需要修改代码，即可指定初始化和渲染的步骤
 
@@ -588,7 +588,7 @@ PipelineManager有自己的数据-PipelineManagerState，它包括了所有管�
 但是因为它们的依赖是类型（PipelineStateType）之间的依赖，所以只要JiaEngineInMobilePipelineStateType不变（类型是抽象的，一般都不会改变），则甲、乙之间的开发就不会互相影响
 
 
-## 给出代码？
+## 给出代码
 
 首先，我们看下Client的代码；
 
@@ -1117,7 +1117,7 @@ tonemap for WebGL2
 
 # 定义
 
-## 一句话定义？
+## 一句话定义
 
 将连续的、有一定执行顺序的逻辑离散化为一个个独立的Job，按照配置数据定义的顺序在管道中依次执行
 
@@ -1126,11 +1126,11 @@ tonemap for WebGL2
 因为考虑到Job可能会进行异步操作，并且也可能会并行执行多个Job（当配置数据中的link字段为merge时），所以基于FRP（函数反应型编程），使用流来处理异步操作。具体就是让每个Job返回一个流，并且整个管道就是一个流
 
 
-## 通用UML？
+## 通用UML
 
 TODO tu
 
-## 分析角色？
+## 分析角色
 
 
 我们来看看模式的相关角色：
@@ -1179,7 +1179,7 @@ System可能有多个runPipelineX函数，用来运行注册的管道模块的�
 
 
 
-## 角色之间的关系？
+## 角色之间的关系
 
 - System可以注册多个Pipeline，它们中同名的管道会合并
 
@@ -1201,7 +1201,7 @@ System可能有多个runPipelineX函数，用来运行注册的管道模块的�
 
 TODO tu
 
-## 分析角色？
+## 分析角色
 
 
 总体来看，数据分为运行时数据和配置数据，其中各个State是运行时数据，各个JSON是配置数据
@@ -1214,10 +1214,10 @@ PipelineManager有自己的数据-PipeStateManagerState，它包括了所有管�
 Pipeline有一个PipelineState数据和一个JSON配置数据，其中PipelineState保存了管道模块中所有管道的运行时数据，JSON配置数据用来指定管道模块中所有管道的Job的执行顺序
 
 
-<!-- ## 角色之间的关系？ -->
+<!-- ## 角色之间的关系 -->
 
 
-## 角色的抽象代码？
+## 角色的抽象代码
 
 
 下面我们来看看各个角色的抽象代码：
@@ -1457,7 +1457,7 @@ export function 获得依赖的其它PipelineState的数据(states: states) {
 Job一般都只写数据到自己的PipelineState，最好不要修改其它的PipelineState，以免造成冲突
 
 
-## 遵循的设计原则在UML中的体现？
+## 遵循的设计原则在UML中的体现
 
 管道模式主要遵循下面的设计原则：
 
@@ -1669,11 +1669,11 @@ export let exec: ... = (systemState, { getStatesFunc, setStatesFunc }, flags) =>
 
 # 最佳实践
 
-## 哪些场景不需要使用模式？
+## 哪些场景不需要使用模式
 
 如果逻辑之间没有明显的执行顺序，则不需要使用管道模式将其管道化
 
-## 给出具体的实践案例？
+## 给出具体的实践案例
 
 - 支持各种运行环境
 
