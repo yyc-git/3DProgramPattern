@@ -160,7 +160,7 @@ export let render = (state: state) => {
 ### 运行Client的代码
 
 下面，我们运行Client的代码，打印的结果如下：
-```text
+```js
 is PC
 初始化WebGL2
 延迟渲染
@@ -459,7 +459,7 @@ export let tonemap = (state: state) => {
 ### 运行Client的代码
 
 下面，我们运行Client的代码，打印的结果如下：
-```text
+```js
 is PC
 初始化WebGL2
 延迟渲染
@@ -1061,7 +1061,7 @@ export let exec: ... = (engineState, ...) => {
 ### 运行Client的代码
 
 下面，我们运行Client的代码，打印的结果如下：
-```text
+```js
 is PC
 初始化WebGL2
 延迟渲染

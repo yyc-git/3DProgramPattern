@@ -334,7 +334,7 @@ CommandManager的redo函数从重做栈中得到最近保存的命令，调用�
 ### 运行Client的代码
 
 下面，我们运行Client的代码，打印的结果如下：
-```text
+```js
 Engine->data1: 0
 EditorLogic->data1: 0
 EditorUI->data1: 0
@@ -822,7 +822,7 @@ redo函数的步骤与undo函数的步骤类似
 ### 运行Client的代码
 
 下面，我们运行Client的代码，打印的结果如下：
-```text
+```js
 Engine->state: { immutableData1: 0, mutableData2: [ 1 ] }
 EditorLogic->state: { data1: 0 }
 EditorUI->state: { data1: 0 }

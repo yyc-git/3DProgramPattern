@@ -1,6 +1,6 @@
 [TOC]
 
-# [引入故事，提出问题]
+# 一个开发者开发引擎
 
 ## 需求
 
@@ -9,18 +9,14 @@
 
 ## 实现思路
 
-<!-- 他首先实现了一个引擎的Demo，直接使用WebGL绘制出了一个最简单的场景 -->
-首先，甲实现了一个引擎的Demo，使用图形API绘制出了一个最简单的场景；
-<!-- 他首先实现了一个引擎的Demo，直接使用WebGL绘制出了包括三个三角形的简单场景； -->
-然后，甲从Demo中提炼出了引擎的最基本的框架，实现了初始化、主循环这两个步骤
+首先，甲实现了一个引擎的Demo，使用图形API绘制出了一个最简单的场景；然后，甲从Demo中提炼出了引擎的最基本的框架，实现了初始化、主循环这两个步骤
 
 
 
 ## 给出UML
 
-**领域模型**
-TODO tu
-引擎基本框架的领域模型
+
+![领域模型图](./story_before/UML.png)
 
 
 总体来看，分为用户、引擎这两个部分
@@ -82,7 +78,7 @@ export let loop = () => {
 ### 运行Client的代码
 
 下面，我们运行Client的代码，打印的结果如下：
-```text
+```js
 初始化
 主循环
 ```
@@ -94,26 +90,21 @@ export let loop = () => {
 
 
 
-# [解决问题的方案，分析存在的问题]?
+# 加入更多的开发者一起开发引擎
 
 
 ## 概述解决方案
 
-为了加快开发进度，甲找了另外三个开发者乙、丙、丁一起来开发引擎
-
-<!-- - 分工 -->
-他们的分工如下：
-甲继续开发Engine和Director；
-乙负责实现实现一个数学库，实现矩阵计算之类的数学计算逻辑；
-丙负责实现场景的管理；
-丁负责实现渲染
+为了加快开发进度，甲找了另外三个开发者乙、丙、丁一起来开发引擎。他们的分工如下：
+- 甲继续开发Engine和Director；
+- 乙负责实现实现一个数学库，实现矩阵计算之类的数学计算逻辑；
+- 丙负责实现场景的管理；
+- 丁负责实现渲染
 
 
 ## 给出UML
 
-**领域模型**
-TODO tu
-引擎基本框架的领域模型
+![领域模型图](./story_after/UML.png)
 
 
 总体来看，分为用户、引擎这两个部分
@@ -126,12 +117,12 @@ Client是用户
 
 我们看下引擎这个部分：
 
-Engine和Director跟之前一样
+Engine和Director的职责跟之前一样，并且由甲继续开发
 
 我们介绍新加入的引擎模块，他们由分别由一个新的开发者负责开发：
-SceneManager负责场景的管理，由丙负责开发
-Render负责渲染，由丁负责开发
-Math负责数学计算，由乙负责开发
+- SceneManager负责场景的管理，由丙负责开发
+- Render负责渲染，由丁负责开发
+- Math负责数学计算，由乙负责开发
 
 
 
@@ -140,11 +131,11 @@ Math负责数学计算，由乙负责开发
 
 Engine依赖Director、SceneManager，封装它们来提供初始化、主循环和管理场景的API
 
-Director依赖SceneManager、Render，在初始化时分别通过它们初始化场景和初始化渲染，在主循环时分别通过它们更新场景和渲染
+Director依赖SceneManager、Render，在初始化时分别通过它们来初始化场景和初始化渲染，在主循环时分别通过它们来更新场景和渲染
 
 Render依赖SceneManager，在渲染时通过它获得场景数据
 
-SceneManager、Render依赖Math，通过它进行数学计算
+SceneManager、Render依赖Math，通过它来进行数学计算
 
 
 <!-- ## 结合UML图，描述如何具体地解决问题 -->
@@ -179,10 +170,7 @@ state = Engine.DirectorAPI.init(state)
 Engine.DirectorAPI.loop(state)
 ```
 
-Client首先创建了EngineState，用来保存引擎的所有数据；
-然后创建了场景；
-然后初始化；
-最后主循环
+Client首先创建了EngineState，用来保存引擎的所有数据；然后创建了场景；然后初始化；最后主循环
 
 
 ### Engine的代码
@@ -213,9 +201,7 @@ export let createState = (): state => {
     }
 }
 ```
-createState函数创建的EngineState保存了创建的SceneManagerState，其中SceneManagerState负责保存场景数据
-
-我们看下创建SceneManagerState的代码：
+createState函数创建的EngineState保存了创建的SceneManagerState，其中SceneManagerState负责保存场景数据。我们看下创建SceneManagerState的代码：
 SceneManager
 ```ts
 export let createState = (): sceneManagerState => {
@@ -223,7 +209,7 @@ export let createState = (): sceneManagerState => {
 }
 ```
 
-createState函数创建的SceneManagerState包括了保存场景中所有的gameObject的容器
+createState函数创建了SceneManagerState，它包括保存场景中所有的gameObject的容器
 <!-- 目前它的值是空数组，表示场景中目前没有gameObject -->
 
 
@@ -250,8 +236,7 @@ export let createScene = (state: state) => {
 }
 ```
 
-createScene函数创建了场景，场景中只有一个gameObject
-这里具体是创建了一个假的gameObject，并将其加入到SceneManagerState的allGameObjects数组中
+createScene函数创建了场景，场景中只有一个gameObject。这里具体是创建了一个假的gameObject，并将其加入到SceneManagerState的allGameObjects中
 
 
 ### 初始化的代码
@@ -266,9 +251,7 @@ export let init = (state) => {
 }
 ```
 
-init函数实现了初始化，调用了SceneManager的init函数来初始化场景，以及调用了Render的init函数来初始化渲染
-
-我们看下相关代码：
+init函数实现了初始化，调用了SceneManager的init函数来初始化场景，以及调用了Render的init函数来初始化渲染。我们看下相关代码：
 SceneManager
 ```ts
 export let init = (state: state) => {
@@ -307,9 +290,7 @@ export let loop = (state: state) => {
 }
 ```
 
-loop函数实现了主循环，调用了SceneManager的update函数来更新场景，以及调用了Render的render函数来渲染
-
-我们看下更新场景的相关代码：
+loop函数实现了主循环，调用了SceneManager的update函数来更新场景，以及调用了Render的render函数来渲染。我们看下更新场景的相关代码：
 SceneManager
 ```ts
 export let update = (state: state) => {
@@ -360,7 +341,7 @@ Render的render函数实现了渲染，调用了SceneManger的getAllGameObjects�
 ### 运行Client的代码
 
 下面，我们运行Client的代码，打印的结果如下：
-```text
+```js
 创建场景
 //初始化
 初始化场景
@@ -411,12 +392,7 @@ Render的render函数实现了渲染，调用了SceneManger的getAllGameObjects�
 
 <!-- 通过下面的改进来降低模块之间的依赖： -->
 - 将每个模块改为一个独立的积木，互相之间只依赖于抽象的协议
-积木包括积木实现和积木协议两个部分，其中积木协议是接口，定义了积木的服务的类型和积木的数据的类型；
-积木实现是对积木协议的实现
-
-积木的服务就是多个实现该积木的逻辑的函数；
-积木的数据是一个state，它保存了该积木所有的数据
-
+积木包括积木实现和积木协议两个部分，其中积木协议是接口，定义了积木的服务的类型和积木的数据的类型；积木实现是对积木协议的实现。积木的服务就是多个实现该积木的逻辑的函数；积木的数据是一个state，它保存了该积木所有的数据。
 每个积木之间依赖的是抽象的积木协议而不是具体的积木实现
 
 - 大家首先一起定义好各个积木的协议，然后每个开发者只独立开发自己的积木实现，互相之间通过积木协议交互
@@ -426,8 +402,7 @@ Render的render函数实现了渲染，调用了SceneManger的getAllGameObjects�
 ## 给出UML
 
 
-**领域模型**
-TODO tu
+![领域模型图](./story_improve/UML.png)
 
 
 总体来看，分为用户、BlockFacade、BlockManager、Engine Blocks这四个部分
@@ -444,39 +419,19 @@ Client是用户
 
 BlockFacade是门户，提供了管理积木的API，其中init函数负责注册所有使用的积木
 
-BlockManager负责实现管理积木，提供了注册积木、获得积木的服务和state等函数
-BlockManager有一个BlockManagerState，用来保存所有的积木
+BlockManager负责实现管理积木，提供了注册积木、获得积木的服务和state等函数。BlockManager有一个BlockManagerState，用来保存所有的积木
 
 
 
 
 我们看下Engine Blocks这个部分：
 
-整个引擎由积木组成，它们都在这个部分中
+整个引擎由积木组成，它们都在这个部分中。之前的各个引擎模块都对应地改为积木了，其中Engine改为Engine Block，Director改为Director Block，SceneManager改为SceneManager Block，Render改为Render Block，Math改为Math Block
 
-之前的各个引擎模块都对应地改为积木了，其中Engine改为Engine Block，Director改为Director Block，SceneManager改为SceneManager Block，Render改为Render Block，Math改为Math Block
+积木包括积木实现和积木协议这两个部分，其中积木实现的模块名以“Implement”结尾，积木协议的模块名以“Protocol”结尾，如Engine Block Implement是积木实现，Engine Block Protocol是积木协议。积木实现是对积木协议的实现，如Engine Block Implement实现了Engine Block Protocol。各个积木实现的逻辑不变，仍然是之前的引擎模块的逻辑。积木协议的state定义了积木的数据的类型，积木协议的service定义了积木的服务的类型
 
-
-
-积木包括积木实现和积木协议这两个部分，其中积木实现的模块名以“Implement”结尾，积木协议的模块名以“Protocol”结尾，如Engine Block Implement是积木实现，Engine Block Protocol是积木协议
-
-积木实现是对积木协议的实现，如Engine Block Implement实现了Engine Block Protocol
-
-各个积木实现的逻辑不变，仍然是之前的引擎模块的逻辑
-
-
-积木协议的state定义了积木的数据的类型
-积木协议的service定义了积木的服务的类型
-
-
-
-
-在所有的积木中，需要定义一个积木作为入口。入口积木向Client提供了调用其它积木的API
-这里Engine Block就是入口积木，其中Engine Block Implement就是入口积木的积木实现，Engine Block Protocol是入口积木的积木协议
-
-Client调用入口积木的方式如下：
-首先Client调用BlockFacade的getEntryBlockProtocolName函数来获得入口积木的积木协议名；
-然后将其传给BlockFacade的getBlockService函数来获得入口积木的服务，从而使用它提供的API
+在所有的积木中，需要定义一个积木作为入口。入口积木向Client提供了调用其它积木的API。Engine Block就是入口积木，其中Engine Block Implement是入口积木的积木实现，Engine Block Protocol是入口积木的积木协议。Client调用入口积木的方式如下：
+首先Client调用BlockFacade的getEntryBlockProtocolName函数来获得入口积木的积木协议名；然后将其传给BlockFacade的getBlockService函数来获得入口积木的服务，从而使用它提供的API
 
 
 
@@ -530,11 +485,7 @@ blockManagerState = director.init(blockManagerState)
 director.loop(blockManagerState)
 ```
 
-Client首先调用BlockFacade的init函数初始化积木；
-然后调用BlockFacade的getEntryBlockProtocolName函数来获得入口积木的积木协议（Engine Block Protocol）的协议名，将其传给BlockFacade的getBlockService函数来获得入口积木（Engine Block）的服务；
-然后调用服务的scene的createScene函数，创建了场景；
-然后调用服务的director的init函数，实现初始化；
-最后调用服务的director的loop函数，实现主循环
+Client首先调用BlockFacade的init函数初始化积木；然后调用BlockFacade的getEntryBlockProtocolName函数来获得入口积木的积木协议（Engine Block Protocol）的协议名，将其传给BlockFacade的getBlockService函数来获得入口积木（Engine Block）的服务；然后调用服务的scene的createScene函数，创建了场景；然后调用服务的director的init函数，实现初始化；最后调用服务的director的loop函数，实现主循环
 
 ### 初始化积木的代码
 
@@ -583,10 +534,7 @@ export let init = (): blockManagerState => {
 }
 ```
 
-init函数实现了初始化积木，它首先调用BlockManager的createState函数创建BlockManagerState；
-然后多次调用BlockManager的registerBlock函数，注册了Engine Blocks中所有的积木
-
-其中，在调用BlockManager的registerBlock函数时传入了BlockManagerState、积木协议名、获得积木的服务的函数、积木依赖的所有积木协议名、积木的state；
+init函数实现了初始化积木，它首先调用BlockManager的createState函数创建BlockManagerState；然后多次调用BlockManager的registerBlock函数，注册了Engine Blocks中所有的积木。其中，在调用BlockManager的registerBlock函数时传入了BlockManagerState、积木协议名、获得积木的服务的函数、积木依赖的所有积木协议名、积木的state
 
 
 ### 创建BlockManagerState的代码
@@ -650,8 +598,7 @@ export let registerBlock = <blockService, dependentBlockProtocolNameMap, blockSt
 }
 ```
 
-registerBlock函数实现了注册积木，它首先通过传入的getBlockService函数获得积木的服务，将其保存在BlockManagerState的blockServiceMap中；
-最后将传入的积木的state保存在BlockManagerState的blockStateMap中
+registerBlock函数实现了注册积木，它首先通过传入的getBlockService函数获得积木的服务，将其保存在BlockManagerState的blockServiceMap中；最后将传入的积木的state保存在BlockManagerState的blockStateMap中
 
 <!-- 值得注意的是： -->
 registerBlock函数在调用传入的getBlockService函数时，注入了_buildAPI函数构造的BlockManager的api和积木依赖的所有积木协议名，从而使得该积木能在它的服务中通过它们来调用依赖的其它积木的服务和state，如Engine Block能通过它们调用SceneManagerBlock的服务和state
@@ -659,9 +606,7 @@ registerBlock函数在调用传入的getBlockService函数时，注入了_buildA
 
 ### 积木实现的三个函数的代码
 
-BlockFacade的init函数在调用BlockManager的registerBlock函数注册积木时，调用了该积木的积木实现的三个函数：getBlockService、getDependentBlockProtocolNameMap、createBlockState
-
-我们以Engine Block Implement为例，来看下它的三个函数的相关代码：
+BlockFacade的init函数在调用BlockManager的registerBlock函数注册积木时，调用了该积木的积木实现的三个函数：getBlockService、getDependentBlockProtocolNameMap、createBlockState。我们以Engine Block Implement为例，来看下它的三个函数的相关代码：
 Engine Block Implement
 ```ts
 //获得积木的服务
@@ -686,7 +631,7 @@ export let getBlockService: ... = (api, { directorBlockProtocolName, sceneManage
 
 //创建积木的state
 export let createBlockState: ... = () => {
-    //因为该state为空，所以返回null
+    //state为null
 	return null
 }
 
@@ -700,13 +645,7 @@ export let getDependentBlockProtocolNameMap: ... = () => {
 }
 ```
 
-getBlockService函数实现了Engine Block Protocol定义的服务
-createBlockState函数实现了Engine Block Protocol定义的state
-
-getBlockService函数的形参包括注入的BlockManager的api和积木依赖的所有积木协议名
-
-
-我们看下Engine Block Protocol对应的代码：
+getBlockService函数实现了Engine Block Protocol定义的服务。createBlockState函数创建了Engine Block Protocol定义的state，getDependentBlockProtocolNameMap函数获得了依赖的所有积木协议名。其中，getBlockService函数的形参是注入的BlockManager的api和积木依赖的所有积木协议名（也就是getDependentBlockProtocolNameMap函数的返回值）。我们看下Engine Block Protocol对应的代码：
 Engine Block Protocol->ServiceType
 ```ts
 type directorAPI = {
@@ -727,15 +666,13 @@ Engine Block Protocol->StateType
 ```ts
 export type state = null
 ```
-
+Engine Block Protocol在ServiceType.ts文件中定义了服务的类型，在StateType.ts文件中定义了state的类型
 
 
 
 ### 获得入口积木的服务的代码
 
-Client调用了BlockFacade的函数，获得了入口积木的服务
-
-我们看下BlockFacade的相关代码：
+Client调用了BlockFacade的函数，获得了入口积木的服务。我们看下BlockFacade的相关代码：
 BlockFacade
 ```ts
 //获得Engine Block Protocol的协议名
@@ -748,18 +685,14 @@ export let getBlockService = <blockService>(blockManagerState: blockManagerState
 }
 ```
 
-BlockFacade的getBlockService函数通过BlockManager的getBlockServiceExn函数获得了注册的积木的服务。
-Client通过指定BlockFacade的getBlockService函数的形参blockProtocolName为Engine Block Protocol的协议名，从而获得了Engine Block的服务
+BlockFacade的getBlockService函数通过BlockManager的getBlockServiceExn函数获得了注册的积木的服务。Client通过指定BlockFacade的getBlockService函数的形参blockProtocolName为Engine Block Protocol的协议名，从而获得了Engine Block的服务
 
 
 
 ### 创建场景的代码
 
 
-
-Client调用了Engine Block的服务，创建了场景
-
-我们看下Engine Block的相关代码：
+Client调用了Engine Block的服务，创建了场景。我们看下Engine Block的相关代码：
 Engine Block Implement
 ```ts
 export let getBlockService: ... = (api, { ..., sceneManagerBlockProtocolName }) => {
@@ -785,8 +718,7 @@ export let getBlockService: ... = (api, { ..., sceneManagerBlockProtocolName }) 
 Engine Block的服务的scene的createScene函数调用了Scene Manager Block的服务和state来创建场景
 
 值得注意的是：
-Engine Block Implement依赖Scene Manager Block的积木协议（SceneManager Block Protocol）而不是积木实现（Scene Manager Block Implement）
-只要积木协议（SceneManager Block Protocol）不变，那么不管这个积木实现（SceneManager Block Implement）如何改变，都不会影响到Engine Block Implement
+Engine Block Implement依赖Scene Manager Block的积木协议（SceneManager Block Protocol）而不是积木实现（Scene Manager Block Implement）。只要积木协议（SceneManager Block Protocol）不变，那么不管这个积木实现（SceneManager Block Implement）如何改变，都不会影响到Engine Block Implement
 
 我们看下SceneManager Block的相关代码：
 SceneManager Block Implement
@@ -831,7 +763,7 @@ export type state = {
 }
 ```
 
-SceneManager Block的state和服务的逻辑跟之前的SceneManager模块的SceneManagerState和逻辑一样，没有变化
+SceneManager Block的state和服务的逻辑分别跟之前的SceneManager模块的SceneManagerState和逻辑一样，没有变化
 
 
 ### 初始化的代码
@@ -843,11 +775,7 @@ SceneManager Block的state和服务的逻辑跟之前的SceneManager模块的Sce
 blockManagerState = director.init(blockManagerState)
 ``` -->
 
-Client调用了Engine Block的服务，实现初始化
-
-
-<!-- 这里调用了Engine Block的服务的director的init函数，我们看下相关代码： -->
-我们看下Engine Block的相关代码：
+Client调用了Engine Block的服务，实现初始化。我们看下Engine Block的相关代码：
 Engine Block Implement
 ```ts
 export let getBlockService: ... = (api, { directorBlockProtocolName, ... }) => {
@@ -865,10 +793,7 @@ export let getBlockService: ... = (api, { directorBlockProtocolName, ... }) => {
 ```
 
 
-Engine Block的服务的director的init函数调用了Director Block的服务来实现初始化
-
-
-我们看下Director Block的相关代码：
+Engine Block的服务的director的init函数调用了Director Block的服务来实现初始化。我们看下Director Block的相关代码：
 Director Block Implement
 ```ts
 export let getBlockService: ... = (api, { sceneManagerBlockProtocolName, renderBlockProtocolName }) => {
@@ -958,9 +883,7 @@ export type service = {
 ```
 
 
-同样的，Director Block的服务、SceneManager Block的服务、Render Block服务的逻辑跟之前的SceneManager、Render模块的逻辑一样，没有变化
-
-不过Director Block的state变为null了
+同样的，Director Block的服务、SceneManager Block的服务、Render Block服务的逻辑跟之前的SceneManager、Render模块的逻辑一样，没有变化。不过Director Block的state变为null了
 
 
 ### 主循环的代码
@@ -972,10 +895,7 @@ Client
 director.loop(blockManagerState)
 ``` -->
 
-Client调用了Engine Block的服务，实现主循环
-
-<!-- 这里调用了Engine Block的服务的director的loop函数，我们看下相关代码： -->
-我们看下Engine Block的相关代码：
+Client调用了Engine Block的服务，实现主循环。我们看下Engine Block的相关代码：
 Engine Block Implement
 ```ts
 export let getBlockService: ... = (api, { directorBlockProtocolName, ... }) => {
@@ -994,9 +914,7 @@ export let getBlockService: ... = (api, { directorBlockProtocolName, ... }) => {
 ```
 
 
-Engine Block的服务的director的loop函数调用了Director Block的服务来实现主循环
-
-我们看下Director Block的相关代码：
+Engine Block的服务的director的loop函数调用了Director Block的服务来实现主循环。我们看下Director Block的相关代码：
 Director Block Implement
 ```ts
 //假实现
@@ -1145,19 +1063,7 @@ export type state = null
 ### 运行Client的代码
 
 
-下面，我们运行Client的代码，打印的结果如下：
-```text
-创建场景
-初始化场景
-初始化渲染
-更新场景
-计算
-处理场景数据
-计算
-渲染
-```
-
-打印结果跟之前一样
+我们运行Client的代码，打印的结果跟之前一样
 
 
 
@@ -1184,7 +1090,7 @@ export type state = null
 
 
 ## 通用UML
-TODO tu
+![领域模型图](./role_abstract/UML.png)
 
 
 <!-- ## 分析角色 -->
@@ -1209,8 +1115,7 @@ TODO tu
 该角色是门户，提供了管理积木的API，其中init函数负责注册所有使用的积木
 
 - BlockManager
-该角色负责实现管理积木，提供了注册积木、获得积木的服务和state等函数
-该角色有一个BlockManagerState，用来保存所有的积木
+该角色负责实现管理积木，提供了注册积木、获得积木的服务和state等函数。该角色有一个BlockManagerState，用来保存所有的积木
 
 
 
@@ -1240,7 +1145,7 @@ TODO tu
 
 - System Blocks中有且只有一个入口积木
 
-- 因为多个积木实现可以实现同一个积木协议，所以Entry Block Implement和Entry Block Protocol、Block Implement和Block Protocol是一对多的关系
+- 因为多个积木实现可以实现同一个积木协议，所以Entry Block Implement和Entry Block Protocol、Block Implement和Block Protocol都是多对一的关系
 
 
 **依赖关系**
@@ -1251,7 +1156,7 @@ TODO tu
 
 - 其它积木不能依赖入口积木
 
-- 因为其它积木可以通过多个其它积木协议来依赖多个其它积木，所以Block Implement和BlockProtocol是一对多的依赖关系
+- 因为其它积木可以通过多个其它积木协议来依赖多个其它积木，所以Block Implement和Block Protocol是一对多的依赖关系
 
 - 因为BlockManager通过registerBlock函数注册了多个积木，所以BlockManager与System Blocks中的积木是一对多的组合关系
 
@@ -1275,7 +1180,8 @@ TODO tu
 
 
 
-- Client的抽象代码
+### Client的抽象代码
+Client
 ```ts
 let blockManagerState = BlockFacade.init()
 
@@ -1284,7 +1190,8 @@ let entryBlockService = BlockFacade.getBlockService<service>(blockManagerState, 
 调用entryBlockService...
 ```
 
-- BlockFacade的抽象代码
+### BlockFacade的抽象代码
+BlockFacade
 ```ts
 export let init = (): blockManagerState => {
     let blockManagerState = BlockManager.createState()
@@ -1316,9 +1223,11 @@ export let getBlockService = <blockService>(blockManagerState: blockManagerState
 }
 ```
 
-- BlockManager的抽象代码
+### BlockManager的抽象代码
 BlockManagerType
 ```ts
+import type { Map } from "immutable";
+
 export type blockName = string
 
 export type blockProtocolName = string
@@ -1348,6 +1257,8 @@ export type getDependentBlockProtocolNameMap = () => any
 ```
 BlockManager
 ```ts
+import { state, blockProtocolName, getBlockService } from "./BlockManagerType"
+
 export declare function createState(): state
 
 export declare function getBlockServiceExn<blockService>(state: state, blockProtocolName: blockProtocolName): blockService
@@ -1362,9 +1273,9 @@ export declare function registerBlock<blockService, dependentBlockProtocolNameMa
 ): state
 ```
 
-BlockManager的函数实现已经在之前的案例代码中给出了，这里只给出函数签名，其中的类型定义在BlockManagerType中
+BlockManager的函数实现已经在之前的案例代码中给出了，这里只给出函数签名
 
-- Entry Block Protocol的抽象代码
+### Entry Block Protocol的抽象代码
 ServiceType
 ```ts
 export type service = {
@@ -1375,7 +1286,7 @@ StateType
 ```ts
 export type state = ...
 ```
-- Entry Block Implement的抽象代码
+### Entry Block Implement的抽象代码
 DependentMapType
 ```ts
 export type dependentBlockProtocolNameMap = {
@@ -1409,9 +1320,14 @@ export let getDependentBlockProtocolNameMap: BlockManagerType.getDependentBlockP
 	}
 }
 ```
-- Block Protocol的抽象代码
+
+getBlockService函数的第二个形参的类型定义在DependentMapType的dependentBlockProtocolNameMap中
+
+
+### Block Protocol的抽象代码
 跟Entry Block Protocl的抽象代码一样，故省略
-- Block Implement的抽象代码
+
+### Block Implement的抽象代码
 跟Entry Block Implement的抽象代码一样，故省略
 
 
@@ -1428,8 +1344,7 @@ export let getDependentBlockProtocolNameMap: BlockManagerType.getDependentBlockP
 - 接口隔离原则
 积木协议的state和service只定义了该积木的数据和服务的类型，没有定义其它积木的相关类型
 - 最少知识原则
-各个积木协议相互独立，如Block Protocol和其它的Block Protocol之间没有依赖关系
-各个积木实现相互独立，如Block Implement和其它的Block Implement之间没有依赖关系
+各个积木协议相互独立，如Block Protocol和其它的Block Protocol之间没有依赖关系；各个积木实现相互独立，如Block Implement和其它的Block Implement之间没有依赖关系
 - 开闭原则
 要增加系统的一个模块，只需要增加一个积木，并在BlockFacade的init函数中注册该积木即可，无需修改其它的积木
 
@@ -1441,17 +1356,15 @@ export let getDependentBlockProtocolNameMap: BlockManagerType.getDependentBlockP
 ## 优点
 
 - 实现了可插拔架构，支持大型的开发团队
-因为每个开发者只独立地负责自己的积木，互相之间通过积木协议交互，所以只要积木协议设计得足够抽象，则可以任意插拔积木，显著降低了各个开发者之间的影响
+因为每个开发者只独立地负责自己的积木，互相之间通过抽象的积木协议交互，所以只要积木协议设计得足够抽象，则可以任意插拔积木，显著降低了各个开发者之间的影响
 
 - 可以按需打包使用的积木到build后的系统文件中，从而减小文件大小
-具体是在BlockFacade的init函数中通过import只引入需要使用的积木并注册，其它的积木则不需要引入进来，这样的话通过打包工具（如webpack）的tree shaking机制，即可只打包import进来的积木
+具体是在BlockFacade的init函数中通过import只引入需要使用的积木并注册，其它的积木则不需要引入进来。这样的话通过打包工具（如webpack）的tree shaking机制，即可只打包import进来的积木
 
 - 测试方便
-
 对于单个积木的单元测试：
 因为各个积木实现之间没有耦合，所以可以单独地对每个积木实现进行单元测试；
 对于积木实现之间通过依赖积木协议交互的代码，可以很容易地使用stub或者mock来构造依赖的积木协议的积木实现
-
 对于涉及到多个积木的集成测试或者运行测试：
 开发单个积木的开发者可以在本地构造假的Client，并构造假的BlockFacade的init函数来引入和注册需要测试的多个积木；然后运行Client来测试
 
@@ -1474,16 +1387,12 @@ export let getDependentBlockProtocolNameMap: BlockManagerType.getDependentBlockP
 
 - 多人开发的引擎
 
-引擎的动画、场景管理、模型加载、粒子、物理等各个模块都可以作为一个积木或者拆解为多个更小的积木
-
-整个引擎可以完全由积木搭建而成，每个开发者负责一个积木的开发，这样相互的影响会降到最低
+引擎的动画、场景管理、模型加载、粒子、物理等各个模块都可以作为一个积木或者拆解为多个更小的积木。整个引擎可以完全由积木搭建而成，每个开发者负责一个积木的开发，这样相互的影响会降到最低
 
 
 - 多人开发的编辑器
 
-编辑器的引擎、UI、撤销重做、导入导出、发布等各个模块都可以作为一个积木或者拆解为多个更小的积木
-
-整个编辑器可以完全由积木搭建而成，每个开发者负责一个积木的开发，这样相互的影响会降到最低
+编辑器的引擎、UI、撤销重做、导入导出、发布等各个模块都可以作为一个积木或者拆解为多个更小的积木。整个编辑器可以完全由积木搭建而成，每个开发者负责一个积木的开发，这样相互的影响会降到最低
 
 
 ## 注意事项
@@ -1502,38 +1411,15 @@ export let getDependentBlockProtocolNameMap: BlockManagerType.getDependentBlockP
 
 ## 对积木本身进行扩展
 
-有些积木本身需要进行扩展，如一个积木A有自己的数据，它提供了默认的方式来操作数据。而积木的用户希望能够用自定义的方式来操作它的数据
-实现的思路是将“默认的方式”和“自定义的方式”这两个方式作为对这个积木的两个扩展，用户通过在注册该积木时指定使用哪个扩展，来实现使用哪种方式操作它的数据
+有些积木本身需要进行扩展，如一个积木A有自己的数据，A提供了默认的方式来操作数据；而A的用户希望能够用自定义的方式来操作它的数据。实现的思路是将“默认的方式”和“自定义的方式”这两个方式作为对A的两个扩展，用户通过在注册A时指定使用哪个扩展，来实现使用哪种方式操作它的数据
 
-积木应该有两种类型：默认类型、扩展类型
-积木A属于“默认类型”的积木，它的两个扩展属于“扩展类型”的积木
-属于“默认类型”的积木应该有数据，属于“扩展类型”的积木应该没有数据
+积木应该有两种类型：默认类型、扩展类型。积木A属于“默认类型”的积木，它的两个扩展属于“扩展类型”的积木。属于“默认类型”的积木应该有数据，属于“扩展类型”的积木应该没有数据。具体来说：
+假设在开发编辑器时，编辑器使用了一个引擎积木。该积木维护所有的场景数据，实现了用默认的组件来操作场景数据。如果编辑器希望能够使用自定义的组件来操作它的场景数据，该如何实现？
+我们可以将积木分为两种类型的积木：Extension和Contribute。其中，Extension即是前面提到的“默认类型”的积木，Contribute即是前面提到的“扩展类型”的积木。Contribute是Extension的扩展。Extension有数据，Contribute没有数据。
+那么就可以实现一个Extension：Engine Extension，它是编辑器使用的引擎积木，负责维护所有的场景数据；实现两个Contribute：EngineSceneContribute1、EngineSceneContribute2，它们是对Engine Extension的扩展，其中前者使用默认的组件来操作Engine Extension的场景数据，后者使用自定义的组件来操作Engine Extension的场景数据。因为两者都是操作Engine Extension的场景数据，它们的接口应该相同，所以它们实现同一个积木协议。
+编辑器在注册Engine Extension积木时，可以通过指定注册其中一个Contribute，从而实现使用默认的组件或者自定义的组件来操作场景数据。
 
-
-具体来说：
-假设在开发编辑器时，编辑器使用了一个引擎积木。
-该积木维护所有的场景数据，实现了用默认的组件来操作场景数据
-如果编辑器希望能够使用自定义的组件来操作它的场景数据，该如何实现？
-
-我们可以将积木分为两种类型的积木：
-- Extension
-- Contribute
-
-Extension即是前面提到的“默认类型”的积木，Contribute即是前面提到的“扩展类型”的积木
-其中Contribute是Extension的扩展；
-Extension有数据，Contribute没有数据
-
-那么就可以实现一个Extension：Engine Extension，它是编辑器使用的引擎积木，负责维护所有的场景数据；
-实现两个Contribute：EngineSceneContribute1、EngineSceneContribute2，它们是对Engine Extension的扩展
-前者使用默认的组件来操作Engine Extension的场景数据，后者使用自定义的组件来操作Engine Extension的场景数据
-
-因为两者都是操作Engine Extension的场景数据，它们的接口应该相同，所以它们实现同一个积木协议
-
-
-编辑器在注册Engine Extension积木时，可以通过指定注册其中一个Contribute，从而实现使用默认的组件或者自定义的组件来操作场景数据
-
-
-实现它们的参考代码如下：
+首先，我们看下Extension和Contribute的参考代码：
 Engine Extension Implement
 ```ts
 export let getExtensionService: BlockManagerType.getExtensionService<
@@ -1543,12 +1429,11 @@ export let getExtensionService: BlockManagerType.getExtensionService<
 
     EngineExtensionProtocolServiceType.service
 > = 
-//第二个形参现在是一个2元Tuple了，分别传入了依赖的所有Extension协议名、依赖的所有Contribute协议名
+//第二个形参改为一个2元Tuple了，包括依赖的所有Extension协议名、依赖的所有Contribute协议名
 (api, [{ extension1ProtocolName, ...}, { engineSceneContributeProtocolName }]) => {
     return {
         operateScene: (blockManagerState) => {
-			//依赖于Contribute的积木协议来调用Contribute的积木实现的服务
-            //（调用的积木实现可能是EngineSceneContribute1或者EngineSceneContribute2）
+			//依赖于Contribute的积木协议来调用Contribute的积木实现（可能是EngineSceneContribute1或者EngineSceneContribute2）的服务
             let { operate } = api.getContribute<EngineSceneContributeProtocolServiceType.service>(blockManagerState, engineSceneContributeProtocolName)
 
             //操作场景数据
@@ -1577,20 +1462,20 @@ export let getDependentExtensionProtocolNameMap: BlockManagerType.getDependentEx
 
 //获得依赖的所有Contribute协议名
 export let getDependentContributeProtocolNameMap: BlockManagerType.getDependentContributeProtocolNameMap = () => {
-    //两个Contribute都实现了名为engine_scene_contribute_protocol的同一个积木协议
+    //因为两个Contribute都实现了名为engine_scene_contribute_protocol的同一个积木协议，所以这里只有一个Contribute协议名
 	return {
 		"engineSceneContributeProtocolName": "engine_scene_contribute_protocol",
 	}
 }
 ```
-Engine Extension Implement DependentExtensionMapType
+Engine Extension Implement->DependentExtensionMapType
 ```ts
 export type dependentBlockProtocolNameMap = {
     extension1ProtocolName: string,
     ...
 }
 ```
-Engine Extension Implement DependentContributeMapType
+Engine Extension Implement->DependentContributeMapType
 ```ts
 export type dependentBlockProtocolNameMap = {
     engineSceneContributeProtocolName: string
@@ -1656,7 +1541,8 @@ export let getDependentContributeProtocolNameMap: BlockManagerType.getDependentC
 这里省略了积木协议以及EngineSceneContribute1、EngineSceneContribute2的DependentExtensionMapType、DependentContributeMapType的代码
 
 
-在BlockFacade的init函数中注册Engine Extension和需要的Contribute，参考代码如下：
+
+然后，我们看下在BlockFacade的init函数中注册Engine Extension和需要的Contribute的参考代码：
 BlockFacade
 ```ts
 export let init = (): blockManagerState => {
@@ -1678,6 +1564,7 @@ export let init = (): blockManagerState => {
         //因为两者实现同一个积木协议，所以积木协议名是同一个
         "engine_scene_contribute_protocol",
         //选择EngineSceneContribute1或者EngineSceneContribute2
+
         (EngineSceneContribute1 或者 EngineSceneContribute2).getContributeService,
         (EngineSceneContribute1 或者 EngineSceneContribute2).getDependentExtensionProtocolNameMap(),
         (EngineSceneContribute1 或者 EngineSceneContribute2).getDependentContributeProtocolNameMap()
@@ -1691,16 +1578,12 @@ export let init = (): blockManagerState => {
 
 ## 积木加入钩子函数
 
-积木可以加入钩子函数，从而在不同的时机执行对应的钩子函数，实现对积木生命周期的控制
-
-如积木可以加入onRegister钩子函数，它在注册该积木时被执行
-
-积木的参考代码：
+积木可以加入钩子函数，从而在不同的时机执行对应的钩子函数，实现对积木生命周期的控制。如积木可以加入onRegister钩子函数，它在注册该积木时被执行。积木的参考代码如下：
 Block Implement
 ```ts
 //加入getBlockLife函数
 export let getBlockLife: BlockManagerType.getBlockLife<BlockProtocolServiceType.service> = (api, blockProtocolName) => {
-    //返回生命周期的钩子函数
+    //返回积木的生命周期数据，包括了钩子函数
 	return {
 		onRegister: (blockManagerState, service) => {
 			console.log("register!")
@@ -1721,7 +1604,7 @@ type blockLife<blockService> = {
 export type getBlockLife<blockService> = (api: api, blockProtocolName: blockProtocolName) => blockLife<blockService>
 ```
 
-BlockManager的registerBlock函数在注册了积木后，需要执行该积木的生命周期的onRegister函数
+BlockManager的registerBlock函数在注册了积木后，需要执行该积木的生命周期数据中的onRegister函数
 
 
 
@@ -1751,13 +1634,9 @@ BlockManager的registerBlock函数在注册了积木后，需要执行该积木�
 ## 给出具体的实践案例
 
 
-- monorepo
+### monorepo
 
-每个积木实现以及积木协议都可以作为一个单独的项目
-
-如果使用monorepo来管理一个系统的开发，那么整个系统就只有一个大的项目，项目中有很多个独立的package，其中每个积木实现以及积木协议都是一个package
-
-可以使用lerna来管理monorepo
+每个积木实现以及积木协议都可以作为一个单独的项目。如果使用monorepo来管理一个系统的开发，那么整个系统就是一个大的项目，该项目中有很多个独立的package，其中每个积木实现以及积木协议都是一个package。可以使用lerna来管理monorepo
 
 
 
@@ -1783,7 +1662,7 @@ TODO 开发流程：
 
 # 更多资料推荐
 
-我开发的Meta3D使用了积木模式来设计整体架构。Meta3D是开源的Web3D低代码开发平台，用来开发Web3D引擎和编辑器，可以在网上搜索“Meta3D Github”来找到Github Repo
+我开发的Meta3D使用了积木模式来设计整体架构。Meta3D是开源的Web3D低代码开发平台，用来开发Web3D引擎和编辑器。可以在网上搜索“Meta3D Github”来找到Github Repo
 
 
 可以在网上搜索“dependent type typescript”来找到在Typescript使用Dependent Type的资料
