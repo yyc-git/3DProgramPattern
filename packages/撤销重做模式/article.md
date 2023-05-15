@@ -4,7 +4,8 @@
 
 ## 需求
 
-我们实现了一个编辑器，它的子系统包括三个部分：引擎、编辑器逻辑、编辑器UI。我们在编辑器中实现了移动这个操作，它会操作编辑器的子系统，更新它们的数据。现在需要实现编辑器的撤销和重做，其中撤销就是能够撤销编辑器最近的操作，恢复子系统的数据为操作前的数据；重做就是能够重新执行最近撤销的操作，再次更新子系统的数据
+我们实现了一个编辑器，它的子系统包括三个部分：引擎、编辑器逻辑、编辑器UI。我们在编辑器中实现了移动这个操作，它会操作编辑器的子系统，更新它们的数据。
+现在需要实现编辑器的撤销和重做，其中撤销就是能够撤销编辑器最近的操作，恢复子系统的数据为操作前的数据；重做就是能够重新执行最近撤销的操作，再次更新子系统的数据
 
 
 
@@ -96,9 +97,7 @@ Editor.redo()
 Editor.printAllData()
 ```
 
-Client首先执行编辑器的移动操作；
-然后撤销（撤销最近的操作），也就是撤销移动操作；
-最后重做（重新执行最近撤销的操作)，也就是重新执行移动操作
+Client首先执行编辑器的移动操作；然后撤销（撤销最近的操作），也就是撤销移动操作；最后重做（重新执行最近撤销的操作)，也就是重新执行移动操作
 
 每一步开始前我们都打印了当前的数据，用于运行测试，检查是否运行正确
 
@@ -862,7 +861,7 @@ EditorUI->state: { data1: 3 }
 ![领域模型图](./role_abstract/UML.png)
 
 
-## 分析角色
+<!-- ## 分析角色 -->
 
 
 我们来看看模式的相关角色：
@@ -940,7 +939,7 @@ System的createState函数创建了SystemState；System的doSomething函数实�
 最后，我们看下RedoUndoManager的抽象代码
 
 
-- Client的抽象代码
+### Client的抽象代码
 Client
 ```ts
 let state = System.createState()
@@ -952,7 +951,7 @@ state = System.undo(state)
 state = System.redo(state)
 ```
 
-- System的抽象代码
+### System的抽象代码
 System
 ```ts
 export type state = {
@@ -1005,7 +1004,7 @@ export let redo = (state: state) => {
 这里假设子系统只有一个ImmutableSubSystem和一个ImmutableAndMutableSubSystem
 
 
-- ImmutableSubSystem的抽象代码
+### ImmutableSubSystem的抽象代码
 ImmutableSubSystem1
 ```ts
 //所有字段都是不可变的
@@ -1030,7 +1029,7 @@ export let doSomething = (state: state) => {
 
 有多个ImmutableSubSystem，这里给出一个ImmutableSubSystem的抽象代码
 
-- ImmutableAndMutableSubSystem的抽象代码
+### ImmutableAndMutableSubSystem的抽象代码
 ImmutableAndMutableSubSystem
 ```ts
 //一些字段是不可变的，另外的字段是可变的
@@ -1075,7 +1074,7 @@ export let restore = (currentState: state, targetState: state): state => {
 
 <!-- 后面会给出restore函数具体的案例代码 -->
 
-- RedoUndoManager的抽象代码
+### RedoUndoManager的抽象代码
 RedoUndoManager
 ```ts
 export let pushAllSubSystemStates = (systemState: System.state): System.state => {
@@ -1162,8 +1161,7 @@ export let redo = (systemState: System.state): System.state => {
 - 单一职责原则
 将子系统模块的数据集中地保存在自己的state中
 - 最少知识原则
-state中的不可变数据无需被拷贝、恢复；
-state中的可变数据的拷贝、恢复只由该state所属的子系统模块实现，其它模块不知道它的实现逻辑
+state中的不可变数据无需被拷贝、恢复；state中的可变数据的拷贝、恢复只由该state所属的子系统模块实现，其它模块不知道它的实现逻辑
 
 
 
@@ -1340,7 +1338,7 @@ export let restore = (currentTransformComponentState, targetTransformComponentSt
 
 ## 给出具体的实践案例
 
-- 处理WebGL对象
+### 处理WebGL对象
 
 Engine的EngineState中通常会有WebGL的对象，我们需要在深拷贝和恢复时对它们进行处理。下面以WebGL的VBO为例，展示如何进行处理：
 假设EngineState中有一个VBO Buffer的Pool，用于保存所有不再使用的VBO Buffer。使用Pool的目的是为了优化，这样可以在创建VBO Buffer时首先从Pool中获得之前创建的VBO Buffer而不需要再创建一次，从而提高性能。对Pool的深拷贝和恢复的相关代码如下：

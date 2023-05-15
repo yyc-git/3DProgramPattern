@@ -1,11 +1,11 @@
+[TOC]
+
 # 前置要求
 
 请先阅读“ECS模式”、“管道模式”
 
 
-# [引入故事，提出问题]
-
-
+# 单线程
 
 ## 需求
 
@@ -17,27 +17,14 @@
 
 ## 实现思路
 
-为了简单、快速地实现，我们先在单线程的运行环境中来实现，也就是让引擎只运行在主线程中
-<!-- 如果发现性能不行，再改为多线程来实现 -->
-
-我们使用ECS模式中的Manager层和Component+GameObject层来创建和管理场景，将场景数据保存在组件的Buffer中
-<!-- 这样做的好处是： -->
-<!-- 将场景数据保存在组件的Buffer中，它如果是SharedArrayBuffer的话，可以直接在线程之间被共享而无需被拷贝，这样可以提高多线程的性能 -->
-<!-- 后面在用多线程的运行环境时，这些组件的Buffer可以直接在线程之间被共享而无需被拷贝，从而提高多线程的性能 -->
-
+为了简单、快速地实现，我们先在单线程的运行环境中来实现，也就是让引擎只运行在主线程中。
+我们使用ECS模式中的Manager层和Component+GameObject层来创建和管理场景，将场景数据保存在组件的Buffer中。
 我们使用管道模式的管道来实现引擎的初始化、更新和渲染的逻辑，具体来说就是注册一个Pipeline管道模块，它包括Init Pipeline、Update Pipeline、Render Pipeline这三个管道，它们分别有初始化、更新和渲染相关的Job
-
-
-<!-- 因为引擎需要进行初始化、更新和渲染，它们都是连续的逻辑，所以使用管道模式，注册一个Pipeline管道模块。它包括Init Pipeline、Update Pipeline、Render Pipeline这三个管道，它们分别有初始化、更新和渲染相关的Job
-这样做的好处是：
-1.可以通过管道的并行Job实现多线程的并行逻辑
-2.可以通过切换管道，来同时支持单线程和多线程的运行环境 -->
 
 
 ## 给出UML
 
-**领域模型**
-TODO tu
+![领域模型图](./story_before/Domain.png)
 
 
 总体来看，分为用户、门户、管道、Manager+Component+GameObject这四个部分
@@ -72,7 +59,9 @@ Manager+Component+GameObject是ECS模式中的Manager层和Component+GameObject�
 场景中的一个三角形就是一个GameObject，它挂载了两种组件：TransformComponent、BasicMaterialComponent，其中前者负责维护三角形的位移数据，如位置、模型矩阵；后者负责维护三角形的材质数据，如颜色
 
 GameObjectManager负责管理所有的gameObject
+
 TransformComponentManager负责管理所有的TransformComponent组件
+
 BasicMaterialComponentManager负责管理所有的BasicMaterialComponent组件
 
 
@@ -88,8 +77,8 @@ WorldForNoWorker调用了Manager+Component+GameObject来创建场景
 
 
 
-**初始化流程图**
-TODO tu
+<!-- **初始化流程图** -->
+![初始化流程图](./story_before/Init_Flow.png)
 
 <!-- 如上图所示，初始化运行了主线程的Init Pipeline管道，依次执行其中的Job -->
 
@@ -109,8 +98,7 @@ Main Worker包括了运行在主线程的Init Pipeline的Job
 
 
 
-**主循环的一帧流程图**
-TODO tu
+![主循环的一帧流程图](./story_before/Loop_Flow.png)
 
 <!-- 如上图所示，主循环的一帧依次进行了更新和渲染
 在更新中，运行了主线程的Update Pipeline管道，依次执行其中的Job；
@@ -118,9 +106,7 @@ TODO tu
 
 Main Worker包括了运行在主线程的Update Pipeline和Render Pipeline的Job
 
-主循环的一帧依次进行了更新和渲染
-其中，在“更新”中，运行了主线程的Update Pipeline；
-在“渲染”中，运行了主线程的Render Pipeline
+主循环的一帧依次进行了更新和渲染，其中在“更新”中，运行了主线程的Update Pipeline；在“渲染”中，运行了主线程的Render Pipeline
 
 
 <!-- 主循环的一帧首先并行运行了主线程的Update Pipeline；
@@ -182,11 +168,7 @@ WorldForNoWorker.init(worldState, ...).then(worldState => {
 })
 ```
 
-Client首先调用WorldForNoWorker的createState函数并传入最大的组件个数，创建了WorldState，用来保存引擎所有的数据；
-然后创建场景；
-然后注册了NoWorkerPipeline；
-然后初始化；
-最后主循环
+Client首先调用WorldForNoWorker的createState函数并传入最大的组件个数，创建了WorldState，用来保存引擎所有的数据；然后创建场景；然后注册了NoWorkerPipeline；然后初始化；最后主循环
 
 
 ### 创建WorldState的代码
@@ -207,16 +189,11 @@ export let createState = ({ transformComponentCount, basicMaterialComponentCount
 }
 ```
 
-createState函数创建了WorldState，它包括场景数据和管道数据，其中场景数据来自各个Manager的state中，管道数据来自PipelineManagerState
+createState函数创建了WorldState，它包括场景数据和管道数据，其中场景数据来自各个Manager的state，管道数据来自PipelineManagerState
 
 
 ### 创建场景的代码
 
-<!-- Client
-```ts
-worldState = createScene(worldState, 8000)
-``` -->
-<!-- utils->Client -->
 ClientUtils
 ```ts
 let _createTriangle = (worldState: worldState, color: Array<number>, position: Array<number>): worldState => {
@@ -231,14 +208,12 @@ let _createTriangle = (worldState: worldState, color: Array<number>, position: A
 export let createScene = (worldState: worldState, count: number): worldState => {
     //执行_createTriangle函数count次，创建了count个三角形
     return range(0, count - 1).reduce(worldState => {
-        return _createTriangle(worldState, 创建随机的color, 创建随机的color)
+        return _createTriangle(worldState, 随机的color, 随机的color)
     }, worldState)
 }
 ```
 
-createScene函数创建了场景，场景包括了8000个三角形
-每个三角形都是一个GameObject，它挂载了两种组件：TransformComponent、BasicMaterialComponent
-每个三角形的位置、颜色都是随机值
+createScene函数创建了场景，场景包括了8000个三角形。每个三角形都是一个GameObject，它挂载了两种组件：TransformComponent、BasicMaterialComponent。每个三角形的位置、颜色都是随机值
 
 <!-- 因为这里使用了ECS模式，所以创建场景的实现代码跟ECS模式章节中的案例代码是一样的，故这里省略相关代码 -->
 
@@ -255,7 +230,7 @@ ArrayBuffer的兼容性更好 -->
 
 <!-- Client注册的NoWorkerPipeline包括Init Pipeline、Update Pipeline、Render Pipeline这三个管道，我们依次看下各个管道的Job的代码 -->
 
-首先，我们看下Init Pipeline管道的各个Job代码：
+首先，我们看下Init Pipeline管道的各个Job的代码：
 CreateGLJob
 ```ts
 export let exec: ... = (worldState, ...) => {
@@ -281,11 +256,10 @@ export let exec: ... = (worldState, ...) => {
 }
 ```
 
-该Job初始化材质
-因为只有一种材质（BasicMaterialComponent），该材质只对应一个Program，所以这里只创建了一个Program
+该Job初始化材质。因为只有一种材质（BasicMaterialComponent），而该材质只对应一个Program，所以这里只创建了一个Program
 
 
-然后，我们看下Update Pipeline管道的各个Job代码：
+然后，我们看下Update Pipeline管道的各个Job的代码：
 ComputePhysicsAndUpdateJob
 ```ts
 export let exec: ... = (worldState, ...) => {
@@ -305,7 +279,7 @@ export let exec: ... = (worldState, ...) => {
 <!-- 该Job更新所有TransformComponent组件的模型矩阵 -->
 
 
-最后，我们看下Render Pipeline管道的各个Job代码：
+最后，我们看下Render Pipeline管道的各个Job的代码：
 SendUniformShaderDataJob
 ```ts
 export let exec: ... = (worldState, ...) => {
@@ -315,9 +289,7 @@ export let exec: ... = (worldState, ...) => {
 }
 ```
 
-该Job发送相机数据到GPU
-
-该Job负责发送只与Shader相关的数据，也就是只与Program相关的数据。目前只有相机数据（视图矩阵、投影矩阵）属于这类数据
+该Job负责发送只与Shader相关的数据，也就是只与Program相关的数据。因为目前只有相机数据（视图矩阵、投影矩阵）属于这类数据，所以该Job只发送了相机数据到GPU
 
 RenderJob
 ```ts
@@ -377,7 +349,6 @@ WorldForNoWorker.init(worldState, ...).then(worldState => {
 ```
 
 _loop函数实现了主循环，其中主循环的一帧调用了WorldForNoWorker的update和render函数来分别进行更新和渲染，我们看下相关代码：
-
 WorldForNoWorker
 ```ts
 export let update = (state: state): Promise<state> => {
@@ -389,7 +360,7 @@ export let render = (state: state): Promise<state> => {
 }
 ```
 
-这两个函数分别运行了对应的管道
+这两个函数分别运行了对应的管道，进行了更新或者渲染
 
 
 
@@ -397,9 +368,9 @@ export let render = (state: state): Promise<state> => {
 ### 运行Client的代码
 
 运行截图如下：
-TODO tu
+![运行截图](./story_before/Result.png)
 
-<!-- 该场景包括了8000个三角形 -->
+该场景包括了8000个三角形，其中后面的三角形被前面的三角形遮挡了
 
 
 
@@ -419,9 +390,7 @@ TODO tu
 
 <!-- 通过下面的改进来提高性能： -->
 - 开一个渲染线程和一个物理线程
-目前所有的逻辑都运行在主线程。因为现代CPU都是多核的，每个核可以运行一个线程，所以现代CPU都支持多个线程并行运行
-因此，可以开一个渲染线程和一个物理线程，其中前者负责渲染，后者负责物理计算
-让它们和主线程并行运行，从而可以提高FPS
+目前所有的逻辑都运行在主线程。因为现代CPU都是多核的，每个核可以运行一个线程，所以现代CPU都支持多个线程并行运行。因此，可以开一个渲染线程和一个物理线程，其中前者负责渲染，后者负责物理计算。让它们和主线程并行运行，从而可以提高FPS
 
 值得注意的是：
 渲染线程只读主线程的数据，物理线程既读又写主线程的数据
@@ -434,18 +403,14 @@ TODO tu
 
 ## 给出UML
 
-**领域模型**
-TODO tu
+![领域模型图](./story_improve/Domain.png)
 
 
 总体来看，分为Main Worker、Render Worker、Physics Worker这三个部分
 
-Main Worker对应主线程，包括了运行在主线程的模块；
-Render Worker对应渲染线程，包括了运行在渲染线程的模块；
-Physics Worker对应物理线程，包括了运行在物理线程的模块
+Main Worker对应主线程，包括了运行在主线程的模块；Render Worker对应渲染线程，包括了运行在渲染线程的模块；Physics Worker对应物理线程，包括了运行在物理线程的模块
 
-这三个部分的模块结构跟之前的领域模型的模块结构一样，只是其中的用户、门户、管道这几个部分中的模块不一样
-具体不一样的地方如下：
+这三个部分的模块结构跟之前的领域模型的模块结构一样，只是其中的用户、门户、管道这几个部分中的模块不一样。具体不一样的地方如下：
 这三个部分的用户分别为Client、RenderWorkerMain、PhysicsWorkerMain
 这三个部分的门户分别为WorldForMainWorker、WorldForRenderWorker、WorldForPhysicsWorker
 这三个部分的管道模块分别为MainWorkerPipeline、RenderWorkerPipeline、PhysicsWorkerPipeline
@@ -455,31 +420,20 @@ Physics Worker对应物理线程，包括了运行在物理线程的模块
 - Init Pipeline、Update Pipeline
 
 
-线程之间需要传送数据，传送的方式一般有两种：拷贝或者共享
-在领域模型中，线程之间只标明了共享这种方式，其中主线程向其它两个线程共享了数据
-这里介绍具体共享了什么数据：
+线程之间需要传送数据，传送的方式一般有两种：拷贝或者共享。在领域模型中，线程之间只标明了“共享”这种方式，具体是主线程向其它两个线程共享了数据，这里介绍共享了什么数据：
 主线程将canvas通过OffscreenCavnas API共享到渲染线程，使渲染线程从中获得WebGL上下文；
 我们设置两种组件的两个Buffer为SharedArrayBuffer，在主线程创建它们，将它们从主线程共享到渲染线程和物理线程，从而使这两个线程能够从中直接读写组件中的场景数据；
 主线程创建了RenderWorkerData的Buffer，它也是SharedArrayBuffer，用来保存场景中所有的transformComponent和basicMaterialComponent组件。主线程将其共享给渲染线程，使渲染线程能够使用它们来从组件的Buffer中读取到场景数据；
-<!-- 主线程创建了PhysicsWorkerData的Buffer，它也是SharedArrayBuffer，用来保存场景中所有的transformComponent的位置。主线程将其共享给物理线程，使物理线程能够将计算出的位置写进去 -->
 主线程创建了PhysicsWorkerData的Buffer，它也是SharedArrayBuffer，属于备份数据，用来保存物理线程通过物理计算计算的结果。主线程将其共享给物理线程，使物理线程能够将计算结果写进去
 
 值得注意的是：
 SharedArrayBuffer能够直接在线程之间共享，ArrayBuffer却不行
 
 
-为什么物理线程不直接将计算结果写到主线程共享的TransformComponent组件的Buffer中呢？
-<!-- 因为这就是之前提到的为了解决冲突而进行备份的具体实现，我们等下再来讨论 -->
-因为这会造成冲突，我们后面再详细讨论
+为什么物理线程不直接将计算结果写到主线程共享的TransformComponent组件的Buffer中呢？因为这会造成冲突，我们后面再详细讨论
 
 
-
-
-
-
-
-**初始化流程图**
-TODO tu
+![初始化流程图](./story_improve/Init_Flow.png)
 
 总体来看，分为Main Worker、Render Worker、Physics Worker这三个部分
 
@@ -495,16 +449,9 @@ Main Worker包括了运行在主线程的Init Pipeline的Job，Render Worker包�
 
 它的具体流程如下：
 
-1.主线程在“Create Worker Instance”Job中创建了渲染线程和物理线程的worker
-这会执行这两个线程的用户（RenderWorkerMain、PhysicsWorkerMain）的代码，从而运行这两个线程的Init Pipeline，启动它们的初始化
-2.主线程会执行三条并行的Job线
-第一条Job线依次执行这些Job逻辑：
-在“Create Render Data Buffer”Job中创建RenderWorkerData的Buffer、在“Create Physics Data Buffer”Job中创建PhysicsWorkerData的Buffer、在“Send Init Render Data”Job中向渲染线程发送初始化数据、在“Send Init Physics Data”Job中向物理线程发送初始化数据；
-
-第二条Job线依次执行这些Job逻辑：
-在“Get Finish Send Init Render Data”Job中等待渲染线程发送过来的结束指令
-第三条Job线依次执行这些Job逻辑：
-在“Get Finish Send Init Physics Data”Job中等待物理线程发送过来的结束指令
+1.主线程在“Create Worker Instance”Job中创建了渲染线程和物理线程的worker。这会执行这两个线程的用户（RenderWorkerMain、PhysicsWorkerMain）的代码，从而运行这两个线程的Init Pipeline，启动它们的初始化
+2.主线程会执行三条并行的Job线，其中第一条Job线依次执行这些Job逻辑：
+在“Create Render Data Buffer”Job中创建RenderWorkerData的Buffer、在“Create Physics Data Buffer”Job中创建PhysicsWorkerData的Buffer、在“Send Init Render Data”Job中向渲染线程发送初始化数据、在“Send Init Physics Data”Job中向物理线程发送初始化数据；第二条Job线依次执行这些Job逻辑：在“Get Finish Send Init Render Data”Job中等待渲染线程发送过来的结束指令；第三条Job线依次执行这些Job逻辑：在“Get Finish Send Init Physics Data”Job中等待物理线程发送过来的结束指令
 
 
 然后，我们看下渲染线程的Init Pipeline，它主要做了下面的事情：
@@ -533,9 +480,7 @@ Main Worker包括了运行在主线程的Init Pipeline的Job，Render Worker包�
 
 
 
-**主循环的一帧流程图**
-
-TODO tu
+![主循环的一帧流程图](./story_improve/Loop_Flow.png)
 
 总体来看，分为Main Worker、Render Worker、Physics Worker这三个部分
 
@@ -546,8 +491,7 @@ Main Worker包括了运行在主线程的Update Pipeline和Sync Pipeline的Job�
 
 
 
-主循环的一帧首先并行地在主线程进行了更新、在渲染线程进行了渲染、在物理线程进行了更新，然后在主线程进行了同步
-其中，在“并行”中，并行运行了主线程的Update Pipeline、渲染线程的Render Pipeline、物理线程的Update Pipeline；
+主循环的一帧首先并行地在主线程进行了更新、在渲染线程进行了渲染、在物理线程进行了更新，然后在主线程进行了同步。其中，在“并行”中，并行运行了主线程的Update Pipeline、渲染线程的Render Pipeline、物理线程的Update Pipeline；
 在“同步”中，运行了主线程的主线程的Sync Pipeline
 
 
@@ -601,10 +545,7 @@ Main Worker包括了运行在主线程的Update Pipeline和Sync Pipeline的Job�
 **回答如何解决冲突**
 
 现在，我们来回答之前“为什么物理线程不直接将计算结果写到主线程共享的TransformComponent组件的Buffer中呢？”的问题：
-因为主线程的更新和物理线程的更新是在同一时间并行进行的，所以如果在这期间，物理线程将计算结果写到共享的TransformComponent组件Buffer中，那么此后主线程从中读取数据时可能获得被物理线程修改后的值而不是原始值，从而造成冲突
-
-因此为了避免冲突，首先让物理线程将计算结果写到PhysicsWorkerData的Buffer中；
-然后在主线程进行同步时，再读取PhysicsWorkerData的Buffer，将其写到TransformComponent组件的Buffer中
+因为主线程的更新和物理线程的更新是在同一时间并行进行的，所以如果在这期间，物理线程将计算结果写到共享的TransformComponent组件Buffer中，那么此后主线程从中读取数据时可能获得被物理线程修改后的值而不是原始值，从而造成冲突。因此为了避免冲突，首先让物理线程将计算结果写到PhysicsWorkerData的Buffer中；然后在主线程进行同步时，再读取PhysicsWorkerData的Buffer，将其写到TransformComponent组件的Buffer中
 
 
 
@@ -700,7 +641,7 @@ WorldForMainWorker.init(worldState, ...).then(worldState => {
 Client的步骤跟之前一样，不一样的地方是：
 
 - 不同的运行环境注册不同的管道，其中对于多线程的运行环境，注册了MainWorkerPipeline，它包括Init Pipeline、Sync Pipeline这两个管道；对于单线程的运行环境，注册的管道模块跟之前注册的管道模块一样
-- 主循环增加了处理多线程的运行环境的情况，该情况的处理是依次运行Update Pipeline和Sync Pipeline
+- 主循环增加了处理多线程的运行环境的情况，它的处理是依次运行Update Pipeline和Sync Pipeline
 
 
 
@@ -718,8 +659,7 @@ export let exec: ... = (worldState, ...) => {
 }
 ```
 
-该Job创建渲染线程和物理线程的worker
-创建worker后，会执行运行在该线程的用户代码
+该Job创建渲染线程和物理线程的worker。创建worker后，会执行运行在该线程的用户代码
 
 CreateRenderDataBufferJob
 ```ts
@@ -762,8 +702,7 @@ export let exec: ... = (worldState, ...) => {
     向渲染线程发送canvas、RenderWorkerData的Buffer、两种组件的最大个数、两种组件的Buffer
 }
 ```
-该Job向渲染线程发送初始化数据
-其中，两种组件的Buffer和RenderWorkerData的Buffer是通过SharedArrayBuffer共享过去的；canvas是通过OffscreenCavnas API共享过去的；其它数据是拷贝过去的
+该Job向渲染线程发送初始化数据。其中，两种组件的Buffer和RenderWorkerData的Buffer是通过SharedArrayBuffer共享过去的；canvas是通过OffscreenCavnas API共享过去的；其它数据是拷贝过去的
 
 
 
@@ -775,8 +714,7 @@ export let exec: ... = (worldState, ...) => {
 ```
 
 
-该Job向物理线程发送初始化数据
-其中，组件的Buffer和PhysicsWorkerData的Buffer是通过SharedArrayBuffer共享过去的；其它数据是拷贝过去的
+该Job向物理线程发送初始化数据。其中，组件的Buffer和PhysicsWorkerData的Buffer是通过SharedArrayBuffer共享过去的；其它数据是拷贝过去的
 
 
 GetFinishSendInitRenderDataJob
@@ -821,19 +759,14 @@ WorldForRenderWorker.init(worldState).then(worldState => {
 
 该模块在主线程的CreateWorkerInstanceJob创建render worker后执行
 
-该模块首先创建了WorldState，用来保存渲染线程所有的数据；
-然后注册了RenderWorkerPipeline的Init Pipeline、Render Pipeline；
-然后初始化，初始化了管道，并运行了RenderWorkerPipeline的Init Pipeline管道
-最后渲染
+该模块首先创建了WorldState，用来保存渲染线程所有的数据；然后注册了RenderWorkerPipeline的Init Pipeline、Render Pipeline；然后初始化，初始化了管道，并运行了RenderWorkerPipeline的Init Pipeline管道；最后渲染
 
 值得说明的是：
-渲染并没在初始化之后立刻开始，而是等待主循环的调度
+渲染并没有在初始化之后立刻开始，而是等待主循环的调度
 
 
 ### 物理线程中PhysicsWorkerMain的代码
-PhysicsWorkerMain的代码跟RenderWorkerMain的代码是一样的，只是注册了不一样的管道：注册了PhysicsWorkerPipeline的Init Pipeline、Update Pipeline
-
-该模块在主线程的CreateWorkerInstanceJob创建physics worker后执行
+该模块在主线程的CreateWorkerInstanceJob创建physics worker后执行，它的代码跟RenderWorkerMain的代码是一样的，只是注册了不一样的管道：注册了PhysicsWorkerPipeline的Init Pipeline、Update Pipeline。
 
 
 
@@ -923,8 +856,7 @@ export let exec: ... = (worldState, ...) => {
 ```
 
 
-该Job初始化共享的TransformComponent的Buffer
-具体是创建了它们的视图，从而能够通过视图读Buffer的数据
+该Job初始化共享的TransformComponent的Buffer，具体是创建了它们的视图，从而能够通过视图读Buffer的数据
 
 
 CreatePhysicsDataBufferTypeArrayJob
@@ -967,8 +899,7 @@ export let exec: ... = (worldState, ...) => {
 }
 ```
 
-该Job向渲染线程和物理线程发送开始主循环的指令
-这两个线程在接收到指令后，会分别运行了渲染线程的Render Pipeline和物理线程的Update Pipeline
+该Job向渲染线程和物理线程发送开始主循环的指令。这两个线程在接收到指令后，会分别运行渲染线程的Render Pipeline和物理线程的Update Pipeline
 
 
 SendRenderDataJob
@@ -1103,7 +1034,7 @@ export let exec: ... = (worldState, _) => {
 
 ### 运行主线程中Client的代码
 
-运行截图跟之前一样
+运行截图跟之前一样，故省略
 
 可以通过打印的Job信息以及Chrome控制台的Performance时间线，来观察Job执行的顺序，从而验证确实是并行地运行了线程
 
@@ -1124,8 +1055,7 @@ export let exec: ... = (worldState, _) => {
 
 线程之间通过发送指令来调度
 
-如果主线程以外的其它线程都只读主线程的数据，则不需要同步；
-否则，首先备份其它线程需要写主线程的这部分数据；然后在其它线程中，将要写的数据改为写到备份中；最后，主线程在同步阶段，将自己的数据更新为备份中的新数据
+如果主线程以外的其它线程都只读主线程的数据，则不需要同步；否则，首先备份其它线程需要写主线程的这部分数据；然后在其它线程中，将要写的数据改为写到备份中；最后，主线程在同步阶段，将自己的数据更新为备份中的新数据
 
 渲染线程只读主线程的数据，其它线程除了读以外还可能需要写主线程的数据
 
@@ -1136,17 +1066,16 @@ export let exec: ... = (worldState, _) => {
 
 
 ## 通用UML
-TODO tu
+![领域模型图](./role_abstract/Domain.png)
 
 
-## 分析角色
+<!-- ## 分析角色 -->
 
 我们来看看模式的相关角色：
 
 总体来看，分为Main Worker、X Worker这两个部分
 
-Main Worker对应主线程，包括了运行在主线程的模块；
-X Worker对应某个其它线程，包括了运行在该线程的模块
+Main Worker对应主线程，包括了运行在主线程的模块；X Worker对应某个其它线程，包括了运行在该线程的模块
 
 
 我们看下Main Worker这个部分：
@@ -1189,8 +1118,7 @@ X Worker对应某个其它线程，包括了运行在该线程的模块
 - 一个World注册了一个WorkerPipeline管道模块
 值得注意的是：如果需要支持单线程和多线程运行环境的话，那么就需要根据运行环境，注册对应的一个单线程WorkerPipeline或者一个多线程WorkerPipeline
 
-- 一个WorkerPipeline管道模块有多个X Pipeline，如Init Pipeline、Update Pipeline等
-每个Pipeline应该至少有Init Pipeline
+- 一个WorkerPipeline管道模块有多个X Pipeline，如Init Pipeline、Update Pipeline等，每个WorkerPipeline管道模块应该至少有Init Pipeline
 
 - 一个X Pipeline有多个Job
 
@@ -1203,14 +1131,13 @@ X Worker对应某个其它线程，包括了运行在该线程的模块
 
 
 
-## 初始化流程图
-TODO tu
+![初始化流程图](./role_abstract/Init_Flow.png)
 
-## 分析角色
+<!-- ## 分析角色 -->
 
 总体来看，分为Main Worker、X Worker这两个部分
 
-Main Worker包括了运行在主线程的Init Pipeline的Job，X Worker包括了运行在其它线程的Init Pipeline的Job
+Main Worker包括了运行在主线程的Init Pipeline的Job；X Worker包括了运行在其它线程的Init Pipeline的Job
 
 
 初始化并行运行了主线程、其它线程的Init Pipeline
@@ -1284,17 +1211,15 @@ Main Worker包括了运行在主线程的Init Pipeline的Job，X Worker包括了
 
 
 
-## 主循环流程图
-TODO tu
+![主循环的一帧流程图](./role_abstract/Loop_Flow.png)
 
-## 分析角色
+<!-- ## 分析角色 -->
 
 总体来看，分为Main Worker、X Worker这两个部分
 
-Main Worker包括了运行在主线程的Update Pipeline和Sync Pipeline的Job，X Worker包括了运行在其它线程的X Pipeline的Job
+Main Worker包括了运行在主线程的Update Pipeline和Sync Pipeline的Job；X Worker包括了运行在其它线程的X Pipeline的Job
 
-主循环的一帧首先并行运行了主线程的Update Pipeline、其它线程的X Pipeline；
-然后运行了主线程的Sync Pipeline
+主循环的一帧首先并行运行了主线程的Update Pipeline、其它线程的X Pipeline；然后运行了主线程的Sync Pipeline
 
 
 首先，我们看下主线程的Update Pipeline，它主要做了下面的事情：
@@ -1391,7 +1316,7 @@ Main Worker包括了运行在主线程的Update Pipeline和Sync Pipeline的Job�
 上面的Pipeline是并行运行的，它们结束后，会运行主线程的Sync Pipeline，因此我们看下它的Job的抽象代码
 
 
-- 主线程中Client的抽象代码
+### 主线程中Client的抽象代码
 Client
 ```ts
 let isUseWorker = true or false
@@ -1442,7 +1367,11 @@ WorldForMainWorker.init(worldState, ...).then(worldState => {
 })
 ```
 
-- 主线程运行的Init Pipeline的Job的抽象代码
+
+这里假设只有一种Data Oriented组件，因此在调用WorldForMainWorker的createState函数时只传入了它的最大个数
+
+
+### 主线程运行的Init Pipeline的Job的抽象代码
 CreateWorkerInstanceJob
 ```ts
 export let exec: ... = (worldState, ...) => {
@@ -1484,7 +1413,7 @@ export let exec: ... = (worldState, ...) => {
 }
 ```
 
-- X线程中XWorkerMain的抽象代码
+### X线程中XWorkerMain的抽象代码
 
 XWorkerMain
 ```ts
@@ -1501,7 +1430,7 @@ WorldForXWorker.init(worldState).then(worldState => {
 ```
 
 
-- X线程运行的Init Pipeline的Job的抽象代码
+### X线程运行的Init Pipeline的Job的抽象代码
 
 GetInitXWorkerDataJob
 ```ts
@@ -1537,7 +1466,7 @@ export let exec: ... = (worldState, _) => {
 }
 ```
 
-- 主线程运行的Update Pipeline的Job的抽象代码
+### 主线程运行的Update Pipeline的Job的抽象代码
 
 UpdateXWorkerDataBufferJob
 ```ts
@@ -1566,7 +1495,7 @@ export let exec: ... = (worldState, ...) => {
 ```
 
 
-- X线程运行的X Pipeline的Job的抽象代码
+### X线程运行的X Pipeline的Job的抽象代码
 
 
 GetXWorkerDataJob
@@ -1590,7 +1519,7 @@ export let exec: ... = (worldState, _) => {
 ```
 
 
-- 主线程的Sync Pipeline的Job的抽象代码
+### 主线程的Sync Pipeline的Job的抽象代码
 
 GetFinishXWorkerDataJob
 ```ts
@@ -1617,8 +1546,7 @@ export let exec: ... = (worldState, ...) => {
 - 单一职责原则
 每个线程只做自己的事情，只更新自己的数据，这样就减少了各个线程之间发生冲突的可能性
 - 最少知识原则
-其它线程之间互相不知道，它们只知道主线程；
-线程之间只知道发送过来的与该线程相关的数据
+其它线程之间互相不知道，它们只知道主线程；线程之间只知道发送过来的与该线程相关的数据
 
 
 
@@ -1632,8 +1560,7 @@ export let exec: ... = (worldState, ...) => {
 ## 缺点
 
 - 如果需要同时支持单线程和多线程运行环境的话，需要同时维护单线程和多线程的这两个管道的代码，它们有很多逻辑是重复的
-好消息是因为使用了管道模式，所以进行了充分的解耦，两套代码互不影响
-另外，可以把重复的逻辑提出来放到公共的utils模块中，然后让这两个管道的Job调用它们，从而可消除重复代码
+好消息是因为使用了管道模式，所以进行了充分的解耦，两套代码互不影响。另外，可以把重复的逻辑提出来放到公共的utils模块中，然后让这两个管道的Job调用它们，从而可消除重复代码
 
 - 需要考虑线程之间的同步
 好消息是不需要锁，而是通过共享和备份来实现同步，这样更易于维护且性能更高
@@ -1671,7 +1598,7 @@ export let exec: ... = (worldState, ...) => {
 # 扩展
 
 ## 传送纹理图片
-如果材质包括了纹理，则需要将纹理图片从主线程传到渲染线程，这可以通过浏览器的transferFromImageBitmap API来从主线程传送该图片到渲染线程
+如果材质包括了纹理，则需要将纹理图片从主线程传到渲染线程。这可以通过浏览器的transferFromImageBitmap API来从主线程传送该图片到渲染线程
 
 ## 开多个渲染线程
 如果是现代图形API，如DX12/Vulkan/Metal/WebGPU，则支持开多个而不是一个渲染线程来渲染。其中每个渲染线程都运行一个Render Pipeline，负责提交自己的Command Buffer
@@ -1679,22 +1606,20 @@ export let exec: ... = (worldState, ...) => {
 
 # 结合其它模式
 
-## 结合哪些模式？
+<!-- ## 结合哪些模式？ -->
 
 多线程模式需要跟ECS模式、管道模式一起使用
 
 ## 结合ECS模式
 
-使用ECS模式中的Manager层和Component+GameObject层来创建和管理场景，将场景数据保存在组件的Buffer中，其中Buffer是SharedArrayBuffer
-这样做的好处是：
+使用ECS模式中的Manager层和Component+GameObject层来创建和管理场景，将场景数据保存在组件的Buffer中，其中Buffer是SharedArrayBuffer。这样做的好处是：
 组件的Buffer可以直接在线程之间被共享而无需被拷贝，从而提高多线程的性能
 
 
 ## 结合管道模式
 
 
-在单线程、多线程运行环境下分别注册不同的管道来实现对应的逻辑
-这样做的好处是：
+在单线程、多线程运行环境下分别注册不同的管道来实现对应的逻辑。这样做的好处是：
 1.可以通过切换管道，来支持单线程或者多线程的运行环境
 2.可以通过管道的并行Job实现多线程运行环境中并行的逻辑
 
@@ -1718,14 +1643,12 @@ export let exec: ... = (worldState, ...) => {
 ## 给出具体的实践案例
 
 
-- 延迟删除
-
+### 延迟删除
 因为删除场景数据（如删除一个组件或者gameObject）会影响主线程的场景数据，可能会造成冲突，所以应该这样处理：
-删除场景数据的API并没有真正地进行删除，而只是将要删除的数据标记为删除；
-然后等到同步阶段（也就是运行主线程的Sync Pipeline时）再真正地将其删除
+删除场景数据的API并没有真正地进行删除，而只是将要删除的数据标记为删除；然后等到同步阶段（也就是运行主线程的Sync Pipeline时）再真正地将其删除
 
 
-- 通过切换管道，来支持单线程或者多线程的运行环境
+### 通过切换管道，来支持单线程或者多线程的运行环境
 
 
 

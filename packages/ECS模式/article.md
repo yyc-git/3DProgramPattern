@@ -1579,7 +1579,7 @@ worldState的positionComponentManagerState的positions有3个连续的值是2、
 ## 通用UML
 ![image](https://img2023.cnblogs.com/blog/419321/202304/419321-20230407093915551-2129951086.png)
 
-## 分析角色
+<!-- ## 分析角色 -->
 
 我们来看看模式的相关角色：
 

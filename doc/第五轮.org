@@ -28,12 +28,14 @@
 https://github.com/nivance/DPModel
 
 
-* TODO 加入前言等补充章节
-
 
 * TODO 上线书的网站
 
 
-** TODO 书给出网站（包含代码）二维码
+* TODO 书给出网站（包含代码）二维码
 
 
+
+* TODO 加入推荐语、后记等其他人的发言
+
+如妈妈写的关于我的认识等
