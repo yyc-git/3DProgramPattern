@@ -13,5 +13,5 @@ export type jobOrder = {
   insertAction: insertAction,
 }
 
-//可能要合并多个管道，所以jobOrders是数组，每个数组元素对应一个管道
+//可能要合并多种同名管道，所以jobOrders是数组，每个数组元素对应一种名字的管道
 export type jobOrders = Array<jobOrder>

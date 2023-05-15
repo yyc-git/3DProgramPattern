@@ -88,19 +88,19 @@ let _runPipeline = (
     })
 }
 
-export let init = (state: state, config) => {
+export let init = (state: state, initConfig) => {
     state = PipelineManager.init(state, [_unsafeGetPipelineManagerState, _setPipelineManagerState])
 
     //把配置保存到全局变量中，从而在Job中通过全局变量获得配置
-    globalThis.config = config
+    globalThis.initConfig = initConfig
 
     //运行Init Pipeline管道
     return _runPipeline(state, "init")
 }
 
-export let runPipeline1 = (state: state, config) => {
+export let runPipeline1 = (state: state, pipeline1Config) => {
     //把配置保存到全局变量中，从而在Job中通过全局变量获得配置
-    globalThis.config = config
+    globalThis.pipeline1Config = pipeline1Config
 
     //运行某个X Pipeline
     return _runPipeline(state, 某个X Pipeline名)

@@ -1,23 +1,23 @@
-import { state, states, pipelineName } from "pipeline1_state_type_abstract/src/StateType"
-import { pipelineName as 其它PipelineName } from "依赖的其它PipelineState_type_abstarct/src/StateType"
+import * as Pipeline1StateType  from "pipeline1_state_type_abstract/src/StateType"
+import * as 依赖的其它PipelineStateType  from "依赖的其它PipelineState_type_abstarct/src/StateType"
 
 export function getState(states: states): state {
-    return states[pipelineName]
+    return states[Pipeline1StateType.pipelineName]
 }
 
 export function setState(states: states, state: state): states {
     return Object.assign({}, states, {
-        [pipelineName]: state
+        [Pipeline1StateType.pipelineName]: state
     })
 }
 
 export function 获得依赖的其它PipelineState(states: states): 其它PipelineStateType.state {
-    return states[其它PipelineName]
+    return states[依赖的其它PipelineStateType.pipelineName]
 }
 
 export function 设置依赖的其它PipelineState(states: states, state: 其它PipelineStateType.state): states {
     return Object.assign({}, states, {
-        [其它PipelineName]: state
+        [依赖的其它PipelineStateType.pipelineName]: state
     })
 }
 
