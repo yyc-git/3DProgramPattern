@@ -1491,6 +1491,7 @@ Job中基于FRP使用流来处理异步、一个Job其实就是一个函数、�
 更新、渲染时通常需要连续地执行一些逻辑，因此可以注册一个Pipeline，它应该包括一个Update Pipeline管道、一个Render Pipeline管道，前者包括更新相关的Job，后者包括渲染相关的Job。在每次主循环时，先运行Update Pipeline，然后在返回的Promise回调中运行Render Pipeline
 
 - 需要运行在多个运行环境中
+
 为每个运行环境注册一个管道模块，相互不干扰
 
 ## 注意事项

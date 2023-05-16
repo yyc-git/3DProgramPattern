@@ -7,7 +7,7 @@ export let createState = CreateStateSystem.createState
 export let action1 = OtherSystem1.action
 
 export let init = (worldState: worldState): worldState => {
-    console.log("初始化...")
+    初始化...
 
     return worldState
 }

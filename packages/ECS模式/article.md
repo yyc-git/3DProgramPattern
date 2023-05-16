@@ -1,6 +1,6 @@
 [TOC]
 
-# [引入故事，提出问题]
+# 普通英雄和超级英雄
 
 ## 需求
 
@@ -18,16 +18,14 @@
 
 应该有一个游戏世界，它由多个普通英雄和多个超级英雄组成
 
-一个模块对应一个普通英雄，一个模块对应一个超级英雄
-模块应该维护该英雄的数据和实现该英雄的行为
+一个模块对应一个普通英雄，一个模块对应一个超级英雄。模块应该维护该英雄的数据和实现该英雄的行为
 
 
 
 ## 给出UML
 
-**领域模型**
-![image](https://img2023.cnblogs.com/blog/419321/202304/419321-20230407093907968-1066718182.png)
 
+![领域模型图](./story_before/UML.png)
 
 总体来看，分为用户、游戏世界、英雄这三个部分
 
@@ -37,8 +35,7 @@
 Client是用户
 
 <!-- World负责游戏世界的管理，它包括了所有的普通英雄和超级英雄数据 -->
-World是游戏世界，由多个普通英雄和多个超级英雄组成
-World负责管理所有的英雄，并且实现了初始化和主循环的逻辑
+World是游戏世界，由多个普通英雄和多个超级英雄组成。World负责管理所有的英雄，并且实现了初始化和主循环的逻辑
 
 
 我们看下英雄这个部分：
@@ -83,10 +80,7 @@ worldState = WorldUtils.init(worldState)
 WorldUtils.loop(worldState, [World.update, World.renderOneByOne, World.renderInstances])
 ```
 
-Client首先创建了WorldState，用来保存游戏世界中所有的数据；
-然后创建了场景；
-然后进行了初始化；
-最后开始了主循环
+Client首先创建了WorldState，用来保存游戏世界中所有的数据；然后创建了场景；然后进行了初始化；最后开始了主循环
 
 
 
@@ -102,7 +96,7 @@ export let createState = (): worldState => {
 }
 ```
 
-createState函数创建了WorldState，它包括两个分别用来保存所有的normalHero和所有的superHero的容器
+createState函数创建了WorldState，它包括两个分别用来保存所有的普通英雄和所有的超级英雄的容器
 
 
 ### 创建场景的代码
@@ -125,7 +119,7 @@ let _createScene = (worldState: worldState): worldState => {
 }
 ```
 
-_createScene函数创建了场景，创建和加入了两个普通英雄和两个超级英雄到游戏世界中，其中第一个普通英雄进行了移动，第一个超级英雄进行了移动和飞行
+_createScene函数创建了场景，创建和加入了两个普通英雄和两个超级英雄到游戏世界中。其中第一个普通英雄进行了移动，第一个超级英雄进行了移动和飞行
 
 
 NormalHero
@@ -224,8 +218,7 @@ export let fly = (worldState: worldState, superHero: superHero): worldState => {
 
 SuperHero的move函数的逻辑跟NormalHero的move函数的逻辑是一样的
 
-fly函数实现了飞行的行为逻辑
-它跟move函数一样，也是更新superHero的position，只是因为两者在计算时使用的速度的算法不一样，所以更新position的幅度不同
+fly函数实现了飞行的行为逻辑。它跟move函数一样，也是更新英雄的position。只是因为两者在计算时使用的速度的算法不一样，所以更新position的幅度不同
 
 ### 初始化的代码
 
@@ -259,11 +252,7 @@ export let loop = (worldState, [update, renderOneByOne, renderInstances]) => {
 }
 ```
 
-loop函数实现了主循环
-在主循环的一帧中，首先进行了更新；
-然后一个一个地渲染了所有的超级英雄；
-然后一次性批量渲染了所有的普通英雄；
-最后执行下一帧
+loop函数实现了主循环。在主循环的一帧中，首先进行了更新；然后一个一个地渲染了所有的超级英雄；然后一次性批量渲染了所有的普通英雄；最后执行下一帧
 
 
 ### 主循环中更新的代码
@@ -337,18 +326,18 @@ OneByOne渲染 SuperHero...
 ```
 
 通过打印的数据，可以看到运行的步骤如下：
-首先进行了初始化；
-然后更新了所有的人物，包括两个普通英雄和两个超级英雄；
-然后依次渲染了2个超级英雄；
-然后一次性批量渲染了所有的普通英雄；
-最后打印了worldState
+1.进行了初始化；
+2.更新了所有的人物，包括两个普通英雄和两个超级英雄；
+3.渲染了2个超级英雄；
+4.一次性批量渲染了所有的普通英雄；
+5.打印了WorldState
 
-我们看下打印的worldState：
-worldState的normalHeroes中一共有两个普通英雄的数据，其中有一个普通英雄数据的position为[2,2,2]而不是初始的[0,0,0]，说明该普通英雄进行了move操作；
-worldState的superHeroes中一共有两个超级英雄的数据，其中有一个超级英雄数据的position为[6,6,6]，说明该超级英雄进行了move和fly操作
+我们看下打印的WorldState：
+- WorldState的normalHeroes中一共有两个普通英雄的数据，其中有一个普通英雄数据的position为[2,2,2]而不是初始的[0,0,0]，说明该普通英雄进行了移动操作；
+- WorldState的superHeroes中一共有两个超级英雄的数据，其中有一个超级英雄数据的position为[6,6,6]，说明该超级英雄进行了移动和飞行操作
 
 值得注意的是：
-因为worldState的normalHeroes和superHeroes中的Key是英雄随机生成的id值，所以每次打印时Key都不一样
+因为WorldState的normalHeroes和superHeroes中的Key是随机生成的id值，所以每次打印时Key都不一样
 
 
 
@@ -358,22 +347,22 @@ worldState的superHeroes中一共有两个超级英雄的数据，其中有一�
 - NormalHero和SuperHero中的update、move函数的逻辑是重复的
 
 - 如果英雄增加更多的行为，NormalHero和SuperHero模块会越来越复杂，不容易维护
-虽然可以通过继承来解决，即最上面是Hero基类，然后不同种类的Hero层层继承，但是继承的方式很死板，不够灵活
+
+虽然这两个问题都可以通过继承来解决，即最上面是Hero基类，然后不同种类的Hero层层继承，但是继承的方式很死板，不够灵活
 
 
-# [给出可能的改进方案，分析存在的问题]?
+# 基于组件化的思想改进
 
 
 ## 概述解决方案
 
 
-<!-- 通过下面的改进来解决重复和继承的问题： -->
-- 基于组件化的思想，用组合代替继承
-将人物抽象为GameObject
-将人物的行为抽象为组件，并把人物的相关数据也移到组件中
-人物通过挂载不同的组件，来实现不同的行为
+- 基于组件化的思想，用组合代替继承。具体修改如下：
+    - 将人物抽象为GameObject；
+    - 将人物的行为抽象为组件，并把人物的相关数据也移到组件中；
+    - GameObject通过挂载不同的组件，来实现不同的行为
 
-这样就通过GameObject组合不同的组件代替人物层层继承，从而更加灵活
+这样就通过GameObject组合不同的组件来代替人物层层继承，从而更加灵活
 
 <!-- 这样NormalHero、SuperHero都是GameObject，只是挂载不同的组件而已 -->
 
@@ -382,37 +371,30 @@ worldState的superHeroes中一共有两个超级英雄的数据，其中有一�
 
 ## 给出UML
 
-**领域模型**
-![image](https://img2023.cnblogs.com/blog/419321/202304/419321-20230407093910175-912066482.png)
+![领域模型图](./story_after/UML.png)
 
 总体来看，分为用户、游戏世界、GameObject、组件这四个部分
 
 我们看下用户、游戏世界这两个部分：
 Client是用户
 
-World是游戏世界，由多个GameObject组成
-World负责管理所有的GameObject，并且实现了初始化和主循环的逻辑
+World是游戏世界，由多个GameObject组成。World负责管理所有的GameObject，并且实现了初始化和主循环的逻辑
 
 
 我们看下GameObject这个部分：
 
-一个GameObject对应一个人物
-GameObject负责管理挂载的组件，它可以挂载PositionComponent、VelocityComponent、FlyComponent、InstanceComponent这四种组件，每种组件最多挂载一个
+一个GameObject对应一个人物。GameObject负责管理挂载的组件，它可以挂载PositionComponent、VelocityComponent、FlyComponent、InstanceComponent这四种组件，每种组件最多挂载一个
 
 
 我们看下组件这个部分：
 
-组件负责维护自己的数据，实现自己的行为逻辑
-具体来说，是将NormalHero、SuperHero的position数据和move函数、update函数移到了PositionComponent中；
-将NormalHero、SuperHero的velocity数据移到了VelocityComponent中；
-将SuperHero的maxVelocity数据和fly函数移到了FlyComponent中；
-InstanceComponent没有数据和逻辑，它只是一个标记，用来表示挂载该组件的GameObject使用一次性批量渲染的算法来渲染
+组件负责维护自己的数据，实现自己的行为逻辑。具体来说，是将NormalHero、SuperHero的position数据和move函数、update函数移到了PositionComponent中；将NormalHero、SuperHero的velocity数据移到了VelocityComponent中；将SuperHero的maxVelocity数据和fly函数移到了FlyComponent中；InstanceComponent没有数据和逻辑，它只是一个标记，用来表示挂载该组件的GameObject使用一次性批量渲染的算法来渲染
 
 
 
 ## 结合UML图，描述如何具体地解决问题
 
-- 现在只需要实现一次Position组件中的update、move函数，然后将它挂载到不同的GameObject中，就可以实现普通英雄和超级英雄的更新、移动的逻辑，从而消除了之前在NormalHero、SuperHero中共实现了两次的update、move函数造成的重复代码
+- 现在只需要实现一次Position组件中的update、move函数，然后将它挂载到不同的GameObject中，就可以实现普通英雄和超级英雄的更新、移动的逻辑，从而消除了之前在NormalHero、SuperHero中因共实现了两次的update、move函数而造成的重复代码
 
 
 - 因为NormalHero、SuperHero都是GameObject，而GameObject本身只负责管理组件，没有行为逻辑，所以随着人物的行为的增加，GameObject并不会增加逻辑，而只需要增加对应行为的组件，让GameObject挂载该组件即可
@@ -442,18 +424,7 @@ InstanceComponent没有数据和逻辑，它只是一个标记，用来表示挂
 
 ### Client的代码
 
-<!-- Client
-```ts
-let worldState = World.createState()
-
-worldState = _createScene(worldState)
-
-worldState = WorldUtils.init(worldState)
-
-WorldUtils.loop(worldState, [World.update, World.renderOneByOne, World.renderInstances])
-``` -->
-
-Client的代码跟之前的Client的代码一样，除了_createScene函数中创建场景的方式不一样，这个等会再讨论
+Client的代码跟之前的Client的代码基本上一样，故省略。不一样的地方是_createScene函数中创建场景的方式不一样，这个等会再讨论
 
 
 ### 创建WorldState的代码
@@ -508,28 +479,15 @@ let _createScene = (worldState: worldState): worldState => {
 ```
 
 _createScene函数创建了场景，场景的内容跟之前一样，都包括了2个普通英雄和2个超级英雄，只是现在创建一个英雄的方式改变了，具体变为：
-首先创建一个GameObject和相关的组件；
-然后挂载组件到GameObject；
-最后加入该GameObject到World中
+首先创建一个GameObject和相关的组件；然后挂载组件到GameObject；最后加入该GameObject到World中
 
-普通英雄对应的GameObject挂载的组件跟超级英雄对应的GameObject挂载的组件也不一样，不一样是前者挂载了InstanceComponent（因为普通英雄需要一次性批量渲染），后者则挂载了FlyComponent（因为超级英雄多出了飞行的行为）
+普通英雄对应的GameObject挂载的组件跟超级英雄对应的GameObject挂载的组件也不一样，其中前者挂载了InstanceComponent（因为普通英雄需要一次性批量渲染），后者则挂载了FlyComponent（因为超级英雄多出了飞行的行为）
 
-另外，现在改为通过调用对应组件的函数而不是直接操作英雄模块来实现英雄的“移动”、“飞行”
+另外，现在改为通过调用对应组件的函数而不是直接操作英雄模块，从而实现英雄的“移动”、“飞行”
 
 
 
 
-<!-- 我们继续看创建场景相关的剩余代码：
-GameObject的相关代码如下： -->
-GameObjectStateType
-```ts
-export type state = {
-    positionComponent: positionComponentState | null,
-    velocityComponent: velocityComponentState | null
-    flyComponent: flyComponentState | null,
-    instanceComponent: instanceComponentState | null
-}
-```
 GameObject
 ```ts
 //创建一个gameObject
@@ -541,23 +499,14 @@ export let create = (): [gameObjectState, gameObject] => {
 }
 ```
 
-
-GameObject的create函数创建了一个gameObject，返回了它的gameObjectState数据
-一个gameObject有一个gameObjectState数据，它保存了该gameObject挂载的所有组件的state数据
-
-
+GameObject的create函数创建了一个gameObject，初始化了它的数据
+<!-- 
+GameObject的create函数创建了一个gameObject，返回了它的gameObjectState数据。一个gameObject有一个gameObjectState数据，它保存了该gameObject挂载的所有组件的state数据 -->
 
 
 
-<!-- GameObject负责创建gameObject和管理挂载的组件 -->
 
-PositionComponentStateType
-```ts
-export type state = {
-    gameObject: ...,
-    position: [number, number, number]
-}
-```
+
 PositionComponent
 ```ts
 //创建一个positionComponent
@@ -572,17 +521,11 @@ export let create = (): positionComponentState => {
 }
 ```
 
-PositionComponent的create函数创建了一个positionComponent，返回了它的positionComponentState数据
-一个positionComponent有一个positionComponentState数据，它保存了该positionComponent的位置和挂载到的gameObject
+PositionComponent的create函数创建了一个positionComponent，初始化了它的数据
+<!-- PositionComponent的create函数创建了一个positionComponent，返回了它的positionComponentState数据
+一个positionComponent有一个positionComponentState数据，它保存了该positionComponent的位置和挂载到的gameObject -->
 
 
-VelocityComponentStateType
-```ts
-export type state = {
-    gameObject: ...,
-    velocity: number
-}
-```
 VelocityComponent
 ```ts
 //创建一个velocityComponent
@@ -596,13 +539,6 @@ export let create = (): velocityComponentState => {
     返回该组件
 }
 ```
-FlyComponentStateType
-```ts
-export type state = {
-    gameObject: ...,
-    maxVelocity: number
-}
-```
 FlyComponent
 ```ts
 //创建一个flyComponent
@@ -614,12 +550,6 @@ export let create = (): flyComponentState => {
         其中：maxVelocity为最大速度，gameObject为挂载到的gameObject
 
     返回该组件
-}
-```
-InstanceComponentStateType
-```ts
-export type state = {
-    gameObject: ...
 }
 ```
 InstanceComponent
@@ -645,13 +575,13 @@ export let addGameObject = (worldState: worldState, [gameObjectState, gameObject
  -->
 
 
-这三种组件的create函数跟PositionComponent的create函数一样，不一样的是InstanceComponent的instanceComponentState数据只有挂载到的gameObject，没有自己的数据
+这三种组件的create函数的职责跟PositionComponent的create函数的职责一样，不一样的是InstanceComponent的state数据中只有挂载到的gameObject，没有自己的数据
 
 
 <!-- 这是“创建一个gameObject和对应组件、挂载组件到gameObject、加入gameObject到游戏世界”的相关代码 -->
 <!-- 这是“创建一个gameObject和对应组件、挂载组件到gameObject”的相关代码 -->
 
-组件的state数据中都保存了挂载到的gameObject，这样做的目的是可以通过gameObject来获得挂载到该gameObject的其它组件，从而一个组件可以操作其它挂载的组件
+我们可以看到，组件的state数据中都保存了挂载到的gameObject，这样做的目的是可以通过它来获得挂载到它上的其它组件，从而一个组件可以操作其它挂载的组件
 
 
 ### 移动的相关代码
@@ -689,7 +619,7 @@ export let setPosition = (positionComponentState: positionComponentState, positi
 
 ...
 
-//一个组件的移动
+//一个gameObject的移动
 export let move = (worldState: worldState, positionComponentState: positionComponentState): worldState => {
     //获得该组件的position、gameObject
     let [x, y, z] = getPosition(positionComponentState)
@@ -713,9 +643,9 @@ export let getVelocity = (velocityComponentState: velocityComponentState) => {
 }
 ```
 
-PositionComponent维护了position数据，它的move函数实现了移动的行为逻辑
+PositionComponent维护了position数据，提供了它的get、set函数。VelocityComponent维护了velocity数据，，提供了它的get函数
 
-VelocityComponent维护了velocity数据
+另外，PositionComponent的move函数实现了移动的行为逻辑
 
 
 
@@ -743,7 +673,7 @@ export let setMaxVelocity = (flyComponentState: flyComponentState, maxVelocity) 
     }
 }
 
-//一个组件的飞行
+//一个gameObject的飞行
 export let fly = (worldState: worldState, flyComponentState: flyComponentState): worldState => {
     //获得该组件的maxVelocity、gameObject
     let maxVelocity = getMaxVelocity(flyComponentState)
@@ -765,7 +695,7 @@ export let fly = (worldState: worldState, flyComponentState: flyComponentState):
 }
 ```
 
-FlyComponent维护了maxVelocity数据，它的fly函数实现了飞行的行为逻辑
+FlyComponent维护了maxVelocity数据，，提供了它的get、set函数。另外，FlyComponent的fly函数实现了飞行的行为逻辑
 
 
 ### 初始化和主循环的代码
@@ -800,10 +730,7 @@ export let update = (worldState: worldState): worldState => {
 }
 ```
 
-update函数实现了更新，它会遍历所有的gameObject，调用它挂载的PositionComponent组件的update函数来更新该组件
-
-
-我们看PositionComponent的update代码：
+update函数实现了更新，它会遍历所有的gameObject，调用它挂载的PositionComponent组件的update函数来更新该组件。我们看下PositionComponent的update函数的代码：
 ```ts
 //更新一个组件
 export let update = (positionComponentState: positionComponentState): positionComponentState => {
@@ -864,38 +791,37 @@ OneByOne渲染 SuperHero...
 
 通过打印的数据，可以看到运行的步骤与之前一样
 不同之处在于：
-更新4个英雄现在变为更新4个positionComponent；
-打印的worldState不一样
+- 更新4个英雄现在变为更新4个positionComponent
+- 打印的WorldState不一样
 
 
-我们看下打印的worldState：
-worldState的gameObjects包括了4个gameObject的数据，其中有一个gameObject数据的positionComponent的position为[2,2,2]，说明它进行了move操作；
-有一个gameObject数据的positionComponent的position为[6,6,6]，说明它进行了move和fly操作
+我们看下打印的WorldState：
+- WorldState的gameObjects包括了4个gameObject的数据，其中有一个gameObject数据的positionComponent的position为[2,2,2]，说明它进行了移动操作；
+- 有一个gameObject数据的positionComponent的position为[6,6,6]，说明它进行了移动和飞行操作
 
 
 值得注意的是：
-因为worldState的gameObjects中的Key是gameObject随机生成的id值，所以每次打印时Key都不一样
+因为WorldState的gameObjects中的Key是随机生成的id值，所以每次打印时Key都不一样
 
 
 ## 提出问题
 
 - 组件的数据分散在各个组件中，性能不好
-如position数据现在是一对一地分散保存在各个positionComponent组件中（即一个positionComponent组件保存自己的position），那么如果需要遍历所有组件的position数据，则需要遍历所有的positionComponent组件，分别获得它们的position
-因为每个positionComponent组件的数据并没有连续地保存在内存中，所以会造成缓存命中丢失，带来性能损失
+
+如position数据现在是一对一地分散保存在各个positionComponent组件中（即一个positionComponent组件保存自己的position），那么如果需要遍历所有组件的position数据，则需要遍历所有的positionComponent组件，分别获得它们的position。因为每个positionComponent组件的数据并没有连续地保存在内存中，所以会造成缓存命中丢失，带来性能损失
 
 <!-- 因为在遍历每个positionComponent组件时，需要将它的所有数据都载入CPU的二级缓存中 -->
 <!-- 当它的大小大于CPU的二级缓存的大小时，就无法载入而造成缓存无法命中，从而带来性能损失 -->
 <!-- 当它的大小大于CPU的二级缓存的大小时，就无法全部载入，而需要
 而造成缓存无法命中，从而带来性能损失 -->
 
-- 如果超级英雄增加一个“跳”的行为，该行为不仅需要更新position，还需要修改velocity，那么实现该行为的jump函数应该放在哪个组件中呢？
-因为jump函数需要同时修改PositionComponent组件的position数据和VelocityComponent组件的velocity数据，所以将它放在两者中任何一种组件中都不合适
-因此需要增加一种新的组件-JumpComponent，对应“跳”这个行为，实现jump函数
-该函数会通过JumpComponent挂载的gameObject来获得挂载到该gameobject上的PositionComponent和VelocityComponent组件，修改它们的数据
+- 涉及多种组件的行为不知道放在哪里
 
-如果增加更多的涉及多种组件的行为，就需要为每个这样的行为增加一种组件。
-因为组件比较重，既有数据又有逻辑，所以增加组件的成本较高
-另外，因为组件与GameObject是聚合关系，而GameObject和World也是聚合关系，它们都属于强关联关系，所以增加组件会较强地影响GameObject和World，这也增加了成本
+如果超级英雄增加一个“跳”的行为，该行为不仅需要修改position数据，还需要修改velocity数据，那么实现该行为的jump函数应该放在哪个组件中呢？
+
+因为jump函数需要同时修改PositionComponent组件的position数据和VelocityComponent组件的velocity数据，所以将它放在两者中任何一种组件中都不合适。因此需要增加一种新的组件-JumpComponent，对应“跳”这个行为，并实现jump函数。该函数会通过JumpComponent挂载到的gameObject来获得挂载到它上的PositionComponent和VelocityComponent组件，从而修改它们的数据
+
+如果增加更多的这种涉及多种组件的行为，就需要为每个这样的行为增加一种组件。因为组件比较重，既有数据又有逻辑，所以增加组件的成本较高；另外，因为组件与GameObject是聚合关系，而GameObject和World也是聚合关系，它们都属于强关联关系，所以增加组件会较强地影响GameObject和World，这也增加了成本
 
 
 
@@ -905,25 +831,25 @@ worldState的gameObjects包括了4个gameObject的数据，其中有一个gameOb
 
 <!-- 通过下面的改进来提高性能： -->
 - 基于Data Oriented的思想进行改进
+
 <!-- 基于Data Oriented的思想进行改进，将gameObject所有的数据和每种组件的数据分别集中起来，保存在各自的一块连续空间中 -->
 <!-- 其中，gameObject的数据是指gameObject挂载了哪些组件，我们将其保存在一个Hash Map中； -->
-组件可以按角色分为Data Oriented组件和其它组件，前者的特点是属于该角色的每个组件都有数据，且组件的数量较多，后者的特点是属于该角色的每个组件都没有数据，或者组件的数量很少
-这里具体说明一下各种组件的角色：
-目前一共有四种组件，它们为：PositionComponent、VelocityComponent、FlyComponent、InstanceComponent。
-其中，InstanceComponent组件因为没有组件数据，所以属于“其它组件”；另外三种组件则都属于“Data Oriented组件”
+组件可以按角色分为Data Oriented组件和其它组件，其中前者的特点是属于该角色的每个组件都有数据，且组件的数量较多；后者的特点是属于该角色的每个组件都没有数据，或者组件的数量很少。这里具体说明一下各种组件的角色：
+目前一共有四种组件，它们是PositionComponent、VelocityComponent、FlyComponent、InstanceComponent。其中，InstanceComponent组件因为没有组件数据，所以属于“其它组件”；另外三种组件则都属于“Data Oriented组件”
 
-将属于Data Oriented组件的三种组件的所有组件数据分别集中起来，保存在各自的一块连续的地址空间中，具体就是分别保存在三个ArrayBuffer中
+属于Data Oriented组件的三种组件的所有组件数据将会分别集中起来，保存在各自的一块连续的地址空间中，具体就是分别保存在三个ArrayBuffer中
 
 - 将GameObject和各个组件扁平化
-GameObject不再有数据和逻辑了，而只是一个全局唯一的id；组件也不再有数据和逻辑了，其中属于“Data Oriented组件”的组件只是一个ArrayBuffer的索引；属于“其它组件”的组件只是一个全局唯一的id
-<!-- 其中GameObject是gameObject与挂载的组件的对应关系这个Hash Map的Key；Component既是这个Hash Map的Value，又是ArrayBuffer中的索引 -->
+
+GameObject不再有数据和逻辑了，而只是一个全局唯一的id。组件也不再有数据和逻辑了，其中属于“Data Oriented组件”的组件只是一个ArrayBuffer上的索引；属于“其它组件”的组件只是一个全局唯一的id
+<!-- 其中GameObject是gameObject与挂载的组件的对应关系这个Hash Map的Key；Component既是这个Hash Map的Value，又是ArrayBuffer上的索引 -->
 
 - 增加Component+GameObject这一层，将扁平的GameObject和组件放在该层中
 
 
 - 增加Manager这一层，来管理GameObject和组件的数据
-这一层有GameObjectManager和四种组件的Manager，其中GameObjectManager负责管理所有的gameObject；
-四种组件的Manager负责管理自己的ArrayBuffer，操作属于该种类的所有组件
+
+这一层有GameObjectManager和四种组件的Manager，其中GameObjectManager负责管理所有的gameObject；四种组件的Manager负责管理自己的ArrayBuffer，操作属于该种类的所有组件
 
 <!-- 将“gameObject挂载了哪些组件”的对应关系的Hash Map放在哪里？ -->
 <!-- 值得注意的是：
@@ -933,22 +859,27 @@ GameObject不再有数据和逻辑了，而只是一个全局唯一的id；组�
 
 
 - 增加System这一层，来实现行为的逻辑
-一个System对应一个行为，比如这一层中的MoveSystem、FlySystem分别实现了移动和飞行的行为逻辑
+一个System实现一个行为，比如这一层中的MoveSystem、FlySystem分别实现了移动和飞行的行为逻辑
+
+
+
+
 
 
 值得注意的是：
-1.GameObject和组件的数据被移到了Manager中，它们的逻辑则被移到了Manager和System中，其中只操作自己数据的逻辑（如getPosition、setPosition）被移到了Manager中，其它逻辑（通常为行为逻辑，需要操作多种组件）被移到了System中
-2.一种组件的Manager只对该种组件进行操作，而一个System可以对多种组件进行操作
+- GameObject和组件的数据被移到了Manager中，逻辑则被移到了Manager和System中。其中只操作自己数据的逻辑（如getPosition、setPosition）被移到了Manager中，其它逻辑（通常为行为逻辑，需要操作多种组件）被移到了System中
+- 一种组件的Manager只对该种组件进行操作，而一个System可以对多种组件进行操作
 
 ## 给出UML
 
 
-**领域模型**
-![image](https://img2023.cnblogs.com/blog/419321/202304/419321-20230407093913041-1386894617.png)
+
+![领域模型图](./story_improve/UML.png)
 
 
+总体来看，分为五个部分：用户、World、System层、Manager层、Component+GameObject层。它们的依赖关系是前者依赖后者
 
-总体来看，分为五个部分：用户、World、System层、Manager层、Component+GameObject层，它们的依赖关系是用户依赖World，World依赖System层，System层依赖Manager层，Manager层依赖Component+GameObject层
+<!-- ，即用户依赖World，World依赖System层，System层依赖Manager层，Manager层依赖Component+GameObject层 -->
 
 
 我们看下用户、World这两个部分：
@@ -958,13 +889,13 @@ World是游戏世界，虽然仍然实现了初始化和主循环的逻辑，不
 
 
 我们看下System这一层：
-有多个System，每个System实现一个行为逻辑
-其中，CreateStateSystem实现创建WorldState的逻辑，创建的WorldState包括了所有的Manager的state数据；
-UpdateSystem实现更新所有人物的position的逻辑，具体是更新所有PositionComponent的position；
-MoveSystem实现一个人物的移动的逻辑，具体是根据挂载到该人物gameObject上的一个positionComponent和一个velocityComponent，更新该positionComponent的position；
-FlySystem实现一个人物的飞行的逻辑，具体是根据挂载到该人物gameObject上的一个positionComponent、一个velocityComponent、一个flyComponent，更新该positionComponent的position；
-RenderOneByOneSystem实现渲染所有超级英雄的逻辑；
-RenderInstancesSystem实现渲染所有普通英雄的逻辑
+有多个System，每个System实现一个行为逻辑。每个System的职责如下：
+- CreateStateSystem实现创建WorldState的逻辑，创建的WorldState包括了所有的Manager的state数据；
+- UpdateSystem实现更新所有人物的position的逻辑，具体是更新所有PositionComponent的position；
+- MoveSystem实现一个人物的移动的逻辑，具体是根据挂载到该人物gameObject上的一个positionComponent和一个velocityComponent，更新该positionComponent的position；
+- FlySystem实现一个人物的飞行的逻辑，具体是根据挂载到该人物gameObject上的一个positionComponent、一个velocityComponent、一个flyComponent，更新该positionComponent的position；
+- RenderOneByOneSystem实现渲染所有超级英雄的逻辑；
+- RenderInstancesSystem实现渲染所有普通英雄的逻辑
 
 
 我们看下Manager这一层：
@@ -979,7 +910,7 @@ PositionComponentManager、VelocityComponentManager、FlyComponentManager、Inst
 PositionComponentManager的state数据包括一个buffer字段和一个positions字段，其中前者是一个ArrayBuffer，保存了该种组件的所有组件数据；后者是buffer的视图，用于读写buffer中的position数据
 
 
-PositionComponentManager的batchUpdate函数负责批量更新所有的positionComponent的position
+PositionComponentManager的batchUpdate函数负责批量更新所有的positionComponent组件的position
 
 <!-- PositionComponentManager维护了gameObjectMap、gameObjectPositionMap这两个Hash Map，前者为positionComponent与gameObject的对应关系，后者为gameObject与positionComponent的对应关系 -->
 
@@ -989,7 +920,9 @@ PositionComponentManager的batchUpdate函数负责批量更新所有的positionC
 
 
 我们看下Component+GameObject这一层：
-因为PositionComponent、VelocityComponent、FlyComponent属于Data Oriented组件，所以它们是一个index，也就是各自Manager的state的ArrayBuffer中的索引值；
+
+因为PositionComponent、VelocityComponent、FlyComponent属于Data Oriented组件，所以它们是一个index，也就是各自Manager的state的buffer中的索引值
+
 因为InstanceComponent属于其它组件，所以它是一个全局唯一的id
 <!-- ，它是InstanceComponentManager的state的gameObjectMap的Key和gameObjectInstanceMap的Value -->
 
@@ -1002,7 +935,7 @@ GameObject是一个全局唯一的id
 
 System层：
 
-因为CreateSystem需要调用各个Manager的createState函数来创建它们的state，所以依赖了Manager层
+因为CreateSystem需要调用各个Manager的createState函数来创建它们的state，所以依赖了整个Manager层
 
 因为UpdateSystem需要调用PositionComponentManager的batchUpdate函数来更新，所以依赖了PositionComponentManager
 
@@ -1011,7 +944,7 @@ System层：
 
 因为FlySystem需要调用PositionComponentManager来获得和设置position，并且调用VelocityComponentManager、FlyComponentManager来分别获得velocity和maxVelocity，所以依赖了PositionComponentManager、VelocityComponentManager、FlyComponentManager
 
-因为RenderOneByOneSystem和RenderInstancesSystem需要调用GameObjectManager获得所有的gameObject，并调用各种组件的Manager来获得组件数据，所以依赖了Manager层
+因为RenderOneByOneSystem和RenderInstancesSystem需要调用GameObjectManager来获得所有的gameObject，并调用各种组件的Manager来获得组件数据，所以依赖了整个Manager层
 
 
 
@@ -1029,7 +962,7 @@ Manager层：
 
 ## 结合UML图，描述如何具体地解决问题
 
-- 现在各种组件的数据都集中保存在各自Manager的ArrayBuffer中，遍历同一种组件的所有组件数据即是遍历一个ArrayBuffer。因为ArrayBuffer的数据是连续地保存在内存中的，所以缓存命中不会丢失，从而提高了性能
+- 现在各种组件的数据都集中保存在各自Manager的state的buffer（ArrayBuffer）中，遍历同一种组件的所有组件数据即是遍历一个ArrayBuffer。因为ArrayBuffer的数据是连续地保存在内存中的，所以缓存命中不会丢失，从而提高了性能
 
 - 现在将涉及多种组件的行为放在对应的System中。因为System很轻，没有数据，只有逻辑，所以增加和维护System的成本较低；另外，因为System位于最上层，所以修改System也不会影响Manager层和Component+GameObject层
 
@@ -1043,7 +976,7 @@ Manager层：
 然后，我们看下Client代码中第一步的代码：
 - 创建WorldState的代码
 
-然后，因为创建WorldState时会创建Data Oriented组件的Manager的state，其中的关健是创建ArrayBuffer，所以我们看下它的代码
+然后，因为创建WorldState时会创建Data Oriented组件的Manager的state，其中的关健是创建各自的ArrayBuffer，所以我们看下创建它的代码
 
 然后，我们看下Client代码中第二步的代码：
 - 创建场景的代码
@@ -1066,18 +999,21 @@ Manager层：
 
 Client
 ```ts
-let worldState = createState({ positionComponentCount: 10, velocityComponentCount: 10, flyComponentCount: 10 })
+let worldState = World.createState({ positionComponentCount: 10, velocityComponentCount: 10, flyComponentCount: 10 })
 
 跟之前一样...
 ```
 
-Client的代码跟之前的Client的代码基本一样，除了createState函数的参数和_createScene函数中创建场景的方式不一样
+
+
+Client的代码跟之前的Client的代码基本一样，除了createState函数的参数和_createScene函数中创建场景的方式不一样，这个等会再讨论
 
 ### 创建WorldState的代码
 
-<!-- Client通过调用CreateStateSystem的createState函数来创建WorldState
-
-现在我们来看下CreateStateSystem的createState函数代码： -->
+World
+```ts
+export let createState = CreateStateSystem.createState
+```
 CreateStateSystem
 ```ts
 export let createState = ({ positionComponentCount, velocityComponentCount, flyComponentCount }): worldState => {
@@ -1099,8 +1035,7 @@ CreateStateSystem的createState函数创建了WorldState，它保存了各个Man
 
 ### 创建ArrayBuffer的代码
 
-<!-- 我们来看下创建ArrayBuffer的相关代码： -->
-我们以PositionComponent组件为例，来看下PositionComponentManager的createState函数的相关代码：
+我们以PositionComponentManager为例，来看下它的createState函数的相关代码：
 position_component/ManagerStateType
 ```ts
 export type state = {
@@ -1111,10 +1046,10 @@ export type state = {
 }
 ```
 
-这是PositionComponentManager的state的类型定义
-
-buffer字段保存了一个ArrayBuffer，它用来保存所有的positionComponent的数据。目前每个positionComponent的数据只有position，它是三个float
-positions字段保存了ArrayBuffer的一个视图，通过它可以读写所有的positionComponent的position
+这是PositionComponentManager的state的类型定义，它的字段解释如下：
+- buffer字段保存了一个ArrayBuffer，它用来保存所有的positionComponent的数据。目前每个positionComponent的数据只有position，它的类型是三个float
+- positions字段保存了ArrayBuffer的一个视图，通过它可以读写所有的positionComponent的position
+- maxIndex字段是ArrayBuffer上最大的索引值，用于在创建一个positionComponent时生成它的index值
 
 position_component/Manager
 ```ts
@@ -1148,14 +1083,12 @@ export let createState = (positionComponentCount: number): state => {
 }
 ```
 
-这是PositionComponentManager的createState函数的代码
+这是PositionComponentManager的createState函数的代码，其中调用的_initBufferData函数创建了buffer和positions，它的步骤如下：
+1.调用BufferUtils的createBuffer函数来创建包括最大组件个数的数据的ArrayBuffer
+2.调用CreateTypeArrayUtils的createTypeArrays函数来创建所有的TypeArray，它们是操作ArrayBuffer的视图。这里具体是只创建了一个视图：positions；
+3.调用_setAllTypeArrDataToDefault函数来将positions的所有的值写为默认值：[0,0,0]
 
-_initBufferData函数创建了buffer和positions，它首先调用BufferUtils的createBuffer函数创建了包括最大组件个数的数据的ArrayBuffer；
-然后调用CreateTypeArrayUtils的createTypeArrays函数创建了所有的TypeArray，它们是操作ArrayBuffer的视图。这里具体是只创建了一个视图：positions；
-最后调用_setAllTypeArrDataToDefault函数将positions的所有的值写为默认值：[0,0,0]
-
-<!-- 下面是创建ArrayBuffer和视图相关代码： -->
-下面是createBuffer函数和createTypeArrays函数相关代码：
+下面是BufferUtils的createBuffer函数和CreateTypeArrayUtils的createTypeArrays函数的相关代码：
 position_component/BufferUtils
 ```ts
 let _getPositionSize = () => 3
@@ -1225,7 +1158,7 @@ let _createScene = (worldState: worldState): worldState => {
 _createScene函数创建了场景，场景的内容跟之前一样，都包括了2个普通英雄和2个超级英雄，只是现在创建一个英雄的方式又改变了，具体变为：
 现在不需要加入GameObject到World中
 
-另外，让英雄进行“移动”、“飞行”改为通过调用MoveSystem和FlySystem的函数操作对应的组件来实现
+另外，现在改为通过调用MoveSystem和FlySystem的函数来操作对应的组件，从而实现英雄的“移动”、“飞行”
 
 gameObject/Manager
 ```ts
@@ -1236,7 +1169,7 @@ export let createState = (): state => {
 }
 
 //创建一个gameObject
-//一个gameObject就是一个id
+//一个gameObject就是一个uid
 export let createGameObject = (state: state): [state, gameObject] => {
     let uid = state.maxUID
 
@@ -1283,7 +1216,7 @@ export let createComponent = (state: state): [state, component] => {
 现在挂载组件的函数是在组件的Manager中，而不是在GameObjectManager -->
 
 
-PositionComponentManager的createComponent函数创建了一个positionComponent，它就是一个PositionComponentManager的state的buffer的索引
+PositionComponentManager的createComponent函数创建了一个positionComponent，它就是一个PositionComponentManager的state的buffer上的索引
 
 
 
@@ -1291,7 +1224,7 @@ PositionComponentManager的createComponent函数创建了一个positionComponent
 因为“gameObject挂载了哪些组件”的数据（如这里的gameObjectPositionMap）是放在组件的Manager（如这里的PositionComponentManager）中的，所以挂载组件的代码也放在组件的Manager（如这里的PositionComponentManager）而不是GameObjectManager中 -->
 
 
-VelocityComponentManager、FlyComponentManager相关代码跟PositionComponentManager类似，故省略相关代码
+VelocityComponentManager、FlyComponentManager的相关代码跟PositionComponentManager类似，故省略相关代码
 
 
 
@@ -1300,7 +1233,7 @@ VelocityComponentManager、FlyComponentManager相关代码跟PositionComponentMa
 instance_component/Manager
 ```ts
 //创建一个instanceComponent
-//一个instanceComponent就是一个id
+//一个instanceComponent就是一个uid
 export let createComponent = (state: state): [state, component] => {
     let uid = state.maxUID
 
@@ -1316,7 +1249,7 @@ export let createComponent = (state: state): [state, component] => {
 }
 ```
 
-InstanceComponentManager的createComponent函数创建了一个instanceComponent，因为InstanceComponent组件属于“其它组件”，所以它跟GameObject一样都一个全局唯一的id而不是一个index
+InstanceComponentManager的createComponent函数创建了一个instanceComponent，因为InstanceComponent组件属于“其它组件”，所以它跟GameObject一样都是一个全局唯一的id而不是一个index
 
 
 
@@ -1327,7 +1260,7 @@ InstanceComponentManager的createComponent函数创建了一个instanceComponent
 
 MoveSystem
 ```ts
-//一个positionComponent组件的移动
+//一个gameObject的移动
 export let move = (worldState: worldState, positionComponent, velocityComponent): worldState => {
     let [x, y, z] = PositionComponentManager.getPosition(worldState.positionComponentManagerState, positionComponent)
 
@@ -1343,10 +1276,7 @@ export let move = (worldState: worldState, positionComponent, velocityComponent)
 }
 ```
 
-MoveSystem的move函数实现移动的行为逻辑
-
-
-这里涉及到读写Data Oriented组件的ArrayBuffer上的数据，我们来看下读写PositionComponentManager的positions的相关代码：
+MoveSystem的move函数实现移动的行为逻辑。这里涉及到读写Data Oriented组件的ArrayBuffer上的数据。我们来看下读写PositionComponentManager的positions的相关代码：
 position_component/Manager
 ```ts
 export let getPosition = (state: state, component: component) => {
@@ -1394,14 +1324,14 @@ let _getPositionSize = () => 3
 export let getPositionIndex = index => index * _getPositionSize()
 ```
 
-这里实现“读写PositionComponentManager的ArrayBuffer”的思路是：
+通过代码可知，实现“读写PositionComponentManager的ArrayBuffer上的数据”的思路是：
 因为一个positionComponent的值是ArrayBuffer的索引，所以使用它来读写ArrayBuffer的视图positions中的对应数据
 
 ### 飞行的相关代码
 
 FlySystem
 ```ts
-//一个positionComponent组件的飞行
+//一个gameObject的飞行
 export let fly = (worldState: worldState, positionComponent, velocityComponent, flyComponent): worldState => {
     let [x, y, z] = PositionComponentManager.getPosition(worldState.positionComponentManagerState, positionComponent)
 
@@ -1433,21 +1363,10 @@ FlySystem的fly函数实现了飞行的行为逻辑
 ### 主循环中更新的代码
 
 
-
-<!-- 现在回到Client，继续看创建场景之后的逻辑
-Client
+World
 ```ts
-worldState = init(worldState)
-
-loop(worldState, [UpdateSystem.update, RenderOneByOneSystem.render, RenderInstancesSystem.render])
+export let update = UpdateSystem.update
 ```
-
-这里的步骤跟之前一样，初始化和主循环的逻辑也完全一样 -->
-
-<!-- 不一样的地方是主循环中的更新、渲染的逻辑是通过调用对应的System实现的 -->
-
-
-<!-- 现在调用UpdateSystem来实现更新，相关代码如下： -->
 UpdateSystem
 ```ts
 export let update = (worldState: worldState): worldState => {
@@ -1460,9 +1379,7 @@ export let update = (worldState: worldState): worldState => {
 }
 ```
 
-UpdateSystem的update函数实现了更新，它调用了PositionComponentManager的batchUpdate函数来批量更新所有的positionComponent组件
-
-我们看下PositionComponentManager的相关代码：
+UpdateSystem的update函数实现了更新，它调用了PositionComponentManager的batchUpdate函数来批量更新所有的positionComponent组件。我们看下PositionComponentManager的相关代码：
 position_component/Manager
 ```ts
 export let getAllComponents = (state: state): Array<component> => {
@@ -1476,15 +1393,16 @@ export let batchUpdate = (state: state) => {
 }
 ```
 
-batchUpdate函数遍历所有的positionComponent，更新它们的position
-更新的逻辑跟之前一样
-
+batchUpdate函数遍历所有的positionComponent，更新它们的position。更新的逻辑跟之前一样
 
 
 ### 主循环中渲染的代码
 
 
-<!-- 现在调用RenderOneByOneSystem和RenderInstancesSystem来实现渲染，相关代码如下： -->
+World
+```ts
+export let renderOneByOne = RenderOneByOneSystem.render
+```
 RenderOneByOneSystem
 ```ts
 export let render = (worldState: worldState): void => {
@@ -1507,9 +1425,12 @@ export let getAllGameObjects = (state: state): Array<gameObject> => {
     return range(0, maxUID - 1)
 }
 ```
-RenderOneByOneSystem的render函数实现了超级英雄的渲染，它首先得到了所有没有挂载InstanceComponent组件的gameObject；
-最后一个一个地渲染
+RenderOneByOneSystem的render函数实现了超级英雄的渲染，它首先得到了所有没有挂载InstanceComponent组件的gameObject；最后一个一个地渲染
 
+World
+```ts
+export let renderInstances = RenderInstancesSystem.render
+```
 RenderInstancesSystem
 ```ts
 export let render = (worldState: worldState): void => {
@@ -1522,8 +1443,7 @@ export let render = (worldState: worldState): void => {
 }
 ```
 
-RenderInstancesSystem的render函数实现了普通英雄的渲染，它首先得到了所有挂载了InstanceComponent组件的gameObject；
-最后一次性批量渲染
+RenderInstancesSystem的render函数实现了普通英雄的渲染，它首先得到了所有挂载了InstanceComponent组件的gameObject；最后一次性批量渲染
 
 
 
@@ -1544,13 +1464,13 @@ OneByOne渲染 SuperHero...
 
 通过打印的数据，可以看到运行的步骤与之前一样
 不同之处在于：
-打印的worldState不一样
+打印的WorldState不一样
 
 
-我们看下打印的worldState：
-worldState的gameObjectManagetState的maxUID为4，说明创建了4个gameObject；
-worldState的positionComponentManagerState的maxIndex为4，说明创建了4个positionComponent；
-worldState的positionComponentManagerState的positions有3个连续的值是2、2、2，说明有一个positionComponent组件进行了move操作；有另外3个连续的值是6、6、6，说明有另外一个positionComponent组件进行了move操作和fly操作；
+我们看下打印的WorldState：
+- WorldState的gameObjectManagetState的maxUID为4，说明创建了4个gameObject；
+- WorldState的positionComponentManagerState的maxIndex为4，说明创建了4个positionComponent；
+- WorldState的positionComponentManagerState的positions有3个连续的值是2、2、2，说明有一个positionComponent组件进行了移动操作；有另外3个连续的值是6、6、6，说明有另外一个positionComponent组件进行了移动操作和飞行操作；
 
 
 <!-- # 设计意图
@@ -1561,14 +1481,16 @@ worldState的positionComponentManagerState的positions有3个连续的值是2、
 
 ## 一句话定义
 
-组合代替继承；内存中连续地保存组件数据；分离逻辑和数据
+组合代替继承；连续地保存组件数据；分离逻辑和数据
 
 
 
 ## 补充说明
 
 “组合代替继承”是指基于组件化思想，通过GameObject组合不同的组件代替GameObject层层继承
-“内存中连续地保存组件数据”是指基于Data Oriented思想，将Data Oriented组件的组件数据集中起来，保存在内存中连续的地址空间
+
+“连续地保存组件数据”是指基于Data Oriented思想，将Data Oriented组件的组件数据集中起来，保存在内存中连续的地址空间
+
 “分离逻辑和数据”是指将GameObject和组件扁平化，将它们的数据放到Manager层，将它们的逻辑放到System层和Manager层。其中，只操作自己数据的逻辑（如getPosition、setPosition）被移到了Manager中，其它逻辑（通常为行为逻辑，需要操作多种组件）被移到了System中
 
 
@@ -1577,18 +1499,13 @@ worldState的positionComponentManagerState的positions有3个连续的值是2、
 
 
 ## 通用UML
-![image](https://img2023.cnblogs.com/blog/419321/202304/419321-20230407093915551-2129951086.png)
+![领域模型图](./role_abstract/UML.png)
 
 <!-- ## 分析角色 -->
 
 我们来看看模式的相关角色：
 
-总体来看，分为用户、World、System层、Manager层、Component+GameObject层五个部分，它们的依赖关系是用户依赖World，World依赖System层，System层依赖Manager层，Manager层依赖Component+GameObject层
-
-
-System层负责实现行为的逻辑
-Manager层负责管理场景数据，即管理GameObject和组件的数据
-Component+GameObject层为组件和GameObject，它们现在只是有一个number类型的数据的值对象
+总体来看，分为用户、World、System层、Manager层、Component+GameObject层五个部分，它们的依赖关系是前者依赖后者。其中，System层负责实现行为的逻辑；Manager层负责管理场景数据，即管理GameObject和组件的数据；Component+GameObject层为组件和GameObject，它们现在只是有一个number类型的数据的值对象
 
 
 我们看下用户这个部分：
@@ -1613,7 +1530,7 @@ Component+GameObject层为组件和GameObject，它们现在只是有一个numbe
 该角色负责创建WorldState
 
 - OtherSystem
-该角色是除了CreateStateSystem以外的System，它们各自有一个函数action，用于实现某个行为
+该角色是除了CreateStateSystem以外的所有System，它们各自有一个函数action，用于实现某个行为
 
 
 我们看下Manager这一层：
@@ -1635,7 +1552,7 @@ OtherComponentManager的state数据包括多个“value map”字段，它们是
 我们看下Component+GameObject这一层：
 
 - DataOrientedComponent
-该角色是一种Data Oriented组件中的一个组件，它是对应的ArrayBuffer中的索引
+该角色是一种Data Oriented组件中的一个组件，它是一个ArrayBuffer上的索引
 
 - OtherComponent
 该角色是一种其它组件中的一个组件，它是一个全局唯一的id
@@ -1655,23 +1572,22 @@ OtherComponentManager的state数据包括多个“value map”字段，它们是
 
 - 只有一个GameObjectManager
 
-- 可以有多个DataOrientedComponentManager，每个对应一种Data Oriented组件的Manager
+- 可以有多个DataOrientedComponentManager，每个对应一种Data Oriented组件
 
 <!-- - 可以有多个DataOrientedComponent，每个对应一种Data Oriented组件中的一个组件 -->
-- 可以有多个DataOrientedComponent，对应多种Data Oriented组件
+- 可以有多个DataOrientedComponent，每个对应一种Data Oriented组件
 
-
-- 可以有多个OtherComponentManager，每个对应一种其它组件的Manager
+- 可以有多个OtherComponentManager，每个对应一种其它组件
 
 <!-- - 可以有多个OtherComponent，每个对应一种其它组件中的一个组件 -->
-- 可以有多个OtherComponent，对应多种其它组件
+- 可以有多个OtherComponent，每个对应一种其它组件
 
 
 **依赖关系**
 
 System层：
 
-- 因为CreateSystem需要调用各个Manager的createState函数来创建它们的state，所以依赖了Manager层
+- 因为CreateSystem需要调用各个Manager的createState函数来创建它们的state，所以依赖了整个Manager层
 
 <!-- - 一种组件的Manager只对该种组件进行操作，而一个System可以对多种组件进行操作，所以在图中System依赖了所有的Manager而不是一个Manager -->
 - 因为OtherSystem可能需要调用1个GameObjectManager来处理gameObject、调用多个DataOrientedComponentManager和OtherComponentManager来处理各自种类的组件，所以它与GameObjectManager是一对一的依赖关系，与DataOrientedComponentManager和OtherComponentManager都是一对多的依赖关系
@@ -1685,7 +1601,12 @@ Manager层：
 - DataOrientedComponentManager与DataOrientedComponent是一对一的依赖关系，OtherComponentManager与OtherComponent是一对一的依赖关系
 意思是一种组件的Manager管理一种组件 -->
 
-- 因为各种组件的Manager需要操作所有的该种组件，所以DataOrientedComponentManager和DataOrientedComponent、OtherComponentManager和OtherComponent都是一对多的依赖关系
+<!-- - 因为各种组件的Manager需要操作所有的该种组件，所以DataOrientedComponentManager和DataOrientedComponent、OtherComponentManager和OtherComponent都是一对多的依赖关系 -->
+
+- 因为DataOrientedComponentManager和DataOrientedComponent对应同一种Data Oriented组件，且前者管理所有的后者，所以前者和后者是一对多的依赖关系
+
+- 因为OtherComponentManager和OtherComponent对应同一种其它组件，且前者管理所有的后者，所以前者和后者是一对多的依赖关系
+
 
 
 Component+GameObject层：
@@ -1698,9 +1619,9 @@ Component+GameObject层：
 
 下面我们来看看各个角色的抽象代码：
 
-我们按照依赖关系，依次看下领域模型中用户、World、System层、Manager层、Component+GameObject层这五个部分的抽象代码：
+我们按照依赖关系，从上往下依次看下领域模型中用户、World、System层、Manager层、Component+GameObject层这五个部分的抽象代码：
 
-首先，我们看下属于用户的Client的抽象代码
+首先，我们看下属于用户的抽象代码
 然后，我们看下World的抽象代码
 然后，我们看下System层的抽象代码，它们包括：
 - CreateStateSystem的抽象代码
@@ -1717,7 +1638,7 @@ Component+GameObject层：
 - OtherComponent的抽象代码
 
 
-- Client的抽象代码
+### 用户的抽象代码
 Client
 ```ts
 let _createScene = (worldState: worldState): worldState => {
@@ -1740,14 +1661,15 @@ worldState = World.init(worldState)
 
 World.loop(worldState)
 ```
-- World的抽象代码
+### World的抽象代码
+World
 ```ts
 export let createState = CreateStateSystem.createState
 
 export let action1 = OtherSystem1.action
 
 export let init = (worldState: worldState): worldState => {
-    console.log("初始化...")
+    初始化...
 
     return worldState
 }
@@ -1771,7 +1693,8 @@ export let loop = (worldState: worldState) => {
 }
 ```
 
-- CreateStateSystem的抽象代码
+### CreateStateSystem的抽象代码
+CreateStateSystem
 ```ts
 export let createState = ({ dataOrientedComponent1Count }): worldState => {
     return {
@@ -1784,16 +1707,19 @@ export let createState = ({ dataOrientedComponent1Count }): worldState => {
 }
 ```
 
-- OtherSystem的抽象代码
+### OtherSystem的抽象代码
+OtherSystem1
 ```ts
 export let action = (worldState: worldState, gameObject?: gameObject, dataOrientedComponentX?: dataOrientedComponentX, otherComponentX?: otherComponentX) => {
-    console.log("行为的逻辑...")
+    行为的逻辑...
 
     return worldState
 }
 ```
 
-- GameObjectManager的抽象代码
+有多个OtherSystem，这里只给出一个OtherSystem的抽象代码
+
+### GameObjectManager的抽象代码
 gameObject/ManagerStateType
 ```ts
 export type state = {
@@ -1828,7 +1754,7 @@ export let getAllGameObjects = (state: state): Array<gameObject> => {
 }
 ```
 
-- DataOrientedComponentManager的抽象代码
+### DataOrientedComponentManager的抽象代码
 dataoriented_component1/ManagerStateType
 ```ts
 export type TypeArrayType = Float32Array | Uint8Array | Uint16Array | Uint32Array
@@ -1958,7 +1884,10 @@ export let createTypeArrays = (buffer, count) => {
 }
 ```
 
-- OtherComponentManager的抽象代码
+
+有多个DataOrientedComponentManager，这里只给出一个DataOrientedComponentManager的抽象代码
+
+### OtherComponentManager的抽象代码
 other_component1/ManagerStateType
 ```ts
 export type state = {
@@ -2019,21 +1948,27 @@ export let batchOperate = (state: state) => {
 }
 ```
 
-- GameObject的抽象代码
+有多个OtherComponentManager，这里只给出一个OtherComponentManager的抽象代码
+
+### GameObject的抽象代码
 GameObjectType
 ```ts
 type id = number
 
 export type gameObject = id
 ```
-- DataOrientedComponent的抽象代码
+### DataOrientedComponent的抽象代码
 DataOrientedComponent1Type
 ```ts
 type index = number
 
 export type component = index
 ```
-- OtherComponent的抽象代码
+
+
+有多个DataOrientedComponent，这里只给出一个DataOrientedComponent的抽象代码
+
+### OtherComponent的抽象代码
 OtherComponent1Type
 ```ts
 type id = number
@@ -2041,6 +1976,7 @@ type id = number
 export type component = id
 ```
 
+有多个OtherComponent，这里只给出一个OtherComponent的抽象代码
 
 
 
@@ -2049,12 +1985,11 @@ export type component = id
 ECS模式主要遵循下面的设计原则：
 
 - 单一职责原则
-每个System只实现一个行为
-每个组件的Manager只管理一种组件
+每个System只实现一个行为；每个组件的Manager只管理一种组件
 - 合成复用原则
 GameObject组合了多个组件
 - 接口隔离原则
-GameObject和组件经过了扁平化处理，移除了数据和逻辑，变为只是有一个number类型数据的值对象
+GameObject和组件经过了扁平化处理，移除了数据和逻辑，改为只是有一个number类型数据的值对象
 - 最少知识原则
 World、System、Manager、Component+GameObject这几个层只能上层依赖下层，不能跨层依赖
 - 开闭原则
@@ -2070,24 +2005,22 @@ World、System、Manager、Component+GameObject这几个层只能上层依赖下
 - 组件的数据集中连续地保存在ArrayBuffer中，增加了缓存命中，提高了读写的性能
 
 - 创建和删除组件的性能也很好，因为在这个过程中不会分配或者销毁内存，所以没有垃圾回收的开销
-这是因为在创建ArrayBuffer时（也就是在创建WorldState时）就预先按照最大组件个数分配了一块连续的内存，所以在创建组件时，只是返回一个当前最大索引(maxIndex)加1的值而已；
-在删除组件时，只是将该组件对应ArrayBuffer中的数据还原为默认值而已
+这是因为在创建ArrayBuffer时就预先按照最大组件个数分配了一块连续的内存，所以在创建组件时，只是返回一个当前最大索引(maxIndex)的值而已；在删除组件时，只是将ArrayBuffer中该组件对应的数据还原为默认值而已
 
 
 - 职责划分明确，行为的逻辑应该放在哪里很清楚
-对于只涉及到操作一种组件的行为逻辑（如batchUpdate position），则将其放在该组件对应的Manager（如PositionComponentManager）；涉及到多种组件的行为逻辑则放在对应的System中（如FlySystem）；
+对于只涉及到操作一种组件的行为逻辑，则将其放在该组件对应的Manager（如将batchUpdate position的逻辑放到PositionComponentManager的batchUpdate函数中）；涉及到多种组件的行为逻辑则放在对应的System中（如将飞行行为放到FlySystem中）；
 
 - 增加行为很容易
-因为一个行为对应一个System，所以要增加一个行为，则只需增加一个对应的System即可，这不会影响到Manager
-另外，因为System只有逻辑没有数据，所以增加和维护System很容易
+因为一个行为对应一个System，所以要增加一个行为，则只需增加一个对应的System即可，这不会影响到Manager。另外，因为System只有逻辑没有数据，所以增加和维护System很容易
 
 
 ## 缺点
 
 - 需要转换为函数式编程的思维
-习惯面向对象编程的同学倾向于设计一个包括数据和逻辑的组件类，而ECS模式则将其扁平化为一个值对象，这符合函数式编程中一切都是数据的思维模式
-另外，ECS中的System其实就只是一个函数而已，本身没有数据，这也符合函数式编程中函数是第一公民的思维模式
-所以，如果使用函数式编程范式的同学能够更容易地使用ECS模式
+习惯面向对象编程的同学倾向于设计一个包括数据和逻辑的组件类，而ECS模式则将其扁平化为一个值对象，这符合函数式编程中一切都是数据的思维模式。
+另外，ECS中的System其实就只是一个函数而已，本身没有数据，这也符合函数式编程中函数是第一公民的思维模式。
+终上所述，如果使用函数式编程范式的同学能够更容易地使用ECS模式
 
 
 <!-- - 实现起来比较复杂 -->
@@ -2098,23 +2031,19 @@ World、System、Manager、Component+GameObject这几个层只能上层依赖下
 
 <!-- 有很多或者很复杂的行为的游戏或者应用 -->
 
-适合于大型的游戏，场景中有很多人物，人物的行为很多或者很复杂
+游戏的场景中有很多种类的人物，人物的行为很多或者很复杂
 
 
 ### 具体案例
 
-- 有很多个种类的游戏人物
+- 有很多种类的游戏人物
 
 <!-- 将游戏人物改为组件化架构设计， -->
 通过挂载不同的组件到GameObject，来实现不同种类的游戏人物，代替继承
 
 - 游戏人物有很多的行为，而且还经常会增加新的行为
 
-将每个行为对应为一个System
-
-增加新的行为就是增加一个System
-
-不管行为如何变化，只影响System层，不会影响Manager层和GameObject、Component层
+因为每个行为对应一个System，所以增加一个新的行为就是增加一个System。不管行为如何变化，只影响System层，不会影响作为下层的Manager层和GameObject、Component层
 
 
 - 对于引擎而言，ECS模式主要用在场景管理这块
@@ -2139,7 +2068,8 @@ World、System、Manager、Component+GameObject这几个层只能上层依赖下
 
 ## 结合管道模式
 
-如果引擎使用了管道模式，那么可以去掉System，使用管道的Job来代替，其中一个Job就是一个System
+如果引擎使用了管道模式，那么可以去掉System，而使用管道的Job来代替。其中一个Job就是一个System
+
 另外，可以去掉WorldState，而使用PipelineManagerState来代替
 
 
@@ -2155,7 +2085,7 @@ World、System、Manager、Component+GameObject这几个层只能上层依赖下
 
 ## 哪些场景不需要使用模式
 
-如果游戏的人物种类很少，行为简单，那么就可以使用最开始给出的继承方案，使用一个人物模块对应一种人物，通过继承实现多种人物，这样最容易实现
+如果游戏的人物种类很少，行为简单，那么就可以使用最开始给出的人物模块的方案，即使用一个人物模块对应一种人物，并通过继承实现多种人物，这样最容易实现
 
 
 <!-- ## 给出具体的实践案例 -->
@@ -2179,7 +2109,7 @@ TODO explain reallocate geometry vertices
 
 # 更多资料推荐
 
-ECS的概念最先是由“守望先锋”游戏的开发者提出的，详细资料可以搜索“《守望先锋》架构设计和网络同步”
+ECS的概念最先是由“守望先锋”游戏的开发者提出的，详细资料可以在网上搜索“《守望先锋》架构设计和网络同步”
 
 ECS模式是在“组件化”、“Data Oriented”基础上发展而来，可以在网上搜索更多关于“组件化”、“Data Oriented”、“ECS”的资料
 
