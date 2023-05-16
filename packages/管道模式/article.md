@@ -1309,7 +1309,7 @@ export type states = {
 }
 ```
 
-有多个PipelineStateType，这里给出一个PipelineStateType的抽象代码
+有多个PipelineStateType，这里只给出一个PipelineStateType的抽象代码
 
 ### Pipeline的抽象代码
 Pipeline1
@@ -1354,7 +1354,7 @@ export let getPipeline = (): ... => {
 }
 ```
 
-有多个Pipeline，这里给出一个Pipeline的抽象代码
+有多个Pipeline，这里只给出一个Pipeline的抽象代码
 
 ### Job的抽象代码
 Job1
@@ -1422,7 +1422,7 @@ export function 获得依赖的其它PipelineState的数据(states: states) {
 }
 ```
 
-有多个Job，这里给出一个Job的抽象代码
+有多个Job，这里只给出一个Job的抽象代码
 
 值得注意的是：
 Job一般都只写数据到自己的PipelineState，最好不要修改其它的PipelineState，以免造成冲突

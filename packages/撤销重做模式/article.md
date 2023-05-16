@@ -1027,7 +1027,7 @@ export let doSomething = (state: state) => {
 ```
 
 
-有多个ImmutableSubSystem，这里给出一个ImmutableSubSystem的抽象代码
+有多个ImmutableSubSystem，这里只给出一个ImmutableSubSystem的抽象代码
 
 ### ImmutableAndMutableSubSystem的抽象代码
 ImmutableAndMutableSubSystem
@@ -1070,7 +1070,7 @@ export let restore = (currentState: state, targetState: state): state => {
 }
 ```
 
-有多个ImmutableAndMutableSubSystem，这里给出一个ImmutableAndMutableSubSystem的抽象代码
+有多个ImmutableAndMutableSubSystem，这里只给出一个ImmutableAndMutableSubSystem的抽象代码
 
 <!-- 后面会给出restore函数具体的案例代码 -->
 

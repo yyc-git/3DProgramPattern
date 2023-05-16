@@ -131,7 +131,7 @@ engineState = World.registerAllPipelines(engineState)
 
 
 
-* TODO 修改抽象代码的错误：如果是Xxx1，要说明：有多个Dependency，这里给出一个Dependency的抽象代码
+* TODO 修改抽象代码的错误：如果是Xxx1，要说明：有多个Dependency，这里只给出一个Dependency的抽象代码
 
 
 * TODO 修改抽象代码的错误：移除console.log
