@@ -1490,7 +1490,7 @@ export let getContributeService: BlockManagerType.getContributeService<
 > = (api, [{...}, {...}]) => {
     return {
         operate: (...) => {
-            console.log("使用默认的组件操作场景数据")
+            使用默认的组件操作场景数据...
         }
 	}
 }
@@ -1518,7 +1518,7 @@ export let getContributeService: BlockManagerType.getContributeService<
 > = (api, [{...}, {...}]) => {
     return {
         operate: (...) => {
-            console.log("使用自定义的组件操作场景数据")
+            使用自定义的组件操作场景数据...
         }
 	}
 }

@@ -45,8 +45,6 @@ export let undo = (systemState: System.state): System.state => {
 
 export let redo = (systemState: System.state): System.state => {
     if (systemState.immutableAndMutableSubSystem1StatesForRedo.size === 0) {
-        console.log("do nothing")
-
         return systemState
     }
 

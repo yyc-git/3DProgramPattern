@@ -1064,7 +1064,7 @@ export let deepCopy = (state: state): state => {
 }
 
 export let restore = (currentState: state, targetState: state): state => {
-    console.log("处理currentState中与targetState共享的可变数据（如图形API的对象：WebGLBuffer），然后将处理结果写到targetState")
+    处理currentState中与targetState共享的可变数据（如图形API的对象：WebGLBuffer），然后将处理结果写到targetState...
 
     return targetState
 }
@@ -1120,8 +1120,6 @@ export let undo = (systemState: System.state): System.state => {
 
 export let redo = (systemState: System.state): System.state => {
     if (systemState.immutableAndMutableSubSystem1StatesForRedo.size === 0) {
-        console.log("do nothing")
-
         return systemState
     }
 

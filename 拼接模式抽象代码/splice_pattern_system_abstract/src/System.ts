@@ -26,7 +26,7 @@ export let init = (state: state, someConfigData): state => {
         someConfigData
     )
 
-    console.log("使用target...")
+    使用target...
 
     let runtimeMetadata = ChunkHandler.buildRuntimeMetadata(
         [_addRuntimeMetadataFunc1, ... ],
@@ -42,7 +42,7 @@ export let init = (state: state, someConfigData): state => {
 }
 
 export let operateWhenRuntime = (state: state): state => {
-    console.log("使用state.runtimeMetadata...")
+    使用state.runtimeMetadata...
 
     return state
 }
