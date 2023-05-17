@@ -1,4 +1,4 @@
-[TOC]
+
 
 # 前置要求
 
@@ -10,6 +10,7 @@
 ## 需求
 
 我们开发一个引擎，需要实现下面的功能：
+
 - 渲染包括8000个三角形的大型场景
 - 每帧进行物理计算，计算并更新每个三角形的位置
 
@@ -88,6 +89,7 @@ Main Worker包括了运行在主线程的Init Pipeline的Job
 
 
 我们看下主线程的Init Pipeline，它主要做了下面的事情：
+
 - 初始化
 
 它的具体流程如下：
@@ -113,6 +115,7 @@ Main Worker包括了运行在主线程的Update Pipeline和Render Pipeline的Job
 然后运行了主线程的Render Pipeline -->
 
 首先，我们看下主线程的Update Pipeline，它主要做了下面的事情：
+
 - 更新
 
 它的具体流程如下：
@@ -122,6 +125,7 @@ Main Worker包括了运行在主线程的Update Pipeline和Render Pipeline的Job
 
 
 然后，我们看下主线程的Render Pipeline，它主要做了下面的事情：
+
 - 渲染
 
 它的具体流程如下：
@@ -139,12 +143,14 @@ Main Worker包括了运行在主线程的Update Pipeline和Render Pipeline的Job
 
 首先，我们看下Client的代码；
 然后，我们依次看下Client代码中前两个步骤的代码，它们包括：
+
 - 创建WorldState的代码
 - 创建场景的代码
 
 然后，因为Client会注册NoWorkerPipeline，它包括Init Pipeline、Update Pipeline、Render Pipeline这三个管道，所以我们依次看下各个管道的Job的代码
 
 然后，我们依次看下Client代码中剩余的两个步骤的代码，它们包括：
+
 - 初始化的代码
 - 主循环的代码
 
@@ -390,6 +396,7 @@ export let render = (state: state): Promise<state> => {
 
 <!-- 通过下面的改进来提高性能： -->
 - 开一个渲染线程和一个物理线程
+
 目前所有的逻辑都运行在主线程。因为现代CPU都是多核的，每个核可以运行一个线程，所以现代CPU都支持多个线程并行运行。因此，可以开一个渲染线程和一个物理线程，其中前者负责渲染，后者负责物理计算。让它们和主线程并行运行，从而可以提高FPS
 
 值得注意的是：
@@ -415,6 +422,7 @@ Main Worker对应主线程，包括了运行在主线程的模块；Render Worke
 这三个部分的门户分别为WorldForMainWorker、WorldForRenderWorker、WorldForPhysicsWorker
 这三个部分的管道模块分别为MainWorkerPipeline、RenderWorkerPipeline、PhysicsWorkerPipeline
 这三个部分的管道分别为：
+
 - Init Pipeline、Update Pipeline、Sync Pipeline
 - Init Pipeline、Render Pipeline
 - Init Pipeline、Update Pipeline
@@ -573,6 +581,7 @@ Main Worker包括了运行在主线程的Update Pipeline和Sync Pipeline的Job�
 - 物理线程运行的Init Pipeline的Job的代码
 
 然后，我们看下主循环阶段的相关代码，它们包括：
+
 - 主线程运行的Update Pipeline的Job的代码
 - 渲染线程运行的Render Pipeline的Job的代码
 - 物理线程运行的Update Pipeline的Job的代码
@@ -1310,6 +1319,7 @@ Main Worker包括了运行在主线程的Update Pipeline和Sync Pipeline的Job�
 - X线程运行的Init Pipeline的Job的抽象代码
 
 然后，我们看下主循环阶段的相关抽象代码，它们包括：
+
 - 主线程运行的Update Pipeline的Job的抽象代码
 - X线程运行的X Pipeline的Job的抽象代码
 
@@ -1543,6 +1553,7 @@ export let exec: ... = (worldState, ...) => {
 
 
 多线程模式主要遵循下面的设计原则：
+
 - 单一职责原则
 每个线程只做自己的事情，只更新自己的数据，这样就减少了各个线程之间发生冲突的可能性
 - 最少知识原则
@@ -1560,9 +1571,11 @@ export let exec: ... = (worldState, ...) => {
 ## 缺点
 
 - 如果需要同时支持单线程和多线程运行环境的话，需要同时维护单线程和多线程的这两个管道的代码，它们有很多逻辑是重复的
+
 好消息是因为使用了管道模式，所以进行了充分的解耦，两套代码互不影响。另外，可以把重复的逻辑提出来放到公共的utils模块中，然后让这两个管道的Job调用它们，从而可消除重复代码
 
 - 需要考虑线程之间的同步
+
 好消息是不需要锁，而是通过共享和备份来实现同步，这样更易于维护且性能更高
 要使用这种同步方案的话，需要注意下面几个方面：
 <!-- 共享的数据尽量使用不可变数据，这样修改它们后不需要同步； -->

@@ -1,15 +1,15 @@
-[TOC]
-
 # 普通英雄和超级英雄
 
 ## 需求
 
 
 我们需要开发一个游戏，游戏中有两种人物：普通英雄和超级英雄，他们具有下面的行为：
+
 - 普通英雄只能移动
 - 超级英雄不仅能够移动，还能飞行
 
 我们使用下面的方法来渲染：
+
 - 使用Instance技术来一次性批量渲染所有的普通英雄
 - 一个一个地渲染每个超级英雄
 
@@ -49,18 +49,22 @@ World是游戏世界，由多个普通英雄和多个超级英雄组成。World�
 
 首先，我们看下Client的代码；
 然后，我们依次看下Client代码中前两个步骤的代码，它们包括：
+
 - 创建WorldState的代码
 - 创建场景的代码
 
 然后，因为创建场景时操作了普通英雄和超级英雄，所以我们看下它们的代码，它们包括：
+
 - 普通英雄移动的代码
 - 超级英雄移动和飞行的代码
 
 然后，我们依次看下Client代码中剩余的两个步骤的代码，它们包括：
+
 - 初始化的代码
 - 主循环的代码
 
 然后，我们看下主循环的一帧中每个步骤的代码，它们包括：
+
 - 主循环中更新的代码
 - 主循环中渲染的代码
 
@@ -333,6 +337,7 @@ OneByOne渲染 SuperHero...
 5.打印了WorldState
 
 我们看下打印的WorldState：
+
 - WorldState的normalHeroes中一共有两个普通英雄的数据，其中有一个普通英雄数据的position为[2,2,2]而不是初始的[0,0,0]，说明该普通英雄进行了移动操作；
 - WorldState的superHeroes中一共有两个超级英雄的数据，其中有一个超级英雄数据的position为[6,6,6]，说明该超级英雄进行了移动和飞行操作
 
@@ -405,17 +410,21 @@ World是游戏世界，由多个GameObject组成。World负责管理所有的Gam
 
 首先，我们看下Client的代码；
 然后，我们依次看下Client代码中前两个步骤的代码，它们包括：
+
 - 创建WorldState的代码
 - 创建场景的代码
 
 然后，因为创建场景时操作了普通英雄和超级英雄，所以我们看下它们的代码，它们包括：
+
 - 移动的相关代码
 - 飞行的相关代码
 
 然后，我们依次看下Client代码中剩余的两个步骤的代码，它们包括：
+
 - 初始化和主循环的代码
 
 然后，我们看下主循环的一帧中每个步骤的代码，它们包括：
+
 - 主循环中更新的代码
 - 主循环中渲染的代码
 
@@ -791,11 +800,13 @@ OneByOne渲染 SuperHero...
 
 通过打印的数据，可以看到运行的步骤与之前一样
 不同之处在于：
+
 - 更新4个英雄现在变为更新4个positionComponent
 - 打印的WorldState不一样
 
 
 我们看下打印的WorldState：
+
 - WorldState的gameObjects包括了4个gameObject的数据，其中有一个gameObject数据的positionComponent的position为[2,2,2]，说明它进行了移动操作；
 - 有一个gameObject数据的positionComponent的position为[6,6,6]，说明它进行了移动和飞行操作
 
@@ -859,6 +870,7 @@ GameObject不再有数据和逻辑了，而只是一个全局唯一的id。组�
 
 
 - 增加System这一层，来实现行为的逻辑
+
 一个System实现一个行为，比如这一层中的MoveSystem、FlySystem分别实现了移动和飞行的行为逻辑
 
 
@@ -867,6 +879,7 @@ GameObject不再有数据和逻辑了，而只是一个全局唯一的id。组�
 
 
 值得注意的是：
+
 - GameObject和组件的数据被移到了Manager中，逻辑则被移到了Manager和System中。其中只操作自己数据的逻辑（如getPosition、setPosition）被移到了Manager中，其它逻辑（通常为行为逻辑，需要操作多种组件）被移到了System中
 - 一种组件的Manager只对该种组件进行操作，而一个System可以对多种组件进行操作
 
@@ -890,6 +903,7 @@ World是游戏世界，虽然仍然实现了初始化和主循环的逻辑，不
 
 我们看下System这一层：
 有多个System，每个System实现一个行为逻辑。每个System的职责如下：
+
 - CreateStateSystem实现创建WorldState的逻辑，创建的WorldState包括了所有的Manager的state数据；
 - UpdateSystem实现更新所有人物的position的逻辑，具体是更新所有PositionComponent的position；
 - MoveSystem实现一个人物的移动的逻辑，具体是根据挂载到该人物gameObject上的一个positionComponent和一个velocityComponent，更新该positionComponent的position；
@@ -974,21 +988,26 @@ Manager层：
 
 首先，我们看下Client的代码；
 然后，我们看下Client代码中第一步的代码：
+
 - 创建WorldState的代码
 
 然后，因为创建WorldState时会创建Data Oriented组件的Manager的state，其中的关健是创建各自的ArrayBuffer，所以我们看下创建它的代码
 
 然后，我们看下Client代码中第二步的代码：
+
 - 创建场景的代码
 
 然后，因为创建场景时操作了普通英雄和超级英雄，所以我们看下它们的代码，它们包括：
+
 - 移动的相关代码
 - 飞行的相关代码
 
 然后，我们依次看下Client代码中剩余的两个步骤的代码，它们包括：
+
 - 初始化和主循环的代码
 
 然后，我们看下主循环的一帧中每个步骤的代码，它们包括：
+
 - 主循环中更新的代码
 - 主循环中渲染的代码
 
@@ -1047,6 +1066,7 @@ export type state = {
 ```
 
 这是PositionComponentManager的state的类型定义，它的字段解释如下：
+
 - buffer字段保存了一个ArrayBuffer，它用来保存所有的positionComponent的数据。目前每个positionComponent的数据只有position，它的类型是三个float
 - positions字段保存了ArrayBuffer的一个视图，通过它可以读写所有的positionComponent的position
 - maxIndex字段是ArrayBuffer上最大的索引值，用于在创建一个positionComponent时生成它的index值
@@ -1468,6 +1488,7 @@ OneByOne渲染 SuperHero...
 
 
 我们看下打印的WorldState：
+
 - WorldState的gameObjectManagetState的maxUID为4，说明创建了4个gameObject；
 - WorldState的positionComponentManagerState的maxIndex为4，说明创建了4个positionComponent；
 - WorldState的positionComponentManagerState的positions有3个连续的值是2、2、2，说明有一个positionComponent组件进行了移动操作；有另外3个连续的值是6、6、6，说明有另外一个positionComponent组件进行了移动操作和飞行操作；
@@ -1624,15 +1645,18 @@ Component+GameObject层：
 首先，我们看下属于用户的抽象代码
 然后，我们看下World的抽象代码
 然后，我们看下System层的抽象代码，它们包括：
+
 - CreateStateSystem的抽象代码
 - OtherSystem的抽象代码
 
 然后，我们看下Manager层的抽象代码，它们包括：
+
 - GameObjectManager的抽象代码
 - DataOrientedComponentManager的抽象代码
 - OtherComponentManager的抽象代码
 
 最后，我们看下Component+GameObject层的抽象代码，它们包括：
+
 - GameObject的抽象代码
 - DataOrientedComponent的抽象代码
 - OtherComponent的抽象代码

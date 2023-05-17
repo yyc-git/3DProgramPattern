@@ -1,4 +1,4 @@
-[TOC]
+
 
 # 使用预定义宏拼接GLSL
 
@@ -17,12 +17,14 @@
 
 这两种材质对应的Shader支持的功能有三个：普通贴图、diffuse贴图、Instance。一共有八种情况，具体如下：
 对于基础材质的Shader而言，有下面四种情况：
+
 - [有普通贴图，支持Instance]
 - [有普通贴图，不支持Instance]
 - [没有普通贴图，支持Instance]
 - [没有普通贴图，不支持Instance]
 
 对于PBR材质的Shader而言，有下面四种情况：
+
 - [有diffuse贴图，支持Instance]
 - [有diffuse贴图，不支持Instance]
 - [没有diffuse贴图，支持Instance]
@@ -84,6 +86,7 @@ Render负责渲染，它会遍历所有的GameObjects，获得并发送它们的
 
 首先，我们看下Client的代码
 然后，我们依次看下Client代码中每个步骤的代码，它们包括：
+
 - 创建EngineState的代码
 - 创建场景的代码
 - 初始化所有基础材质的Shader的代码
@@ -375,6 +378,7 @@ generateShaderIndex函数比较了新的GLSL是否与之前的GLSL相同，如�
 ### 初始化所有PBR材质的Shader的代码
 
 InitPBRMaterialShader的initPBRMaterialShader函数实现了初始化所有PBR材质的shader，它与InitPBRMaterialShader的initBasicMaterialShader函数类似，故省略了代码。它们不同的地方主要如下：
+
 - 传入的allMaterials是所有的PBR材质组件而不是所有的基础材质组件；
 - 传入InitMaterialShaderUtils.initMaterialShader函数的buildGLSL函数不一样，该函数是修改PBRMaterialShaderGLSL（Default）而不是修改BasicMaterialShaderGLSL（Default）；
 - 生成的shaderIndex改为保存到EngineState的pbrMaterialShaderIndexMap中
@@ -723,6 +727,7 @@ shaders.json的主要代码如下：
 
 
 下面介绍各个一级字段：
+
 - static_branchs字段定义了所有在运行时不会变化的分支判断的配置数据。比如“是否支持Instance”就属于这类判断，因为它跟引擎是否支持Instance有关，不会在运行时变化。static_branchs字段中的value字段包括了各个分支对应的GLSL Chunk，它们跟shader_chunks.json的数组元素的name关联
 - dynamic_branchs字段定义了所有在运行时会变化的分支判断的配置数据。比如基础材质和PBR材质的“是否有贴图”就属于这类判断，因为可能在运行时设置或者移除材质的贴图。dynamic_branchs字段中的condition、pass、fail字段的值分别为条件判断、成功、失败对应的GLSL Chunk，它们跟shader_chunks.json的数组元素的name关联
 - groups字段定义了多组GLSL Chunk，每组的value字段包括了多个GLSL Chunk，它们跟shader_chunks.json的数组元素的name关联
@@ -789,6 +794,7 @@ shader_chunks.json的主要代码如下：
 ```
 
 下面介绍数组元素中各个一级字段：
+
 - name字段是一套GLSL Chunk的名称，与shaders.json关联
 - glsls字段是一个数组，最多有两个数组元素，定义了一套GLSL Chunk，其中如果它的数组元素的type为vs或者fs，则name分别为属于VS GLSL的GLSL Chunk或者属于FS GLSL的GLSL Chunk的文件名；
 <!-- 如果type为vs_function或者fs_function，则name为设置GLSL的动作名。如这里的name为define_light_count的glsls，此处的name是定义最大方向光个数的动作名 -->
@@ -842,6 +848,7 @@ state = Engine.render(state)
 
 这里的步骤跟之前一样，不一样的地方是：
 <!-- 现在initBasicMaterialShader、initPBRMaterialShader这两个函数是在一个模块（InitMaterialShader）中，而不是在两个模块（InitBasicMaterialShader、InitPBRMaterialShader）中； -->
+
 - 在调用initBasicMaterialShader、initPBRMaterialShader函数时，分别新传入了"render_basic"、"render_pbr"这个参数，它用来指定使用shaders.json的shaders字段中对应的Shader种类的GLSL配置数据
 
 <!-- 如果引擎再加入更多的材质，比如加入Phong材质，那么Client的代码就会变为：
@@ -871,6 +878,7 @@ export let createState = ([shaders, shaderChunks]): state => {
 ```
 
 createState函数创建了EngineState。在创建的EngineState中，主要新增了下面的内容：
+
 - 保存了GLSL Config（shaders、shaderChunks）；
 - 调用了Merged GLSL Chunk的getData函数来获得它的数据，也就是合并后的所有的GLSL Chunk，将其保存到chunk字段中
 
@@ -901,6 +909,7 @@ varying vec2 v_diffuseMapCoord0;
 该GLSL Chunk包括了两个区域（@varDeclare、@body）的代码片段，其中@varDeclare包括了变量声明的代码，@body包括了main函数中的代码
 
 其它区域包括的代码如下：
+
 - @top包括了define之前的代码，如精度代码:
 ```glsl
 @top
@@ -1144,6 +1153,7 @@ export let initBasicMaterialShader = (
 ```
 
 initBasicMaterialShader函数初始化所有基础材质的shader，它的步骤跟之前差不多，不一样的地方主要是：
+
 - 在每次遍历时调用buildGLSL函数构造的glsl是一个Target GLSL，不是一个BasicMaterialShaderGLSL（Add Define）
 - 在每次遍历时增加了一步：调用ChunkHandler的buildSendMetadata函数来构造SendMetadata
 
@@ -1236,6 +1246,7 @@ shader_chunks.json
 ### 初始化所有PBR材质的Shader的代码
 
 InitMaterialShader的initPBRMaterialShader函数实现了初始化所有PBR材质的Shader，它与同一个模块的initBasicMaterialShader函数类似，不同的地方主要如下：
+
 - 传入的allMaterials是所有的PBR材质组件而不是所有的基础材质组件；
 - 传入的shaderName不一样，值为“render_pbr”而不是“render_basic”；
 - 传入_initOneMaterialTypeShader函数的“引擎实现的函数”不一样；
@@ -1474,6 +1485,7 @@ TODO -->
 
 首先，我们看下Target Chunk的抽象代码
 然后，因为系统会在预处理时调用gulp任务，调用ChunkConverter来合并Target Chunk为Merged Target Chunk，所以我们看下它们的抽象代码：
+
 - ChunkConverter的抽象代码
 - Merged Target Chunk的抽象代码
 - 系统的gulp任务的抽象代码
@@ -1880,6 +1892,7 @@ basic_end_fragment.glsl
 ```
 
 这三个GLSL Chunk一共有两种组合的情况，它们组合后的代码如下：
+
 - basic_map_fragment.glsl+basic_end_fragment.glsl
 ```glsl
 @body
@@ -1951,6 +1964,7 @@ basic_end_fragment.glsl
 ```
 
 要实现这个扩展，需要进行下面的修改：
+
 - 修改ChunkHandler的GLSLConfigType中glsls的类型，使其支持该type
 - 修改ChunkHanlder的buildGLSL函数的传入参数，增加“来自引擎的新的函数”的传入参数；然后在ChunkHanlder的buildGLSL函数中使用传入的新函数来处理type为custom_vs、custom_fs的情况
 
@@ -2002,6 +2016,7 @@ state = initNoMaterialShader(state,  "no_material_shader2")
 这里Client调用了两次InitMaterialShader的initNoMaterialShader函数来分别初始化第一种和第二种没有材质的Shader
 
 “初始化没有材质的Shader”跟“初始化有材质的Shader”的区别是：
+
 - 不需要“所有的材质”这个参数；
 - InitMaterialShader的initNoMaterialShader函数跟初始化有材质的Shader的函数（如initBasicMaterialShader）差不多，只是没有遍历allMaterials，也无需生成shaderIndex，而是只创建了一个Shader（也就是一个Program），将其保存到EngineState的一个Hash Map中，它的Key是shaderName（也就是  "no_material_shader1"或者  "no_material_shader2"），Value是创建的Shader（具体就是创建的Program）
 

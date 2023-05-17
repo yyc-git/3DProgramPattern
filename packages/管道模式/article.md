@@ -1,11 +1,9 @@
-[TOC]
-
-<!-- # [引入故事，提出问题] -->
 # 在一个模块中实现两个运行环境的逻辑
 
 ## 需求
 
 开发者甲要实现引擎的渲染，并使其能够同时运行在PC端和移动端。两个运行环境的差异如下所示：
+
 - PC端支持WebGL2，移动端只支持WebGL1
 - PC端可以使用延迟渲染的算法来渲染，移动端因为不支持multi render targets，所以只能使用前向渲染的算法来渲染
 
@@ -15,6 +13,7 @@
 引擎需要实现初始化、渲染这两个逻辑，其中初始化可分解为初始化WebGL这一个步骤，渲染可分解为渲染、Tonemap后处理这两个步骤
 
 处理运行环境的差异的思路是在每个步骤中判断运行环境，进行对应的处理，具体如下：
+
 - 在“初始化WebGL”中判断运行环境，如果是PC端就获得WebGL2的上下文，否则就获得WebGL1的上下文
 - 在“渲染”中判断运行环境，如果是PC端就使用延迟渲染算法，否则就使用前向渲染算法
 - 在“Tonemap”中判断运行环境，如果是PC端就使用WebGL2的上下文，否则就使用WebGL1的上下文
@@ -42,6 +41,7 @@ Engine是引擎，负责初始化和渲染。Engine有一个EngineState数据，
 ## 给出代码
 
 首先，我们依次看下每个模块的代码，它们包括：
+
 - Client的代码；
 - Engine的代码；
 
@@ -177,6 +177,7 @@ tonemap for WebGL2
 为了加快开发进度，甲找到了开发者乙来一起开发，其中甲负责PC端的所有步骤和移动端的“初始化WebGL”、“前向渲染”这两个步骤，乙负责移动端的“Tonemap后处理”这个步骤。
 
 在开发过程中，遇到了下面的问题：
+
 - 开发效率低
 由于两个运行环境的逻辑混杂在同一个模块的同一个函数中，导致两个开发者在开发时相互影响，导致容易出现代码冲突，最终使得整体的开发效率逐渐变慢
 
@@ -218,11 +219,13 @@ EngineInMobile负责移动端的引擎实现
 我们看下步骤这个部分：
 
 EngineInPC的步骤模块如下：
+
 - InitWebGL2负责初始化WebGL2
 - DeferRender负责延迟渲染
 - TonemapForWebGL2负责使用WebGL2实现Tonemap后处理
 
 EngineInMobile的步骤模块如下：
+
 - InitWebGL1负责初始化WebGL1
 - ForwardRender负责前向渲染
 - TonemapForWebGL1负责使用WebGL1实现Tonemap后处理
@@ -243,15 +246,18 @@ EngineInMobile的步骤模块如下：
 首先，我们看下Client的代码；
 
 然后，我们依次看下Client代码中每个步骤的代码，它们包括：
+
 - 创建EngineState的代码
 - Engine的init函数的代码
 - Engine的render函数的代码
 
 然后，因为Engine调用了EngineInPC来实现PC端的逻辑，所以我们看下相关的代码，它们包括：
+
 - EngineInPC的代码；
 - EngineInPC的步骤模块的代码；
 
 然后，因为Engine调用了EngineInMobile来实现移动端的逻辑，所以我们看下相关的代码，它们包括：
+
 - EngineInMobile的代码；
 - EngineInMobile的步骤模块的代码；
 
@@ -566,19 +572,23 @@ PipelineManager有自己的数据-PipelineManagerState，它包括了所有管�
 首先，我们看下Client的代码；
 
 然后，我们依次看下Client代码中每个步骤的代码，它们包括：
+
 - 创建EngineState的代码
 - 注册管道模块的代码
 - Engine的init函数的代码
 - Engine的render函数的代码
 
 然后，我们看下移动端注册的管道模块的相关代码，它们包括：
+
 - JiaEngineInMobilePipeline的相关代码
 - YiEngineInMobilePipeline的相关代码
 
 然后，因为注册的管道模块有同名的管道，需要合并它们，所以我们看下相关代码：
+
 - 移动端合并Render Pipeline的相关代码
 
 然后，我们看下PC端注册的管道模块的相关代码，它们包括：
+
 - EngineInPCPipeline的相关代码；
 
 最后，我们运行Client的代码
@@ -660,6 +670,7 @@ export let registerAllPipelines = (state: state) => {
 ```
 
 registerAllPipelines注册了管道模块，它判断运行环境，注册对应的管道模块，具体如下：
+
 - 如果是PC端，就注册EngineInPCPipeline；
 - 如果是移动端，就注册JiaEngineInMobilePipeline、YiEngineInMobilePipeline
 
@@ -1187,6 +1198,7 @@ Pipeline有一个PipelineState数据和一个JSON配置数据，其中PipelineSt
 首先，我们看下Client的抽象代码
 然后，我们看下System的抽象代码
 最后，我们看下管道模块这个部分的抽象代码，它们包括：
+
 - PipelineStateType的抽象代码
 - Pipeline的抽象代码
 - Job的抽象代码

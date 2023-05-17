@@ -1,4 +1,4 @@
-[TOC]
+
 
 # 使用命令模式实现撤销重做
 
@@ -70,6 +70,7 @@ CommandManager负责管理所有的命令，维护用来保存命令的撤销栈
 首先，我们看下Client的代码
 
 然后，我们依次看下Client代码中每个步骤的代码，它们包括：
+
 - 打印数据的代码
 - 移动操作的代码
 - 撤销和重做的代码
@@ -441,6 +442,7 @@ Engine相比其它两个模块，多出了deepCopy和restore函数，它们分�
 EditorState保存了编辑器的所有数据，包括所有子系统模块的state：EngineState、EditorLogicState、EditorUIState，以及用来保存子系统的模块state的撤销栈和重做栈。每个子系统的模块state都有对应的一个撤销栈和一个重做栈
 
 EngineState包括了不可变和可变数据，其中可变数据包括：
+
 - WebGL创建的对象，如WebGLBuffer
 因为WebGL是使用面向对象范式的，它创建的对象是类的对象，所以它们都是可变数据
 - 性能热点相关的数据
@@ -477,6 +479,7 @@ RedoUndoManager负责实现撤销和重做，维护EditorState中的撤销栈和
 首先，我们看下Client的代码
 
 然后，我们依次看下Client代码中每个步骤的代码，它们包括：
+
 - 创建EditorState的代码
 - 打印数据的代码
 - 移动操作的代码
@@ -933,6 +936,7 @@ System的createState函数创建了SystemState；System的doSomething函数实�
 首先，我们看下Client的抽象代码
 然后，我们看下System的抽象代码
 然后，我们看下子系统的各个模块的抽象代码，它们包括：
+
 - ImmutableSubSystem的抽象代码
 - ImmutableAndMutableSubSystem的抽象代码
 
@@ -1330,6 +1334,7 @@ export let restore = (currentTransformComponentState, targetTransformComponentSt
 ## 哪些场景不需要使用模式
 
 使用面向对象编程的系统不需要该模式来实现撤销和重做功能，而是可以选择下面的方案：
+
 - 使用这里最开始给出的基于命令模式的解决方案，并且可以将命令等模块改为类，将闭包数据改为类的私有成员；
 - 使用设计模式中的“备忘录模式”
 
