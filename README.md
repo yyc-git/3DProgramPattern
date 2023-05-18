@@ -24,10 +24,10 @@ yarn bootstrap
 下面是各个模式的源码索引：
 
 - ECS模式源码
-    - [普通英雄和超级英雄](./ECS模式代码/story_before/README.md)
-    - [基于组件化的思想改进](./ECS模式代码/story_after/README.md)
-    - [使用ECS模式来改进](./ECS模式代码/story_improve/README.md)
-    - [抽象代码](./ECS模式代码/ecs_pattern_role_abstract/README.md)
+    - [普通英雄和超级英雄](./ECS模式代码/story_before/)
+    - [基于组件化的思想改进](./ECS模式代码/story_after/)
+    - [使用ECS模式来改进](./ECS模式代码/story_improve/)
+    - [抽象代码](./ECS模式代码/ecs_pattern_role_abstract/)
 
 
 ## 版权许可
