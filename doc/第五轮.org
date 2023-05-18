@@ -6,7 +6,7 @@
 * TODO 交稿给编辑老师，改错(use markdown)
 
 
-* TODO 更新代码库，给出索引、how to run
+* DONE 更新代码库，给出索引、how to run
 
 ** TODO update and fix README
 
