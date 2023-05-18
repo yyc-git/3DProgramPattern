@@ -2,8 +2,8 @@
 
 - [前言](packages/前言.md)
 - [第1章 再看设计原则](packages/再看设计原则/再看设计原则.md)
-    - [1.1 设计基础](packages/再看设计原则/再看设计原则.md#1.1-she-ji-ji-chu)
-    - [1.2 单一职责原则](packages/再看设计原则/再看设计原则.md#1.2-dan-yi-zhi-ze-yuan-ze)
+    - [1.1 设计基础](packages/再看设计原则/再看设计原则.md#_1-1-设计基础)
+    - [1.2 单一职责原则](packages/再看设计原则/再看设计原则.md#_1-2-单一职责原则)
 <!-- - [基本安装](howtouse/README.md)
    - [Node.js安装](howtouse/nodejsinstall.md)
    - [Gitbook安装](howtouse/gitbookinstall.md)
