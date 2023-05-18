@@ -54,7 +54,7 @@ yarn bootstrap
     - [编辑器使用引擎创建场景](./依赖隔离模式代码/story_before/)
     - [编辑器替换引擎](./依赖隔离模式代码/story_after/)
     - [使用依赖隔离模式来改进](./依赖隔离模式代码/story_improve/)
-    - [抽象代码](./依赖隔离模式/role_abstract/)
+    - [抽象代码](./依赖隔离模式代码/role_abstract/)
 
 
 
