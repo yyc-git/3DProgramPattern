@@ -28,6 +28,15 @@ yarn bootstrap
     - [基于组件化的思想改进](./ECS模式代码/story_after/)
     - [使用ECS模式来改进](./ECS模式代码/story_improve/)
     - [抽象代码](./ECS模式代码/ecs_pattern_role_abstract/)
+- 撤销重做模式源码
+    - [使用命令模式实现撤销重做](./撤销重做模式代码/story_before/)
+    - [使用撤销重做模式来改进](./撤销重做模式代码/story_improve/)
+    - [抽象代码](./撤销重做模式代码/redoundo_pattern_role_abstract/)
+- 多线程模式代码源码
+    - [单线程](./多线程模式代码/story_before/)
+    - [使用多线程模式来改进](./多线程模式代码/story_improve/)
+    - [抽象代码](./多线程模式抽象代码/)
+
 
 
 ## 版权许可
