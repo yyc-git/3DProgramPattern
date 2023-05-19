@@ -1,6 +1,12 @@
-# 普通英雄和超级英雄
+---
+sidebar_position: 4
+---
 
-## 需求
+# 第5章 ECS模式
+
+## 普通英雄和超级英雄
+
+### 需求
 
 
 我们需要开发一个游戏，游戏中有两种人物：普通英雄和超级英雄，他们具有下面的行为：
@@ -14,7 +20,7 @@
 - 一个一个地渲染每个超级英雄
 
 
-## 实现思路
+### 实现思路
 
 应该有一个游戏世界，它由多个普通英雄和多个超级英雄组成
 
@@ -22,7 +28,7 @@
 
 
 
-## 给出UML
+### 给出UML
 **领域模型**
 
 
@@ -46,7 +52,7 @@ World是游戏世界，由多个普通英雄和多个超级英雄组成。World�
 一个SuperHero对应一个超级英雄， 维护了该英雄的数据，实现了移动、飞行的行为
 
 
-## 给出代码
+### 给出代码
 
 首先，我们看下Client的代码；  
 然后，我们依次看下Client代码中前两个步骤的代码，它们包括：
@@ -72,7 +78,7 @@ World是游戏世界，由多个普通英雄和多个超级英雄组成。World�
 最后，我们运行Client的代码
 
 
-### Client的代码
+#### Client的代码
 
 Client
 ```ts
@@ -89,7 +95,7 @@ Client首先创建了WorldState，用来保存游戏世界中所有的数据；�
 
 
 
-### 创建WorldState的代码
+#### 创建WorldState的代码
 
 World
 ```ts
@@ -104,7 +110,7 @@ export let createState = (): worldState => {
 createState函数创建了WorldState，它包括两个分别用来保存所有的普通英雄和所有的超级英雄的容器
 
 
-### 创建场景的代码
+#### 创建场景的代码
 
 Client
 ```ts
@@ -181,7 +187,7 @@ SuperHero的create函数创建了一个超级英雄，初始化了它的数据
 
 
 
-### 普通英雄移动的代码
+#### 普通英雄移动的代码
 
 NormalHero
 ```ts
@@ -198,7 +204,7 @@ export let move = (worldState: worldState, normalHero: normalHero): worldState =
 move函数实现了移动的行为逻辑，更新了位置
 
 
-### 超级英雄移动和飞行的代码
+#### 超级英雄移动和飞行的代码
 
 SuperHero
 ```ts
@@ -225,7 +231,7 @@ SuperHero的move函数的逻辑跟NormalHero的move函数的逻辑是一样的
 
 fly函数实现了飞行的行为逻辑。它跟move函数一样，也是更新英雄的position。只是因为两者在计算时使用的速度的算法不一样，所以更新position的幅度不同
 
-### 初始化的代码
+#### 初始化的代码
 
 WorldUtils
 ```ts
@@ -238,7 +244,7 @@ export let init = (worldState) => {
 
 init函数实现了初始化。这里没有任何逻辑，只是进行了打印
 
-### 主循环的代码
+#### 主循环的代码
 
 WorldUtils
 ```ts
@@ -260,7 +266,7 @@ export let loop = (worldState, [update, renderOneByOne, renderInstances]) => {
 loop函数实现了主循环。在主循环的一帧中，首先进行了更新；然后一个一个地渲染了所有的超级英雄；然后一次性批量渲染了所有的普通英雄；最后执行下一帧
 
 
-### 主循环中更新的代码
+#### 主循环中更新的代码
 
 World
 ```ts
@@ -294,7 +300,7 @@ export let update = (superHeroState: superHeroState): superHeroState => {
 它的逻辑跟NormalHero的update是一样的，这是因为两者都使用同样的算法来更新自己的position
 
 
-### 主循环中渲染的代码
+#### 主循环中渲染的代码
 
 World
 ```ts
@@ -315,7 +321,7 @@ renderOneByOne函数实现了超级英雄的渲染，它遍历每个超级英雄
 renderInstances函数实现了普通英雄的渲染，它一次性获得所有的普通英雄，批量渲染
 
 
-### 运行Client的代码
+#### 运行Client的代码
 
 下面，我们运行Client的代码，打印的结果如下：
 ```js
@@ -348,7 +354,7 @@ OneByOne渲染 SuperHero...
 
 
 
-## 提出问题
+### 提出问题
 
 - NormalHero和SuperHero中的update、move函数的逻辑是重复的
 
@@ -357,17 +363,17 @@ OneByOne渲染 SuperHero...
 虽然这两个问题都可以通过继承来解决，即最上面是Hero基类，然后不同种类的Hero层层继承，但是继承的方式很死板，不够灵活
 
 
-# 基于组件化的思想改进
+## 基于组件化的思想改进
 
 
-## 概述解决方案
+### 概述解决方案
 
 
 - 基于组件化的思想，用组合代替继承。具体修改如下：
 
-    - 将人物抽象为GameObject；
-    - 将人物的行为抽象为组件，并把人物的相关数据也移到组件中；
-    - GameObject通过挂载不同的组件，来实现不同的行为
+  - 将人物抽象为GameObject；
+  - 将人物的行为抽象为组件，并把人物的相关数据也移到组件中；
+  - GameObject通过挂载不同的组件，来实现不同的行为
 
 这样就通过GameObject组合不同的组件来代替人物层层继承，从而更加灵活
 
@@ -376,7 +382,7 @@ OneByOne渲染 SuperHero...
 
 
 
-## 给出UML
+### 给出UML
 
 **领域模型**
 
@@ -404,7 +410,7 @@ InstanceComponent没有数据和逻辑，它只是一个标记，用来表示挂
 
 
 
-## 结合UML图，描述如何具体地解决问题
+### 结合UML图，描述如何具体地解决问题
 
 - 现在只需要实现一次Position组件中的update、move函数，然后将它挂载到不同的GameObject中，就可以实现普通英雄和超级英雄的更新、移动的逻辑，从而消除了之前在NormalHero、SuperHero中因共实现了两次的update、move函数而造成的重复代码
 
@@ -413,7 +419,7 @@ InstanceComponent没有数据和逻辑，它只是一个标记，用来表示挂
 通过这样的设计，将行为的逻辑和数据从人物移到了组件中，从而可以通过组合的方式使人物具有多个行为，避免了庞大的人物模块的出现
 
 
-## 给出代码
+### 给出代码
 
 首先，我们看下Client的代码；  
 然后，我们依次看下Client代码中前两个步骤的代码，它们包括：
@@ -438,12 +444,12 @@ InstanceComponent没有数据和逻辑，它只是一个标记，用来表示挂
 最后，我们运行Client的代码
 
 
-### Client的代码
+#### Client的代码
 
 Client的代码跟之前的Client的代码基本上一样，故省略。不一样的地方是_createScene函数中创建场景的方式不一样，这个等会再讨论
 
 
-### 创建WorldState的代码
+#### 创建WorldState的代码
 
 World
 ```ts
@@ -456,7 +462,7 @@ export let createState = (): worldState => {
 
 createState函数创建了WorldState，它保存了一个用来保存所有的gameObject的容器
 
-### 创建场景的代码
+#### 创建场景的代码
 
 Client
 ```ts
@@ -599,7 +605,7 @@ export let addGameObject = (worldState: worldState, [gameObjectState, gameObject
 我们可以看到，组件的state数据中都保存了挂载到的gameObject，这样做的目的是可以通过它来获得挂载到它上的其它组件，从而一个组件可以操作其它挂载的组件
 
 
-### 移动的相关代码
+#### 移动的相关代码
 
 <!-- 组件与GameObject一样，我们将它的数据保存在一个state中，只是不需要索引。所以一个组件就等于一个组件state -->
 
@@ -664,7 +670,7 @@ PositionComponent维护了position数据，提供了它的get、set函数。Velo
 
 
 
-### 飞行的相关代码
+#### 飞行的相关代码
 
 <!-- FlyComponentStateType
 ```ts
@@ -713,12 +719,12 @@ export let fly = (worldState: worldState, flyComponentState: flyComponentState):
 FlyComponent维护了maxVelocity数据，，提供了它的get、set函数。另外，FlyComponent的fly函数实现了飞行的行为逻辑
 
 
-### 初始化和主循环的代码
+#### 初始化和主循环的代码
 
 初始化和主循环的逻辑跟之前一样，故省略代码
 
 
-### 主循环中更新的代码
+#### 主循环中更新的代码
 
 
 <!-- 
@@ -756,7 +762,7 @@ export let update = (positionComponentState: positionComponentState): positionCo
 它的逻辑跟之前的NormalHero和SuperHero中的update函数的逻辑是一样的
 
 
-### 主循环中渲染的代码
+#### 主循环中渲染的代码
 
 
 World
@@ -789,7 +795,7 @@ renderOneByOne函数实现了超级英雄的渲染，它首先得到了所有没
 renderInstances函数实现了普通英雄的渲染，它首先得到了所有挂载了InstanceComponent组件的gameObject；最后批量渲染
 
 
-### 运行Client的代码
+#### 运行Client的代码
 
 下面，我们运行Client的代码，打印的结果如下：
 ```js
@@ -821,7 +827,7 @@ OneByOne渲染 SuperHero...
 因为WorldState的gameObjects中的Key是随机生成的id值，所以每次打印时Key都不一样
 
 
-## 提出问题
+### 提出问题
 
 - 组件的数据分散在各个组件中，性能不好  
 如position数据现在是一对一地分散保存在各个positionComponent组件中（即一个positionComponent组件保存自己的position），那么如果需要遍历所有组件的position数据，则需要遍历所有的positionComponent组件，分别获得它们的position。因为每个positionComponent组件的数据并没有连续地保存在内存中，所以会造成缓存命中丢失，带来性能损失
@@ -838,9 +844,9 @@ OneByOne渲染 SuperHero...
 
 
 
-# 使用ECS模式来改进
+## 使用ECS模式来改进
 
-## 概述解决方案
+### 概述解决方案
 
 <!-- 通过下面的改进来提高性能： -->
 - 基于Data Oriented的思想进行改进  
@@ -876,7 +882,7 @@ GameObject不再有数据和逻辑了，而只是一个全局唯一的id。组�
 - GameObject和组件的数据被移到了Manager中，逻辑则被移到了Manager和System中。其中只操作自己数据的逻辑（如getPosition、setPosition）被移到了Manager中，其它逻辑（通常为行为逻辑，需要操作多种组件）被移到了System中
 - 一种组件的Manager只对该种组件进行操作，而一个System可以对多种组件进行操作
 
-## 给出UML
+### 给出UML
 
 
 **领域模型**
@@ -969,7 +975,7 @@ Manager层：
 
 
 
-## 结合UML图，描述如何具体地解决问题
+### 结合UML图，描述如何具体地解决问题
 
 - 现在各种组件的数据都集中保存在各自Manager的state的buffer（ArrayBuffer）中，遍历同一种组件的所有组件数据即是遍历一个ArrayBuffer。因为ArrayBuffer的数据是连续地保存在内存中的，所以缓存命中不会丢失，从而提高了性能
 
@@ -978,7 +984,7 @@ Manager层：
 
 
 
-## 给出代码
+### 给出代码
 
 
 首先，我们看下Client的代码；  
@@ -1008,7 +1014,7 @@ Manager层：
 最后，我们运行Client的代码
 
 
-### Client的代码
+#### Client的代码
 
 Client
 ```ts
@@ -1021,7 +1027,7 @@ let worldState = World.createState({ positionComponentCount: 10, velocityCompone
 
 Client的代码跟之前的Client的代码基本一样，除了createState函数的参数和_createScene函数中创建场景的方式不一样，这个等会再讨论
 
-### 创建WorldState的代码
+#### 创建WorldState的代码
 
 World
 ```ts
@@ -1046,7 +1052,7 @@ CreateStateSystem的createState函数创建了WorldState，它保存了各个Man
 因为Data Oriented组件的Manager的state在创建时要创建包括该种组件的所有组件数据的ArrayBuffer，需要知道该种组件的最大个数，所以这里的createState函数接收了三种Data Oriented组件的最大个数
 
 
-### 创建ArrayBuffer的代码
+#### 创建ArrayBuffer的代码
 
 我们以PositionComponentManager为例，来看下它的createState函数的相关代码：  
 position_component/ManagerStateType
@@ -1134,7 +1140,7 @@ export let createTypeArrays = (buffer, count) => {
 
 
 
-### 创建场景的代码
+#### 创建场景的代码
 
 Client
 ```ts
@@ -1267,7 +1273,7 @@ InstanceComponentManager的createComponent函数创建了一个instanceComponent
 
 
 
-### 移动的相关代码
+#### 移动的相关代码
 
 
 
@@ -1340,7 +1346,7 @@ export let getPositionIndex = index => index * _getPositionSize()
 通过代码可知，实现“读写PositionComponentManager的ArrayBuffer上的数据”的思路是：  
 因为一个positionComponent的值是ArrayBuffer的索引，所以使用它来读写ArrayBuffer的视图positions中的对应数据
 
-### 飞行的相关代码
+#### 飞行的相关代码
 
 FlySystem
 ```ts
@@ -1368,12 +1374,12 @@ FlySystem的fly函数实现了飞行的行为逻辑
 
 
 
-### 初始化和主循环的代码
+#### 初始化和主循环的代码
 
 初始化和主循环的逻辑跟之前一样，故省略代码
 
 
-### 主循环中更新的代码
+#### 主循环中更新的代码
 
 
 World
@@ -1409,7 +1415,7 @@ export let batchUpdate = (state: state) => {
 batchUpdate函数遍历所有的positionComponent，更新它们的position。更新的逻辑跟之前一样
 
 
-### 主循环中渲染的代码
+#### 主循环中渲染的代码
 
 
 World
@@ -1460,7 +1466,7 @@ RenderInstancesSystem的render函数实现了普通英雄的渲染，它首先�
 
 
 
-### 运行Client的代码
+#### 运行Client的代码
 
 下面，我们运行Client的代码，打印的结果如下：
 ```js
@@ -1488,19 +1494,19 @@ OneByOne渲染 SuperHero...
 - WorldState的positionComponentManagerState的positions有3个连续的值是2、2、2，说明有一个positionComponent组件进行了移动操作；有另外3个连续的值是6、6、6，说明有另外一个positionComponent组件进行了移动操作和飞行操作；
 
 
-<!-- # 设计意图
+<!-- ## 设计意图
 
 阐明模式的设计目标 -->
 
-# 定义
+## 定义
 
-## 一句话定义
+### 一句话定义
 
 组合代替继承；连续地保存组件数据；分离逻辑和数据
 
 
 
-## 补充说明
+### 补充说明
 
 “组合代替继承”是指基于组件化思想，通过GameObject组合不同的组件代替GameObject层层继承
 
@@ -1513,12 +1519,12 @@ OneByOne渲染 SuperHero...
 提出System、Manager、Component+GameObject这三层，其中System层实现行为逻辑，Manager层维护数据，Component+GameObject层的组件和GameObject只是一个扁平的number类型的索引或者id值 -->
 
 
-## 通用UML
+### 通用UML
 **领域模型**
 
 ![领域模型图](./role_abstract/UML.png)
 
-<!-- ## 分析角色 -->
+<!-- ### 分析角色 -->
 
 <!-- 我们来看看模式的相关角色： -->
 
@@ -1632,7 +1638,7 @@ Component+GameObject层：
 
 
 
-## 角色的抽象代码
+### 角色的抽象代码
 
 下面我们来看看各个角色的抽象代码：
 
@@ -1658,7 +1664,7 @@ Component+GameObject层：
 - OtherComponent的抽象代码
 
 
-### 用户的抽象代码
+#### 用户的抽象代码
 Client
 ```ts
 let _createScene = (worldState: worldState): worldState => {
@@ -1681,7 +1687,7 @@ worldState = World.init(worldState)
 
 World.loop(worldState)
 ```
-### World的抽象代码
+#### World的抽象代码
 World
 ```ts
 export let createState = CreateStateSystem.createState
@@ -1713,7 +1719,7 @@ export let loop = (worldState: worldState) => {
 }
 ```
 
-### CreateStateSystem的抽象代码
+#### CreateStateSystem的抽象代码
 CreateStateSystem
 ```ts
 export let createState = ({ dataOrientedComponent1Count }): worldState => {
@@ -1727,7 +1733,7 @@ export let createState = ({ dataOrientedComponent1Count }): worldState => {
 }
 ```
 
-### OtherSystem的抽象代码
+#### OtherSystem的抽象代码
 OtherSystem1
 ```ts
 export let action = (worldState: worldState, gameObject?: gameObject, dataOrientedComponentX?: dataOrientedComponentX, otherComponentX?: otherComponentX) => {
@@ -1739,7 +1745,7 @@ export let action = (worldState: worldState, gameObject?: gameObject, dataOrient
 
 有多个OtherSystem，这里只给出一个OtherSystem的抽象代码
 
-### GameObjectManager的抽象代码
+#### GameObjectManager的抽象代码
 gameObject/ManagerStateType
 ```ts
 export type state = {
@@ -1774,7 +1780,7 @@ export let getAllGameObjects = (state: state): Array<gameObject> => {
 }
 ```
 
-### DataOrientedComponentManager的抽象代码
+#### DataOrientedComponentManager的抽象代码
 dataoriented_component1/ManagerStateType
 ```ts
 export type TypeArrayType = Float32Array | Uint8Array | Uint16Array | Uint32Array
@@ -1907,7 +1913,7 @@ export let createTypeArrays = (buffer, count) => {
 
 有多个DataOrientedComponentManager，这里只给出一个DataOrientedComponentManager的抽象代码
 
-### OtherComponentManager的抽象代码
+#### OtherComponentManager的抽象代码
 other_component1/ManagerStateType
 ```ts
 export type state = {
@@ -1970,14 +1976,14 @@ export let batchOperate = (state: state) => {
 
 有多个OtherComponentManager，这里只给出一个OtherComponentManager的抽象代码
 
-### GameObject的抽象代码
+#### GameObject的抽象代码
 GameObjectType
 ```ts
 type id = number
 
 export type gameObject = id
 ```
-### DataOrientedComponent的抽象代码
+#### DataOrientedComponent的抽象代码
 DataOrientedComponent1Type
 ```ts
 type index = number
@@ -1988,7 +1994,7 @@ export type component = index
 
 有多个DataOrientedComponent，这里只给出一个DataOrientedComponent的抽象代码
 
-### OtherComponent的抽象代码
+#### OtherComponent的抽象代码
 OtherComponent1Type
 ```ts
 type id = number
@@ -2000,7 +2006,7 @@ export type component = id
 
 
 
-## 遵循的设计原则在UML中的体现
+### 遵循的设计原则在UML中的体现
 
 ECS模式主要遵循下面的设计原则：
 
@@ -2018,9 +2024,9 @@ World、System、Manager、Component+GameObject这几个层只能上层依赖下
 
 
 
-# 应用
+## 应用
 
-## 优点
+### 优点
 
 - 组件的数据集中连续地保存在ArrayBuffer中，增加了缓存命中，提高了读写的性能
 
@@ -2035,7 +2041,7 @@ World、System、Manager、Component+GameObject这几个层只能上层依赖下
 因为一个行为对应一个System，所以要增加一个行为，则只需增加一个对应的System即可，这不会影响到Manager。另外，因为System只有逻辑没有数据，所以增加和维护System很容易
 
 
-## 缺点
+### 缺点
 
 - 需要转换为函数式编程的思维  
 习惯面向对象编程的同学倾向于设计一个包括数据和逻辑的组件类，而ECS模式则将其扁平化为一个值对象，这符合函数式编程中一切都是数据的思维模式。  
@@ -2045,16 +2051,16 @@ World、System、Manager、Component+GameObject这几个层只能上层依赖下
 
 <!-- - 实现起来比较复杂 -->
 
-## 使用场景
+### 使用场景
 
-### 场景描述
+#### 场景描述
 
 <!-- 有很多或者很复杂的行为的游戏或者应用 -->
 
 游戏的场景中有很多种类的人物，人物的行为很多或者很复杂
 
 
-### 具体案例
+#### 具体案例
 
 - 有很多种类的游戏人物  
 通过挂载不同的组件到GameObject，来实现不同种类的游戏人物，代替继承
@@ -2066,23 +2072,23 @@ World、System、Manager、Component+GameObject这几个层只能上层依赖下
 
 
 
-## 注意事项
+### 注意事项
 
 - 因为组件的ArrayBuffer一旦在创建后，它的大小就不会改动，所以最好在创建时指定足够大的最大组件个数
 
 
-<!-- # 扩展 -->
+<!-- ## 扩展 -->
 
 
-# 结合其它模式
+## 结合其它模式
 
-## 结合多线程模式
+### 结合多线程模式
 
 如果引擎开了多个线程，那么可以将组件的ArrayBuffer改为SharedArrayBuffer。这样的话就可以将其直接共享到各个线程中而不需要拷贝，从而提高了性能
 
 
 
-## 结合管道模式
+### 结合管道模式
 
 如果引擎使用了管道模式，那么可以去掉System，而使用管道的Job来代替。其中一个Job就是一个System
 
@@ -2090,21 +2096,21 @@ World、System、Manager、Component+GameObject这几个层只能上层依赖下
 
 
 <!-- 
-## 使用场景是什么？
-## UML如何变化？
-## 代码如何变化？ -->
+### 使用场景是什么？
+### UML如何变化？
+### 代码如何变化？ -->
 
 
 
 
-# 最佳实践
+## 最佳实践
 
-## 哪些场景不需要使用模式
+### 哪些场景不需要使用模式
 
 如果游戏的人物种类很少，行为简单，那么就可以使用最开始给出的人物模块的方案，即使用一个人物模块对应一种人物，并通过继承实现多种人物，这样最容易实现
 
 
-<!-- ## 给出具体的实践案例 -->
+<!-- ### 给出具体的实践案例 -->
 
 <!-- 对于GeometryComponent组件，它的ArrayBuffer会保存顶点数据，如顶点、法线之类的数据。
 
@@ -2123,7 +2129,7 @@ TODO explain reallocate geometry vertices
 
 
 
-# 更多资料推荐
+## 更多资料推荐
 
 ECS的概念最先是由“守望先锋”游戏的开发者提出的，详细资料可以在网上搜索“《守望先锋》架构设计和网络同步”
 
