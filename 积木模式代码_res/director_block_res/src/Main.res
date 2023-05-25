@@ -27,20 +27,19 @@ let rec _loop = (
 }
 
 let getBlockService: Block_manager_res.BlockManagerType.getBlockService<
-  DependentMapType.dependentBlockProtocolNameMap,
   Director_block_protocol_res.ServiceType.service,
-> = (api, {sceneManagerBlockProtocolName, renderBlockProtocolName}) => {
+> = api => {
   init: blockManagerState => {
     let sceneManagerService: SceneManager_block_protocol_res.ServiceType.service = api.getBlockService(
       blockManagerState,
-      sceneManagerBlockProtocolName,
+      "sceneManager_block_protocol_res",
     )
 
     let blockManagerState = sceneManagerService.init(blockManagerState)
 
     let renderService: Render_block_protocol_res.ServiceType.service = api.getBlockService(
       blockManagerState,
-      renderBlockProtocolName,
+      "render_block_protocol_res",
     )
 
     let blockManagerState = renderService.init(blockManagerState)
@@ -48,7 +47,7 @@ let getBlockService: Block_manager_res.BlockManagerType.getBlockService<
     blockManagerState
   },
   loop: blockManagerState => {
-    _loop(api, blockManagerState, sceneManagerBlockProtocolName, renderBlockProtocolName)
+    _loop(api, blockManagerState, "sceneManager_block_protocol_res", "render_block_protocol_res")
   },
 }
 
@@ -56,11 +55,4 @@ let createBlockState: Block_manager_res.BlockManagerType.createBlockState<
   Director_block_protocol_res.StateType.state,
 > = () => {
   Js.Nullable.null->Obj.magic
-}
-
-let getDependentBlockProtocolNameMap: Block_manager_res.BlockManagerType.getDependentBlockProtocolNameMap<
-  DependentMapType.dependentBlockProtocolNameMap,
-> = () => {
-  sceneManagerBlockProtocolName: "sceneManager_block_protocol_res",
-  renderBlockProtocolName: "render_block_protocol_res",
 }

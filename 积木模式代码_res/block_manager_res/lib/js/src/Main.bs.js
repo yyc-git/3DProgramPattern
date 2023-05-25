@@ -33,12 +33,12 @@ function _buildAPI(param) {
         };
 }
 
-function registerBlock(state, blockProtocolName, getBlockService, dependentBlockProtocolNameMap, blockState) {
-  var state_blockServiceMap = ImmutableHashMap$Commonlib.set(state.blockServiceMap, blockProtocolName, Curry._2(getBlockService, {
+function registerBlock(state, blockProtocolName, getBlockService, blockState) {
+  var state_blockServiceMap = ImmutableHashMap$Commonlib.set(state.blockServiceMap, blockProtocolName, Curry._1(getBlockService, {
             getBlockService: getBlockServiceExn,
             getBlockState: getBlockStateExn,
             setBlockState: setBlockState
-          }, dependentBlockProtocolNameMap));
+          }));
   var state_blockStateMap = state.blockStateMap;
   var state$1 = {
     blockServiceMap: state_blockServiceMap,

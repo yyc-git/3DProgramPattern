@@ -1,12 +1,11 @@
 let getBlockService: Block_manager_res.BlockManagerType.getBlockService<
-  DependentMapType.dependentBlockProtocolNameMap,
   Engine_block_protocol_res.ServiceType.service,
-> = (api, {directorBlockProtocolName, sceneManagerBlockProtocolName}) => {
+> = api => {
   director: {
     init: blockManagerState => {
       let {init}: Director_block_protocol_res.ServiceType.service = api.getBlockService(
         blockManagerState,
-        directorBlockProtocolName,
+        "director_block_protocol_res",
       )
 
       init(blockManagerState)
@@ -14,7 +13,7 @@ let getBlockService: Block_manager_res.BlockManagerType.getBlockService<
     loop: blockManagerState => {
       let {loop}: Director_block_protocol_res.ServiceType.service = api.getBlockService(
         blockManagerState,
-        directorBlockProtocolName,
+        "director_block_protocol_res",
       )
 
       loop(blockManagerState)
@@ -22,20 +21,20 @@ let getBlockService: Block_manager_res.BlockManagerType.getBlockService<
   },
   scene: {
     createScene: blockManagerState => {
-      Js.log(sceneManagerBlockProtocolName)
+      Js.log("sceneManager_block_protocol_res")
       let {createScene}: SceneManager_block_protocol_res.ServiceType.service = api.getBlockService(
         blockManagerState,
-        sceneManagerBlockProtocolName,
+        "sceneManager_block_protocol_res",
       )
 
       let sceneManagerState: SceneManager_block_protocol_res.StateType.state = api.getBlockState(
         blockManagerState,
-        sceneManagerBlockProtocolName,
+        "sceneManager_block_protocol_res",
       )
 
       api.setBlockState(
         blockManagerState,
-        sceneManagerBlockProtocolName,
+        "sceneManager_block_protocol_res",
         createScene(sceneManagerState),
       )
     },
@@ -46,11 +45,4 @@ let createBlockState: Block_manager_res.BlockManagerType.createBlockState<
   Engine_block_protocol_res.StateType.state,
 > = () => {
   Js.Nullable.null->Obj.magic
-}
-
-let getDependentBlockProtocolNameMap: Block_manager_res.BlockManagerType.getDependentBlockProtocolNameMap<
-  DependentMapType.dependentBlockProtocolNameMap,
-> = () => {
-  directorBlockProtocolName: "director_block_protocol_res",
-  sceneManagerBlockProtocolName: "sceneManager_block_protocol_res",
 }

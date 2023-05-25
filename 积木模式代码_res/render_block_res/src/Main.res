@@ -1,21 +1,22 @@
 let getBlockService: Block_manager_res.BlockManagerType.getBlockService<
-  DependentMapType.dependentBlockProtocolNameMap,
   Render_block_protocol_res.ServiceType.service,
-> = (api, {sceneManagerBlockProtocolName, mathBlockProtocolName}) => {
+> = api => {
   init: blockManagerState => {
     Js.log("初始化渲染")
 
     blockManagerState
   },
   render: blockManagerState => {
-    let {getAllGameObjects}: SceneManager_block_protocol_res.ServiceType.service = api.getBlockService(
+    let {
+      getAllGameObjects,
+    }: SceneManager_block_protocol_res.ServiceType.service = api.getBlockService(
       blockManagerState,
-      sceneManagerBlockProtocolName,
+      "sceneManager_block_protocol_res",
     )
 
     let sceneManagerState: SceneManager_block_protocol_res.StateType.state = api.getBlockState(
       blockManagerState,
-      sceneManagerBlockProtocolName,
+      "sceneManager_block_protocol_res",
     )
     let allGameObjects = getAllGameObjects(sceneManagerState)
 
@@ -23,7 +24,7 @@ let getBlockService: Block_manager_res.BlockManagerType.getBlockService<
 
     let {multiplyMatrix}: Math_block_protocol_res.ServiceType.service = api.getBlockService(
       blockManagerState,
-      mathBlockProtocolName,
+      "math_block_protocol_res",
     )
 
     let _ = multiplyMatrix(Obj.magic(1), Obj.magic(1))
@@ -38,11 +39,4 @@ let createBlockState: Block_manager_res.BlockManagerType.createBlockState<
   Render_block_protocol_res.StateType.state,
 > = () => {
   Js.Nullable.null->Obj.magic
-}
-
-let getDependentBlockProtocolNameMap: Block_manager_res.BlockManagerType.getDependentBlockProtocolNameMap<
-  DependentMapType.dependentBlockProtocolNameMap,
-> = () => {
-  sceneManagerBlockProtocolName: "sceneManager_block_protocol_res",
-  mathBlockProtocolName: "math_block_protocol_res",
 }

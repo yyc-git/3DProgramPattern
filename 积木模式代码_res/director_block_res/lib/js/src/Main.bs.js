@@ -13,18 +13,16 @@ function _loop(api, blockManagerState, sceneManagerBlockProtocolName, renderBloc
   Curry._1(renderService.render, blockManagerState$1);
 }
 
-function getBlockService(api, param) {
-  var renderBlockProtocolName = param.renderBlockProtocolName;
-  var sceneManagerBlockProtocolName = param.sceneManagerBlockProtocolName;
+function getBlockService(api) {
   return {
           init: (function (blockManagerState) {
-              var sceneManagerService = Curry._2(api.getBlockService, blockManagerState, sceneManagerBlockProtocolName);
+              var sceneManagerService = Curry._2(api.getBlockService, blockManagerState, "sceneManager_block_protocol_res");
               var blockManagerState$1 = Curry._1(sceneManagerService.init, blockManagerState);
-              var renderService = Curry._2(api.getBlockService, blockManagerState$1, renderBlockProtocolName);
+              var renderService = Curry._2(api.getBlockService, blockManagerState$1, "render_block_protocol_res");
               return Curry._1(renderService.init, blockManagerState$1);
             }),
           loop: (function (blockManagerState) {
-              _loop(api, blockManagerState, sceneManagerBlockProtocolName, renderBlockProtocolName);
+              _loop(api, blockManagerState, "sceneManager_block_protocol_res", "render_block_protocol_res");
             })
         };
 }
@@ -33,16 +31,8 @@ function createBlockState(param) {
   return null;
 }
 
-function getDependentBlockProtocolNameMap(param) {
-  return {
-          sceneManagerBlockProtocolName: "sceneManager_block_protocol_res",
-          renderBlockProtocolName: "render_block_protocol_res"
-        };
-}
-
 exports.requestAnimationFrame = requestAnimationFrame;
 exports._loop = _loop;
 exports.getBlockService = getBlockService;
 exports.createBlockState = createBlockState;
-exports.getDependentBlockProtocolNameMap = getDependentBlockProtocolNameMap;
 /* No side effect */

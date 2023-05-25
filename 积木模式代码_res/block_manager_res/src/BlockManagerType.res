@@ -6,8 +6,6 @@ type blockService
 
 type blockState
 
-type dependentBlockProtocolNameMap
-
 type state = {
   blockServiceMap: CommonlibType.ImmutableHashMapType.t<blockProtocolName, blockService>,
   blockStateMap: CommonlibType.ImmutableHashMapType.t<blockProtocolName, blockState>,
@@ -19,15 +17,6 @@ type api = {
   setBlockState: 'blockState. (state, blockProtocolName, 'blockState) => state,
 }
 
-type getBlockService<'dependentBlockProtocolNameMap, 'blockService> = (
-  api,
-  'dependentBlockProtocolNameMap,
-) => 'blockService
+type getBlockService<'blockService> = api => 'blockService
 
 type createBlockState<'blockState> = unit => 'blockState
-
-type dependentBlockProtocolNameMapKey = string
-
-type getDependentBlockProtocolNameMap<
-  'dependentBlockProtocolNameMap,
-> = unit => 'dependentBlockProtocolNameMap

@@ -1,7 +1,7 @@
 
 
 
-function getBlockService(api, param) {
+function getBlockService(api) {
   return {
           multiplyMatrix: (function (mat1, mat2) {
               console.log("计算");
@@ -14,13 +14,8 @@ function createBlockState(param) {
   return null;
 }
 
-function getDependentBlockProtocolNameMap(param) {
-  return {};
-}
-
 export {
   getBlockService ,
   createBlockState ,
-  getDependentBlockProtocolNameMap ,
 }
 /* No side effect */

@@ -37,26 +37,17 @@ let _buildAPI = (): api => {
   }
 }
 
-// let registerBlock = (
-//   state: state,
-//   blockProtocolName: blockProtocolName,
-//   getBlockService: getBlockService<dependentBlockProtocolNameMap, blockService>,
-//   dependentBlockProtocolNameMap: dependentBlockProtocolNameMap,
-//   blockState: blockState,
-// ): state => {
-
 let registerBlock = (
   state: state,
   blockProtocolName: blockProtocolName,
-  getBlockService: getBlockService<dependentBlockProtocolNameMap, blockService>,
-  dependentBlockProtocolNameMap: dependentBlockProtocolNameMap,
+  getBlockService: getBlockService<blockService>,
   blockState: blockState,
 ): state => {
   let state = {
     ...state,
     blockServiceMap: state.blockServiceMap->Commonlib.ImmutableHashMap.set(
       blockProtocolName,
-      getBlockService(_buildAPI(), dependentBlockProtocolNameMap),
+      getBlockService(_buildAPI()),
     ),
   }
 
