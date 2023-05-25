@@ -8,7 +8,6 @@ export declare function getBlockStateExn<blockState>(state: state, blockProtocol
 
 export declare function setBlockState<blockState>(state: state, blockProtocolName: blockProtocolName, blockState: blockState): state
 
-export declare function registerBlock<blockService, dependentBlockProtocolNameMap, blockState>(state: state, blockProtocolName: blockProtocolName, getBlockService: getBlockService<dependentBlockProtocolNameMap, blockService>,
-    dependentBlockProtocolNameMap: dependentBlockProtocolNameMap,
+export declare function registerBlock<blockService, blockState>(state: state, blockProtocolName: blockProtocolName, getBlockService: getBlockService<blockService>,
     blockState: blockState
 ): state

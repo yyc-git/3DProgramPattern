@@ -1,13 +1,11 @@
-import { getBlockService as getBlockServiceBlockManager, createBlockState as createBlockStateBlockManager, getDependentBlockProtocolNameMap as getDependentBlockProtocolNameMapBlockManager } from "block_manager/src/BlockManagerType"
+import { getBlockService as getBlockServiceBlockManager, createBlockState as createBlockStateBlockManager } from "block_manager/src/BlockManagerType"
 import { service as sceneManagerService } from "sceneManager_block_protocol/src/service/ServiceType"
 import { state as sceneManagerState } from "sceneManager_block_protocol/src/state/StateType"
 import { service as mathService } from "math_block_protocol/src/service/ServiceType"
-import { dependentBlockProtocolNameMap } from "./DependentMapType"
 
 export let getBlockService: getBlockServiceBlockManager<
-	dependentBlockProtocolNameMap,
 	sceneManagerService
-> = (api, { mathBlockProtocolName }) => {
+> = (api) => {
 	return {
 		createScene: (sceneManagerState) => {
 			console.log("创建场景")
@@ -31,7 +29,7 @@ export let getBlockService: getBlockServiceBlockManager<
 			console.log("更新场景")
 
 			//依赖于Math Block Protocol来调用Math Block的服务的multiplyMatrix函数
-			let { multiplyMatrix } = api.getBlockService<mathService>(blockManagerState, mathBlockProtocolName)
+			let { multiplyMatrix } = api.getBlockService<mathService>(blockManagerState, "math_block_protocol")
 
 			let _ = multiplyMatrix(1, 2)
 
@@ -45,11 +43,5 @@ export let createBlockState: createBlockStateBlockManager<
 > = () => {
 	return {
 		allGameObjects: []
-	}
-}
-
-export let getDependentBlockProtocolNameMap: getDependentBlockProtocolNameMapBlockManager = () => {
-	return {
-		"mathBlockProtocolName": "math_block_protocol"
 	}
 }

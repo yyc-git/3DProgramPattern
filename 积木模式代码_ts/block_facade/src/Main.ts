@@ -13,35 +13,30 @@ export let init = (): blockManagerState => {
         blockManagerState,
         "engine_block_protocol",
         EngineBlockImplement.getBlockService,
-        EngineBlockImplement.getDependentBlockProtocolNameMap(),
         EngineBlockImplement.createBlockState()
     )
     blockManagerState = BlockManager.registerBlock(
         blockManagerState,
         "director_block_protocol",
         DirectorBlockImplement.getBlockService,
-        DirectorBlockImplement.getDependentBlockProtocolNameMap(),
         DirectorBlockImplement.createBlockState()
     )
     blockManagerState = BlockManager.registerBlock(
         blockManagerState,
         "sceneManager_block_protocol",
         SceneManagerBlockImplement.getBlockService,
-        SceneManagerBlockImplement.getDependentBlockProtocolNameMap(),
         SceneManagerBlockImplement.createBlockState()
     )
     blockManagerState = BlockManager.registerBlock(
         blockManagerState,
         "render_block_protocol",
         RenderBlockImplement.getBlockService,
-        RenderBlockImplement.getDependentBlockProtocolNameMap(),
         RenderBlockImplement.createBlockState()
     )
     blockManagerState = BlockManager.registerBlock(
         blockManagerState,
         "math_block_protocol",
         MathBlockImplement.getBlockService,
-        MathBlockImplement.getDependentBlockProtocolNameMap(),
         MathBlockImplement.createBlockState()
     )
 

@@ -32,15 +32,13 @@ let _buildAPI = (): api => {
     }
 }
 
-export let registerBlock = <blockService, dependentBlockProtocolNameMap, blockState>(blockManagerState: blockManagerState, blockProtocolName: blockProtocolName, getBlockService: getBlockService<dependentBlockProtocolNameMap, blockService>,
-    dependentBlockProtocolNameMap: dependentBlockProtocolNameMap,
+export let registerBlock = <blockService, blockState>(blockManagerState: blockManagerState, blockProtocolName: blockProtocolName, getBlockService: getBlockService<blockService>,
     blockState: blockState
 ): blockManagerState => {
     blockManagerState = {
         ...blockManagerState,
         blockServiceMap: blockManagerState.blockServiceMap.set(blockProtocolName, getBlockService(
             _buildAPI(),
-            dependentBlockProtocolNameMap
         ))
     }
 

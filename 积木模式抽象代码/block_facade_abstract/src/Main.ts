@@ -10,7 +10,6 @@ export let init = (): blockManagerState => {
         blockManagerState,
         "entry_block_protocol",
         EntryBlock.getBlockService,
-        EntryBlock.getDependentBlockProtocolNameMap(),
         EntryBlock.createBlockState()
     )
 
@@ -18,7 +17,6 @@ export let init = (): blockManagerState => {
         blockManagerState,
         "block1_protocol",
         Block1.getBlockService,
-        Block1.getDependentBlockProtocolNameMap(),
         Block1.createBlockState()
     )
     注册更多的Block...
